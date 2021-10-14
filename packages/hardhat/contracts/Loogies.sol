@@ -9,8 +9,9 @@ import 'base64-sol/base64.sol';
 import "hardhat/console.sol";
 import './HexStrings.sol';
 import './ToColor.sol';
-//learn more: https://docs.openzeppelin.com/contracts/3.x/erc721
+//import './PerlinNoise.sol';
 
+//learn more: https://docs.openzeppelin.com/contracts/3.x/erc721
 // GET LISTED ON OPENSEA: https://testnets.opensea.io/get-listed/step-two
 
 contract Loogies is ERC721Enumerable, Ownable {
@@ -44,6 +45,12 @@ contract Loogies is ERC721Enumerable, Ownable {
 
       return id;
   }
+
+  /*function sampleNoise(int256 x, int256 y) public pure returns (int256) {
+        int n2d = PerlinNoise.noise2d(x, y);
+        return n2d;
+        //int256 n3d = PerlinNoise.noise3d(32768, 32768, 32768);
+  }*/
 
   function tokenURI(uint256 id) public view override returns (string memory) {
       require(_exists(id), "not exist");
@@ -108,7 +115,7 @@ contract Loogies is ERC721Enumerable, Ownable {
         '</g>',
         '<g id="eye2">',
           '<ellipse stroke-width="3" ry="29.5" rx="29.5" id="svg_2" cy="168.5" cx="209.5" stroke="#000" fill="#fff"/>',
-          '<ellipse ry="3.5" rx="3" id="svg_4" cy="169.5" cx="208" stroke-width="3" fill="#000000" stroke="#000"/>',
+          '<ellipse ry="3.5" rx="3" id="svg_4" cy="169.5" cx="208" stroke-width="3" fill="#000000" stroke="#000"/>', 
         '</g>'
       ));
 

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 require("dotenv").config();
 const { utils } = require("ethers");
 const fs = require("fs");
@@ -55,6 +56,8 @@ module.exports = {
   networks: {
     localhost: {
       url: "http://localhost:8545",
+      //blockGasLimit: 0x1fffffffffffff,
+      //allowUnlimitedContractSize: true,
       /*      
         notice no mnemonic here? it will just use account 0 of the hardhat node to deploy
         (you can put in a mnemonic here to set the deployer locally)
@@ -273,7 +276,8 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: false,
-            // runs: 200,
+            runs: 1000,
+            //runs: 200,
           },
         },
       },

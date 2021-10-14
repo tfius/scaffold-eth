@@ -108,14 +108,15 @@ contract LoogieTank is ERC721Enumerable, IERC721Receiver {
 
   function renderLoogies(uint256 _id) internal view returns (string memory) {
     string memory loogieSVG = "";
+    //string memory pos = "";
 
     for (uint8 i = 0; i < loogiesById[_id].length; i++) {
       uint16 blocksTraveled = uint16((block.number-blockAdded[loogiesById[_id][i]])%256);
       uint8 newX;
-      uint8 endX;
+      //uint8 endX;
       uint8 newY;
-      uint8 endY;
-
+      //uint8 endY;
+        /*
       (newX, endX) = newPos(
         // speed in x direction
         int8(uint8(loogies.genes(loogiesById[_id][i])[0])),
@@ -126,14 +127,21 @@ contract LoogieTank is ERC721Enumerable, IERC721Receiver {
         // speed in y direction
         int8(uint8(loogies.genes(loogiesById[_id][i])[1])),
         blocksTraveled,
+        y[loogiesById[_id][i]]); */
+
+      (newX, newY) = newPos(
+        // speed in y direction
+        int8(uint8(loogies.genes(loogiesById[_id][i])[1])),
+        blocksTraveled,
         y[loogiesById[_id][i]]);
 
+      //pos = string(abi.encodePacked(newX.toString(), ' ', newY.toString(), ';', endX.toString(), ' ', endY.toString()));
       loogieSVG = string(abi.encodePacked(
         loogieSVG,
-        '<g>',
-        '<animateTransform attributeName="transform" dur="15s" fill="freeze" type="translate" additive="sum" ',
-        'values="', newX.toString(), ' ', newY.toString(), ';', endX.toString(), ' ', endY.toString(),'"/>',
-        '<animateTransform attributeName="transform" type="scale" additive="sum" values="0.3 0.3"/>',
+        '<g><animateTransform attributeName="transform" dur="15s" fill="freeze" type="translate" additive="sum" values="',
+        //newX.toString(), ' ', newY.toString(), ';', endX.toString(), ' ', endY.toString(), // pos, // 
+        newX.toString(), ' ', newY.toString(), ';', newY.toString(), ' ', newX.toString(), // pos, // 
+        '"/> <animateTransform attributeName="transform" type="scale" additive="sum" values="0.3 0.3"/>',
         loogies.renderTokenById(loogiesById[_id][i]),
         '</g>'));
     }

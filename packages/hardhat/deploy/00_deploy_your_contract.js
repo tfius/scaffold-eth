@@ -1,22 +1,45 @@
+/* eslint-disable prettier/prettier */
 // deploy/00_deploy_your_contract.js
 
 //const { ethers } = require("hardhat");
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
-  const { deploy } = deployments;
+  const { deploy } = deployments
+  // eslint-disable-next-line prettier/prettier
   const { deployer } = await getNamedAccounts();
-  const loogies = await deploy("Loogies", {
+
+  console.log("Deploying NFTCollection"); 
+  const nftCollection = await deploy('NFTCollection', {
+    // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
+    from: deployer,
+    args: ["DataMarketNFT", "DM-C-0"],
+    log: true,
+  })
+
+  console.log("Deploying Datamarket"); 
+  const dataMarket = await deploy('DataMarket', {
+    // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
+    from: deployer,
+    //args: ["DataMarket", "DM", nftCollection.address], //     //args: [ "Hello", ethers.utils.parseEther("1.5") ],
+    args: ["DataMarket", "DM", nftCollection.address],   //     //args: [ "Hello", ethers.utils.parseEther("1.5") ],
+    log: true,
+  })
+  /*
+  console.log("Deploying Loogies"); 
+  const loogies = await deploy('Loogies', {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
     //args: [ "Hello", ethers.utils.parseEther("1.5") ],
     log: true,
-  });
+  })
 
-  const loogieTank = await deploy("LoogieTank",  {
+  console.log("Deploying LoogieTank"); 
+  const loogieTank = await deploy('LoogieTank', {
     from: deployer,
     args: [loogies.address],
     log: true,
-  });
+  })
+  */
 
   /*
     // Getting a previously deployed contract
@@ -53,5 +76,5 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
    LibraryName: **LibraryAddress**
   });
   */
-};
-module.exports.tags = ["Loogies", "LoogieTank"];
+}
+module.exports.tags = ['Loogies', 'LoogieTank']
