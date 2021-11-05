@@ -6,14 +6,16 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
-//import "./NFTCollection.sol";
 import "hardhat/console.sol";  
 
-
+// flash loans into ERC20 
+interface Borrower {
+    function executeOnFlashMint() external;
+}
 interface INFTCollection {
     function mintForUser(address creator, uint256 rank, address to, bytes32 metadataSwarmLocation, bytes32 tokenDataSwarmLocation) external;
-    function allTokensFrom(address _owner) external view returns (uint256[] memory);
+    //function allTokensFrom(address _owner) external view returns (uint256[] memory);
+    function tokenOfOwnerByIndex(address _owner, uint256 _index) external view returns (uint256);
     function ownerOfTokenOfData(bytes32 dataHash) external view returns (address);
     function tokenOfData(bytes32 dataHash) external view returns (uint256);
     function setMinter(address newMinter) external;
@@ -25,6 +27,11 @@ interface INFTCollection {
     function tokenCreator(uint256 tokenId) external view returns (address);
     function tokenAmount(uint256 tokenId) external view returns (uint256);
     function tokenChallenged(uint256 tokenId) external view returns (uint256);
+
+    //templates 
+    function templateAdd(address to, string memory tokenName, uint256 duplicationPrice) external;
+    function templateMint(address to, uint256 fromTokenId, uint256 paymentReceived) external;
+    function getTemplateIndices() external returns (uint256[] memory);
 
     //IERC721Metadata 
     function name() external view returns (string memory);
@@ -46,37 +53,35 @@ interface INFTCollection {
 
 contract DataMarket is Context, IERC20, IERC20Metadata {
     using SafeMath for uint256;
-    address payable contractOwner;
-    address payable contractTresury;
+    address payable public contractOwner;
+    address payable public contractTresury;
+    address public  contractGraphable;
     
     uint256 private constant FEE = 50; // 0.05%
     uint256 private constant FEE_PRECISION = 1e5;
     
-    struct Challenge
+    /*struct Challenge
     {
         bytes32 hash; 
         address issuer; 
         address receiver; 
         uint256 points;
-    }
+    }*/
     
     //uint256 internal                         _contractETHBalance;
     
     mapping(address => uint256) internal     _balances;
     mapping(address => uint256) internal     _imbalances;
-
-
     //mapping(address => uint256) internal     _approvedValidators;
     //mapping(address => address) internal     _validatorsAddedBy; 
     //address[]   private allValidators;
-    
     //mapping(bytes32 => uint256) internal     challenges;
     //Challenge[] private allChallenges;
-
+ 
     INFTCollection[] private collections; 
 
     /* ERC20 */    
-    uint256 private _totalSupply;
+    uint256 private _totalSupply;   
     string private _name;
     string private _symbol;
     //address payable private _nftAddress;
@@ -86,45 +91,56 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
     
     event Bought(uint256 amount);
     event Sold(uint256 amount);
+ 
+    // Borrowed supply
+    uint256 private extraSupply;
+    event FlashMint(address indexed src, uint256 wad);
 
     /* create an ERC20 linked to ERC721 that can create new NFTs and mint them, those NFTS can mint ERC29 for value they have been created for */
-    constructor (string memory name_, string memory symbol_, INFTCollection newCollection) payable {
+    constructor (string memory name_, string memory symbol_/*, INFTCollection newCollection*/) payable {
         _name = name_;
-        _symbol = symbol_;
+        _symbol = symbol_;  
         //_nftAddress = nftAddress_;
         
         contractOwner = payable(address(0)); //msg.sender);
-        contractTresury = payable(address(0)); //payable(msg.sender);
+        contractTresury = payable(address(0)); //payable(msg.sender); 
+        contractGraphable = address(0);
         //addValidator(msg.sender, 1, address(0)); 
-
         //addCollection(name_, string(abi.encodePacked(symbol_, "C", collections.length)));
-        addCollection(newCollection);
+        //collectionAdd(newCollection); 
     }
 
-
-
     /* Get Collection at index*/
-    function getCollection(uint256 index) public view returns (INFTCollection) {
-        require(index<collections.length,"!collection");
+    function collectionGet(uint256 index) public view returns (INFTCollection) {
+        require(index<collections.length,"!collection"); 
         return collections[index];
     }
     /* Return all collections of this DataMarket*/
-    function getCollections() public view virtual returns (INFTCollection[] memory) {
+    function collectionGetAll() public view virtual returns (INFTCollection[] memory) {
         return collections;
     }
     //function addCollection(string memory name_, string memory symbol_) public returns (INFTCollection) {
-    function addCollection(INFTCollection newCollection) public returns (INFTCollection) {
+    function collectionAdd(INFTCollection newCollection) public returns (INFTCollection) {
         //INFTCollection newCollection = new INFTCollection(name_, string(abi.encodePacked(symbol_, "C", collections.length)));
         newCollection.setMinter(address(this)); // only if this contract can be a minter for collection 
         collections.push(newCollection); 
         return newCollection;
     }
-  
-    /* Owner can mint one token at the time*/
-    function collectOne(uint256 collectionIndex, uint256 tokenId) public {
+    /* find collection by name, return index where found collection is or -1 if not found */
+    function collectionFind(string memory collectionName) public view returns (int) {
+        for(uint i=0;i<collections.length;i++)
+        {
+           INFTCollection NFT = (collections[i]);
+           if(compareStrings(NFT.name(), collectionName) ) return int(i);
+        }
+        return -1;
+    }
+
+    /* Owner can mint one token at the time*/ 
+    function mineOne(uint256 collectionIndex, uint256 tokenId) public {
         require(_minted[collectionIndex][tokenId]==false,"Already minted"); 
-        INFTCollection NFT = getCollection(collectionIndex); 
-        require(NFT.tokenChallenged(tokenId)==0,"challenged"); 
+        INFTCollection NFT = collectionGet(collectionIndex); 
+        //require(NFT.tokenChallenged(tokenId)==0,"challenged"); 
         address tokenOwner = NFT.ownerOf(tokenId);
         require(tokenOwner==msg.sender,"!owner"); 
         uint256 amount = NFT.tokenAmount(tokenId);  
@@ -133,36 +149,37 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
         _imbalances[NFT.tokenCreator(tokenId)] -= amount; // reduce imbalance, dusting balance can occur if tokenId was challanged and slashed
     } 
     /* Owner mints all available tokens */
-    function collectAll(uint256 collectionIndex) public {
-        INFTCollection NFT = getCollection(collectionIndex); 
+    function mineAll(uint256 collectionIndex) public {
+        INFTCollection NFT = collectionGet(collectionIndex); 
         uint256 amount = 0; 
         if(NFT.balanceOf(msg.sender)>0)
         {
-          uint256[] memory tokens = NFT.allTokensFrom(msg.sender);
-          for(uint256 i=0;i<tokens.length;i++)
+          //uint256[] memory tokens = NFT.allTokensFrom(msg.sender);
+          uint256 numTokens = NFT.balanceOf(msg.sender);
+          for(uint256 i=0;i<numTokens;i++)
           {
-              uint256 tokenId = tokens[i];  
+              uint256 tokenId = NFT.tokenOfOwnerByIndex(msg.sender,i); 
               if(_minted[collectionIndex][tokenId]==false && NFT.tokenChallenged(tokenId)==0)
               {
                 uint256 tokenValue = NFT.tokenAmount(tokenId);  
                 _minted[collectionIndex][tokenId] = true;
                 _imbalances[NFT.tokenCreator(tokenId)] -= (tokenValue); // dusting balance 
                 amount += tokenValue;
-              }
+              } 
           }
           _mint(msg.sender, amount);
         }        
     }
     /* @dev amount available to mint */
-    function collectInfo(uint256 collectionIndex, address account) public view returns (uint256) {
-        INFTCollection NFT = getCollection(collectionIndex); 
+    function mineInfo(uint256 collectionIndex, address account) public view returns (uint256) {
+        INFTCollection NFT = collectionGet(collectionIndex); 
         uint256 amount = 0; 
-        if(NFT.balanceOf(account)>0)
+        uint256 numTokens = NFT.balanceOf(account);
+        if(numTokens>0)
         {
-          uint256[] memory tokens = NFT.allTokensFrom(account);
-          for(uint256 i=0;i<tokens.length;i++)
+          for(uint256 i=0;i<numTokens;i++)
           {
-              uint256 tokenId = tokens[i]; 
+              uint256 tokenId = NFT.tokenOfOwnerByIndex(msg.sender, i); 
               if(_minted[collectionIndex][tokenId]==false && NFT.tokenChallenged(tokenId)==0)
                   amount += NFT.tokenAmount(tokenId);
           }
@@ -203,7 +220,7 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
     }    
     /* See {IERC20-totalSupply}. */
     function totalSupply() public view virtual override returns (uint256) {
-        return _totalSupply;
+        return _totalSupply.add(extraSupply);
     }
     /* get balance for account */
     function balanceOf(address account) public view virtual override returns (uint256) {
@@ -257,7 +274,6 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
 
         //INFTCollection NFT = INFTCollection(_nftAddress); 
         //require(NFT.balanceOf(sender)>0, "ERC20: no transfer without nft"); // if sender has NFT
-
         //_beforeTokenTransfer(sender, recipient, amount); 
 
         uint256 senderBalance = _balances[sender];
@@ -291,7 +307,7 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
         require(spender != address(0), "ERC20: approve to the zero address");
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
-    }
+    }  
     /*function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { 
         
     }*/
@@ -359,6 +375,18 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
     function salvageTokenBalanceOf(address _address) public view returns (uint256) {
         return IERC20(_address).balanceOf(address(this));
     }
+
+    /* Set graphable contract address */
+    function setGraphable(address graphableContract) public 
+    {
+         if(contractGraphable==address(0))
+        {
+            contractGraphable = graphableContract;
+            return;
+        }
+        require(msg.sender==contractOwner,"!owner");
+        contractGraphable = (graphableContract);
+    }  
     /* set treasury receiver */
     function setTreasury(address newTreasury) public  {
         if(contractTresury==address(0))
@@ -373,7 +401,7 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
     function getTreasury() public view returns (address) {
         return contractTresury;
     }
-    function setOwner(address newOwner) public {
+    function setOwner(address newOwner) public { 
         if(contractOwner==address(0))
         {
             contractOwner = payable(newOwner);
@@ -383,12 +411,32 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
         contractOwner = payable(newOwner);
     }
 
-    
+    function templatesGet(uint256 collectionIndex) public returns (uint256[] memory )
+    {
+        INFTCollection NFT = collectionGet(collectionIndex); 
+        return NFT.getTemplateIndices();
+    }
+    function templatesInCollectionCreate(uint256 collectionIndex, string[] memory namesOfTemplates, uint256[] memory prices) public
+    {
+        INFTCollection NFT = collectionGet(collectionIndex); 
+
+        for(uint i=0;i<namesOfTemplates.length;i++)
+        {
+            NFT.templateAdd(address(this), namesOfTemplates[i], prices[i]);
+        }
+    }
+    function templatesMintFrom(address to, uint256 collectionIndex, uint256 mintFromTemplateTokenId) public payable
+    {
+        INFTCollection NFT = collectionGet(collectionIndex); 
+        NFT.templateMint(to, mintFromTemplateTokenId, msg.value);
+        buy();
+    }
+
     /* Create a token with token amount at metadatalocation and data location on swarm*/
     function createDataToken(uint256 collectionIndex, address to, uint256 forTokenAmount, bytes32 metadataSwarmLocation, bytes32 tokenDataSwarmLocation) public {
          //_burn(msg.sender, forTokenAmount); 
          require(_balances[msg.sender] >= forTokenAmount, "ERC20: amount exceeds balance");
-         INFTCollection NFT = getCollection(collectionIndex); 
+         INFTCollection NFT = collectionGet(collectionIndex); 
 
          _balances[msg.sender] -= (forTokenAmount);
          _imbalances[msg.sender] += (forTokenAmount); 
@@ -396,8 +444,37 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
     }
     function collectionMetadata(uint256 collectionIndex) public view returns (bytes32)
     {
-        INFTCollection NFT = getCollection(collectionIndex); 
+        INFTCollection NFT = collectionGet(collectionIndex); 
         return NFT.getMetadata();
+    }
+
+    function compareStrings(string memory a, string memory b) public view returns (bool) {
+        return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
+    }
+
+    // https://twitter.com/recmo/status/1229171153597386752
+    // "Anyone can be rich for an instant." -> https://github.com/Austin-Williams/flash-mintable-tokens
+    // this is dangeraous as fuck and maybe should not be included, flash loan any amount of DMs that exists and do whatever you want as long as you return 
+    // https://github.com/Austin-Williams/flash-mintable-tokens/blob/master/FlashWETH/FlashWETH.sol
+    function flash(uint256 amount) public {
+        require(_balances[msg.sender].mul(2)<amount, ">2x balance"); 
+        require(amount<_totalSupply, "too much");
+
+         // mint tokens
+        _mint(msg.sender, amount);
+        //_balances[msg.sender] = _balances[msg.sender].add(amount);
+        extraSupply = extraSupply.add(amount);
+
+        Borrower(msg.sender).executeOnFlashMint(); 
+
+        //uint minusFee = send.sub( send.mul( fee ).div( 1e9 ) );
+
+        // burn tokens
+        _burn(msg.sender, amount); // reverts if `msg.sender` does not have enough fWETH
+        //_balances[msg.sender] = _balances[msg.sender].sub(amount);
+        extraSupply = extraSupply.sub(amount);
+
+        emit FlashMint(msg.sender, amount);
     }
 
     /*
@@ -515,3 +592,28 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
         return allChallenges[index];
     } */
 }
+
+/*
+// A commented version of https://twitter.com/zozuar/status/1443012484189888515 by https://twitter.com/User2E32 
+
+// r = probably screen resolution, o = output color, g = ray depth into the scene
+// FC.xy = which pixel we are on
+float i,e,f,s,g,k=.01;
+for(o++;i++<100;){// go upto 100 steps with the ray
+    s=2.;
+    vec3 p = vec3((FC.xy-r/s)/r.y*g, g-s); // defining ray direction
+    p.yz *= rotate2D(-.8); // rotate the camera/ray downwards
+    p.z += t;// fly forward over time
+    e=f=p.y
+    // compute the terrain height and fog density at this xz coordinate
+    for(;s<200;s*=1.0/0.6){
+        // the position also serves as a source for the seed: higher octaves just use a more-quickly changing noise function
+        p.xz *= rotate2D(s);
+        // generate two random numbers: fog density, and terrain height
+        e+=abs(dot(sin(p*s)/s,p-p+.4));// fog density, because it contains y
+        f+=abs(dot(sin(p.xz*s*.6)/s, vec2(1.0)));// terrain height
+    }
+    o += (f > k*k ? e : -exp(-f*f))*o*k;// when the terrain is hit, add terrain color, otherwise add fog color
+    g += min(f,max(.03,e))*.3 // go deeper, but at max go to the terrain
+}
+*/

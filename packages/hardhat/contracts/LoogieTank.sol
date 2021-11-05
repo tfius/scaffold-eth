@@ -138,10 +138,10 @@ contract LoogieTank is ERC721Enumerable, IERC721Receiver {
       //pos = string(abi.encodePacked(newX.toString(), ' ', newY.toString(), ';', endX.toString(), ' ', endY.toString()));
       loogieSVG = string(abi.encodePacked(
         loogieSVG,
-        '<g><animateTransform attributeName="transform" dur="15s" fill="freeze" type="translate" additive="sum" values="',
+        '<g><animateTransform attributeName="transform" dur="15s" fill="freeze" type="translate" additive="sum" repeatCount="indefinite" values="',
         //newX.toString(), ' ', newY.toString(), ';', endX.toString(), ' ', endY.toString(), // pos, // 
         newX.toString(), ' ', newY.toString(), ';', newY.toString(), ' ', newX.toString(), // pos, // 
-        '"/> <animateTransform attributeName="transform" type="scale" additive="sum" values="0.3 0.3"/>',
+        '"/> <animateTransform attributeName="transform" type="scale" additive="sum" values="0.3 0.3" dur="15s" repeatCount="indefinite"/>',
         loogies.renderTokenById(loogiesById[_id][i]),
         '</g>'));
     }

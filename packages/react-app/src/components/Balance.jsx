@@ -65,15 +65,15 @@ export default function Balance(props) {
     <span
       style={{
         verticalAlign: "middle",
-        fontSize: props.size ? props.size : 24,
-        padding: 8,
+        fontSize: props.size ? props.size : 12,
+        padding: 0,
         cursor: "pointer",
       }}
       onClick={() => {
         setDollarMode(!dollarMode);
       }}
     >
-      {displayBalance}
+     &nbsp; {displayBalance}
     </span>
   );
 }

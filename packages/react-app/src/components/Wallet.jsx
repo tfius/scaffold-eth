@@ -70,7 +70,7 @@ export default function Wallet(props) {
           padding: 7,
           color: props.color ? props.color : "",
           cursor: "pointer",
-          fontSize: 28,
+          fontSize: 16,
           verticalAlign: "middle",
         }}
       />

@@ -25,8 +25,20 @@ import { useContractConfig } from "./hooks";
 import Portis from "@portis/web3";
 import Fortmatic from "fortmatic";
 import Authereum from "authereum";
+import { SendOutlined } from "@ant-design/icons";
+import Balance from "./components/Balance";
+import { Select } from "antd";
 
-const { ethers } = require("ethers");
+//import SwarmLocationInput from "./parts/SwarmLocationInput.jsx";
+import DataMinter from "./parts/DataMinter.jsx";
+import TeamsMinter from "./parts/TeamsMinter.jsx";
+import MembershipMinter from "./parts/MembershipMinter.jsx";
+import SponsorshipMinter from "./parts/SponsorshipMinter.jsx";
+import AllegianceMinter from "./parts/AllegianceMinter.jsx";
+import ContractABIs from "./contracts/hardhat_contracts.json";
+
+//const { ethers } = require("ethers");
+import { ethers } from "ethers";
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -159,6 +171,8 @@ const web3Modal = new Web3Modal({
   },
 });
 
+
+
 function App(props) {
   const mainnetProvider =
     poktMainnetProvider && poktMainnetProvider._isProvider
@@ -182,7 +196,6 @@ function App(props) {
 
   /* 💵 This hook will get the price of ETH from 🦄 Uniswap: */
   const price = useExchangeEthPrice(targetNetwork, mainnetProvider);
-
   /* 🔥 This hook will get the price of Gas from ⛽️ EtherGasStation */
   const gasPrice = useGasPrice(targetNetwork, "fast");
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
@@ -208,24 +221,18 @@ function App(props) {
 
   // The transactor wraps transactions and provides notificiations
   const tx = Transactor(userSigner, gasPrice);
-
   // Faucet Tx can be used to send funds from the faucet
   const faucetTx = Transactor(localProvider, gasPrice);
-
   // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
   const yourLocalBalance = useBalance(localProvider, address);
-
   // Just plug in different 🛰 providers to get your balance on different chains:
   const yourMainnetBalance = useBalance(mainnetProvider, address);
-
   const contractConfig = useContractConfig();
-
+  //console.log("contractConfig", contractConfig);
   // Load in your local 📝 contract and read a value from it:
   const readContracts = useContractLoader(localProvider, contractConfig);
-
   // If you want to make 🔐 write transactions to your contracts, use the userSigner:
   const writeContracts = useContractLoader(userSigner, contractConfig, localChainId);
-
   // EXTERNAL CONTRACT EXAMPLE:
   //
   // If you want to bring in the mainnet DAI contract it would look like:
@@ -247,42 +254,42 @@ function App(props) {
   //console.log("DM balance:", dmBalance.toString());
   const dmnftBalance = useContractReader(readContracts, "NFTCollection", "balanceOf", [address]);
   //console.log("DMNFT balance:", dmnftBalance.toString());
+  const dmCollections = useContractReader(readContracts, "DataMarket", "collectionGetAll", []);
 
   // 🧠 This effect will update yourCollectibles by polling when your balance changes
-  const yourDmBalance = dmBalance && dmBalance.toNumber && dmBalance.toString();
+  const yourDmBalance = dmBalance && dmBalance.toNumber && dmBalance.toNumber();
   const [yourDMs, setYourDMs] = useState();
-
-  const yourDMNFTBalance = dmnftBalance && dmnftBalance.toNumber && dmnftBalance.toString();
-  const [yourDMNFTs, setYourDMNFTs] = useState();
+  const yourDmNftBalance = dmnftBalance && dmnftBalance.toNumber && dmnftBalance.toNumber();
+  const [yourDmNfts, setYourDmNfts] = useState();
+  const [selectedCollection, setSelectedCollection] = useState(0);
+  const [collectionInformation, setCollectionInformation] = useState({
+    name: "Default Name",
+    description: "Default description",
+    data: "additional data",
+    creator: "Creator Description",
+  });
 
   // 📟 Listen for broadcast events
   const dmTransferEvents = useEventListener(readContracts, "DataMarket", "Transfer", localProvider, 1);
-  console.log("DM Transfer events:", dmTransferEvents);
+  //console.log("DM Transfer events:", dmTransferEvents);
 
   const dmNftTransferEvents = useEventListener(readContracts, "NFTCollection", "Transfer", localProvider, 1);
-  console.log("DMNFT Transfer events:", dmNftTransferEvents);
+  //console.log("DMNFT Transfer events:", dmNftTransferEvents);
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // keep track of a variable from the contract in the local React state:
   const loogieBalance = useContractReader(readContracts, "Loogies", "balanceOf", [address]);
-  console.log("🤗 loogie balance:", loogieBalance);
-
+  //console.log("🤗 loogie balance:", loogieBalance);
   const loogieTankBalance = useContractReader(readContracts, "LoogieTank", "balanceOf", [address]);
-  console.log("🤗 loogie tank balance:", loogieTankBalance);
-
+  //console.log("🤗 loogie tank balance:", loogieTankBalance);
   // 📟 Listen for broadcast events
   const loogieTransferEvents = useEventListener(readContracts, "Loogies", "Transfer", localProvider, 1);
-  console.log("📟 Loogie Transfer events:", loogieTransferEvents);
-
+  //console.log("📟 Loogie Transfer events:", loogieTransferEvents);
   const loogieTankTransferEvents = useEventListener(readContracts, "LoogieTank", "Transfer", localProvider, 1);
-  console.log("📟 Loogie Tank Transfer events:", loogieTankTransferEvents);
-
-  //
+  //console.log("📟 Loogie Tank Transfer events:", loogieTankTransferEvents);
   // 🧠 This effect will update yourCollectibles by polling when your balance changes
-  //
   const yourLoogieBalance = loogieBalance && loogieBalance.toNumber && loogieBalance.toNumber();
   const [yourLoogies, setYourLoogies] = useState();
-
   const yourLoogieTankBalance = loogieTankBalance && loogieTankBalance.toNumber && loogieTankBalance.toNumber();
   const [yourLoogieTanks, setYourLoogieTanks] = useState();
 
@@ -290,17 +297,17 @@ function App(props) {
     const loogieTankUpdate = [];
     for (let tokenIndex = 0; tokenIndex < yourLoogieTankBalance; tokenIndex++) {
       try {
-        console.log("Getting token index", tokenIndex);
+        //console.log("tank Getting token index", tokenIndex);
         const tokenId = await readContracts.LoogieTank.tokenOfOwnerByIndex(address, tokenIndex);
-        console.log("tokenId", tokenId);
+        //console.log("tank tokenId", tokenId);
         const tokenURI = await readContracts.LoogieTank.tokenURI(tokenId);
-        console.log("tokenURI", tokenURI);
+        //console.log("tank tokenURI", tokenURI);
         const jsonManifestString = atob(tokenURI.substring(29));
-        console.log("jsonManifestString", jsonManifestString);
+        //console.log("tank jsonManifestString", jsonManifestString);
 
         try {
           const jsonManifest = JSON.parse(jsonManifestString);
-          console.log("jsonManifest", jsonManifest);
+          //console.log("tank jsonManifest", jsonManifest);
           loogieTankUpdate.push({ id: tokenId, uri: tokenURI, owner: address, ...jsonManifest });
         } catch (e) {
           console.log(e);
@@ -317,13 +324,13 @@ function App(props) {
       const loogieUpdate = [];
       for (let tokenIndex = 0; tokenIndex < yourLoogieBalance; tokenIndex++) {
         try {
-          console.log("Getting token index", tokenIndex);
+          console.log("loggie Getting token index", tokenIndex);
           const tokenId = await readContracts.Loogies.tokenOfOwnerByIndex(address, tokenIndex);
-          console.log("tokenId", tokenId);
+          console.log("loggie tokenId", tokenId);
           const tokenURI = await readContracts.Loogies.tokenURI(tokenId);
-          console.log("tokenURI", tokenURI);
+          console.log("loggie tokenURI", tokenURI);
           const jsonManifestString = atob(tokenURI.substring(29));
-          console.log("jsonManifestString", jsonManifestString);
+          console.log("loggie jsonManifestString", jsonManifestString);
           /*
           const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "");
           console.log("ipfsHash", ipfsHash);
@@ -331,7 +338,7 @@ function App(props) {
         */
           try {
             const jsonManifest = JSON.parse(jsonManifestString);
-            console.log("jsonManifest", jsonManifest);
+            console.log(" loggie jsonManifest", jsonManifest);
             loogieUpdate.push({ id: tokenId, uri: tokenURI, owner: address, ...jsonManifest });
           } catch (e) {
             console.log(e);
@@ -345,6 +352,87 @@ function App(props) {
     };
     updateYourCollectibles();
   }, [address, yourLoogieBalance, yourLoogieTankBalance]);
+
+  /*useEffect(() => {
+    const updateDmCollections = async () => {
+      const loogieUpdate = [];
+      for (let i = 0; i < dmCollections.length; i++) {
+          console.log("collection", i, dmCollections[i]);
+      }
+      //updateLoogieTanks();
+    };
+    updateDmCollections();
+  }, [dmCollections]);*/
+
+  useEffect(() => {
+    const updateYourNFTs = async () => {
+      const listDmNfts = [];
+      console.log("yourDmNftBalance", yourDmNftBalance);
+      for (let tokenIndex = 0; tokenIndex < yourDmNftBalance; tokenIndex++) {
+        try {
+          console.log("dmNft Getting token index", tokenIndex);
+          const tokenId = await readContracts.NFTCollection.tokenOfOwnerByIndex(address, tokenIndex);
+          console.log("dmNft tokenId", tokenId);
+          const tokenURI = JSON.parse(await readContracts.NFTCollection.tokenURI(tokenId));
+          console.log("dmNft tokenURI", tokenURI);
+          try {
+            listDmNfts.push({ id: tokenId, data: tokenURI, owner: address });
+          } catch (e) {
+            console.log(e);
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      }
+      setYourDmNfts(listDmNfts.reverse());
+    };
+    updateYourNFTs();
+  }, [address, yourDmBalance, yourDmNftBalance]);
+
+  useEffect(() => {
+    const updateSelectedCollections = async () => {
+      // create balances for all collections length 
+      /*if (dmnftBalances.length != dmCollections.length) {
+        dmnftBalances = Array.apply(null, Array(dmCollections.length)).map(function (x, i) {
+          return 0;
+        });
+      }*/
+
+      /*
+      //WARNING THIS MIGHT NOT WORK 
+      if (selectedCollection != 0) {
+        const contracts = findPropertyInObject("contracts", contractConfig.deployedContracts);
+
+        const newContractName = "NFTCollection" + selectedCollection; // contractConfig.deployedContracts[31337].localhost.
+        // only if not already added 
+        if (!contracts.hasOwnProperty(newContractName)) {
+          const clone = Object.assign({}, contracts.NFTCollection); // clone object
+          clone.address = dmCollections[selectedCollection]; // replace address
+          contracts[newContractName] = clone; // will be reread from contractconfig
+          //dmnftBalances[selectedCollection] = useContractReader(readContracts, newContractName, "balanceOf", [address]);
+          console.log("selectedCollection", selectedCollection, newNFTCollection); 
+        }
+      }*/
+
+      setCollectionInformation({
+        name: "Name " + selectedCollection,
+        description: "Description can be long or short as long as its UTF-8 string",
+        data: "other data and information to be displayed to end user",
+        creator: "Creator Generator" + selectedCollection, 
+      });
+
+      //console.log("creating balances ", dmnftBalances.length)
+    };
+    updateSelectedCollections();
+  }, [selectedCollection]);
+
+  /*
+  useEffect(() => {
+    const updateCollections = async () => {
+      setSelectedCollection(0);
+    };
+    updateCollections();
+  }, [dmCollections]);*/
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -539,6 +627,10 @@ function App(props) {
   const [transferToAddresses, setTransferToAddresses] = useState({});
   const [transferToTankId, setTransferToTankId] = useState({});
 
+  const [visibleTransfer, setVisibleTransfer] = useState({});
+  const [metadataAddresses, setMetadataAddresses] = useState({});
+  const [locationAddresses, setLocationAddresses] = useState({});
+
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
@@ -546,12 +638,12 @@ function App(props) {
       {networkDisplay}
       <BrowserRouter>
         <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/">
+          <Menu.Item key="/loogies">
             <Link
               onClick={() => {
-                setRoute("/");
+                setRoute("/loogies");
               }}
-              to="/"
+              to="/loogies"
             >
               Loogies
             </Link>
@@ -587,6 +679,27 @@ function App(props) {
             </Link>
           </Menu.Item>
 
+          <Menu.Item key="/graphable">
+            <Link
+              onClick={() => {
+                setRoute("/graphable");
+              }}
+              to="/graphable"
+            >
+              Graphable
+            </Link>
+          </Menu.Item>
+
+          <Menu.Item key="/ex">
+            <Link
+              onClick={() => {
+                setRoute("/ex");
+              }}
+              to="/ex"
+            >
+              Exchange
+            </Link>
+          </Menu.Item>
           <Menu.Item key="/dm">
             <Link
               onClick={() => {
@@ -607,15 +720,69 @@ function App(props) {
               NFTCollection
             </Link>
           </Menu.Item>
-
-          <Menu.Item key="/datamarket">
+        </Menu>
+        <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
+          <Menu.Item key="/">
             <Link
               onClick={() => {
-                setRoute("/datamarket");
+                setRoute("/");
               }}
-              to="/datamarket"
+              to="/"
             >
-              DataMarket
+              Home
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/membershipminter">
+            <Link
+              onClick={() => {
+                setRoute("/membershipminter");
+              }}
+              to="/membershipminter"
+            >
+              Membership
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/sponsorshipminter">
+            <Link
+              onClick={() => {
+                setRoute("/sponsorshipminter");
+              }}
+              to="/sponsorshipminter"
+            >
+              Sponsor
+            </Link>
+          </Menu.Item>
+
+          <Menu.Item key="/allegianceminter">
+            <Link
+              onClick={() => {
+                setRoute("/allegianceminter");
+              }}
+              to="/allegianceminter"
+            >
+              Allegiance
+            </Link>
+          </Menu.Item>
+
+          <Menu.Item key="/teamsminter">
+            <Link
+              onClick={() => {
+                setRoute("/teamsminter");
+              }}
+              to="/teamsminter"
+            >
+              Teams
+            </Link>
+          </Menu.Item>
+
+          <Menu.Item key="/dataminter">
+            <Link
+              onClick={() => {
+                setRoute("/dataminter");
+              }}
+              to="/dataminter"
+            >
+              DataMinter
             </Link>
           </Menu.Item>
           <Menu.Item key="/datatoken">
@@ -629,18 +796,34 @@ function App(props) {
             </Link>
           </Menu.Item>
         </Menu>
-
         <Switch>
-          <Route exact path="/">
-            {/*
-                🎛 this scaffolding is full of commonly used components
-                this <Contract/> component will automatically parse your ABI
-                and give you a form to interact with it locally
-            */}
-
+          <Route exact path="/loogies">
             <Contract
               name="Loogies"
               customContract={writeContracts && writeContracts.Loogies}
+              signer={userSigner}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+              contractConfig={contractConfig}
+            />
+          </Route>
+
+          <Route exact path="/graphable">
+            <Contract
+              name="Graphable"
+              customContract={writeContracts && writeContracts.Graphable}
+              signer={userSigner}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+              contractConfig={contractConfig}
+            />
+          </Route>
+
+          <Route exact path="/ex">
+            <Contract
+              name="Exchange"
               signer={userSigner}
               provider={localProvider}
               address={address}
@@ -864,6 +1047,349 @@ function App(props) {
               />
             </div>
 
+            {/* */}
+          </Route>
+
+          <Route exact path="/membershipminter">
+            <MembershipMinter
+                yourDmBalance={yourDmBalance}
+                yourDmNftBalance={yourDmNftBalance}
+                dmCollections={dmCollections}
+                selectedCollection={selectedCollection}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                mainnetProvider={mainnetProvider}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                address={address}
+                userSigner={userSigner}
+                userProviderAndSigner={userProviderAndSigner}
+                setSelectedCollection={setSelectedCollection}
+                collectionInformation={collectionInformation}
+                tx={tx}
+              />
+          </Route>
+          <Route exact path="/sponsorshipminter">
+            <SponsorshipMinter
+                yourDmBalance={yourDmBalance}
+                yourDmNftBalance={yourDmNftBalance}
+                dmCollections={dmCollections}
+                selectedCollection={selectedCollection}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                mainnetProvider={mainnetProvider}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                address={address}
+                userSigner={userSigner}
+                userProviderAndSigner={userProviderAndSigner}
+                setSelectedCollection={setSelectedCollection}
+                collectionInformation={collectionInformation}
+                tx={tx}
+              />
+          </Route>
+
+          <Route exact path="/teamsminter">
+            <TeamsMinter
+                yourDmBalance={yourDmBalance}
+                yourDmNftBalance={yourDmNftBalance}
+                dmCollections={dmCollections}
+                selectedCollection={selectedCollection}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                mainnetProvider={mainnetProvider}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                address={address}
+                userSigner={userSigner}
+                userProviderAndSigner={userProviderAndSigner}
+                setSelectedCollection={setSelectedCollection}
+                collectionInformation={collectionInformation}
+                tx={tx}
+              />
+          </Route>
+          <Route exact path="/allegianceminter">
+            <AllegianceMinter
+                yourDmBalance={yourDmBalance}
+                yourDmNftBalance={yourDmNftBalance}
+                dmCollections={dmCollections}
+                selectedCollection={selectedCollection}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                mainnetProvider={mainnetProvider}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                address={address}
+                userSigner={userSigner}
+                userProviderAndSigner={userProviderAndSigner}
+                setSelectedCollection={setSelectedCollection}
+                collectionInformation={collectionInformation}
+                tx={tx}
+              />
+          </Route>
+
+          <Route exact path="/dataminter">
+            <DataMinter
+              yourDmBalance={yourDmBalance}
+              yourDmNftBalance={yourDmNftBalance}
+              dmCollections={dmCollections}
+              selectedCollection={selectedCollection}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              contractConfig={contractConfig}
+              address={address}
+              userSigner={userSigner}
+              userProviderAndSigner={userProviderAndSigner}
+              setSelectedCollection={setSelectedCollection}
+              collectionInformation={collectionInformation}
+              tx={tx}
+            />
+            {/* <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5 }}>
+              Balance: <strong>{yourDmBalance} DM</strong> &nbsp; You have: <strong>{yourDmNftBalance} NFTs</strong>
+            </div>
+
+            <div style={{ maxWidth: 820, margin: "auto", marginTop: 16, paddingBottom: 16 }}>
+              <Card>
+                <List
+                  bordered
+                  dataSource={dmCollections}
+                  renderItem={item => {
+                    console.log("Collections", item);
+                  }}
+                ></List>
+                <Select
+                  showSearch
+                  value={selectedCollection}
+                  onChange={value => {
+                    console.log(`selected ${value}`);
+                    setSelectedCollection(value);
+                  }}
+                >
+                  {dmCollections
+                    ? dmCollections.map((collection, index) => (
+                        <Option key={collection} value={index}>
+                          {index}: {collection}
+                        </Option>
+                      ))
+                    : null}
+                </Select>
+                <SwarmLocationInput
+                  ensProvider={mainnetProvider}
+                  placeholder="metadata location"
+                  value={metadataAddresses[0]}
+                  onChange={newValue => {
+                    const update = {};
+                    update[0] = newValue;
+                    setMetadataAddresses({ ...metadataAddresses, ...update });
+                  }}
+                />
+                <SwarmLocationInput
+                  ensProvider={mainnetProvider}
+                  placeholder="data location"
+                  value={locationAddresses[0]}
+                  onChange={newValue => {
+                    const update = {};
+                    update[0] = newValue;
+                    setLocationAddresses({ ...locationAddresses, ...update });
+                  }}
+                />
+                <Button
+                  type={"primary"}
+                  onClick={() => {
+                    tx(
+                      writeContracts.DataMarket.createDataToken(
+                        selectedCollection,
+                        address,
+                        0,
+                        metadataAddresses[0],
+                        locationAddresses[0], //
+                      ),
+                    );
+                  }}
+                >
+                  Create
+                </Button>
+              </Card>
+            </div> */}
+            {/* */}
+            <div style={{ width: 820, margin: "auto", paddingBottom: 256 }}>
+              <List
+                bordered
+                dataSource={yourDmNfts}
+                renderItem={item => {
+                  const id = item.id.toNumber();
+                  // console.log("NFT", id);
+                  return (
+                    <List.Item key={id + "_" + item.uri + "_" + item.owner}>
+                      <Card
+                        style={{ margin: 0 }}
+                        title={
+                          <div>
+                            <div style={{ lineHeight: 0.5 }}>
+                              <span style={{ fontSize: 15, marginRight: 8, marginTop: 10 }}>#{item.id.toNumber()}</span>
+                              <span style={{ fontSize: 5, marginRight: 8, marginTop: 1 }}>
+                                <br />
+                                {item.data.creator}
+                              </span>
+                            </div>
+                          </div>
+                        }
+                      >
+                        <div style={{ fontSize: 6, marginRight: 8 }}>Meta:{item.data.meta}</div>
+                        <div style={{ fontSize: 6, marginRight: 8 }}>Data:{item.data.data}</div>
+                        <Balance address={address} provider={localProvider} price={item.data.amount} />
+                        <Button
+                          style={{ display: "flex", position: "relative", right: -90, bottom: -20 }}
+                          onClick={e => {
+                            const update = {};
+                            update[id] = visibleTransfer[id] === undefined ? true : !visibleTransfer[id];
+                            setVisibleTransfer({ ...setVisibleTransfer, ...update });
+                          }}
+                        >
+                          <SendOutlined style={{ fontSize: 16 }} />
+                        </Button>
+                      </Card>
+                      {/* 
+                      <div style={{ display: "flex", position: "relative", right: -20, top: -50 }}>
+                        <Button
+                          onClick={e => {
+                            const update = {};
+                            update[id] = visibleTransfer[id] === undefined ? true : !visibleTransfer[id];
+                            setVisibleTransfer({ ...setVisibleTransfer, ...update });
+                          }}
+                        >
+                          <SendOutlined style={{ fontSize: 16 }} />
+                        </Button>
+                      </div> */}
+
+                      {/* <div style={{ display: "flex", position: "relative", right: -20, top: -80 }}>
+                        <div style={{ fontSize: 6, marginRight: 8 }}>Meta:{item.data.meta}</div>
+                        <div style={{ fontSize: 6, marginRight: 8 }}>Data:{item.data.data}</div>
+                        <br/>
+                      </div> */}
+                      <div style={{ display: "flex", position: "relative", right: -20, top: -50 }}>
+                        {visibleTransfer[id] === true ? (
+                          <div>
+                            {/* owner:{" "}
+                            <Address
+                              address={item.owner}
+                              ensProvider={mainnetProvider}
+                              blockExplorer={blockExplorer}
+                              fontSize={16}
+                            /> */}
+                            <div style={{ display: "flex" }}>
+                              <AddressInput
+                                ensProvider={mainnetProvider}
+                                placeholder="transfer to address"
+                                value={transferToAddresses[id]}
+                                onChange={newValue => {
+                                  const update = {};
+                                  update[id] = newValue;
+                                  setTransferToAddresses({ ...transferToAddresses, ...update });
+                                }}
+                              />
+                              <Button
+                                onClick={() => {
+                                  console.log("writeContracts", writeContracts);
+                                  //debugger;
+                                  tx(writeContracts.NFTCollection.transferFrom(address, transferToAddresses[id], id));
+                                }}
+                              >
+                                Transfer
+                              </Button>
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
+                    </List.Item>
+                  );
+
+                  /*return (
+                    <List.Item key={id + "_" + item.uri + "_" + item.owner}>
+                      <Card
+                        title={
+                          <div>
+                            <span style={{ fontSize: 18, marginRight: 8 }}>{item.name}</span>
+                          </div>
+                        }
+                      >
+                        <img src={item.image} />
+                        <div>{item.description}</div>
+                      </Card>
+
+                      <div>
+                        owner:{" "}
+                        <Address
+                          address={item.owner}
+                          ensProvider={mainnetProvider}
+                          blockExplorer={blockExplorer}
+                          fontSize={16}
+                        />
+                        <AddressInput
+                          ensProvider={mainnetProvider}
+                          placeholder="transfer to address"
+                          value={transferToAddresses[id]}
+                          onChange={newValue => {
+                            const update = {};
+                            update[id] = newValue;
+                            setTransferToAddresses({ ...transferToAddresses, ...update });
+                          }}
+                        />
+                        <Button
+                          onClick={() => {
+                            console.log("writeContracts", writeContracts);
+                            tx(writeContracts.Loogies.transferFrom(address, transferToAddresses[id], id));
+                          }}
+                        >
+                          Transfer
+                        </Button>
+                        <br />
+                        <br />
+                        Transfer to Loogie Tank:{" "}
+                        <Address
+                          address={readContracts.LoogieTank.address}
+                          blockExplorer={blockExplorer}
+                          fontSize={16}
+                        />
+                        <Input
+                          placeholder="Tank ID"
+                          // value={transferToTankId[id]}
+                          onChange={newValue => {
+                            console.log("newValue", newValue.target.value);
+                            const update = {};
+                            update[id] = newValue.target.value;
+                            setTransferToTankId({ ...transferToTankId, ...update });
+                          }}
+                        />
+                        <Button
+                          onClick={() => {
+                            console.log("writeContracts", writeContracts);
+                            console.log("transferToTankId[id]", transferToTankId[id]);
+                            console.log(parseInt(transferToTankId[id]));
+
+                            const tankIdInBytes = "0x" + parseInt(transferToTankId[id]).toString(16).padStart(64, "0");
+                            console.log(tankIdInBytes);
+
+                            tx(
+                              writeContracts.Loogies["safeTransferFrom(address,address,uint256,bytes)"](
+                                address,
+                                readContracts.LoogieTank.address,
+                                id,
+                                tankIdInBytes,
+                              ),
+                            );
+                          }}
+                        >
+                          Transfer
+                        </Button>
+                      </div>
+                    </List.Item>
+                  );*/
+                }}
+              />
+            </div>
             {/* */}
           </Route>
         </Switch>
