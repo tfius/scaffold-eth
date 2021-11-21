@@ -73,7 +73,7 @@ export default function SponsorshipMinter(props) {
   });
 
   /*
-    var collectionName = selectedCollection == 0 ? "NFTCollection" : "NFTCollection" + selectedCollection;
+    var collectionName = selectedCollection == 0 ? "DMCollection" : "DMCollection" + selectedCollection;
     console.log("collectionName", collectionName);
     var nftBalance = useContractReader(readContracts, collectionName, "balanceOf", [address]);
     var yourNftBalance = nftBalance && nftBalance.toNumber && nftBalance.toNumber(); */
@@ -86,11 +86,16 @@ export default function SponsorshipMinter(props) {
   //dmCollections[selectedCollection].nftBalance = useContractReader(readContracts, collectionName, "balanceOf", [address]);
 
   return (
-    <div>
       <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5, lineHeight: 1.5 }}>
         {/* Balance: <strong>{yourDmBalance} DM</strong> <br /> */}
-        <h1>Society Sponsorship</h1>
-        <List bordered>
+        <p>
+          Become sponsor and donate. <br />
+          5% of your sponsorship will go to treasury and rest you will receive <strong>DM</strong>s. <br />
+          In meantime your funds can be used as flash loans by other members. <br />
+          You can liquidate your <strong>DM</strong>
+          <br />
+        </p>
+        {/* <List bordered>
           <List.Item key={"memb2"}>
             <Card>
               <h2>Bronze</h2>
@@ -125,17 +130,7 @@ export default function SponsorshipMinter(props) {
             </Card>
           </List.Item>
           Can be accumulated and are non-transferable.
-        </List>
-
-        <br/>
-        <p>
-          Become sponsor and donate. <br/>
-          0.05% of your sponsorship will go to treasury and rest you will receive <strong>DM</strong>s. <br/>
-          In meantime your funds can be used as flash loans by other members. <br/>
-          You can liquidate your <strong>DM</strong>s back to investment anytime. <br/>
-        </p>
-
+        </List> */}
       </div>
-    </div>
   );
 }

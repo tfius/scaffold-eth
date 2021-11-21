@@ -3,28 +3,24 @@ pragma solidity >=0.8.0 <0.9.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+//import "@openzeppelin/contracts/utils/Strings.sol"; 
+//import "@openzeppelin/contracts/utils/Address.sol"; 
+//import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol"; 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
-import './SwarmAddressable.sol';
-import './LinkableToken.sol';
+import './DMAddressable.sol';
+import './DMLinkable.sol';
 
 // import 'base64-sol/base64.sol';
- 
-
-
-//contract NFTCollection is Context, ERC165, IERC721, IERC721Metadata, ERC721Enumerable, SwarmAddressable {
-contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Metadata, SwarmAddressable, LinkableToken {
-    using SafeMath for uint256;
+contract DMCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Metadata, DMAddressable, DMLinkable {
+    //using SafeMath for uint256;
     using Address for address;
-    using Strings for uint256;
+    //using Strings for uint256;
     using Counters for Counters.Counter;
     
-    address payable contractOwner;
-    address payable contractMinter;
+    address payable public contractOwner;
+    address payable public contractMinter;
 
     // Token name
     string private _name;
@@ -33,7 +29,7 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
     // Price of Symbol
     //uint256 private _creationPrice = 10000000; // 10 gwei
     // Metadata location on swarm
-    bytes32 private collectionMetadataLocation; 
+    bytes32 public collectionMetadataLocation; 
     
     // Mapping from token ID to owner address
     mapping (uint256 => address) private _owners;
@@ -49,28 +45,25 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
     // Mapping from token ID to index of the owner tokens list
     // mapping(uint256 => uint256) internal ownedTokensIndex;    
     // Mapping from owner to number of owned token
-    //mapping (address => uint256) internal ownedTokensCount;
+    // mapping (address => uint256) internal ownedTokensCount;
     
     // Mapping from tokenId to swarm location 
     mapping (uint256 => bytes32) internal _tokenDataLocation;
-    mapping (uint256 => bytes32) internal _metadataLocation;
-
+    mapping (uint256 => bytes32) internal _metadataLocation; 
     mapping (uint256 => address) internal _tokenCreator;
     mapping (uint256 => uint256) internal _tokenAmount;
 
     // mapping (uint256 => uint256) internal _tokenChallenged; // for how much it is challenged
-
-     mapping (uint256 => bytes32) internal _tokenNames;
+    mapping (uint256 => bytes32) internal _tokenNames;
     uint256[] public _tokenTemplates; // once template exists collection can mint only copies of templates
     // mapping (uint256 => uint256) internal _tokenDuplicationPrice;
-
     // Mapping from swarmLocation to tokenId, data hash to tokenId
     mapping (bytes32 => uint256) internal tokenDataToToken;  
     // Mapping from swarmLocation to first claimer, data swarm location to claimer
     // mapping (bytes32 => address) internal swarmLocationToClaimer;    
-    
+
     // Mapping from owner to list of owned token IDs
-    mapping(address => mapping(uint256 => uint256)) private _ownedTokens; 
+    mapping(address => mapping(uint256 => uint256)) private _ownedTokens;  
     // Array with all token ids, used for enumeration
     uint256[] private _allTokens;
     // Mapping from token id to position in the allTokens array
@@ -78,8 +71,23 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
     // Mapping from token id to position in the allTokens array
     mapping(uint256 => uint256) private _allTokensIndex;   
 
-    Counters.Counter private _tokenIdTracker;
-    //uint256 tokenCounter;
+    Counters.Counter private _tokenIdTracker;  
+      
+    bool public nonTransferable = false;
+    uint public finiteCount = 0; // if 0=no finite count, else this defines how many one address can mint 
+    //uint public expiration = 0;
+ 
+    /// title A title that should describe the contract/interface
+    /// author The name of the author
+    /// notice Explain to an end user what this does 
+    /// dev Explain to a developer any extra details
+    
+    function setCollectionParams(bool isNotTransferable, uint isFiniteCount) public {
+        //require(msg.sender==contractOwner && msg.sender==contractMinter,"!o!m");
+        require(msg.sender==contractMinter,"!o!m");
+        nonTransferable = isNotTransferable;
+        finiteCount = isFiniteCount;
+    }
     
     /* @dev Initializes the contract by setting a `name` and a `symbol` to the token collection. */ 
     constructor (string memory name_, string memory symbol_) payable { // payable ? 
@@ -88,7 +96,7 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
         contractOwner = payable(msg.sender);
         contractMinter = payable(address(0)); //payable(msg.sender);// payable(msg.sender);
         _tokenIdTracker.increment(); // we start at 1 
-    }
+    } 
     /* @dev See {IERC721Metadata-name}. */
     function name() public view virtual override returns (string memory) {
         return _name; 
@@ -102,37 +110,38 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
         return _allTokens.length;
     } 
 
-    function getOwner() public view returns (address) {
+    /*function getOwner() public view returns (address) {
         return contractOwner;
-    }
+    }*/ 
+    /*function getMinter() public view returns (address) {
+        return contractMinter;
+    }*/
+    /*function getMetadata() public view returns (bytes32)
+    {
+        return collectionMetadataLocation;
+    }*/ 
     /* @dev Sets new owner and receiver of funds got from creating new tokens */
     function setOwner(address newOwner) public {
-        require(msg.sender==contractOwner,"!own");
+        require(msg.sender==contractOwner,"!o");
         contractOwner = payable(newOwner);
-    }
-    function getMinter() public view returns (address) {
-        return contractMinter;
     }
     /* @dev who can mint new NFTS */
     function setMinter(address newMinter) public {
         if(contractMinter==address(0)) 
         {
-           contractMinter = payable(newMinter);
-           return;
-        }
+           contractMinter = payable(newMinter); 
+           return; 
+        } 
 
-        require(msg.sender==contractOwner && msg.sender==newMinter,"!own!mint");
+        require(msg.sender==contractOwner && msg.sender==contractMinter,"!o!m");
         contractMinter = payable(newMinter);   
     }
     function setMetadata(bytes32 newCollectionMetadataSwarmLocation) public
     {
-        require(msg.sender==contractOwner || msg.sender==contractMinter,"!rights");
+        require(msg.sender==contractOwner || msg.sender==contractMinter,"!o");
         collectionMetadataLocation = newCollectionMetadataSwarmLocation;
-    }
-    function getMetadata() public view returns (bytes32)
-    {
-        return collectionMetadataLocation;
-    }
+    } 
+    
     /* @dev See {IERC165-supportsInterface}. */
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return interfaceId == type(IERC721).interfaceId
@@ -142,14 +151,13 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
     }
     /* @dev See {IERC721-balanceOf}. */
     function balanceOf(address owner) public view virtual override returns (uint256) {
-        require(owner != address(0), "0x0?");
+        require(owner != address(0), "0x");
         return _balances[owner];
     }
     /* @dev See {IERC721-ownerOf}. */
     function ownerOf(uint256 tokenId) public view virtual override returns (address) {
-        address owner = _owners[tokenId];
-        require(owner != address(0), "!existent");
-        return owner;
+        require(_owners[tokenId] != address(0), "!e");
+        return _owners[tokenId];
     } 
     function tokenOfData(bytes32 dataHash) public view virtual returns (uint256) {
         return tokenDataToToken[dataHash]; 
@@ -171,17 +179,17 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
 
     /* @dev See {IERC721Enumerable-tokenByIndex}.*/
     function tokenByIndex(uint256 index) public view virtual override returns (uint256) {
-        require(index < totalSupply(), "!inbounds");
+        require(index < totalSupply(), "!out");
         return _allTokens[index];
     }    
     /* @dev who created token */
     function tokenCreator(uint256 tokenId) public view virtual returns (address) {
-        require(_exists(tokenId), "!existent");
-        return _tokenCreator[tokenId];
+        require(_exists(tokenId), "!e");
+        return _tokenCreator[tokenId]; 
     }
     /* @dev amount in token */
     function tokenAmount(uint256 tokenId) public view virtual returns (uint256) {
-        require(_exists(tokenId), "!existent");
+        require(_exists(tokenId), "!e");
         return _tokenAmount[tokenId];
     }
     /* @dev is token challenged */
@@ -191,24 +199,24 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
     }*/
     /* @dev See {IERC721-approve}. */
     function approve(address to, uint256 tokenId) public virtual override {
-        address owner = NFTCollection.ownerOf(tokenId);
-        require(to != owner, "2owner!");
+        address owner = DMCollection.ownerOf(tokenId);
+        require(to != owner, "!2o");
 
-        require(_msgSender() == owner || NFTCollection.isApprovedForAll(owner, _msgSender()),
-            "caller !own!approve"
+        require(_msgSender() == owner || DMCollection.isApprovedForAll(owner, _msgSender()),
+            "c!own!appr"
         );
 
         _approve(to, tokenId);
     }
     /* @dev See {IERC721-getApproved}. */
     function getApproved(uint256 tokenId) public view virtual override returns (address) {
-        require(_exists(tokenId), "!existent");
+        require(_exists(tokenId), "!e");
 
         return _tokenApprovals[tokenId];
     }
     /* @dev See {IERC721-setApprovalForAll}. */
     function setApprovalForAll(address operator, bool approved) public virtual override {
-        require(operator != _msgSender(), "approve2caller");
+        require(operator != _msgSender(), "c!a"); // not approved
 
         _operatorApprovals[_msgSender()][operator] = approved;
         emit ApprovalForAll(_msgSender(), operator, approved);
@@ -220,7 +228,7 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
     /* @dev See {IERC721-transferFrom}. */
     function transferFrom(address from, address to, uint256 tokenId) public virtual override {
         //solhint-disable-next-line max-line-length
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "caller !own!approve");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "c!o!a");
 
         _transfer(from, to, tokenId);
     }
@@ -230,7 +238,7 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
     }
     /* @dev See {IERC721-safeTransferFrom}.*/
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) public virtual override {
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "caller !own!approve");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "c!o!a");
         _safeTransfer(from, to, tokenId, _data);
     }
     /**
@@ -253,7 +261,7 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
      */
     function _safeTransfer(address from, address to, uint256 tokenId, bytes memory _data) internal virtual {
         _transfer(from, to, tokenId);
-        require(_checkOnERC721Received(from, to, tokenId, _data), "to!ERC721Receiver");
+        require(_checkOnERC721Received(from, to, tokenId, _data), "2!R");
     }
     /**
      * @dev Returns whether `tokenId` exists.
@@ -274,8 +282,8 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
      * - `tokenId` must exist.
      */
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {   
-        require(_exists(tokenId), "nonexistent");
-        address owner = NFTCollection.ownerOf(tokenId);
+        require(_exists(tokenId), "!e");
+        address owner = DMCollection.ownerOf(tokenId);
         return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
     }
     /**
@@ -297,8 +305,8 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
      */
     function _safeMint(address to, uint256 tokenId, bytes memory _data) internal virtual {
         _mint(to, tokenId);
-        require(_checkOnERC721Received(address(0), to, tokenId, _data), "to!ERC721Receiver");
-    }
+        require(_checkOnERC721Received(address(0), to, tokenId, _data), "2!R");
+    } 
     /**
      * @dev Mints `tokenId` and transfers it to `to`.
      *
@@ -308,12 +316,16 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
      *
      * - `tokenId` must not exist.
      * - `to` cannot be the zero address.
-     *
+     * 
      * Emits a {Transfer} event.
-     */
+     */ 
     function _mint(address to, uint256 tokenId) internal virtual {
-        require(to != address(0), "0x0");
-        require(!_exists(tokenId), "minted");
+        require(to != address(0), "0x");
+        require(!_exists(tokenId), "m"); // minted
+
+        if(finiteCount!=0)
+           require(_balances[to]<finiteCount, "2mch");  // limited how much address can have tokens from this collection
+
         _beforeTokenTransfer(address(0), to, tokenId);
 
         _balances[to] += 1;
@@ -333,7 +345,7 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
-        address owner = NFTCollection.ownerOf(tokenId);
+        address owner = DMCollection.ownerOf(tokenId);
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
@@ -409,24 +421,25 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
          // be zero. Then we can make sure that we will remove _tokenId from the ownedTokens list since we are first swapping
          // the lastToken to the first position, and then dropping the element placed in the last position of the list
     
-         _ownedTokensIndex[_tokenId] = 0;
+         _ownedTokensIndex[_tokenId] = 0; 
          _ownedTokensIndex[lastToken] = tokenIndex;
-    }*/ 
-    /**
-     * @dev Transfers `tokenId` from `from` to `to`.
+    }*/   
+    /**  
+     * @dev Transfers `tokenId` from `from` to `to`. 
      *  As opposed to {transferFrom}, this imposes no restrictions on msg.sender.
      *
-     * Requirements:
+     * Requirements: 
      *
      * - `to` cannot be the zero address.
      * - `tokenId` token must be owned by `from`.
      *
      * Emits a {Transfer} event.
-     */
+     */ 
     function _transfer(address from, address to, uint256 tokenId) internal virtual {
-        require(ownerOf(tokenId) == from, "!own");
-        require(to != address(0), "0x0?");
-
+        require(ownerOf(tokenId) == from, "!o");
+        require(to != address(0), "0x?");
+        require(nonTransferable==false,"!tx"); 
+ 
         _beforeTokenTransfer(from, to, tokenId);
 
         // Clear approvals from the previous owner
@@ -448,7 +461,7 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
      */
     function _approve(address to, uint256 tokenId) internal virtual {
         _tokenApprovals[tokenId] = to;
-        emit Approval(NFTCollection.ownerOf(tokenId), to, tokenId);
+        emit Approval(DMCollection.ownerOf(tokenId), to, tokenId);
     }
     /**
      * @dev Internal function to invoke {IERC721Receiver-onERC721Received} on a target address.
@@ -558,7 +571,6 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
     function _removeTokenFromAllTokensEnumeration(uint256 tokenId) private {
         // To prevent a gap in the tokens array, we store the last token in the index of the token to delete, and
         // then delete the last slot (swap and pop).
-
         uint256 lastTokenIndex = _allTokens.length - 1;
         uint256 tokenIndex = _allTokensIndex[tokenId];
 
@@ -597,8 +609,7 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
      * @dev if funds received return back to sender  
     */
     receive () external payable  {  
-       // return funds back to sender 
-       payable(msg.sender).transfer(msg.value); 
+       payable(msg.sender).transfer(msg.value);  // return funds back to sender 
     }
 
 
@@ -610,38 +621,36 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
     
     function setTokenName(uint256 tokenId, string memory tokenName) public 
     {
-        require(_exists(tokenId), "!tok");
-        require(msg.sender==ownerOf(tokenId));
-
+        require(msg.sender==ownerOf(tokenId), "!o");
         _tokenNames[tokenId] = stringToBytes32(tokenName);
-    }
+    } 
     /*
     function getTokenName(uint256 tokenId, string memory tokenName) public view returns (string memory)
     {
         require(_exists(tokenId), "! nonexistent token");
         return bytes32string(_tokenNames[tokenId]);
     }*/    
-    
+     
     /**
      * @dev adds addressable data to tokenId, with triples to,metadata,data
     */
-    function addresableAdd(uint256 tokenId, address to, bytes32 metadataSwarmLocation, bytes32 tokenDataSwarmLocation) public {
-        address owner = ownerOf(tokenId);
-        require(msg.sender==owner, "!own"); // not owner
-        addressablesAdd( tokenId,  to,  metadataSwarmLocation, tokenDataSwarmLocation); 
+    function addresableAdd(uint256 tokenId, address to/*, bytes32 metadataSwarmLocation*/, bytes32 tokenDataSwarmLocation) public {
+        require(msg.sender==ownerOf(tokenId), "!o"); // not owner
+        addressablesAdd( tokenId,  to/*,  metadataSwarmLocation*/, tokenDataSwarmLocation); 
     } 
 
     /* @dev See {IERC721Metadata-tokenURI}.*/
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        require(_exists(tokenId), "nonexistent");
+        require(_exists(tokenId), "!e");
         //string memory json = string(abi.encodePacked('{ "meta": "', bytes32string(_metadataLocation[tokenId]), '"}')); 
-        string memory json = string(abi.encodePacked('{ "meta": "0x', bytes32string(_metadataLocation[tokenId]), 
-                                                     '","data":"0x', bytes32string(_tokenDataLocation[tokenId]), 
-                                                     '","name":"0x', bytes32string(_tokenNames[tokenId]), 
-                                                     '","amount":"', uint2str(_tokenAmount[tokenId]), 
-                                                     '","creator":"0x', addressString(_tokenCreator[tokenId]), 
-                                                     //'","challenge":"', uint2str(_tokenChallenged[tokenId]), 
-                                                     '","owner":"0x', addressString(_owners[tokenId]), '"}')); // return data pairs of all addresses for all tokenIds         
+        return string(abi.encodePacked('{ "m": "0x', bytes32string(_metadataLocation[tokenId]), // metadata
+                                          '","d":"0x', bytes32string(_tokenDataLocation[tokenId]), // data
+                                          '","n":"0x', bytes32string(_tokenNames[tokenId]),  // name
+                                          '","a":"',   uint2str(_tokenAmount[tokenId]),  // amount
+                                          '","c":"0x', addressString(_tokenCreator[tokenId]),  // creator
+                                          //'","challenge":"', uint2str(_tokenChallenged[tokenId]), 
+                                          '","o":"0x', addressString(_owners[tokenId]), '"}'));  // owner
+                                                     // return data pairs of all addresses for all tokenIds         
 
         // return string(
         //     abi.encodePacked(
@@ -661,22 +670,22 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
         //         )
         //     )
         // );
-        return json;
+        // return json;
     }
     /* Get All addresses and their data tied to this to token*/
     function tokenAddressables(uint256 tokenId) public view returns (string memory) {
-        require(_exists(tokenId), "!tok");
-        address owner = ownerOf(tokenId);
-        
-        string memory data = super.addressablesJSON(tokenId);
-        string memory json = string(abi.encodePacked('{ "owner":"', owner, 
-                                                     '","references": ', data, '}'));
-        return json;
+        //require(_exists(tokenId), "!t");
+        //address owner = ownerOf(tokenId);
+        //string memory data = super.addressablesJSON(tokenId);
+        return string(abi.encodePacked('{ "owner":"', ownerOf(tokenId), 
+                                       '","references": ', super.addressablesJSON(tokenId), '}'));
+        //return json;
     }  
-
+ 
     function templateAdd(address to, string memory tokenName, uint256 duplicationPrice) public
     {
-        require(msg.sender==contractOwner || msg.sender==contractMinter, "!own!mint");
+        //require(msg.sender==contractOwner || msg.sender==contractMinter, "!o!m");
+        require(msg.sender==contractMinter, "!o!m");
         //creteNewRefLocation(creator, rank, to, metadataSwarmLocation, tokenDataSwarmLocation); 
         uint256 tokenId = _tokenIdTracker.current(); 
         _mint(to,  tokenId);
@@ -689,17 +698,20 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
 
     function templateMint(address to, uint256 fromTokenId, uint256 paymentReceived) public
     {
-        require(msg.sender==contractOwner || msg.sender==contractMinter, "!own!mint");
+        //require(msg.sender==contractOwner || msg.sender==contractMinter, "!o!m");
+        require(msg.sender==contractMinter, "!o!m");
         require(_tokenAmount[fromTokenId] >= paymentReceived, "!$");
 
+        //require(_tokenTemplates.length>=0, "!temp");
         uint256 tokenId = _tokenIdTracker.current(); 
         _mint(to,  tokenId);
-        _tokenIdTracker.increment();
-        
-        // _tokenNames[tokenId] = _tokenNames[fromTokenId];
 
-        addOrigin(tokenId, address(this), fromTokenId, true);
-        addLink(fromTokenId, address(this), tokenId, true);
+        _tokenIdTracker.increment();
+        _tokenNames[tokenId] = _tokenNames[fromTokenId];
+
+        //addOrigin(tokenId, address(this), fromTokenId, true);
+        addLink(fromTokenId, tokenId, true);
+        addLink(tokenId, fromTokenId, true);
     }
     
     function getTemplateIndices() public view returns (uint256[] memory)
@@ -709,15 +721,17 @@ contract NFTCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Me
 
 
     /* @dev contract can call and create new NFTs */
-    function mintForUser(address creator, uint256 rank, address to, bytes32 metadataSwarmLocation, bytes32 tokenDataSwarmLocation) public
+    function mintForUser(address creator, uint256 amount, address to, bytes32 metadataSwarmLocation, bytes32 tokenDataSwarmLocation) public
     {
-        require(_tokenTemplates.length==0, "!template");
-        require(msg.sender==contractOwner || msg.sender==contractMinter, "!own!mint");
-        creteNewRefLocation(creator, rank, to, metadataSwarmLocation, tokenDataSwarmLocation);
+        require(_tokenTemplates.length==0, "!tmpl");
+
+        require(msg.sender==contractOwner || msg.sender==contractMinter, "!o!m");
+        creteNewRefLocation(creator, amount, to, metadataSwarmLocation, tokenDataSwarmLocation);
     }
 
     function creteNewRefLocation(address creator, uint256 amount, address to, bytes32 metadataSwarmLocation, bytes32 tokenDataSwarmLocation) internal {
-        require(tokenDataToToken[tokenDataSwarmLocation]==0, "Claimed "); // should be never claimed before 
+        require(tokenDataToToken[tokenDataSwarmLocation]==0, "claim"); // should be never claimed before 
+        
         // uint256 tokenId = uint256(keccak256(abi.encodePacked(msg.sender))); // maybe we want different Id
         uint256 tokenId = _tokenIdTracker.current(); 
         _mint(to, tokenId);

@@ -13,34 +13,25 @@ import { Select, Button, Card, Col, Input, List, Menu, Row } from "antd";
 //const { ethers } = require("ethers");
 import { ethers } from "ethers";
 
+const { utils, BigNumber } = require("ethers");
+
 import SwarmLocationInput from "./SwarmLocationInput";
+import { debuggerStatement } from "@babel/types";
+import * as helpers from "./helpers";
+import DMTViewer from "./DMTViewer";
 
-const makeCall = async (callName, contract, args, metadata = {}) => {
-  if (contract[callName]) {
-    let result;
-    if (args) {
-      result = await contract[callName](...args, metadata);
-    } else {
-      result = await contract[callName]();
-    }
-    return result;
+/*
+function bytes32ToString(bytes32 _bytes32) public pure returns (string memory) {
+  uint8 i = 0;
+  while(i < 32 && _bytes32[i] != 0) {
+      i++;
   }
-  return undefined;
-  console.log("no call of that name!");
-};
-// deep find
-function findPropertyInObject(propertyName, object) {
-  if (object === undefined) return null;
-  if (object.hasOwnProperty(propertyName)) return object[propertyName];
-
-  for (var i = 0; i < Object.keys(object).length; i++) {
-    if (typeof object[Object.keys(object)[i]] == "object") {
-      var o = findPropertyInObject(propertyName, object[Object.keys(object)[i]]);
-      if (o != null) return o;
-    }
+  bytes memory bytesArray = new bytes(i);
+  for (i = 0; i < 32 && _bytes32[i] != 0; i++) {
+      bytesArray[i] = _bytes32[i];
   }
-  return null;
-}
+  return string(bytesArray);
+}*/
 
 export default function MembershipMinter(props) {
   const [visibleTransfer, setVisibleTransfer] = useState([]);
@@ -72,65 +63,56 @@ export default function MembershipMinter(props) {
     if (dmCollections === undefined) return;
   });
 
-  /*
-  var collectionName = selectedCollection == 0 ? "NFTCollection" : "NFTCollection" + selectedCollection;
-  console.log("collectionName", collectionName);
-  var nftBalance = useContractReader(readContracts, collectionName, "balanceOf", [address]);
-  var yourNftBalance = nftBalance && nftBalance.toNumber && nftBalance.toNumber(); */
-  //var yourNftBalance = 0;
-
   useEffect(() => {
     updateNFTBalance();
   }, [selectedCollection]);
 
-  //dmCollections[selectedCollection].nftBalance = useContractReader(readContracts, collectionName, "balanceOf", [address]);
-
   return (
-    <div>
-      <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5, lineHeight: 1.5 }}>
-        {/* Balance: <strong>{yourDmBalance} DM</strong> <br /> */}
-        <h1>Society Membership</h1>
-        <List bordered>
-          <List.Item key={"memb2"}>
-            <Card>
-              <h2>Patron</h2>
-              Participant committing more than 0.5 ETH will receive a Patron membership class NFT <br />
-              <hr />
-                Access private metaverse<br />
-                Some events free<br />
+    <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5, lineHeight: 1.5 }}>
+      <p>
+        Become a Member. <br />
+        0.05% of your Membership will go to treasury and rest you will receive <strong>DM</strong>s. <br />
+        In meantime your funds can be used as flash loans by other members. <br />
+        You can liquidate your <strong>DM</strong>s anytime and keep Membership.
+        Only members can join groups. <br />
+      </p>
+      {/* <List bordered>
+            <List.Item key={"memb1"}>
+              <Card bordered>
+                <h2>Metier</h2>
+                <hr />
+                Public
                 <br />
+                27 members <br />
+                Fair Data Society
+              </Card>
+              <Card>
+                <h2>Evolve</h2>
+                <hr />
+                Currated
                 <br />
-            </Card>
-            <Card>
-              <h2>Mecene</h2>
-              Participant committing more than 1 ETH will receive a Mecene membership class NFT <br />
-              <hr />
-                Access VIP metaverse<br />
-                Private sales access<br />
-                Many events free<br />
+                8 members <br />
+                Fair Data Society
+              </Card>
+              <Card>
+                <h2>Trendsetter</h2>
+                <hr />
+                Public
                 <br />
-            </Card>
-            <Card>
-              <h2>Curator</h2>
-              Participant committing more than 5 ETH will receive a Curator membership class NFT <br />
-              <hr />
-                Access all metaverse<br/>
-                All events free<br/>
-                Private sales access<br/>
-                Curation access<br/>
-            </Card>
-          </List.Item>
-          Can NOT be accumulated and are non-transferable.
-        </List>
-
-        <br/>
-        <p>
-          Become a member. <br/>
-          0.05% of your membership will go to treasury and rest you will receive <strong>DM</strong>s. <br/>
-          In meantime your funds can be used as flash loans by other members. <br/>
-          You can liquidate your <strong>DM</strong>s anytime. <br/>
-        </p>
-      </div>
+                10 members <br />
+                Fair Data Society
+              </Card>
+              <Card>
+                <h2>Fearless</h2>
+                <hr />
+                Public
+                <br />
+                8 members <br />
+                Fair Data Society
+              </Card>
+            </List.Item>
+            Can be accumulated but are non-transferable.
+          </List> */}
     </div>
   );
 }

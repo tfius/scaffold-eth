@@ -74,22 +74,22 @@ export default function DataMinter(props) {
   const updateNFTBalance = useCallback(async () => {
     if (dmCollections === undefined) return;
 
-    //debugger;
+    ///debugger;
     const contracts = findPropertyInObject("contracts", contractConfig.deployedContracts);
-    const nftCollectionContract = new ethers.Contract(
+    const dmCollectionContract = new ethers.Contract(
       dmCollections[selectedCollection],
-      contracts.NFTCollection.abi,
+      contracts.DMCollection.abi,
       localProvider,
     );
 
-    if (nftCollectionContract != null) {
-      var newBalance = await makeCall("balanceOf", nftCollectionContract, [address]);
+    if (dmCollectionContract != null) {
+      var newBalance = await makeCall("balanceOf", dmCollectionContract, [address]);
       if (newBalance != undefined) setYourNftBalance(newBalance.toNumber());
-      //yourNftBalance = await nftCollectionContract["balanceOf"](address);
+      //yourNftBalance = await dmCollectionContract["balanceOf"](address);
       console.log(newBalance);
 
-      var name = await makeCall("name", nftCollectionContract);
-      var symbol = await makeCall("symbol", nftCollectionContract);
+      var name = await makeCall("name", dmCollectionContract);
+      var symbol = await makeCall("symbol", dmCollectionContract);
 
       setCollectionName(name);
       setCollectionSymbol(symbol);
@@ -97,7 +97,7 @@ export default function DataMinter(props) {
   });
 
   /*
-  var collectionName = selectedCollection == 0 ? "NFTCollection" : "NFTCollection" + selectedCollection;
+  var collectionName = selectedCollection == 0 ? "DMCollection" : "DMCollection" + selectedCollection;
   console.log("collectionName", collectionName);
   var nftBalance = useContractReader(readContracts, collectionName, "balanceOf", [address]);
   var yourNftBalance = nftBalance && nftBalance.toNumber && nftBalance.toNumber(); */
@@ -112,7 +112,8 @@ export default function DataMinter(props) {
   return (
     <div>
       <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5, lineHeight: 1.2 }}>
-        Balance: <strong>{yourDmBalance} DM</strong> - Avatars: <strong>{yourDmNftBalance}</strong> 
+        Balance: <strong> {ethers.utils.formatEther(yourDmBalance)} DM</strong> - Avatars:{" "}
+        <strong>{yourDmNftBalance}</strong>
         <Card>
           <h2>{collectionInformation.name}</h2>
           {collectionInformation.description} <br />
@@ -121,10 +122,8 @@ export default function DataMinter(props) {
           </span>
           <span style={{ fontSize: 10, marginRight: 8 }}>{collectionInformation.creator}</span>
           <br />
-
-          
         </Card>
-         <strong>{yourNftBalance}</strong> Tokens in {collectionName} ({collectionSymbol}):
+        <strong>{yourNftBalance}</strong> Tokens in {collectionName} ({collectionSymbol}):
       </div>
 
       <div style={{ maxWidth: 820, margin: "auto", marginTop: 16, paddingBottom: 16 }}>

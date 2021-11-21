@@ -30,12 +30,15 @@ import Balance from "./components/Balance";
 import { Select } from "antd";
 
 //import SwarmLocationInput from "./parts/SwarmLocationInput.jsx";
+import Farm from "./parts/Farm.jsx";
+import TemplatesMinter from "./parts/TemplatesMinter.jsx";
 import DataMinter from "./parts/DataMinter.jsx";
 import TeamsMinter from "./parts/TeamsMinter.jsx";
+import GroupsMinter from "./parts/GroupsMinter.jsx";
 import MembershipMinter from "./parts/MembershipMinter.jsx";
 import SponsorshipMinter from "./parts/SponsorshipMinter.jsx";
 import AllegianceMinter from "./parts/AllegianceMinter.jsx";
-import ContractABIs from "./contracts/hardhat_contracts.json";
+//import ContractABIs from "./contracts/hardhat_contracts.json";
 
 //const { ethers } = require("ethers");
 import { ethers } from "ethers";
@@ -171,8 +174,6 @@ const web3Modal = new Web3Modal({
   },
 });
 
-
-
 function App(props) {
   const mainnetProvider =
     poktMainnetProvider && poktMainnetProvider._isProvider
@@ -244,20 +245,23 @@ function App(props) {
     updateLoogieTanks();
   });
 
+  const myMainnetDAIBalance = 0;
+/*
   // Then read your DAI balance like:
   const myMainnetDAIBalance = useContractReader(mainnetContracts, "DAI", "balanceOf", [
     "0x34aA3F359A9D614239015126635CE7732c18fDF3",
   ]);
-
+*/
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   const dmBalance = useContractReader(readContracts, "DataMarket", "balanceOf", [address]);
   //console.log("DM balance:", dmBalance.toString());
-  const dmnftBalance = useContractReader(readContracts, "NFTCollection", "balanceOf", [address]);
+  const dmnftBalance = useContractReader(readContracts, "DMCollection", "balanceOf", [address]);
   //console.log("DMNFT balance:", dmnftBalance.toString());
   const dmCollections = useContractReader(readContracts, "DataMarket", "collectionGetAll", []);
 
   // 🧠 This effect will update yourCollectibles by polling when your balance changes
-  const yourDmBalance = dmBalance && dmBalance.toNumber && dmBalance.toNumber();
+  //const yourDmBalance = dmBalance && dmBalance.toNumber && dmBalance.toNumber();
+  const yourDmBalance = dmBalance && dmBalance.toString && dmBalance.toString();
   const [yourDMs, setYourDMs] = useState();
   const yourDmNftBalance = dmnftBalance && dmnftBalance.toNumber && dmnftBalance.toNumber();
   const [yourDmNfts, setYourDmNfts] = useState();
@@ -273,7 +277,7 @@ function App(props) {
   const dmTransferEvents = useEventListener(readContracts, "DataMarket", "Transfer", localProvider, 1);
   //console.log("DM Transfer events:", dmTransferEvents);
 
-  const dmNftTransferEvents = useEventListener(readContracts, "NFTCollection", "Transfer", localProvider, 1);
+  const dmNftTransferEvents = useEventListener(readContracts, "DMCollection", "Transfer", localProvider, 1);
   //console.log("DMNFT Transfer events:", dmNftTransferEvents);
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -371,9 +375,9 @@ function App(props) {
       for (let tokenIndex = 0; tokenIndex < yourDmNftBalance; tokenIndex++) {
         try {
           console.log("dmNft Getting token index", tokenIndex);
-          const tokenId = await readContracts.NFTCollection.tokenOfOwnerByIndex(address, tokenIndex);
+          const tokenId = await readContracts.DMCollection.tokenOfOwnerByIndex(address, tokenIndex);
           console.log("dmNft tokenId", tokenId);
-          const tokenURI = JSON.parse(await readContracts.NFTCollection.tokenURI(tokenId));
+          const tokenURI = JSON.parse(await readContracts.DMCollection.tokenURI(tokenId));
           console.log("dmNft tokenURI", tokenURI);
           try {
             listDmNfts.push({ id: tokenId, data: tokenURI, owner: address });
@@ -391,7 +395,7 @@ function App(props) {
 
   useEffect(() => {
     const updateSelectedCollections = async () => {
-      // create balances for all collections length 
+      // create balances for all collections length
       /*if (dmnftBalances.length != dmCollections.length) {
         dmnftBalances = Array.apply(null, Array(dmCollections.length)).map(function (x, i) {
           return 0;
@@ -403,10 +407,10 @@ function App(props) {
       if (selectedCollection != 0) {
         const contracts = findPropertyInObject("contracts", contractConfig.deployedContracts);
 
-        const newContractName = "NFTCollection" + selectedCollection; // contractConfig.deployedContracts[31337].localhost.
+        const newContractName = "DMCollection" + selectedCollection; // contractConfig.deployedContracts[31337].localhost.
         // only if not already added 
         if (!contracts.hasOwnProperty(newContractName)) {
-          const clone = Object.assign({}, contracts.NFTCollection); // clone object
+          const clone = Object.assign({}, contracts.DMCollection); // clone object
           clone.address = dmCollections[selectedCollection]; // replace address
           contracts[newContractName] = clone; // will be reread from contractconfig
           //dmnftBalances[selectedCollection] = useContractReader(readContracts, newContractName, "balanceOf", [address]);
@@ -418,7 +422,7 @@ function App(props) {
         name: "Name " + selectedCollection,
         description: "Description can be long or short as long as its UTF-8 string",
         data: "other data and information to be displayed to end user",
-        creator: "Creator Generator" + selectedCollection, 
+        creator: "Creator Generator" + selectedCollection,
       });
 
       //console.log("creating balances ", dmnftBalances.length)
@@ -678,6 +682,19 @@ function App(props) {
               Mint Loogie Tank
             </Link>
           </Menu.Item>
+        </Menu>
+
+        <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
+          <Menu.Item key="/markable">
+            <Link
+              onClick={() => {
+                setRoute("/markable");
+              }}
+              to="/markable"
+            >
+              Markable
+            </Link>
+          </Menu.Item>
 
           <Menu.Item key="/graphable">
             <Link
@@ -717,7 +734,28 @@ function App(props) {
               }}
               to="/dmnft"
             >
-              NFTCollection
+              Collection
+            </Link>
+          </Menu.Item>
+
+          <Menu.Item key="/goldinar">
+            <Link
+              onClick={() => {
+                setRoute("/goldinar");
+              }}
+              to="/goldinar"
+            >
+              Goldinar
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/goldinarfarm">
+            <Link
+              onClick={() => {
+                setRoute("/goldinarfarm");
+              }}
+              to="/goldinarfarm"
+            >
+              Farm
             </Link>
           </Menu.Item>
         </Menu>
@@ -732,16 +770,6 @@ function App(props) {
               Home
             </Link>
           </Menu.Item>
-          <Menu.Item key="/membershipminter">
-            <Link
-              onClick={() => {
-                setRoute("/membershipminter");
-              }}
-              to="/membershipminter"
-            >
-              Membership
-            </Link>
-          </Menu.Item>
           <Menu.Item key="/sponsorshipminter">
             <Link
               onClick={() => {
@@ -750,6 +778,16 @@ function App(props) {
               to="/sponsorshipminter"
             >
               Sponsor
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/membershipminter">
+            <Link
+              onClick={() => {
+                setRoute("/membershipminter");
+              }}
+              to="/membershipminter"
+            >
+              Membership
             </Link>
           </Menu.Item>
 
@@ -772,6 +810,17 @@ function App(props) {
               to="/teamsminter"
             >
               Teams
+            </Link>
+          </Menu.Item>
+
+          <Menu.Item key="/groupsminter">
+            <Link
+              onClick={() => {
+                setRoute("/groupsminter");
+              }}
+              to="/groupsminter"
+            >
+              Groups
             </Link>
           </Menu.Item>
 
@@ -808,11 +857,42 @@ function App(props) {
               contractConfig={contractConfig}
             />
           </Route>
+          <Route exact path="/">
+            <Farm
+              yourDmBalance={yourDmBalance}
+              yourDmNftBalance={yourDmNftBalance}
+              dmCollections={dmCollections}
+              selectedCollection={0}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              contractConfig={contractConfig}
+              address={address}
+              userSigner={userSigner}
+              userProviderAndSigner={userProviderAndSigner}
+              setSelectedCollection={setSelectedCollection}
+              collectionInformation={collectionInformation}
+              tx={tx}
+              title="Farm"
+            />
+          </Route>
 
           <Route exact path="/graphable">
             <Contract
               name="Graphable"
-              customContract={writeContracts && writeContracts.Graphable}
+              customContract={writeContracts && writeContracts.DMGraphable}
+              signer={userSigner}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+              contractConfig={contractConfig}
+            />
+          </Route>
+          <Route exact path="/markable">
+            <Contract
+              name="Markable"
+              customContract={writeContracts && writeContracts.DMMarkable}
               signer={userSigner}
               provider={localProvider}
               address={address}
@@ -843,7 +923,30 @@ function App(props) {
           </Route>
           <Route exact path="/dmnft">
             <Contract
-              name="NFTCollection"
+              name="Collection"
+              customContract={writeContracts && writeContracts.DMCollection}
+              signer={userSigner}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+              contractConfig={contractConfig}
+            />
+          </Route>
+          <Route exact path="/goldinar">
+            <Contract
+              name="Goldinar"
+              customContract={writeContracts && writeContracts.Goldinar}
+              signer={userSigner}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+              contractConfig={contractConfig}
+            />
+          </Route>
+          <Route exact path="/goldinarfarm">
+            <Contract
+              name="Goldinar Farm"
+              customContract={writeContracts && writeContracts.GoldinarFarm}
               signer={userSigner}
               provider={localProvider}
               address={address}
@@ -1051,81 +1154,195 @@ function App(props) {
           </Route>
 
           <Route exact path="/membershipminter">
+            <TemplatesMinter
+              yourDmBalance={yourDmBalance}
+              yourDmNftBalance={yourDmNftBalance}
+              dmCollections={dmCollections}
+              selectedCollection={0}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              contractConfig={contractConfig}
+              gasPrice={gasPrice}
+              address={address}
+              userSigner={userSigner}
+              userProviderAndSigner={userProviderAndSigner}
+              setSelectedCollection={setSelectedCollection}
+              collectionInformation={collectionInformation}
+              tx={tx}
+              title="Society Membership"
+            />
             <MembershipMinter
-                yourDmBalance={yourDmBalance}
-                yourDmNftBalance={yourDmNftBalance}
-                dmCollections={dmCollections}
-                selectedCollection={selectedCollection}
-                readContracts={readContracts}
-                writeContracts={writeContracts}
-                mainnetProvider={mainnetProvider}
-                localProvider={localProvider}
-                contractConfig={contractConfig}
-                address={address}
-                userSigner={userSigner}
-                userProviderAndSigner={userProviderAndSigner}
-                setSelectedCollection={setSelectedCollection}
-                collectionInformation={collectionInformation}
-                tx={tx}
-              />
+              yourDmBalance={yourDmBalance}
+              yourDmNftBalance={yourDmNftBalance}
+              dmCollections={dmCollections}
+              selectedCollection={0}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              contractConfig={contractConfig}
+              gasPrice={gasPrice}
+              address={address}
+              userSigner={userSigner}
+              userProviderAndSigner={userProviderAndSigner}
+              setSelectedCollection={setSelectedCollection}
+              collectionInformation={collectionInformation}
+              tx={tx}
+              title="Society Membership"
+            />
           </Route>
           <Route exact path="/sponsorshipminter">
+            <TemplatesMinter
+              yourDmBalance={yourDmBalance}
+              yourDmNftBalance={yourDmNftBalance}
+              dmCollections={dmCollections}
+              selectedCollection={1}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              contractConfig={contractConfig}
+              address={address}
+              userSigner={userSigner}
+              userProviderAndSigner={userProviderAndSigner}
+              setSelectedCollection={setSelectedCollection}
+              collectionInformation={collectionInformation}
+              tx={tx}
+              title="Society Sponsorship"
+            />
             <SponsorshipMinter
-                yourDmBalance={yourDmBalance}
-                yourDmNftBalance={yourDmNftBalance}
-                dmCollections={dmCollections}
-                selectedCollection={selectedCollection}
-                readContracts={readContracts}
-                writeContracts={writeContracts}
-                mainnetProvider={mainnetProvider}
-                localProvider={localProvider}
-                contractConfig={contractConfig}
-                address={address}
-                userSigner={userSigner}
-                userProviderAndSigner={userProviderAndSigner}
-                setSelectedCollection={setSelectedCollection}
-                collectionInformation={collectionInformation}
-                tx={tx}
-              />
+              yourDmBalance={yourDmBalance}
+              yourDmNftBalance={yourDmNftBalance}
+              dmCollections={dmCollections}
+              selectedCollection={0}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              contractConfig={contractConfig}
+              gasPrice={gasPrice}
+              address={address}
+              userSigner={userSigner}
+              userProviderAndSigner={userProviderAndSigner}
+              setSelectedCollection={setSelectedCollection}
+              collectionInformation={collectionInformation}
+              tx={tx}
+              title="Society Membership"
+            />
           </Route>
 
           <Route exact path="/teamsminter">
+            <TemplatesMinter
+              yourDmBalance={yourDmBalance}
+              yourDmNftBalance={yourDmNftBalance}
+              dmCollections={dmCollections}
+              selectedCollection={3}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              contractConfig={contractConfig}
+              address={address}
+              userSigner={userSigner}
+              userProviderAndSigner={userProviderAndSigner}
+              setSelectedCollection={setSelectedCollection}
+              collectionInformation={collectionInformation}
+              tx={tx}
+              title="Join or Create A Team"
+            />
             <TeamsMinter
-                yourDmBalance={yourDmBalance}
-                yourDmNftBalance={yourDmNftBalance}
-                dmCollections={dmCollections}
-                selectedCollection={selectedCollection}
-                readContracts={readContracts}
-                writeContracts={writeContracts}
-                mainnetProvider={mainnetProvider}
-                localProvider={localProvider}
-                contractConfig={contractConfig}
-                address={address}
-                userSigner={userSigner}
-                userProviderAndSigner={userProviderAndSigner}
-                setSelectedCollection={setSelectedCollection}
-                collectionInformation={collectionInformation}
-                tx={tx}
-              />
+              yourDmBalance={yourDmBalance}
+              yourDmNftBalance={yourDmNftBalance}
+              dmCollections={dmCollections}
+              selectedCollection={selectedCollection}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              contractConfig={contractConfig}
+              address={address}
+              userSigner={userSigner}
+              userProviderAndSigner={userProviderAndSigner}
+              setSelectedCollection={setSelectedCollection}
+              collectionInformation={collectionInformation}
+              tx={tx}
+            />
+          </Route>
+          <Route exact path="/groupsminter">
+            <TemplatesMinter
+              yourDmBalance={yourDmBalance}
+              yourDmNftBalance={yourDmNftBalance}
+              dmCollections={dmCollections}
+              selectedCollection={4}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              contractConfig={contractConfig}
+              address={address}
+              userSigner={userSigner}
+              userProviderAndSigner={userProviderAndSigner}
+              setSelectedCollection={setSelectedCollection}
+              collectionInformation={collectionInformation}
+              tx={tx}
+              title="Join or Create A Group"
+            />
+            <GroupsMinter
+              yourDmBalance={yourDmBalance}
+              yourDmNftBalance={yourDmNftBalance}
+              dmCollections={dmCollections}
+              selectedCollection={selectedCollection}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              contractConfig={contractConfig}
+              address={address}
+              userSigner={userSigner}
+              userProviderAndSigner={userProviderAndSigner}
+              setSelectedCollection={setSelectedCollection}
+              collectionInformation={collectionInformation}
+              tx={tx}
+            />
           </Route>
           <Route exact path="/allegianceminter">
+            <TemplatesMinter
+              yourDmBalance={yourDmBalance}
+              yourDmNftBalance={yourDmNftBalance}
+              dmCollections={dmCollections}
+              selectedCollection={2}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              contractConfig={contractConfig}
+              address={address}
+              userSigner={userSigner}
+              userProviderAndSigner={userProviderAndSigner}
+              setSelectedCollection={setSelectedCollection}
+              collectionInformation={collectionInformation}
+              tx={tx}
+              title="Choose Allegiance"
+            />
             <AllegianceMinter
-                yourDmBalance={yourDmBalance}
-                yourDmNftBalance={yourDmNftBalance}
-                dmCollections={dmCollections}
-                selectedCollection={selectedCollection}
-                readContracts={readContracts}
-                writeContracts={writeContracts}
-                mainnetProvider={mainnetProvider}
-                localProvider={localProvider}
-                contractConfig={contractConfig}
-                address={address}
-                userSigner={userSigner}
-                userProviderAndSigner={userProviderAndSigner}
-                setSelectedCollection={setSelectedCollection}
-                collectionInformation={collectionInformation}
-                tx={tx}
-              />
+              yourDmBalance={yourDmBalance}
+              yourDmNftBalance={yourDmNftBalance}
+              dmCollections={dmCollections}
+              selectedCollection={selectedCollection}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              contractConfig={contractConfig}
+              address={address}
+              userSigner={userSigner}
+              userProviderAndSigner={userProviderAndSigner}
+              setSelectedCollection={setSelectedCollection}
+              collectionInformation={collectionInformation}
+              tx={tx}
+            />
           </Route>
 
           <Route exact path="/dataminter">
@@ -1294,7 +1511,7 @@ function App(props) {
                                 onClick={() => {
                                   console.log("writeContracts", writeContracts);
                                   //debugger;
-                                  tx(writeContracts.NFTCollection.transferFrom(address, transferToAddresses[id], id));
+                                  tx(writeContracts.DMCollection.transferFrom(address, transferToAddresses[id], id));
                                 }}
                               >
                                 Transfer

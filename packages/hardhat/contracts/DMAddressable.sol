@@ -1,40 +1,39 @@
 //SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
-contract SwarmAddressable {
+contract DMAddressable {
     // Mapping from address to location 
     mapping (uint256 => address[]) internal _addressesWithData;
-    mapping (uint256 => mapping (address => bytes32)) internal _addressMetadata;
+    //mapping (uint256 => mapping (address => bytes32)) internal _addressMetadata;
     mapping (uint256 => mapping (address => bytes32)) internal _addressData;
 
     /* @dev See if address has access to data and get it's referenced data location */
     function addresables(uint256 tokenId) public view returns (address[] memory) {
         return _addressesWithData[tokenId];
-    }
-
+    }  
+ 
     /* @dev creates a new reference with data for 'to' for metadata and data location */
-    function addressablesAdd(uint256 tokenId, address to, bytes32 metadataSwarmLocation, bytes32 tokenDataSwarmLocation) internal virtual {
+    function addressablesAdd(uint256 tokenId, address to, /*bytes32 metadataSwarmLocation, */ bytes32 tokenDataSwarmLocation) internal virtual {
         if(_addressData[tokenId][to]==0) // does not exist  
            _addressesWithData[tokenId].push(to); //
 
         // should minting be split between all addresses ? 
-        _addressMetadata[tokenId][to] = tokenDataSwarmLocation;
-        _addressData[tokenId][to]  = metadataSwarmLocation;  
+        //_addressMetadata[tokenId][to] = metadataSwarmLocation;
+        _addressData[tokenId][to]  = tokenDataSwarmLocation;  
     }
     /* @dev returns array of data */
     function addressablesJSON(uint256 tokenId) internal virtual view returns (string memory) {
         string memory data = "";
         for(uint256 i=0;i<_addressesWithData[tokenId].length;i++)
-           string(abi.encodePacked(data, '{ "meta":"0x', bytes32string(_addressMetadata[tokenId][_addressesWithData[tokenId][i]]), // metadata information
-                                         '" "data":"0x',  bytes32string(_addressData[tokenId][_addressesWithData[tokenId][i]]),  // data location 
-                                         '" "addr":"0x',  addressString(_addressesWithData[tokenId][i]), // can be collection
+           string(abi.encodePacked(data, '{ "m":"0x', /*bytes32string(_addressMetadata[tokenId][_addressesWithData[tokenId][i]]),*/ // metadata information
+                                         '" "d":"0x', bytes32string(_addressData[tokenId][_addressesWithData[tokenId][i]]),  // data location 
+                                         '" "a":"0x', addressString(_addressesWithData[tokenId][i]), // can be collection
                                          '"}',
                                          //'" "owner":"', owner, '"}',
                                          i<_addressesWithData[tokenId].length-1 ? ',' : ''
                                          )); // return data pairs of all addresses for all tokenIds 
 
-        string memory json = string(abi.encodePacked('[',data,']'));
-        return json;
+        return string(abi.encodePacked('[',data,']')); // return json
     }
 
     function char(bytes1 b) internal pure returns (bytes1 c) {
@@ -51,7 +50,17 @@ contract SwarmAddressable {
             result := mload(add(source, 32))
         }
     }
-
+    /*function bytes32ToString(bytes32 _bytes32) public pure returns (string memory) {
+        uint8 i = 0;
+        while(i < 32 && _bytes32[i] != 0) {
+            i++;
+        }
+        bytes memory bytesArray = new bytes(i);
+        for (i = 0; i < 32 && _bytes32[i] != 0; i++) {
+            bytesArray[i] = _bytes32[i];
+        }
+        return string(bytesArray);
+    }*/
     function bytes32string(bytes32 b32) public pure returns (string memory out) {
         bytes memory s = new bytes(64);
 
