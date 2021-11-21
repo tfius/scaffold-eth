@@ -10,45 +10,16 @@ import {
 import { SendOutlined } from "@ant-design/icons";
 import React, { useCallback, useEffect, useState } from "react";
 import { Select, Button, Card, Col, Input, List, Menu, Row } from "antd";
-//const { ethers } = require("ethers");
 import { ethers } from "ethers";
-
+import * as helpers from "./helpers";
 import SwarmLocationInput from "./SwarmLocationInput";
 
-const makeCall = async (callName, contract, args, metadata = {}) => {
-  if (contract[callName]) {
-    let result;
-    if (args) {
-      result = await contract[callName](...args, metadata);
-    } else {
-      result = await contract[callName]();
-    }
-    return result;
-  }
-  return undefined;
-  console.log("no call of that name!");
-};
-// deep find
-function findPropertyInObject(propertyName, object) {
-  if (object === undefined) return null;
-  if (object.hasOwnProperty(propertyName)) return object[propertyName];
-
-  for (var i = 0; i < Object.keys(object).length; i++) {
-    if (typeof object[Object.keys(object)[i]] == "object") {
-      var o = findPropertyInObject(propertyName, object[Object.keys(object)[i]]);
-      if (o != null) return o;
-    }
-  }
-  return null;
-}
-
 export default function TeamsMinter(props) {
-  const [visibleTransfer, setVisibleTransfer] = useState([]);
-  const [metadataAddresses, setMetadataAddresses] = useState([]);
-  const [locationAddresses, setLocationAddresses] = useState([]);
-  const [yourNftBalance, setYourNftBalance] = useState([]);
-  //const [collectionBalance, setCollectionBalance] = useState([]);
-  //const [value, setValue] = useState(props.value);
+  const [tokenName, setTokenName] = useState("");
+  const [collectionName, setCollectionName] = useState("");
+  const [collectionSymbol, setCollectionSymbol] = useState("");
+  const [contract, setContract] = useState();
+  const [balance, setBalance] = useState(0);
 
   const {
     yourDmBalance,
@@ -68,28 +39,87 @@ export default function TeamsMinter(props) {
     tx,
   } = props;
 
-  const updateNFTBalance = useCallback(async () => {
+  const updateContract = useCallback(async () => {
     if (dmCollections === undefined) return;
+    const contracts = helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
+    const dmCollectionContract = new ethers.Contract(
+      dmCollections[selectedCollection],
+      contracts.DMCollection.abi,
+      localProvider,
+    );
+
+    if (dmCollectionContract != null) {
+      setContract(dmCollectionContract);
+      var newBalance = await helpers.makeCall("balanceOf", dmCollectionContract, [address]);
+      if (newBalance != undefined) setBalance(newBalance.toNumber());
+    }
+  });
+  const updateInfo = useCallback(async () => {
+    if (contract != null) {
+      var name = await helpers.makeCall("name", contract);
+      var symbol = await helpers.makeCall("symbol", contract);
+      setCollectionName(name);
+      setCollectionSymbol(symbol);
+    }
+  });
+  const updateBalance = useCallback(async () => {
+    if (contract != null) {
+      var newBalance = await helpers.makeCall("balanceOf", contract, [address]);
+      if (newBalance != undefined) setBalance(newBalance.toNumber());
+    }
   });
 
-  /*
-    var collectionName = selectedCollection == 0 ? "NFTCollection" : "NFTCollection" + selectedCollection;
-    console.log("collectionName", collectionName);
-    var nftBalance = useContractReader(readContracts, collectionName, "balanceOf", [address]);
-    var yourNftBalance = nftBalance && nftBalance.toNumber && nftBalance.toNumber(); */
-  //var yourNftBalance = 0;
+  useEffect(() => {
+    updateInfo();
+  }, [contract]);
 
   useEffect(() => {
-    updateNFTBalance();
+    // updateBalance();
+  }, [balance]);
+
+  useEffect(() => {
+    updateContract();
   }, [selectedCollection]);
 
   //dmCollections[selectedCollection].nftBalance = useContractReader(readContracts, collectionName, "balanceOf", [address]);
 
   return (
-    <div>
-      <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5, lineHeight: 1.5 }}>
-        <h1>Join or Create A Team</h1>
-        <List bordered>
+    <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5, lineHeight: 1.5 }}>
+      <div>
+        <Input
+          style={{ width: "80%" }}
+          min={0}
+          size="large"
+          value={tokenName}
+          placeholder="Enter Team Name"
+          onChange={e => {
+            try {
+              setTokenName(e.target.value);
+            } catch (e) {
+              console.log(e);
+            }
+          }}
+        />
+
+        <Button
+          type={"primary"}
+          onClick={() => {
+            tx(writeContracts.DataMarket.approve(readContracts.GoldinarFarm.address, stakeAmount));
+          }}
+        >
+          Create
+        </Button>
+
+        <p>
+          Requires Allegiance to join or create a Team. <br />
+          Others members can join teams. <br />
+          Teams might require members to be accepted. <br />
+          This registry is currated. <br />
+          You will NOT receive any <strong>DM</strong>s. <br />
+          <br />
+        </p>
+      </div>
+      {/* <List bordered>
           <List.Item key={"memb1"}>
             <Card bordered>
               <h2>Artisans Landscape</h2>
@@ -121,18 +151,7 @@ export default function TeamsMinter(props) {
             </Card>
           </List.Item>
           Can be accumulated but are non-transferable.
-        </List>
-
-        <br />
-        <p>
-          Any one can create a Team. <br />
-          Others members can join teams. <br />
-          Teams might require members to be accepted. <br />
-          This registry is currated. <br />
-          You will NOT receive any <strong>DM</strong>s. <br />
-          <br />
-        </p>
-      </div>
+        </List> */}
     </div>
   );
 }
