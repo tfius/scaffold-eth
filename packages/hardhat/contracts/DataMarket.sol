@@ -120,12 +120,12 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
         //addCollection(name_, string(abi.encodePacked(symbol_, "C", collections.length)));
         //collectionAdd(newCollection); 
     }
-
+ 
     /* Get Collection at index*/
     function collectionGet(uint256 index) public view returns (IDMCollection) {
         require(index<collections.length,"!collection"); 
         return collections[index]; 
-    }
+    } 
     /* Return all collections of this DataMarket*/
     function collectionGetAll() public view virtual returns (IDMCollection[] memory) {
         return collections;
@@ -135,8 +135,8 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
         //IDMCollection newCollection = new IDMCollection(name_, string(abi.encodePacked(symbol_, "C", collections.length)));
         newCollection.setMinter(address(this)); // only if this contract can be a minter for collection 
         collections.push(newCollection); 
-        return newCollection;
-    }
+        return newCollection; 
+    } 
     /* find collection by name, return index where found collection is or -1 if not found */
     function collectionFind(string memory collectionName) public view returns (int) {
         for(uint i=0;i<collections.length;i++)
@@ -154,7 +154,7 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
         //require(NFT.tokenChallenged(tokenId)==0,"challenged"); 
         address tokenOwner = NFT.ownerOf(tokenId);
         require(tokenOwner==msg.sender,"!owner"); 
-        uint256 amount = NFT.tokenAmount(tokenId);  
+        uint256 amount = NFT.tokenAmount(tokenId);   
         _minted[collectionIndex][tokenId] = true;
         _mint(tokenOwner, amount);
         _imbalances[NFT.tokenCreator(tokenId)] -= amount; // reduce imbalance, dusting balance can occur if tokenId was challanged and slashed
@@ -400,7 +400,7 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
             return;
         }
         require(msg.sender==contractTresury, "!o");
-        contractTresury = payable(newTreasury);
+        contractTresury = payable(newTreasury); 
     }  
     function setMinter(IDMMinter minter) public
     {
@@ -457,7 +457,7 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
     {
         require(msg.sender==contractTresury, "!o!t");
         _fees[collectionIndex] = newFee; 
-    }
+    } 
 
     /* Create a token with token amount at metadatalocation and data location on swarm*/
     function createDataToken(uint256 collectionIndex, address to, uint256 forTokenAmount, bytes32 metadataSwarmLocation, bytes32 tokenDataSwarmLocation) public {
@@ -471,20 +471,20 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
 
     /*function collectionMetadata(uint256 collectionIndex) public view returns (bytes32)
     {
-        IDMCollection NFT = collectionGet(collectionIndex); 
-        return NFT.getMetadata();
-    }*/
+        IDMCollection NFT = collectionGet(collectionIndex);  
+        return NFT.getMetadata(); 
+    }*/ 
     function compareStrings(string memory a, string memory b) public pure returns (bool) {
         return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
-    }
+    } 
 
     // https://twitter.com/recmo/status/1229171153597386752
     // "Anyone can be rich for an instant." -> https://github.com/Austin-Williams/flash-mintable-tokens
     // this is dangeraous as fuck and maybe should not be included, flash loan any amount of DMs that exists and do whatever you want as long as you return 
     // https://github.com/Austin-Williams/flash-mintable-tokens/blob/master/FlashWETH/FlashWETH.sol
     function flash(uint256 amount) public {
-        require(_balances[msg.sender] * 2<amount, ">2x balance"); 
-        require(amount<_totalSupply, "2much");
+        require(_balances[msg.sender] * 2<amount, "f2xBal"); 
+        require(amount<_totalSupply, "f2mch");
 
         IDMCollection NFT = collectionGet(0); 
         require(NFT.balanceOf(msg.sender)>0,"!member"); //must be member

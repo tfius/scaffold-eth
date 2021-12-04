@@ -30,6 +30,7 @@ import Balance from "./components/Balance";
 import { Select } from "antd";
 
 //import SwarmLocationInput from "./parts/SwarmLocationInput.jsx";
+import YourHome from "./parts/YourHome.jsx";
 import Farm from "./parts/Farm.jsx";
 import TemplatesMinter from "./parts/TemplatesMinter.jsx";
 import DataMinter from "./parts/DataMinter.jsx";
@@ -246,7 +247,7 @@ function App(props) {
   });
 
   const myMainnetDAIBalance = 0;
-/*
+  /*
   // Then read your DAI balance like:
   const myMainnetDAIBalance = useContractReader(mainnetContracts, "DAI", "balanceOf", [
     "0x34aA3F359A9D614239015126635CE7732c18fDF3",
@@ -758,6 +759,16 @@ function App(props) {
               Farm
             </Link>
           </Menu.Item>
+          <Menu.Item key="/avatarcontract">
+            <Link
+              onClick={() => {
+                setRoute("/avatarcontract");
+              }}
+              to="/avatarcontract"
+            >
+              Avatar
+            </Link>
+          </Menu.Item>
         </Menu>
         <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
           <Menu.Item key="/">
@@ -770,6 +781,16 @@ function App(props) {
               Home
             </Link>
           </Menu.Item>
+          <Menu.Item key="/bank">
+            <Link
+              onClick={() => {
+                setRoute("/bank");
+              }}
+              to="/bank"
+            >
+              Bank
+            </Link>
+          </Menu.Item>          
           <Menu.Item key="/sponsorshipminter">
             <Link
               onClick={() => {
@@ -858,6 +879,24 @@ function App(props) {
             />
           </Route>
           <Route exact path="/">
+            <YourHome
+              yourDmBalance={yourDmBalance}
+              yourDmNftBalance={yourDmNftBalance}
+              dmCollections={dmCollections}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              contractConfig={contractConfig}
+              address={address}
+              userProviderAndSigner={userProviderAndSigner}
+              tx={tx}
+              title="Home"
+            />
+
+          </Route>
+
+          <Route exact path="/bank">
             <Farm
               yourDmBalance={yourDmBalance}
               yourDmNftBalance={yourDmNftBalance}
@@ -882,6 +921,17 @@ function App(props) {
             <Contract
               name="Graphable"
               customContract={writeContracts && writeContracts.DMGraphable}
+              signer={userSigner}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+              contractConfig={contractConfig}
+            />
+          </Route>
+          <Route exact path="/avatarcontract">
+          <Contract
+              name="Avatar"
+              customContract={writeContracts && writeContracts.Avatar}
               signer={userSigner}
               provider={localProvider}
               address={address}
@@ -1441,7 +1491,7 @@ function App(props) {
                   return (
                     <List.Item key={id + "_" + item.uri + "_" + item.owner}>
                       <Card
-                        style={{ margin: 0 }}
+                        style={{ margin: 0, textAlign:"left" }}
                         title={
                           <div>
                             <div style={{ lineHeight: 0.5 }}>
@@ -1454,9 +1504,12 @@ function App(props) {
                           </div>
                         }
                       >
-                        <div style={{ fontSize: 6, marginRight: 8 }}>Meta:{item.data.meta}</div>
-                        <div style={{ fontSize: 6, marginRight: 8 }}>Data:{item.data.data}</div>
-                        <Balance address={address} provider={localProvider} price={item.data.amount} />
+                        <div style={{ fontSize: 6, marginRight: 8 }}>Meta:{item.data.m}</div>
+                        <div style={{ fontSize: 6, marginRight: 8 }}>Data:{item.data.d}</div>
+                        <div style={{ fontSize: 6, marginRight: 8 }}>Creator:{item.data.c}</div>
+                        <div style={{ fontSize: 6, marginRight: 8 }}>Owner:{item.data.o}</div>
+                        <div style={{ fontSize: 6, marginRight: 8 }}>Name:{item.data.n}</div>
+                        <Balance address={address} provider={localProvider} price={item.data.a} />
                         <Button
                           style={{ display: "flex", position: "relative", right: -90, bottom: -20 }}
                           onClick={e => {

@@ -13,7 +13,7 @@ import { Select, Button, Card, Col, Input, List, Menu, Row, InputNumber } from "
 import { ethers, BigNumber } from "ethers";
 import SwarmLocationInput from "./SwarmLocationInput";
 import * as helpers from "./helpers";
-import { EtherInput } from "../components";
+import { EtherInput, BalanceShort } from "../components";
 import { set } from "store";
 
 export default function Farm(props) {
@@ -40,7 +40,7 @@ export default function Farm(props) {
   const buyBalance = buyAmount ? parseFloat(ethers.utils.formatUnits(buyAmount, 18)).toPrecision(6) : null;
   const sellBalance = sellAmount ? parseFloat(ethers.utils.formatUnits(sellAmount, 18)).toPrecision(6) : null;
 
-  const { selectedCollection, writeContracts, readContracts, address, gasPrice, tx } = props;
+  const { selectedCollection, writeContracts, readContracts, address, gasPrice, tx, localProvider, price } = props;
   useEffect(() => {
     let interval = null;
     if (isActive) {
@@ -110,7 +110,7 @@ export default function Farm(props) {
               verticalAlign: "top",
               width: "100%",
               alignContent: "center",
-              textAlign: "center"
+              textAlign: "center",
             }}
           >
             <h1>Farming</h1>
@@ -141,65 +141,62 @@ export default function Farm(props) {
             </Card>
           </List>
         ) : null}
-
-
-        {dmBalance.toString()!=="0" ?
-        <Card style={{ width: "800px" }}>
-          <h1>Stake your DMs to earn Goldinars</h1>
-          <div style={{ textAlign: "right", paddingRight: "6%" }}>
-            <strong
-              onClick={() => {
-                setStakeAmount(dmBalance);
+        {dmBalance.toString() !== "0" ? (
+          <Card style={{ width: "800px" }}>
+            <h1>Stake your DMs to earn Goldinars</h1>
+            <div style={{ textAlign: "right", paddingRight: "6%" }}>
+              <strong
+                onClick={() => {
+                  setStakeAmount(dmBalance);
+                }}
+              >
+                {" "}
+                {ethers.utils.formatEther(dmBalance)}{" "}
+              </strong>{" "}
+              DMs <br />
+            </div>
+            <Input
+              style={{ width: "80%" }}
+              min={0}
+              size="large"
+              value={stakeAmount}
+              onChange={e => {
+                try {
+                  setStakeAmount(BigNumber.from(e.target.value));
+                } catch (e) {
+                  console.log(e);
+                }
               }}
-            >
-              {" "}
-              {ethers.utils.formatEther(dmBalance)}{" "}
-            </strong>{" "}
-            DMs <br />
-          </div>
-          <Input
-            style={{ width: "80%" }}
-            min={0}
-            size="large"
-            value={stakeAmount}
-            onChange={e => {
-              try {
-                setStakeAmount(BigNumber.from(e.target.value));
-              } catch (e) {
-                console.log(e);
-              }
-            }}
-          />
+            />
 
-          {dmAllowance.lt(stakeAmount) ? (
-            <Button
-              type={"primary"}
-              onClick={() => {
-                tx(writeContracts.DataMarket.approve(readContracts.GoldinarFarm.address, stakeAmount));
-              }}
-            >
-              Approve
-            </Button>
-          ) : (
-            <Button
-              type={"primary"}
-              onClick={() => {
-                //debugger;
-                tx(writeContracts.GoldinarFarm.stake(stakeAmount));
-              }}
-            >
-              Stake
-            </Button>
-          )}
-          <br />
-          <div style={{ textAlign: "left", paddingLeft: "7.5%" }}>{formattedBalanceIn}</div>
-        </Card>
-        : null }
-
-        <br/>
+            {dmAllowance.lt(stakeAmount) ? (
+              <Button
+                type={"primary"}
+                onClick={() => {
+                  tx(writeContracts.DataMarket.approve(readContracts.GoldinarFarm.address, stakeAmount));
+                }}
+              >
+                Approve
+              </Button>
+            ) : (
+              <Button
+                type={"primary"}
+                onClick={() => {
+                  //debugger;
+                  tx(writeContracts.GoldinarFarm.stake(stakeAmount));
+                }}
+              >
+                Stake
+              </Button>
+            )}
+            <br />
+            <div style={{ textAlign: "left", paddingLeft: "7.5%" }}>{formattedBalanceIn}</div>
+          </Card>
+        ) : null}
+        <br />
         <h1>Exchange</h1>
         <List>
-          <Card style={{ display: "inline-block", height: "200px", width: "400px" }}>
+          <Card style={{ display: "inline-block", width: "400px" }}>
             <h1>Sell</h1>
             <div style={{ textAlign: "right", paddingRight: "10%" }}>
               <strong
@@ -238,18 +235,13 @@ export default function Farm(props) {
             <div style={{ textAlign: "center" }}>{sellBalance}</div>
           </Card>
 
-          <Card style={{ display: "inline-block", height: "200px", width: "400px" }}>
+          <Card style={{ display: "inline-block",  width: "400px" }}>
             <h1>Buy</h1>
-            <div style={{ textAlign: "right", paddingRight: "10%" }}>
-              <strong
-                onClick={() => {
-                  setBuyAmount(dmBalance);
-                }}
-              >
-                {" "}
-                {ethers.utils.formatEther(dmBalance)}{" "}
-              </strong>{" "}
-              DMs <br />
+            <div style={{ textAlign: "right", paddingRight: "10%" }}> 
+              <strong>
+                <BalanceShort address={address} provider={localProvider} price={price} onClickSet={setBuyAmount}/> 
+              </strong>{" "} 
+              <br />
             </div>
             <Input
               style={{ width: "80%" }}

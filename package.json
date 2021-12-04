@@ -20,7 +20,7 @@
     "fork": "yarn workspace @scaffold-eth/hardhat fork",
     "node": "yarn workspace @scaffold-eth/hardhat chain",
     "test": "yarn workspace @scaffold-eth/hardhat test",
-    "start": "yarn workspace @scaffold-eth/react-app start",
+    "start": "set PORT=8080 && yarn workspace @scaffold-eth/react-app start",
     "compile": "yarn workspace @scaffold-eth/hardhat compile",
     "deploy": "yarn workspace @scaffold-eth/hardhat deploy",
     "watch": "yarn workspace @scaffold-eth/hardhat watch",
@@ -65,5 +65,12 @@
       "**/hardhat-ts/**"
     ]
   },
-  "dependencies": {}
+  "dependencies": {
+    "@ethersphere/bee-js": "^2.1.1",
+    "@react-three/drei": "^7.25.3",
+    "@react-three/fiber": "^7.0.21",
+    "react-dropzone": "^11.4.2",
+    "react-three-fbx-viewer": "^1.0.0",
+    "three": "^0.135.0"
+  }
 }

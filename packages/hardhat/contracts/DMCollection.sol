@@ -3,14 +3,16 @@ pragma solidity >=0.8.0 <0.9.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-//import "@openzeppelin/contracts/utils/Strings.sol"; 
-//import "@openzeppelin/contracts/utils/Address.sol"; 
-//import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol"; 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import './DMAddressable.sol';
 import './DMLinkable.sol';
+
+// import "hardhat/console.sol";
+//import "@openzeppelin/contracts/utils/Strings.sol"; 
+//import "@openzeppelin/contracts/utils/Address.sol"; 
+//import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 // import 'base64-sol/base64.sol';
 contract DMCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Metadata, DMAddressable, DMLinkable {
@@ -107,14 +109,14 @@ contract DMCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Met
     }
     /* @dev returns totalSupply of NFT tokens */
     function totalSupply() public view virtual override returns (uint256) {
-        return _allTokens.length;
+        return _allTokens.length; 
     } 
 
     /*function getOwner() public view returns (address) {
         return contractOwner;
     }*/ 
     /*function getMinter() public view returns (address) {
-        return contractMinter;
+        return contractMinter; 
     }*/
     /*function getMetadata() public view returns (bytes32)
     {
@@ -295,7 +297,7 @@ contract DMCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Met
      * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
      *
      * Emits a {Transfer} event.
-     */
+     */ 
     function _safeMint(address to, uint256 tokenId) internal virtual {
         _safeMint(to, tokenId, "");
     }
@@ -313,18 +315,22 @@ contract DMCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Met
      * WARNING: Usage of this method is discouraged, use {_safeMint} whenever possible
      *
      * Requirements:
-     *
+     * 
      * - `tokenId` must not exist.
      * - `to` cannot be the zero address.
      * 
-     * Emits a {Transfer} event.
+     * Emits a {Transfer} event. 
      */ 
     function _mint(address to, uint256 tokenId) internal virtual {
         require(to != address(0), "0x");
         require(!_exists(tokenId), "m"); // minted
 
-        if(finiteCount!=0)
+        //console.log("FiniteCount", finiteCount);
+        //console.log("Balances", _balances[to]);
+        
+        if(finiteCount>=1)
            require(_balances[to]<finiteCount, "2mch");  // limited how much address can have tokens from this collection
+        
 
         _beforeTokenTransfer(address(0), to, tokenId);
 
@@ -630,7 +636,7 @@ contract DMCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Met
         require(_exists(tokenId), "! nonexistent token");
         return bytes32string(_tokenNames[tokenId]);
     }*/    
-     
+      
     /**
      * @dev adds addressable data to tokenId, with triples to,metadata,data
     */
@@ -644,12 +650,12 @@ contract DMCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Met
         require(_exists(tokenId), "!e");
         //string memory json = string(abi.encodePacked('{ "meta": "', bytes32string(_metadataLocation[tokenId]), '"}')); 
         return string(abi.encodePacked('{ "m": "0x', bytes32string(_metadataLocation[tokenId]), // metadata
-                                          '","d":"0x', bytes32string(_tokenDataLocation[tokenId]), // data
-                                          '","n":"0x', bytes32string(_tokenNames[tokenId]),  // name
-                                          '","a":"',   uint2str(_tokenAmount[tokenId]),  // amount
-                                          '","c":"0x', addressString(_tokenCreator[tokenId]),  // creator
-                                          //'","challenge":"', uint2str(_tokenChallenged[tokenId]), 
-                                          '","o":"0x', addressString(_owners[tokenId]), '"}'));  // owner
+                                       '","d":"0x', bytes32string(_tokenDataLocation[tokenId]), // data
+                                       '","n":"0x', bytes32string(_tokenNames[tokenId]),  // name
+                                       '","a":"',   uint2str(_tokenAmount[tokenId]),  // amount
+                                       '","c":"0x', addressString(_tokenCreator[tokenId]),  // creator
+                                       //'","challenge":"', uint2str(_tokenChallenged[tokenId]), 
+                                       '","o":"0x', addressString(_owners[tokenId]), '"}'));  // owner
                                                      // return data pairs of all addresses for all tokenIds         
 
         // return string(
@@ -731,7 +737,7 @@ contract DMCollection is Context, ERC165, IERC721, IERC721Enumerable, IERC721Met
 
     function creteNewRefLocation(address creator, uint256 amount, address to, bytes32 metadataSwarmLocation, bytes32 tokenDataSwarmLocation) internal {
         require(tokenDataToToken[tokenDataSwarmLocation]==0, "claim"); // should be never claimed before 
-        
+
         // uint256 tokenId = uint256(keccak256(abi.encodePacked(msg.sender))); // maybe we want different Id
         uint256 tokenId = _tokenIdTracker.current(); 
         _mint(to, tokenId);

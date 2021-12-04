@@ -12,13 +12,13 @@ body {
 
 @keyframes appGradient {
 	0% {
-		background-position: 0% 50%;
+		background-position: 0% 0%;
 	}
 	50% {
-		background-position: 100% 50%;
+		background-position: 100% 100%;
 	}
 	100% {
-		background-position: 0% 50%;
+		background-position: 0% 0%;
 	}
 }
 
@@ -33,21 +33,30 @@ body {
 }
 
 .ant-card-body {
-  background: linear-gradient(-45deg, #ee775205, #e73c7e10, #23a6d505, #23d5ab10);
+  background: linear-gradient(-45deg, #f1947805, #e679a310, #73c3e005, #77ddc510);
 	background-size: 400% 400%;
-	animation: appGradient 155s ease infinite;
+	/* animation: appGradient 155s ease infinite; */
   opacity: 1;
-  /*transition: opacity 0.5s linear;*/
-  animation: fadeInFromNone 0.95s linear;
+  /* animation: fadeInFromNone 0.95s linear; */
   /* border-bottom-left-radius: 30px; */
   /* border-bottom-right-radius: 30px; */
+  animation-name: fadeInFromNone, appGradient;
+  animation-duration: 1s, 42s;
+  animation-iteration-count: 1, infinite;
+  animation-delay: 0s, 1s; /* add this */
+  animation-timing-function: ease-in, ease-in-out;  
 }
 
 .ant-card-head {
-  background: linear-gradient(-90deg, #ee775210, #e73c7e05, #23a6d510, #23d5ab05);
+  background: linear-gradient(-90deg, #f74f1c10, #e91e6b10, #23a6d510, #23d5ab10);
 	background-size: 400% 400%;
-	animation: appGradient 35s ease infinite;
-  animation: fadeInFromNone 0.5s linear;
+  /* animation: fadeInFromNone 0.5s linear; */
+	/* animation: appGradient 1s ease infinite; */
+  animation-name: fadeInFromNone, appGradient;
+  animation-duration: 0.5s, 21s;
+  animation-iteration-count: 1, infinite;
+  animation-delay: 0s, 0.5s; /* add this */
+  animation-timing-function: ease-in, ease-in-out;
 }
 
 
@@ -58,4 +67,21 @@ body {
   -ms-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
   box-shadow: 0px 2px 10px rgb(0 0 0 / 30%);
+}
+
+posParent {
+  position: relative;
+  width: 500px;
+  height: 500px;
+  background: red;
+  display: block; /* fix for opera and ff */
+}
+
+topLeft {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: blue;
+  top: 0;
+  left: 100%; /* this line of code will sort things out for you :) */
 }

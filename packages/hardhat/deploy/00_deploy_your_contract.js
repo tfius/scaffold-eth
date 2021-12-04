@@ -9,6 +9,22 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   // eslint-disable-next-line prettier/prettier
   const { deployer } = await getNamedAccounts();
 
+  const avatarAbility = await deploy('AvatarAbility', {
+    from: deployer,
+    //args: [dataMarket.address, deployer],
+    log: true,
+  })
+  const avatar = await deploy('Avatar', {
+      from: deployer,
+      args: [avatarAbility.address],
+      log: true,
+   }); 
+
+  // called from avatar constructor  
+  const avatarAbilityContract = await ethers.getContract("AvatarAbility", deployer);
+  await avatarAbilityContract.setAvatarCollection(avatar.address);
+
+
   const memberShipCollection = await deploy('DMCollection', {
     from: deployer,
     args: ["FDS Memberships", "Member"],
@@ -109,7 +125,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   console.log("Getting DataMarket", deployer); 
   const dm = await ethers.getContract("DataMarket", deployer);
 
-  
 
   await dm.collectionAdd(memberShipCollection.address); // 0
   await dm.collectionAdd(sponsorhipCollection.address); // 1
@@ -122,13 +137,24 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   await dm.setMinter(dmMinter.address);
   await dm.defineCollectionFee(1, 5000);  // sponsorship fee 5%
 
-  console.log("Templates");   
+  console.log("Templates Membership");   
     // await dm.templatesInCollectionCreate(0, ["Patron","Mecene","Curator"], ["500000000000000000000","1000000000000000000000","5000000000000000000000"]); // membership
   await dm.templatesInCollectionCreate(0, ["Patron","Mecene","Curator"], ["500000000000000000","1000000000000000000","5000000000000000000"]); // membership
+  console.log("Templates Sponsor");     
   await dm.templatesInCollectionCreate(1, ["Bronze","Silver","Gold"], ["1000000000000000000","10000000000000000000","100000000000000000000"] ); // sponsorship
+  console.log("Templates Allegiance");     
   await dm.templatesInCollectionCreate(2, ["Developer","Artist","Manager","Player","Grunt"],[0,0,0,0,0]); // Allegiance
-  await dm.templatesInCollectionCreate(3, ["Artisan Landscape","Research Cave","Innovators Den","Game Devisers"],[0,0,0,0]); // Teams
-  await dm.templatesInCollectionCreate(4, ["Metier","Evolve","Trendsetter","Fearless"],[0,0,0,0]); // Teams
+  console.log("Templates Team");     
+  await dm.templatesInCollectionCreate(3, ["Artisan Landscape","Research Cave","Innovators Den", "Game Devisers", "Digital Nation"],[0,0,0,0,0]); // Teams
+  console.log("Templates Group");     
+  await dm.templatesInCollectionCreate(4, ["Metier","Evolve","Trendsetter","Fearless"],[0,0,0,0]); // Groups
+
+  console.log("Additional Team");
+  await dm.templatesInCollectionCreate(3, ["Party Warriors","Flag Wavers","Love Protectors", "Equality Advocates","Peace Champions"], [0,0,0,0,0]); // Teams
+
+  console.log("Additional Groups");
+  await dm.templatesInCollectionCreate(4, ["Humanists","Technologists","Democratizers", "Traditionalists", "Industrialists", "Pluralists", "Paternalists", "Anarchists", "Revolutionists"], 
+                                          [0,0,0,0,0,0,0,0,0]); // Groups
 
   // define properties 
   console.log("Requirements");
@@ -137,21 +163,27 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   await minter.defineBalanceRequirements(4, 3, 1, 42);  // groupsCollection requires teamsCollection balanceof 1  and max 42
 
   console.log("Uniqueness");
-  await minter.defineUniqueRequirements(2, 1); // you can not have two tokens of same template (allegiance)
-  await minter.defineUniqueRequirements(3, 1); // you can not have two tokens of same template (team)
-  await minter.defineUniqueRequirements(4, 1); // you can not have two tokens of same template (group)
+  await minter.defineUniqueRequirements(2, 1); // you can't have 2 tokens of same template (allegiance)
+  await minter.defineUniqueRequirements(3, 1); // you can't have 2 tokens of same template (team)
+  await minter.defineUniqueRequirements(4, 1); // you can't have 2 tokens of same template (group)
 
   console.log("params Membership");   
     await dm.setCollectionParams(0,true,1); // Membership not transferable, can have only one
   console.log("params Sponsorship");     
-    await dm.setCollectionParams(1,true,0); // Sponsorship not transferable
+    await dm.setCollectionParams(1,true,0); // Sponsorship not transferable, infinite amount
   console.log("params Allegiance");     
-    await dm.setCollectionParams(2,true,0); // Allegiance not transferable, but can have many
+    await dm.setCollectionParams(2,true,0); // Allegiance not transferable, finiteCount
   console.log("params Teams");     
-    await dm.setCollectionParams(3,true,0); // Teams not transferable, can have many
+    await dm.setCollectionParams(3,true,0); // Teams not transferable, finiteCount
   console.log("params Groups");     
-    await dm.setCollectionParams(4,true,0); // Groups not transferable, can have many
+    await dm.setCollectionParams(4,true,0); // Groups not transferable, finiteCount
+
   
+
+
+  await dm.collectionAdd(avatar.address);  
+  await dm.collectionAdd(avatarAbility.address);  
+
   console.log("Collections Adding");     
     await dm.collectionAdd(nftCollection0.address);
     console.log("Collection 0 added", nftCollection0.address); 

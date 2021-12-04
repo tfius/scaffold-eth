@@ -104,7 +104,7 @@ export default function TeamsMinter(props) {
         <Button
           type={"primary"}
           onClick={() => {
-            tx(writeContracts.DataMarket.approve(readContracts.GoldinarFarm.address, stakeAmount));
+            /* tx(writeContracts.DataMarket.approve(readContracts.GoldinarFarm.address, stakeAmount));*/ 
           }}
         >
           Create
