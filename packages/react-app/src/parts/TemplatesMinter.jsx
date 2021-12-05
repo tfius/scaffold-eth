@@ -17,6 +17,8 @@ const { utils, BigNumber } = require("ethers");
 
 import SwarmLocationInput from "./SwarmLocationInput";
 import { debuggerStatement } from "@babel/types";
+
+
 import * as helpers from "./helpers";
 import DMTViewer from "./DMTViewer";
 
@@ -155,7 +157,7 @@ export default function TemplatesMinter(props) {
   });
 
   const toks = yourTokens.map((t, i) => {
-    return <DMTViewer key={"tok"+i} token={t} contract={contract} address={address} />; //<Card>{<h2>{t.name}</h2>}</Card>;
+    return <DMTViewer key={"tok" + i} token={t} contract={contract} address={address} />; //<Card>{<h2>{t.name}</h2>}</Card>;
   });
 
   if (loading === true) return <h1>Please wait...</h1>;
@@ -214,21 +216,18 @@ export default function TemplatesMinter(props) {
       ) : (
         ""
       )}
-
-      <br/>
+      <br />
       {yourTokenBalance > 0 ? (
         <h3>
           {contractName}: {yourTokenBalance} {contractSymbol} <br />
         </h3>
-      ) : (
-        // <p>
-        //   Become a {contractSymbol}. <br />
-        //   0.05% of your {contractName} will go to treasury and rest you will receive <strong>DM</strong>s. <br />
-        //   In meantime your funds can be used as flash loans by other members. <br />
-        //   You can liquidate your <strong>DM</strong>s anytime but will loose value on {contractName}.
-        // </p>
-        null
-      )}
+      ) : // <p>
+      //   Become a {contractSymbol}. <br />
+      //   0.05% of your {contractName} will go to treasury and rest you will receive <strong>DM</strong>s. <br />
+      //   In meantime your funds can be used as flash loans by other members. <br />
+      //   You can liquidate your <strong>DM</strong>s anytime but will loose value on {contractName}.
+      // </p>
+      null}
       {yourTokenBalance > 0 ? <>{toks} </> : null}
       Can {finiteCount == 0 ? "" : <strong>NOT</strong>} be accumulated and are{" "}
       {isNonTransferable ? <strong>NON-</strong> : ""}transferable. <br />
