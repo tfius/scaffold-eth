@@ -1,24 +1,61 @@
 // deploy/00_deploy_your_contract.js
 
-const { ethers } = require("hardhat");
+const { ethers } = require('hardhat')
 
-const localChainId = "31337";
+const localChainId = '31337' 
 
 module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
-  const { deploy } = deployments;
-  const { deployer } = await getNamedAccounts();
-  const chainId = await getChainId();
+  const { deploy } = deployments
+  const { deployer } = await getNamedAccounts()
+  const chainId = await getChainId() 
 
+  console.log('DateTime')
+  const dateTime = await deploy('DateTime', {
+    from: deployer,
+    // args: [dataMarket.address, "DM-C-0"],
+    log: true,
+  })
+
+  console.log('COP Requests Registry')
+  const COPRequestReviewRegistry = await deploy('COPRequestReviewRegistry', {
+    from: deployer,
+    // args: [dataMarket.address, "DM-C-0"],
+    log: true,
+  })
+
+  console.log('Carbon Offset Protocol')
+  const copToken = await deploy('CarbonOffsetProtocol', {
+    from: deployer,
+    // args: [dataMarket.address, "DM-C-0"],
+    log: true,
+  })
+
+  console.log('COP Issuer')
+  const copIssuer = await deploy('COPIssuer', {
+    from: deployer,
+    args: [dateTime.address, copToken.address, COPRequestReviewRegistry.address],
+    log: true,
+  })
+
+  console.log('COP Issuer Is Minter');
+  const cop = await ethers.getContract('CarbonOffsetProtocol', deployer)
+  const copMinter = await cop.MINTER_ROLE()
+
+  console.log('Setting COP Minter Role')
+  await cop.grantRole(copMinter, copIssuer.address)
+
+  /*
   await deploy("YourContract", {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
     // args: [ "Hello", ethers.utils.parseEther("1.5") ],
     log: true,
-  });
+  }); */
 
   // Getting a previously deployed contract
+  /*
   const YourContract = await ethers.getContract("YourContract", deployer);
-  /*  await YourContract.setPurpose("Hello");
+   await YourContract.setPurpose("Hello");
   
     To take ownership of yourContract using the ownable library uncomment next line and add the 
     address you want to be the owner. 
@@ -51,6 +88,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   });
   */
 
+  /*
   // Verify your contracts with Etherscan
   // You don't want to verify on localhost
   if (chainId !== localChainId) {
@@ -59,6 +97,6 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
       contract: "contracts/YourContract.sol:YourContract",
       contractArguments: [],
     });
-  }
-};
-module.exports.tags = ["YourContract"];
+  } */
+}
+module.exports.tags = ['YourContract']
