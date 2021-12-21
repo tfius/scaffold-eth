@@ -69,6 +69,7 @@
     "@ethersphere/bee-js": "^2.1.1",
     "@react-three/drei": "^7.25.3",
     "@react-three/fiber": "^7.0.21",
+    "react-animated-text-builders": "^1.1.0",
     "react-dropzone": "^11.4.2",
     "react-three-fbx-viewer": "^1.0.0",
     "three": "^0.135.0"

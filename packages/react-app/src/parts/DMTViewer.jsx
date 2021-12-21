@@ -9,18 +9,22 @@ import {
 
 import { Canvas, useThree, useLoader } from "@react-three/fiber";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
-import { Environment, OrbitControls, useProgress, Html, useFBX } from "@react-three/drei";
+import { Environment, OrbitControls, useProgress, Html, useFBX, Float } from "@react-three/drei";
 
+import Blockies from "react-blockies";
 import { SendOutlined } from "@ant-design/icons";
 import React, { useCallback, useEffect, useState, Suspense } from "react";
-import { Select, Button, Card, Col, Input, List, Menu, Row } from "antd";
+import { Link } from "react-router-dom";
+import { Select, Button, Card, Col, Input, List, Menu, Row, Tabs } from "antd";
+const { TabPane } = Tabs;
 import { ethers } from "ethers";
 import ReactThreeFbxViewer from "react-three-fbx-viewer";
 const { utils, BigNumber } = require("ethers");
 import * as helpers from "./helpers";
 import AudioPlayer from "./AudioPlayer";
 
-const gatewayUrl = "https://gw-testnet.fairdatasociety.org/";
+//const gatewayUrl = "https://gw-testnet.fairdatasociety.org/";
+
 // get data from https://gw-testnet.fairdatasociety.org/bzz/109dfe7be464b749bd2d29db0f1ba2b3229973c1b9b3b5fffed289766c4a88ae/
 /*
   function bytes32ToString(bytes32 _bytes32) public pure returns (string memory) {
@@ -60,9 +64,34 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+const tabListNoTitle = [
+  {
+    key: "contents",
+    tab: "contents",
+  },
+  {
+    key: "info",
+    tab: "info",
+  },
+  {
+    key: "links",
+    tab: "links",
+  },
+  {
+    key: "parents",
+    tab: "parents",
+  },
+];
+
 export default function DMTViewer(props) {
   const [loading, setLoading] = useState(true);
   const [loadModel, setLoadModel] = useState();
+
+  const [details, setDetails] = useState();
+  const [links, setLinks] = useState();
+  const [parentLinks, setParentLinks] = useState();
+
+  const [activeTabKey, setActiveTabKey] = useState("contents");
 
   const {
     contract,
@@ -77,7 +106,7 @@ export default function DMTViewer(props) {
     title,
   } = props;
 
-  const dataUrl = gatewayUrl + "bzz/" + token.d.substring(2) + "/";
+  const dataUrl = helpers.downloadGateway + token.d.substring(2) + "/";
   let cameraPosition = {
     x: 150,
     y: 300,
@@ -100,12 +129,14 @@ export default function DMTViewer(props) {
     if (contract != null) {
       var name = await helpers.makeCall("name", contract);
       var links = await helpers.makeCall("getLinks", contract, [token.id]);
-      console.log(token.name + " links", links);
+      //console.log(token.name + " links", links);
+      setLinks(links);
 
       if (links.length > 0) {
         var parentLinks = await helpers.makeCall("getLinks", contract, [links[0].tokenId]);
-        console.log(token.name + " parents ", parentLinks);
-      }
+        //console.log(token.name + " parents ", parentLinks);
+        setParentLinks(parentLinks);
+      } else setParentLinks([]);
 
       //var newBalance = await helpers.makeCall("balanceOf", contract, [address]);
       //if (newBalance != undefined) setYourTokenBalance(newBalance.toNumber());
@@ -118,12 +149,12 @@ export default function DMTViewer(props) {
           break;
         case "0x0000000000000000000000000000000000000000000000000000000000000002":
           {
-            token.dataView = <img src={dataUrl} style={{ width: "180px" }}></img>;
+            token.dataView = <img src={dataUrl} style={{width: "19rem", height:"19rem", objectFit: "scale-down", top:0 }}></img>;
           }
           break;
         case "0x0000000000000000000000000000000000000000000000000000000000000003":
           {
-            token.dataView = <video controls src={dataUrl} />;
+            token.dataView = <video controls src={dataUrl} style={{ width: "100%" }} />;
           }
           break;
         case "0x0000000000000000000000000000000000000000000000000000000000000004":
@@ -141,6 +172,11 @@ export default function DMTViewer(props) {
             );
           }
           break;
+
+        default: {
+          token.dataView = <img src={dataUrl} style={{ width: "100%" }}></img>;
+          break;
+        }
       }
     }
 
@@ -148,9 +184,35 @@ export default function DMTViewer(props) {
     setLoading(false);
   });
 
+  const getLinks = useCallback(async () => {
+    //setLoading(true);
+    if (contract != null) {
+      //var name = await helpers.makeCall("name", contract);
+      //var links = await helpers.makeCall("getLinks", contract, [token.id]);
+      console.log(token.name + " links", links);
+      //setLinks(links)
+    }
+  });
+  const getParentLinks = useCallback(async () => {
+    //setLoading(true);
+    if (contract != null) {
+      //var name = await helpers.makeCall("name", contract);
+      //var links = await helpers.makeCall("getLinks", contract, [token.id]);
+      console.log(token.name + " parentLinks", parentLinks);
+      //setLinks(links)
+    }
+  });
+
   useEffect(() => {
     retrieveNFTData();
   }, [contract]);
+
+  useEffect(() => {
+    getLinks();
+  }, [links]);
+  useEffect(() => {
+    getParentLinks();
+  }, [links]);
 
   // useEffect(() => {
   //    fbx = useFBX(dataUrl);
@@ -183,11 +245,98 @@ export default function DMTViewer(props) {
   var imageSource = <img src={dataUrl} style={{ width: "180px" }}></img>
   var videoSource = <video controls src={dataUrl} /> 
   */
+  const onTabChange = key => {
+    setActiveTabKey(key);
+  };
+  const contentListNoTitle = {
+    contents: <p>{token.dataView}</p>,
+    info: (
+      <p>
+        <div>
+          <a
+            href={token.tokenUri.replace("swarm://", helpers.downloadGateway) + "/"}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View token #{token.id}
+          </a>
+        </div>
+        <div style={{ fontSize: "0.5rem" }}>
+          <br />
+          Owner: {token.o}
+          <br />
+          Creator: {token.o}
+          <br />
+          {token.d}
+          <br />
+          {token.m}
+          <br />
+        </div>
+      </p>
+    ),
+    links: <p>links content</p>,
+    parents: <p>parents content</p>,
+  };
 
   return (
-    <Card style={{ maxWidth: 280, margin: "auto", marginTop: 5, paddingBottom: 0, lineHeight: 1.2 }}>
-      <h2>{token.name}</h2>
-      {token.dataView}
-    </Card>
+    <div >
+      <Card.Grid
+        size="small"
+        style={{
+          minWidth: "2rem",
+          maxWidth: "20rem",
+          minHeight: "20rem",
+          maxHeight: "20rem",
+          margin: "auto",
+          marginTop: 0,
+          padding: "1px",
+          lineHeight: 1,
+        }}
+        // style={{ minHeight:"25rem", maxHeight:"25rem",weight:"100%",  margin: "auto" }}
+        onClick={() => console.log(token)}
+        hoverable
+        onMouseEnter={e => {
+          setDetails(true);
+        }}
+        onMouseLeave={e => {
+          setDetails(false);
+        }}
+      >
+        <h2>{token.name}</h2>
+        {/* <span
+        style={{ display: "flex", right: "0", top: "0", position: "absolute" }}
+        onClick={() => {
+          setDetails(!details);
+        }}
+      >
+        ⓘ
+      </span>  */}
+        {contentListNoTitle[activeTabKey]}
+        {details == true ? (
+          <Tabs
+            style={{
+              display: "block",
+              left: "0",
+              right: "0",
+              bottom: "0",
+              position: "absolute",
+              background: "#0000005f",
+              padding: "20px",
+            }}
+            defaultActiveKey={activeTabKey}
+            onChange={key => {
+              onTabChange(key);
+            }}
+          >
+            {tabListNoTitle.map((c, i) => (
+              <TabPane tab={c.tab} key={c.key} style={{ fontSize: "8px" }}>
+                {/* {contentListNoTitle[activeTabKey]} */}
+                {/* Content of tab {i} */}
+              </TabPane>
+            ))}
+          </Tabs>
+        ) : null}
+      </Card.Grid>
+    </div>
   );
 }

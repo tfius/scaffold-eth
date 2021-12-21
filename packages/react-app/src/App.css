@@ -85,3 +85,42 @@ topLeft {
   top: 0;
   left: 100%; /* this line of code will sort things out for you :) */
 }
+
+
+.simLink {
+  text-decoration-line: underline;
+}
+
+.ant-tabs-tab .ant-tabs-tab {
+  font-size: 0.5rem;
+  margin: 0px;
+  padding: 0px;
+}
+
+.ant-card-small .ant-card-body {
+  margin: 0px 0px 0px 0px;
+  padding: 0px 0px 0px 0px;
+}
+
+.card-grid-container {
+ display: grid;
+ margin: 2rem;
+}
+
+.card-grid-container-fill {
+  grid-template-columns: repeat(auto-fill, minmax(1fr, 1fr));
+  /* grid-template-columns: 1fr 1fr 1fr 1fr; */
+  /* grid-template-rows: 20rem; */
+  /* repeat(auto-fill, minmax(25rem, 1fr)); */
+}
+.card-grid-container-fit {
+  grid-template-columns: repeat(auto-fit, minmax(25rem, 1fr));
+  /* grid-template-rows: repeat(auto-fit, minmax(25rem, 1fr)); */
+}
+
+.card-grid-element {
+  background-color: deepPink;
+  padding: 0px;
+  color: #fff;
+  border: 0px solid #fff;
+}

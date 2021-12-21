@@ -12,35 +12,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Select, Button, Card, Col, Input, List, Menu, Row } from "antd";
 //const { ethers } = require("ethers");
 import { ethers } from "ethers";
+import FText  from "../components/FText";
 
 import SwarmLocationInput from "./SwarmLocationInput";
-
-const makeCall = async (callName, contract, args, metadata = {}) => {
-  if (contract[callName]) {
-    let result;
-    if (args) {
-      result = await contract[callName](...args, metadata);
-    } else {
-      result = await contract[callName]();
-    }
-    return result;
-  }
-  return undefined;
-  console.log("no call of that name!");
-};
-// deep find
-function findPropertyInObject(propertyName, object) {
-  if (object === undefined) return null;
-  if (object.hasOwnProperty(propertyName)) return object[propertyName];
-
-  for (var i = 0; i < Object.keys(object).length; i++) {
-    if (typeof object[Object.keys(object)[i]] == "object") {
-      var o = findPropertyInObject(propertyName, object[Object.keys(object)[i]]);
-      if (o != null) return o;
-    }
-  }
-  return null;
-}
 
 export default function SponsorshipMinter(props) {
   const [visibleTransfer, setVisibleTransfer] = useState([]);
@@ -89,10 +63,10 @@ export default function SponsorshipMinter(props) {
       <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5, lineHeight: 1.5 }}>
         {/* Balance: <strong>{yourDmBalance} DM</strong> <br /> */}
         <p>
-          Become sponsor and donate. <br />
-          5% of your sponsorship will go to treasury and rest you will receive <strong>DM</strong>s. <br />
-          In meantime your funds can be used as flash loans by other members. <br />
-          You can liquidate your <strong>DM</strong>
+          <FText>Become sponsor and donate. </FText>
+          <FText>5% of your sponsorship will go to treasury and rest you will receive <strong>&nbsp;DM</strong>s.</FText>
+          <FText>In meantime your funds can be used as flash loans by other members. </FText>
+          <FText>You can liquidate your <strong>&nbsp;DM</strong>s</FText>
           <br />
         </p>
         {/* <List bordered>

@@ -18,7 +18,6 @@ const { utils, BigNumber } = require("ethers");
 import SwarmLocationInput from "./SwarmLocationInput";
 import { debuggerStatement } from "@babel/types";
 
-
 import * as helpers from "./helpers";
 import DMTViewer from "./DMTViewer";
 
@@ -70,6 +69,7 @@ export default function TemplatesMinter(props) {
     );
 
     if (dmCollectionContract != null) {
+      const addr = address.toLowerCase();
       setContract(dmCollectionContract);
       var name = await helpers.makeCall("name", dmCollectionContract);
       setContractName(name);
@@ -83,18 +83,19 @@ export default function TemplatesMinter(props) {
       var indices = await helpers.makeCall("getTemplateIndices", dmCollectionContract);
       var tokens = [];
       for (var i = 0; i < indices.length; i++) {
-        var tokenInfo = await helpers.makeCall("tokenURI", dmCollectionContract, [indices[i]]);
+        var tokenInfo = await helpers.makeCall("tokenData", dmCollectionContract, [indices[i]]);
         var data = JSON.parse(tokenInfo);
         data.id = indices[i];
-        data.n = ethers.utils.toUtf8String(data.n);
-        data.n = data.n.replace(/[^\x01-\x7F]/g, "");
+        data.n = ethers.utils.toUtf8String(data.n).replace(/[^\x01-\x7F]/g, "");
 
         var links = await helpers.makeCall("getLinks", dmCollectionContract, [indices[i]]);
         console.log(data.n + " children ", links);
         data.links = links;
 
-        tokens.push(data);
+        console.log(data.o, address, data.o === addr);
+        if (data.o != addr) tokens.push(data);
       }
+
       setTemplateTokens(tokens);
 
       var newBalance = await helpers.makeCall("balanceOf", dmCollectionContract, [address]);
@@ -119,7 +120,8 @@ export default function TemplatesMinter(props) {
         for (let tokenIndex = 0; tokenIndex < yourTokenBalance; tokenIndex++) {
           try {
             const tokenId = await helpers.makeCall("tokenOfOwnerByIndex", contract, [address, tokenIndex]);
-            var tokenInfo = await helpers.makeCall("tokenURI", contract, [tokenId.toNumber()]);
+            var tokenInfo = await helpers.makeCall("tokenData", contract, [tokenId.toNumber()]);
+            var tokenUri = await helpers.makeCall("tokenURI", contract, [tokenId.toNumber()]);
             /*
                 const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "");
                 console.log("ipfsHash", ipfsHash);
@@ -128,6 +130,7 @@ export default function TemplatesMinter(props) {
             try {
               var data = JSON.parse(tokenInfo);
               data.id = tokenId.toString();
+              data.tokenUri = tokenUri;
               data.name = ethers.utils.toUtf8String(data.n).replace(/[^\x01-\x7F]/g, "");
               nfts.push(data);
             } catch (e) {

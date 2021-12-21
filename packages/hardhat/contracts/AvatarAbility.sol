@@ -6,26 +6,26 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract AvatarAbility is ERC721, Ownable {
-    using Strings for string;
+contract AvatarAbility is ERC721, Ownable { 
+    using Strings for string; 
     address public avatarCollection = address(0);
     struct Ability { 
         uint256 avatarId;
-        uint256 strength;
+        uint256 strength; 
         uint256 dexterity;
         uint256 constitution;
         uint256 intelligence;
         uint256 wisdom; 
-        uint256 charisma;
-        uint256 experience; 
-        uint256 skillpoints;
+        uint256 charisma; 
+        uint256 experience;  
+        uint256 points;
     }
     Ability[] public abilities;
     mapping(uint256 => uint256) avatarToAbility; 
-    constructor() public ERC721("FDS AvatarAbility", "Ability")
-    {   
-    }
-
+    constructor() public ERC721("FDS AvatarAbility", "Avatar Ability")
+    {    
+    } 
+ 
     function setMinter(address newMinter) public {
        // does nothing as anyone can mint Avatar
     }
@@ -34,12 +34,12 @@ contract AvatarAbility is ERC721, Ownable {
         require(avatarCollection==address(0), "already set"); 
         avatarCollection = _avatarCollection; 
     }
-    function createAbility(uint256 avatarId, address to, bytes32 randomness) public returns (uint256)
+    function create(uint256 avatarId, address to, bytes32 randomness) public returns (uint256)
     {
-        require(avatarToAbility[avatarId]==0,"Avatar Has Skills");
+        require(avatarToAbility[avatarId]==0,"Avatar Has This Set");
         require(msg.sender==avatarCollection, "!collection");
 
-        uint256 newId = abilities.length;
+        uint256 newId = abilities.length; 
         uint256 random = _random(randomness);
         // always start with stats from 1 to 10 
         uint256 strength =     1 + (random % 100) % 10;
@@ -72,73 +72,45 @@ contract AvatarAbility is ERC721, Ownable {
     function _random(bytes32 input) internal view returns (uint256) {
         return uint256(keccak256(abi.encodePacked(msg.sender, input, block.timestamp, blockhash(block.number-1))));
     }
-    /*function getAbility(uint256 tokenId)
-        public
-        view
-        returns (
-            uint256 strength,
-            uint256 dexterity,
-            uint256 constitution,
-            uint256 intelligence,
-            uint256 wisdom,
-            uint256 charisma,
-            uint256 experience,
-            uint256 skillpoints,
-            uint256 level
-        )
-    {
-        return (
-            abilities[tokenId].strength,
-            abilities[tokenId].dexterity,
-            abilities[tokenId].constitution,
-            abilities[tokenId].intelligence,
-            abilities[tokenId].wisdom,
-            abilities[tokenId].charisma,
-            abilities[tokenId].experience,
-            abilities[tokenId].skillpoints,
-            getLevel(tokenId)
-        );
-    }*/
-    function getAbility(uint256 tokenId) public view returns (Ability memory)
+    function getInfo(uint256 tokenId) public view returns (Ability memory)
     {
         return  abilities[tokenId];
     }
     function sqrt(uint256 x) internal pure returns (uint256 y) {
         uint256 z = (x + 1) / 2;
         y = x;
-        while (z < y) {
+        while (z < y) { 
             y = z;
-            z = (x / z + z) / 2;
+            z = (x / z + z) / 2;  
         }
     }
 
     function getLevel(uint256 tokenId) public view returns (uint256) {
         return sqrt(abilities[tokenId].experience);
     }
-    function upgradeAbility(uint256 tokenId,  
+    function upgrade(uint256 tokenId,  
             uint256 strength,
             uint256 dexterity,
             uint256 constitution,
             uint256 intelligence,
             uint256 wisdom,
-            uint256 charisma) 
-            internal 
+            uint256 charisma)  
+            public 
     {
         require(_isApprovedOrOwner(tokenId),"!approved"); 
-        uint available_skillpoints = abilities[tokenId].skillpoints; // how much avatar can spend
+        uint available_skillpoints = abilities[tokenId].points; // how much avatar can spend
         uint skillpoints = strength + dexterity + constitution + intelligence + wisdom + charisma; 
         require(skillpoints<=available_skillpoints,"not enough skill points");
 
         uint cost = calculate_exp(strength, dexterity, constitution, intelligence, wisdom, charisma);
-        abilities[tokenId].experience+=cost;
+        abilities[tokenId].experience += cost;
         abilities[tokenId].strength += strength;
         abilities[tokenId].dexterity += dexterity;
         abilities[tokenId].constitution += constitution;
         abilities[tokenId].intelligence += intelligence;
         abilities[tokenId].wisdom += wisdom;
         abilities[tokenId].charisma += charisma;
-        abilities[tokenId].skillpoints -= skillpoints;
-        abilities[tokenId].experience += cost;
+        abilities[tokenId].points -= skillpoints;
     }
     function calc(uint score) public pure returns (uint) {
         if (score <= 12) {

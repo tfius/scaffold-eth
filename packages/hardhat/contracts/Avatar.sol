@@ -1,19 +1,38 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
-
+ 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol"; 
 import "@openzeppelin/contracts/utils/Strings.sol";
 interface IAvatarAbility { 
     function setAvatarCollection(address _avatarCollection) external; // must be called from avatar collection immediatly
-    function createAbility(uint256 avatarId, address to, bytes32 randomness) external returns (uint256);
+    function create(uint256 avatarId, address to, bytes32 randomness) external returns (uint256);
+    function upgrade(uint256 tokenId,  uint256 strength, uint256 dexterity, uint256 constitution, uint256 intelligence, uint256 wisdom,uint256 charisma) external;
+}
+interface IAvatarReputation { 
+    function setAvatarCollection(address _avatarCollection) external; // must be called from avatar collection immediatly
+    function create(uint256 avatarId, address to, bytes32 randomness) external returns (uint256);
+    function upgrade(uint256 tokenId,  uint256 proficiency, uint256 encumbrance, uint256 constraint, uint256 obstruction, uint256 strain, uint256 pressure) external;  
+}
+interface IAvatarDrawbacks { 
+    function setAvatarCollection(address _avatarCollection) external; // must be called from avatar collection immediatly
+    function create(uint256 avatarId, address to, bytes32 randomness) external returns (uint256);
+    function upgrade(uint256 tokenId, uint256 proficiency, uint256 encumbrance, uint256 constraint, uint256 obstruction, uint256 strain, uint256 pressure)  external; 
+}
+interface IAvatarRelatable { 
+    function setAvatarCollection(address _avatarCollection) external; // must be called from avatar collection immediatly
+    function create(uint256 avatarId, address to, bytes32 randomness) external returns (uint256);
+    function upgrade(uint256 tokenId, uint256 proficiency, uint256 encumbrance, uint256 constraint, uint256 obstruction, uint256 strain, uint256 pressure)  external; 
 }
 
 contract Avatar is ERC721Enumerable, Ownable {
     using Strings for string;  
-    struct Character {
-        uint256 skillId;  // non zero when on journey, else starting time of journey
+    struct Character { 
+        uint256 skillId;  // skill id
+        uint256 reputationId;  // reputation id
+        uint256 drawbacksId;  // drawback Id
+        uint256 relatableId;  // relatable Id
         uint256 experience;  // non zero when on journey, else starting time of journey
         uint256 journey;  // non zero when on journey, else starting time of journey
         uint256 lastJourneyDuration;   // last journey time in s
@@ -21,7 +40,7 @@ contract Avatar is ERC721Enumerable, Ownable {
         uint256 askCostPerH; // what is avatars cost per h (used for agreements)
         string  name;
     }
-
+ 
     Character[] public avatars;
     mapping(bytes32 => uint256) nameToTokenId;
     mapping(uint256 => uint256) tokenIdToName;
@@ -30,10 +49,16 @@ contract Avatar is ERC721Enumerable, Ownable {
     uint constant cost_per_h = 30e18;
 
     IAvatarAbility public avatarAbility; 
+    IAvatarReputation public avatarReputation; 
+    IAvatarDrawbacks public avatarDrawbacks; 
+    IAvatarRelatable public avatarRelatable; 
 
-    constructor(address _avatarAbility) public ERC721("FDS Avatar", "Avatar")
+    constructor(address _avatarAbility, address _avatarReputation, address _avatarDrawbacks, address _avatarRelatable) public ERC721("FDS Avatar", "Avatar")
     {   
         avatarAbility=IAvatarAbility(_avatarAbility);
+        avatarReputation=IAvatarReputation(_avatarReputation);
+        avatarDrawbacks=IAvatarDrawbacks(_avatarDrawbacks);
+        avatarRelatable=IAvatarRelatable(_avatarRelatable);
         //avatarAbility = IAvatarAbility(_avatarAbility); 
         //avatarAbility.setAvatarCollection(address(this)); 
     }
@@ -45,12 +70,14 @@ contract Avatar is ERC721Enumerable, Ownable {
         bytes32 n = keccak256(abi.encodePacked(avatarName));
         uint256 h = uint256(n);
         require(nameToTokenId[n]==0,"Name exists"); 
-        uint id = createAvatar(msg.sender, randomness, avatarName); 
+
+        bytes32 rRandomness = keccak256(abi.encodePacked(n, randomness, block.number));
+        uint id = createAvatar(msg.sender, rRandomness, avatarName); 
         
         nameToTokenId[n] = id; // will start with tokenId+1 so 0 is invalid 
         tokenIdToName[id] = h;
 
-        return randomness; 
+        return rRandomness; 
     }
 
     function getTokenIdForName(string memory avatarName) public view returns (uint256 ) {
@@ -58,29 +85,35 @@ contract Avatar is ERC721Enumerable, Ownable {
         require(nameToTokenId[n]!=0, "!exists"); 
         return nameToTokenId[n];  
     }
-
+ 
     function getTokenURI(uint256 tokenId) public view returns (string memory) {
-        return tokenURI(tokenId);
+        return tokenURI(tokenId); 
     }
 
     /*function setTokenURI(uint256 tokenId, string memory _tokenURI) public {
         require(
-            _isApprovedOrOwner(_msgSender(), tokenId),
+            _isApprovedOrOwner(_msgSender(), tokenId), 
             "ERC721: transfer caller is not owner nor approved"
         );
         _setTokenURI(tokenId, _tokenURI);
-    }*/
+    }*/ 
 
     function createAvatar(address to, bytes32 randomness, string memory _avatarName) internal returns (uint256)
     {
         uint256 newId = avatars.length;
         //IAvatarAbility iaa = IAvatarAbility(avatarAbility);
-        uint iaaId = avatarAbility.createAbility(newId, to, randomness);
+        uint iaaId = avatarAbility.create(newId, to, randomness);
+        uint iarId = avatarReputation.create(newId, to, randomness);
+        uint iadId = avatarDrawbacks.create(newId, to, randomness);
+        uint iarelId = avatarRelatable.create(newId, to, randomness);
 
         avatars.push(
             Character(
                 iaaId, // skill id
-                0, // experience
+                iarId, // reputation id
+                iadId, // iadId id
+                iarelId, // iarId id relatable id
+                1, // experience
                 0, // journey
                 0, // journeyLastDuration
                 0, // totalH
@@ -94,24 +127,24 @@ contract Avatar is ERC721Enumerable, Ownable {
     function getAvatarInfo(uint256 tokenId) public view returns (Character memory)
     {
         return avatars[tokenId];
-    }
-    /*function getAvatarInfo(uint256 tokenId)
+    } 
+    /*function getAvatarInfo(uint256 tokenId) 
         public
         view
-        returns (
+        returns ( 
             string memory name,
             uint256 experience,
             uint256 journey,
-            uint256 lastJourneyDuration,
+            uint256 lastJourneyDuration, 
             uint256 totalTime,
             uint256 askCostPerH
-        )
+        ) 
     {
-        return (
+        return ( 
             avatars[tokenId].name,
             avatars[tokenId].experience,
             avatars[tokenId].journey,
-            avatars[tokenId].lastJourneyDuration,
+            avatars[tokenId].lastJourneyDuration, 
             avatars[tokenId].totalTime,
             avatars[tokenId].askCostPerH
         );

@@ -371,7 +371,7 @@ function App(props) {
 
   useEffect(() => {
     const updateYourNFTs = async () => {
-      const listDmNfts = [];
+     /* const listDmNfts = [];
       console.log("yourDmNftBalance", yourDmNftBalance);
       for (let tokenIndex = 0; tokenIndex < yourDmNftBalance; tokenIndex++) {
         try {
@@ -389,7 +389,7 @@ function App(props) {
           console.log(e);
         }
       }
-      setYourDmNfts(listDmNfts.reverse());
+      setYourDmNfts(listDmNfts.reverse()); */
     };
     updateYourNFTs();
   }, [address, yourDmBalance, yourDmNftBalance]);
@@ -685,7 +685,7 @@ function App(props) {
           </Menu.Item>
         </Menu>
 
-        <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
+        <Menu style={{ textAlign: "center", fontSize:"1.3vmin" }} selectedKeys={[route]} mode="horizontal">
           <Menu.Item key="/markable">
             <Link
               onClick={() => {
@@ -1286,37 +1286,25 @@ function App(props) {
           <Route exact path="/teamsminter">
             <TemplatesMinter
               yourDmBalance={yourDmBalance}
-              yourDmNftBalance={yourDmNftBalance}
               dmCollections={dmCollections}
               selectedCollection={3}
               readContracts={readContracts}
               writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
               localProvider={localProvider}
               contractConfig={contractConfig}
               address={address}
-              userSigner={userSigner}
-              userProviderAndSigner={userProviderAndSigner}
               setSelectedCollection={setSelectedCollection}
               collectionInformation={collectionInformation}
               tx={tx}
               title="Join or Create A Team"
             />
             <TeamsMinter
-              yourDmBalance={yourDmBalance}
-              yourDmNftBalance={yourDmNftBalance}
               dmCollections={dmCollections}
-              selectedCollection={selectedCollection}
-              readContracts={readContracts}
+              selectedCollection={3}
               writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
               localProvider={localProvider}
               contractConfig={contractConfig}
               address={address}
-              userSigner={userSigner}
-              userProviderAndSigner={userProviderAndSigner}
-              setSelectedCollection={setSelectedCollection}
-              collectionInformation={collectionInformation}
               tx={tx}
             />
           </Route>
@@ -1340,20 +1328,12 @@ function App(props) {
               title="Join or Create A Group"
             />
             <GroupsMinter
-              yourDmBalance={yourDmBalance}
-              yourDmNftBalance={yourDmNftBalance}
               dmCollections={dmCollections}
-              selectedCollection={selectedCollection}
-              readContracts={readContracts}
+              selectedCollection={4}
               writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
               localProvider={localProvider}
               contractConfig={contractConfig}
               address={address}
-              userSigner={userSigner}
-              userProviderAndSigner={userProviderAndSigner}
-              setSelectedCollection={setSelectedCollection}
-              collectionInformation={collectionInformation}
               tx={tx}
             />
           </Route>
@@ -1413,6 +1393,8 @@ function App(props) {
               collectionInformation={collectionInformation}
               tx={tx}
             />
+           </Route>
+           <Route exact path="/listtokensinselected">
             {/* <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5 }}>
               Balance: <strong>{yourDmBalance} DM</strong> &nbsp; You have: <strong>{yourDmNftBalance} NFTs</strong>
             </div>

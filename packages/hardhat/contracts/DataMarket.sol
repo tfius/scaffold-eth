@@ -18,7 +18,7 @@ interface IDMCollection {
         uint256  tokenId; // what id
         bool     approved; // is it approved
     }
-
+ 
     function mintForUser(address creator, uint256 amount, address to, bytes32 metadataSwarmLocation, bytes32 tokenDataSwarmLocation) external;
     //function allTokensFrom(address _owner) external view returns (uint256[] memory);
     function tokenOfOwnerByIndex(address _owner, uint256 _index) external view returns (uint256);
@@ -40,11 +40,13 @@ interface IDMCollection {
     function templateAdd(address to, string memory tokenName, uint256 duplicationPrice) external;
     function templateMint(address to, uint256 fromTokenId, uint256 paymentReceived) external;
     function getTemplateIndices() external view returns (uint256[] memory);
+    function templateCreatable(address from, address to, string memory tokenName, uint256 duplicationPrice) external returns (uint256);
 
     //IERC721Metadata  
     function name() external view returns (string memory);
     function symbol() external view returns (string memory);
     function tokenURI(uint256 tokenId) external view returns (string memory);
+    function tokenData(uint256 tokenId) external view returns (string memory);
     //function getMetadata() external view returns (bytes32);
 
     //IERC20 
@@ -62,6 +64,7 @@ interface IDMCollection {
 }
 interface IDMMinter {
     function checkRequirements(address to, uint256 collectionIndex, uint256 mintFromTemplateTokenId) external view returns (bool);
+    function checkCreateableTemplates(uint256 collectionIndex) external view returns (bool);
 }
 
 contract DataMarket is Context, IERC20, IERC20Metadata {
@@ -415,7 +418,7 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
     {
         IDMCollection NFT = collectionGet(collectionIndex); 
         return NFT.getTemplateIndices();
-    }*/
+    }*/ 
     function setCollectionParams(uint256 collectionIndex, bool isNotTransferable, uint isFiniteCount) public 
     {
         require(msg.sender==contractTresury, "!o!t");
@@ -432,6 +435,17 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
         } 
     }
 
+    function templatesMintCreatable(address to, uint256 collectionIndex, string memory tokenName, uint256 duplicationPrice) public payable
+    {
+        require(msg.value==duplicationPrice,"$"); 
+        dmMinter.checkCreateableTemplates(collectionIndex);
+
+        IDMCollection NFT = collectionGet(collectionIndex); 
+        NFT.templateCreatable(msg.sender, to, tokenName, duplicationPrice);
+
+        payable(contractTresury).transfer(msg.value);    // cost to  go to treasury
+    } 
+    
     function templatesMintFrom(address to, uint256 collectionIndex, uint256 mintFromTemplateTokenId) public payable
     {
         // check requirements for balance
@@ -449,8 +463,8 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
             payable(contractTresury).transfer(fee);    // fees go to treasury
             _mint(msg.sender, msg.value-fee);
             emit Bought(msg.value);
-        }
-    } 
+        }  
+    }
 
     mapping (uint256 => uint256) private _fees;
     function defineCollectionFee(uint256 collectionIndex, uint256 newFee) public

@@ -19,6 +19,7 @@ import SwarmLocationInput from "./SwarmLocationInput";
 import { debuggerStatement } from "@babel/types";
 import * as helpers from "./helpers";
 import DMTViewer from "./DMTViewer";
+import FText  from "../components/FText";
 
 /*
 function bytes32ToString(bytes32 _bytes32) public pure returns (string memory) {
@@ -70,11 +71,11 @@ export default function MembershipMinter(props) {
   return (
     <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5, lineHeight: 1.5 }}>
       <p>
-        Become a Member. <br />
-        0.05% of your Membership will go to treasury and rest you will receive <strong>DM</strong>s. <br />
-        In meantime your funds can be used as flash loans by other members. <br />
-        You can liquidate your <strong>DM</strong>s anytime and keep Membership.
-        Only members can join groups. <br />
+        <FText>Become a Member.</FText>
+        <FText>0.05% of your Membership will go to treasury and rest you will receive <strong>&nbsp;DM</strong>s. </FText>
+        <FText>In meantime your funds can be used as flash loans by other members. </FText>
+        <FText>You can liquidate your <strong>&nbsp;DM</strong>s anytime and keep Membership.</FText>
+        {/* <FText>Only members can join groups. </FText> */}
       </p>
       {/* <List bordered>
             <List.Item key={"memb1"}>

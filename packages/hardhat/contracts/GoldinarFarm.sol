@@ -38,6 +38,14 @@ contract GoldinarFarm is ReentrancyGuard {
 
     uint256 public rate = 864000;    // cca 100% in a day 
     uint256 public totalStaked = 0;  // 
+    /*
+    Human readable time	Seconds
+        1 minute	60 seconds
+        1 hour	3600 seconds
+        1 day	86400 seconds
+        1 month (30.44 days)	2629743 seconds
+        1 year (365.24 days)	31556926 seconds
+    */
 
     //uint256 public emmissionTime = 1 years; // 
 
@@ -84,7 +92,8 @@ contract GoldinarFarm is ReentrancyGuard {
         stakingBalance[msg.sender] += amount;
         startTime[msg.sender] = block.timestamp;
         isStaking[msg.sender] = true;
-        totalStaked += amount;
+
+        totalStaked += amount; // DMs staked
         emit Stake(msg.sender, amount);
     }
 
@@ -139,6 +148,18 @@ contract GoldinarFarm is ReentrancyGuard {
         require(msg.sender==owner,"!o"); 
         rate = newRate;
     }
+
+    
+    // amount, totalstaked, goldinarsIssued
+    function price(uint256 input_amount, uint256 input_reserve, uint256 output_reserve) public view returns (uint256) {
+        uint256 input_amount_with_fee = input_amount * 997;
+        uint256 numerator = input_amount_with_fee * output_reserve;
+
+        uint256 denominator = (input_reserve * 1000) + input_amount_with_fee;
+        //uint256 denominator = input_reserve.mul(1000).add(input_amount_with_fee);
+        return numerator / denominator;
+    }
+    
 
     /// @notice Transfers accrued PMKN yield to the user
     /// @dev The if conditional statement checks for a stored PMKN balance. If it exists, the

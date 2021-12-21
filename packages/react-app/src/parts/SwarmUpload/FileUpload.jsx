@@ -8,26 +8,32 @@ import { uploadFileToBee } from "./service";
 
 //const FileUpload = ({ onDataUpload, url }) => {
 const FileUpload = (props) => {
-  //const { onDataUpload } = props;
+//const { onDataUpload } = props;
 
   const onDrop = useCallback(async filesArray => {
     try {
-      props.onCanCreate(false);
-      props.onMimeType(filesArray[0].type);
+      props.onCanCreate(true);
+
+      props.onError("");
       props.onFilename(filesArray[0].name);
+      props.onFilesize((filesArray[0].size/1024).toFixed(1));
+      props.onMimeType("uploading");
 
       const hash = await uploadFileToBee(filesArray[0]);
       console.log("upload hash", "0x" + hash);
       
+      props.onMimeType(filesArray[0].type);
       props.onDataUpload("0x" + hash);
 
-      props.onCanCreate(true);
+      props.onCanCreate(false);
+      
     } catch (error) {
       console.error(error);
 
       props.onError(error.toString());
       props.onMimeType("");
       props.onFilename("");
+      props.onFilesize(0);
     }
   }, []);
 
@@ -39,7 +45,7 @@ const FileUpload = (props) => {
   return (
     <div {...getRootProps()}>
       <input {...getInputProps()} />
-      {isDragActive ? <p>Drop the files here ...</p> : <p>Drag 'n' drop some files here, or click to select files</p>}
+      {isDragActive ? <p>Drop the file here ...</p> : <p>Drag 'n' drop your file here, or click to select one</p>}
     </div>
   );
 };

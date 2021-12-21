@@ -42,7 +42,8 @@ contract DMMinter {
     address public owner; 
     IDataMarket public dataMarket;
 
-    mapping (uint256 => uint256) private _uniqness;  
+    mapping (uint256 => uint256) private _uniqness;
+    mapping (uint256 => bool) private _userCreatableTemplates;  
     mapping (uint256 => uint256[]) private _requirements;
     mapping (uint256 => mapping (uint256 => uint256[2])) private _balanceRequirements;  
 
@@ -50,7 +51,7 @@ contract DMMinter {
     constructor (IDataMarket _dataMarket, address _owner) payable {
         dataMarket = _dataMarket;
         owner = _owner;
-    }
+    } 
 
     function defineBalanceRequirements(uint256 reqCollectionIndex, uint256 targetCollectionIndex, uint256 minBalance, uint256 maxBalance) public
     {
@@ -58,10 +59,16 @@ contract DMMinter {
         _requirements[reqCollectionIndex].push(targetCollectionIndex);
         _balanceRequirements[reqCollectionIndex][targetCollectionIndex] = [minBalance, maxBalance];
     }
-    function defineUniqueRequirements(uint256 collectionIndex, uint256 maxUniqness) public
+    function defineUniqueRequirements(uint256 collectionIndex, uint256 maxUniqness, bool _userCanCreataTemplate) public
     {
         require(msg.sender==owner, "!om");
         _uniqness[collectionIndex] = maxUniqness;
+        _userCreatableTemplates[collectionIndex] = _userCanCreataTemplate;
+    }
+    function checkCreateableTemplates(uint256 collectionIndex) public view returns (bool)
+    {
+        require(_userCreatableTemplates[collectionIndex]==true,"!creatable"); 
+        return _userCreatableTemplates[collectionIndex];
     }
 
     function checkRequirements(address to, uint256 collectionIndex, uint256 mintFromTemplateTokenId) public view returns (bool)

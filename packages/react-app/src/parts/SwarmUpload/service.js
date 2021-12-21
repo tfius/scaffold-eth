@@ -1,18 +1,24 @@
 import { Bee } from "@ethersphere/bee-js";
 import { Reference } from '@ethersphere/bee-js';
 
+import * as helpers from "../helpers";
+
 const POSTAGE_STAMP = '0000000000000000000000000000000000000000000000000000000000000000';
 //const POSTAGE_STAMP = "697f04ee51e42323fe281d1d596aed53a86e4e9b0a84a7abfc834e76781cd806";
 
 const META_FILE_NAME = ".swarmgatewaymeta.json";
 //const gatewayUrl = "https://gw-testnet.fairdatasociety.org/";
-const gatewayUrl = "https://gw-testnet.fairdatasociety.org/proxy";
+// const gatewayUrl = "https://gw-testnet.fairdatasociety.org/proxy";
+
 //const gatewayUrl = "https://gateway.ethswarm.org/";
+//const gatewayUrl = "https://fairos-mainnet.fairdatasociety.org/v1/"; //https://gw-testnet.fairdatasociety.org/proxy";
+
+
 
 
 export const uploadFileToBee = async (file) => {
-  const lastModified = file.lastModified;
-  const bee = new Bee(gatewayUrl);
+  const lastModified = file.lastModified; 
+  const bee = new Bee(helpers.uploadGateway);
   console.log("bee", bee);
 
   const metadata = {

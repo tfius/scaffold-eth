@@ -18647,6 +18647,11 @@
     "rc-resize-observer" "^1.0.0"
     "rc-util" "^5.0.7"
 
+"react-animated-text-builders@^1.1.0":
+  "integrity" "sha512-APQqft9cydUltJVICUgdBRrvoFnJddMGnPsjs2af9uBB0mte0fTQhll3jTqaFRAu9fMCSRl/Vsne4Hm9T5wl7A=="
+  "resolved" "https://registry.npmjs.org/react-animated-text-builders/-/react-animated-text-builders-1.1.0.tgz"
+  "version" "1.1.0"
+
 "react-app-polyfill@^2.0.0":
   "integrity" "sha512-0sF4ny9v/B7s6aoehwze9vJNWcmCemAUYBVasscVr92+UYiEqDXOxfKjXN685mDaMRNF3WdhHQs76oTODMocFA=="
   "resolved" "https://registry.npmjs.org/react-app-polyfill/-/react-app-polyfill-2.0.0.tgz"
