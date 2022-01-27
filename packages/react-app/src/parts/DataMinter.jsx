@@ -199,8 +199,7 @@ export default function DataMinter(props) {
     setMimeHash(mimehash);
     setMimeType(mime);
 
-    var valType = 0;
-    //var mime = new TextDecoder().decode(mimes);
+    var valType = 0; //var mime = new TextDecoder().decode(mimes);
 
     if (typeof mime === "string" || mime instanceof String) {
       if (mime.includes("audio") == true) valType = 1;

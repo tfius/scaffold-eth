@@ -3,7 +3,6 @@ import { useDropzone } from "react-dropzone";
 import { uploadFileToBee } from "./service";
 
 // https://gw-testnet.fairdatasociety.org/access/e75defedaf98ff89100ae0b514237b871939aee2553e6a108f618d7ffe9e42a6
-
 // e75defedaf98ff89100ae0b514237b871939aee2553e6a108f618d7ffe9e42a6
 
 //const FileUpload = ({ onDataUpload, url }) => {
@@ -29,7 +28,7 @@ const FileUpload = (props) => {
       
     } catch (error) {
       console.error(error);
-
+      
       props.onError(error.toString());
       props.onMimeType("");
       props.onFilename("");

@@ -44,6 +44,7 @@ contract Avatar is ERC721Enumerable, Ownable {
     Character[] public avatars;
     mapping(bytes32 => uint256) nameToTokenId;
     mapping(uint256 => uint256) tokenIdToName;
+    
     uint constant xp_per_day = 240e18;
     uint constant xp_per_h = xp_per_day/24;
     uint constant cost_per_h = 30e18;
