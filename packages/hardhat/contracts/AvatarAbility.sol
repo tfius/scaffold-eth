@@ -42,14 +42,14 @@ contract AvatarAbility is ERC721, Ownable {
         uint256 newId = abilities.length; 
         uint256 random = _random(randomness);
         // always start with stats from 1 to 10 
-        uint256 strength =     1 + (random % 100) % 10;
-        uint256 dexterity =    1 + ((random % 10000) / 100 ) % 10;
-        uint256 constitution = 1 + ((random % 1000000) / 10000 ) % 10;
-        uint256 intelligence = 1 + ((random % 100000000) / 1000000 ) % 10;
-        uint256 wisdom =       1 + ((random % 10000000000) / 100000000 ) % 10;
-        uint256 charisma =     1 + ((random % 1000000000000) / 10000000000) % 10;
-        //uint256 experience = 2;
-        uint256 skillpoints = 70 - (strength + dexterity + constitution + intelligence + wisdom + charisma); // be fair and add skill points to unlucky
+        uint256 strength     = 1 + (random % 100) % 20;
+        uint256 dexterity    = 1 + ((random % 10000) / 100 ) % 20;
+        uint256 constitution = 1 + ((random % 1000000) / 10000 ) % 20;
+        uint256 intelligence = 1 + ((random % 100000000) / 1000000 ) % 20;
+        uint256 wisdom       = 1 + ((random % 10000000000) / 100000000 ) % 20;
+        uint256 charisma     = 1 + ((random % 1000000000000) / 10000000000) % 20;
+        //uint256 p7 = 1 + ((random % 10000000000000) / 100000000000) % 20;
+        uint256 points = 70 - (strength + dexterity + constitution + intelligence + wisdom + charisma); // be fair and add skill points to unlucky
 
         abilities.push(
             Ability(
@@ -61,7 +61,7 @@ contract AvatarAbility is ERC721, Ownable {
                 wisdom,
                 charisma,
                 0,
-                skillpoints
+                points
             )
         );
         _safeMint(to, newId);

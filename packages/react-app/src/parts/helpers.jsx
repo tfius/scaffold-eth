@@ -1,6 +1,14 @@
 // helper functions to parts
-export const downloadGateway = "https://fairos-mainnet.fairdatasociety.org/bzz/"; 
-export const uploadGateway   = "https://fairdrive-mainnet.fairdatasociety.org/proxy/"; //https://gw-testnet.fairdatasociety.org/proxy";
+// MAINNET 
+
+// export const downloadGateway = "https://fairos-mainnet.fairdatasociety.org/bzz/"; 
+// export const uploadGateway   = "https://fairdrive-mainnet.fairdatasociety.org/proxy/"; 
+
+// testnet 
+export const downloadGateway = "https://gw-testnet.fairdatasociety.org/bzz/"; 
+export const uploadGateway   = "https://gw-testnet.fairdatasociety.org/proxy"; 
+// https://gw-testnet.fairdatasociety.org/proxy/health
+// https://gw-testnet.fairdatasociety.org/proxy/readiness 
 
 
 export const makeCall = async (callName, contract, args, metadata = {}) => {

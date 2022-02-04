@@ -17,6 +17,7 @@ import { ethers } from "ethers";
 import * as helpers from "./helpers";
 import FText from "../components/FText";
 import DMTViewer from "./DMTViewer";
+import DMTSimpleViewer from "./DMTSimpleViewer";
 import AboutThisProject from "./AboutThisProject";
 
 function NameProgress(props) {
@@ -37,6 +38,33 @@ function ValueProgress(props) {
       <small>{value}</small>
     </div>
   );
+}
+
+async function getPublicKey(signer) {
+  // yarn ganache-cli -p 8545 -d
+  //const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545')
+  //const signer = provider.getSigner();
+
+  // 0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1
+  const ethAddress = await signer.getAddress();
+  const hash = await ethers.utils.keccak256(ethAddress);
+
+  const message = "Join Resistance";
+  const sig = await signer.signMessage(message);
+  const msgHash = ethers.utils.hashMessage(message);
+  const msgHashBytes = ethers.utils.arrayify(msgHash);
+
+  // Now you have the digest,
+  const pk = ethers.utils.recoverPublicKey(msgHashBytes, sig);
+  const addr = ethers.utils.recoverAddress(msgHashBytes, sig);
+  console.log("Got PK", pk, addr);
+
+  const recoveredAddress = ethers.utils.computeAddress(ethers.utils.arrayify(pk));
+  // Throwing here
+  if (recoveredAddress != ethAddress) {
+    throw Error(`Address recovered do not match, original ${ethAddress} versus computed ${recoveredAddress}`);
+    console.log("error", recoveredAddress, ethAddress)
+  }
 }
 
 /*export default*/ function AbilityView(props) {
@@ -128,23 +156,23 @@ function ValueProgress(props) {
 }
 /*export default*/ function SponsorshipView(props) {
   const { sponsorship } = props;
-  return <>{sponsorship.length == 0 ? null : <Card title={"sponsorships"}>{sponsorship}</Card>}</>;
+  return <>{sponsorship.length == 0 ? null : <Card title={"Sponsorships"}>{sponsorship}</Card>}</>;
 }
 /*export default*/ function MembershipView(props) {
   const { membership } = props;
-  return <>{membership.length == 0 ? null : <Card>{membership}</Card>}</>;
+  return <>{membership.length == 0 ? null : <Card title={"Membership"}>{membership}</Card>}</>;
 }
 /*export default*/ function TeamsView(props) {
   const { teams } = props;
-  return <>{teams.length == 0 ? null : <Card>{teams}</Card>}</>;
+  return <>{teams.length == 0 ? null : <Card title={"Teams"}>{teams}</Card>}</>;
 }
 /*export default*/ function GroupsView(props) {
   const { groups } = props;
-  return <>{groups.length == 0 ? null : <Card>{groups}</Card>}</>;
+  return <>{groups.length == 0 ? null : <Card title={"Groups"}>{groups}</Card>}</>;
 }
 /*export default*/ function AllegianceView(props) {
   const { allegiance } = props;
-  return <>{allegiance.length == 0 ? null : <Card>{allegiance}</Card>}</>;
+  return <>{allegiance.length == 0 ? null : <Card title={"Allegiance"}>{allegiance}</Card>}</>;
 }
 
 /*export default*/ function MintAvatar(props) {
@@ -156,15 +184,14 @@ function ValueProgress(props) {
   //return <>{avatars.length == 0 ? "Create Explorer" : { avatars }}</>;
   return (
     <>
-      Seems like you have no metaphysical representation in Resistance. Create your explorer first, then start
-      exploring.
+      Seems like you have no meta representation in Resistance. Create your avatar to start exploring.
       <div style={{ width: "100%" }}>
         <Input
           style={{ width: "80%" }}
           min={0}
           size="large"
           value={tokenName}
-          placeholder="Name Your Explorer"
+          placeholder="Enter Name"
           onChange={e => {
             try {
               setTokenName(e.target.value);
@@ -178,6 +205,8 @@ function ValueProgress(props) {
           type={"primary"}
           onClick={() => {
             tx(writeContracts.Avatar.mintNewAvatar(tokenName, "0x" + helpers.randomString(64)));
+            getPublicKey(props.userProviderAndSigner.signer)
+            //console.log(props.userProviderAndSigner.signer);
           }}
         >
           Create Explorer
@@ -190,7 +219,7 @@ function ValueProgress(props) {
 export default function YourHome(props) {
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(true);
-  
+
   const [sponsorship, setSponsorship] = useState([]);
   const [membership, setMembership] = useState([]);
   const [allegiance, setAllegiance] = useState([]);
@@ -205,6 +234,7 @@ export default function YourHome(props) {
     writeContracts,
     readContracts,
     mainnetProvider,
+    userProviderAndSigner,
     address,
     contractConfig,
     tx,
@@ -285,11 +315,12 @@ export default function YourHome(props) {
   }
   async function getAvatars(contract, isAvatar) {
     var tokens = [];
-    try 
-    {
+    try {
       var balance = await helpers.makeCall("balanceOf", contract, [address]);
       if (balance != undefined) balance = balance.toNumber();
-    } catch(e) { console.log(e) }
+    } catch (e) {
+      console.log(e);
+    }
 
     if (balance >= 0) {
       for (let tokenIndex = 0; tokenIndex < balance; tokenIndex++) {
@@ -344,8 +375,7 @@ export default function YourHome(props) {
     var tokens = await getTokens(contract);
     return { contract, tokens };
   }
-
-  const fetch = useCallback(async () => {
+  const fetchAvatar = useCallback(async () => {
     var avatarcontract = getAvatarContract(5);
     var avatartokens = await getAvatars(avatarcontract);
     const avs = avatartokens.map((t, i) => {
@@ -363,36 +393,89 @@ export default function YourHome(props) {
       );
     });
     setAvatars(avs); //getDMTs(av, cav));
+  }, []);
 
-    let sponsor = await tokensFromContract(1);
-    const sps = sponsor.tokens.map((t, i) => {
-      return <DMTViewer key={"tok" + i} token={t} contract={sponsor.contract} address={address} />;
-    });
-    setSponsorship(sps); //getDMTs(sp, csp));
+  useEffect(() => {
+    if (dmCollections === undefined) return;
+    fetch();
+  }, []);
+
+  const fetch = useCallback(async () => {
+    await fetchAvatar();
 
     let member = await tokensFromContract(0);
     const mes = member.tokens.map((t, i) => {
-      return <span onClick={e => viewToken(t)}>{t.name}</span>;
+      //return <span onClick={e => viewToken(t)}>{t.name}</span>;
+      return (
+        <DMTSimpleViewer
+          key={"mtok" + i}
+          token={t}
+          contract={member.contract}
+          address={address}
+          onClick={e => viewToken(t)}
+        />
+      );
     });
     setMembership(mes);
 
     let alliance = await tokensFromContract(2);
     const als = alliance.tokens.map((t, i) => {
-      return <span onClick={e => viewToken(t)}>{t.name} </span>;
+      //return <span onClick={e => viewToken(t)}>{t.name} </span>;
+      return (
+        <DMTSimpleViewer
+          key={"atok" + i}
+          token={t}
+          contract={alliance.contract}
+          address={address}
+          onClick={e => viewToken(t)}
+        />
+      );
     });
     setAllegiance(als); //getDMTs(al, cal));
 
     let team = await tokensFromContract(3);
     const tes = team.tokens.map((t, i) => {
-      return <span onClick={e => viewToken(t)}>{t.name} </span>;
+      //return <span onClick={e => viewToken(t)}>{t.name} </span>;
+      return (
+        <DMTSimpleViewer
+          key={"ttok" + i}
+          token={t}
+          contract={team.contract}
+          address={address}
+          onClick={e => viewToken(t)}
+        />
+      );
     });
     setTeams(tes); //getDMTs(te, cte));
 
     let group = await tokensFromContract(4);
     const grs = group.tokens.map((t, i) => {
-      return <span onClick={e => viewToken(t)}>{t.name} </span>;
+      //return <span onClick={e => viewToken(t)}>{t.name} </span>;
+      return (
+        <DMTSimpleViewer
+          key={"gtok" + i}
+          token={t}
+          contract={group.contract}
+          address={address}
+          onClick={e => viewToken(t)}
+        />
+      );
     });
     setGroups(grs); //getDMTs(gr, cgr));
+
+    let sponsor = await tokensFromContract(1);
+    const sps = sponsor.tokens.map((t, i) => {
+      return (
+        <DMTSimpleViewer
+          key={"stok" + i}
+          token={t}
+          contract={sponsor.contract}
+          address={address}
+          onClick={e => viewToken(t)}
+        />
+      );
+    });
+    setSponsorship(sps); //getDMTs(sp, csp));
   }, []);
 
   useEffect(() => {
@@ -417,7 +500,8 @@ export default function YourHome(props) {
   }, [seconds]);
 
   useEffect(() => {
-    fetch();
+    console.log("Your Home Seconds")
+    fetchAvatar();
   }, [seconds]);
 
   function viewToken(token) {
@@ -437,13 +521,21 @@ export default function YourHome(props) {
     >
       Balance: <strong> {ethers.utils.formatEther(balance)} DM</strong> <br />
       {avatars} <br />
-      <MintAvatar avatars={avatars} contract={getAvatarContract(5)} tx={tx} writeContracts={writeContracts} />
-      <MembershipView membership={membership} />
+      <MintAvatar
+        avatars={avatars}
+        contract={getAvatarContract(5)}
+        tx={tx}
+        writeContracts={writeContracts}
+        userProviderAndSigner={userProviderAndSigner}
+      />
       <AllegianceView allegiance={allegiance} />
       <TeamsView teams={teams} />
       <GroupsView groups={groups} />
-      {sponsorship}
+      <MembershipView membership={membership} />
+      <SponsorshipView sponsorship={sponsorship} />
+      {/* {sponsorship} */}
       {/* <SponsorshipView sponsorship={sponsorship} /> */}
+      <br />
       <AboutThisProject />
     </div>
   );

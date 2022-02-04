@@ -265,6 +265,7 @@ function App(props) {
   const yourDmBalance = dmBalance && dmBalance.toString && dmBalance.toString();
   const [yourDMs, setYourDMs] = useState();
   const yourDmNftBalance = dmnftBalance && dmnftBalance.toNumber && dmnftBalance.toNumber();
+  
   const [yourDmNfts, setYourDmNfts] = useState();
   const [selectedCollection, setSelectedCollection] = useState(0);
   const [collectionInformation, setCollectionInformation] = useState({
@@ -1666,19 +1667,20 @@ function App(props) {
       </div>
 
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
-      <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
+      <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10, opacity: 0.4 }}>
         <Row align="middle" gutter={[4, 4]}>
           <Col span={8}>
             <Ramp price={price} address={address} networks={NETWORKS} />
           </Col>
 
-          <Col span={8} style={{ textAlign: "center", opacity: 0.8 }}>
-            <GasGauge gasPrice={gasPrice} />
+          <Col span={13} style={{ textAlign: "center" }}>
+            <GasGauge gasPrice={gasPrice} /> 
           </Col>
-          <Col span={8} style={{ textAlign: "center", opacity: 1 }}>
+
+          {/* <Col span={8} style={{ textAlign: "center", opacity: 1 }}>
             <Button
               onClick={() => {
-                window.open("https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA");
+                 window.open("https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA");
               }}
               size="large"
               shape="round"
@@ -1688,7 +1690,7 @@ function App(props) {
               </span>
               Support
             </Button>
-          </Col>
+          </Col> */}
         </Row>
 
         <Row align="middle" gutter={[4, 4]}>

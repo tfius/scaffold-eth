@@ -42,14 +42,13 @@ contract AvatarRelatable is ERC721, Ownable {
         uint256 newId = properties.length;
         uint256 random = _random(randomness);
         // always start with stats from 1 to 10 
-        uint256 identity      = 0; //1 + (random % 100) % 10;
-        uint256 fear = 0; //1 + ((random % 10000) / 100 ) % 10;
-        uint256 desire    = 0; //1 + ((random % 1000000) / 10000 ) % 10;
+        uint256 identity = 0; //1 + (random % 100) % 10;
+        uint256 fear     = 0; //1 + ((random % 10000) / 100 ) % 10;
+        uint256 desire   = 0; //1 + ((random % 1000000) / 10000 ) % 10;
         uint256 grief    = 0; //1 + ((random % 100000000) / 1000000 ) % 10;
         uint256 love     = 0; //1 + ((random % 10000000000) / 100000000 ) % 10;
-        uint256 loss          = 0; //1 + ((random % 1000000000000) / 10000000000) % 10;
-        //uint256 experience = 2;
-        uint256 points = 100;
+        uint256 loss     = 0; //1 + ((random % 1000000000000) / 10000000000) % 10;
+        uint256 points   = 100;
 
         properties.push(
             Property(

@@ -49,7 +49,7 @@ contract AvatarDrawbacks is ERC721, Ownable {
         uint256 strain      = 0; //1 + ((random % 10000000000) / 100000000 ) % 10;
         uint256 pressure    = 0; //1 + ((random % 1000000000000) / 10000000000) % 10;
         //uint256 experience = 2;
-        uint256 drawbackpoints = 0;// - (proficiency + encumbrance + constraint + obstruction + strain + pressure); // be fair and add skill points to unlucky
+        uint256 drawbackpoints = 100;// - (proficiency + encumbrance + constraint + obstruction + strain + pressure); // be fair and add skill points to unlucky
 
         properties.push(
             Property(

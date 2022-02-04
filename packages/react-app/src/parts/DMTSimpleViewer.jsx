@@ -27,17 +27,17 @@ import AudioPlayer from "./AudioPlayer";
 
 // get data from https://gw-testnet.fairdatasociety.org/bzz/109dfe7be464b749bd2d29db0f1ba2b3229973c1b9b3b5fffed289766c4a88ae/
 /*
-  function bytes32ToString(bytes32 _bytes32) public pure returns (string memory) {
-    uint8 i = 0;
-    while(i < 32 && _bytes32[i] != 0) {
-        i++;
-    }
-    bytes memory bytesArray = new bytes(i);
-    for (i = 0; i < 32 && _bytes32[i] != 0; i++) {
-        bytesArray[i] = _bytes32[i];
-    }
-    return string(bytesArray);
-  }*/
+    function bytes32ToString(bytes32 _bytes32) public pure returns (string memory) {
+      uint8 i = 0;
+      while(i < 32 && _bytes32[i] != 0) {
+          i++;
+      }
+      bytes memory bytesArray = new bytes(i);
+      for (i = 0; i < 32 && _bytes32[i] != 0; i++) {
+          bytesArray[i] = _bytes32[i];
+      }
+      return string(bytesArray);
+    }*/
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -83,7 +83,7 @@ const tabListNoTitle = [
   },
 ];
 
-export default function DMTViewer(props) {
+export default function DMTSimpleViewer(props) {
   const [loading, setLoading] = useState(true);
   const [loadModel, setLoadModel] = useState();
 
@@ -107,22 +107,6 @@ export default function DMTViewer(props) {
   } = props;
 
   const dataUrl = helpers.downloadGateway + token.d.substring(2) + "/";
-  let cameraPosition = {
-    x: 150,
-    y: 300,
-    z: 350,
-  };
-  const onLoad = useCallback(async e => {
-    console.log("fbx load", e);
-  });
-  const onError = useCallback(async e => {
-    console.log("fbx error", e);
-  });
-
-  function Loader() {
-    const { progress } = useProgress();
-    return <Html center>{progress} % loaded</Html>;
-  }
 
   const retrieveNFTData = useCallback(async () => {
     setLoading(true);
@@ -141,43 +125,45 @@ export default function DMTViewer(props) {
       //var newBalance = await helpers.makeCall("balanceOf", contract, [address]);
       //if (newBalance != undefined) setYourTokenBalance(newBalance.toNumber());
 
-      switch (token.m) {
-        case "0x0000000000000000000000000000000000000000000000000000000000000001":
-          {
-            token.dataView = <AudioPlayer url={dataUrl} />;
-          }
-          break;
-        case "0x0000000000000000000000000000000000000000000000000000000000000002":
-          {
-            token.dataView = <img src={dataUrl} style={{width: "19rem", height:"19rem", objectFit: "scale-down", top:0 }}></img>;
-          }
-          break;
-        case "0x0000000000000000000000000000000000000000000000000000000000000003":
-          {
-            token.dataView = <video controls src={dataUrl} style={{ width: "100%" }} />;
-          }
-          break;
-        case "0x0000000000000000000000000000000000000000000000000000000000000004":
-          {
-            token.dataView = (
-              <Canvas>
-                <Suspense fallback={<Loader />}>
-                  <ErrorBoundary>
-                    <Model />
-                  </ErrorBoundary>
-                  <OrbitControls />
-                  <Environment preset="forest" background />
-                </Suspense>
-              </Canvas>
-            );
-          }
-          break;
+    //   switch (token.m) {
+    //     case "0x0000000000000000000000000000000000000000000000000000000000000001":
+    //       {
+    //         token.dataView = <AudioPlayer url={dataUrl} />;
+    //       }
+    //       break;
+    //     case "0x0000000000000000000000000000000000000000000000000000000000000002":
+    //       {
+    //         token.dataView = (
+    //           <img src={dataUrl} style={{ width: "19rem", height: "19rem", objectFit: "scale-down", top: 0 }}></img>
+    //         );
+    //       }
+    //       break;
+    //     case "0x0000000000000000000000000000000000000000000000000000000000000003":
+    //       {
+    //         token.dataView = <video controls src={dataUrl} style={{ width: "100%" }} />;
+    //       }
+    //       break;
+    //     case "0x0000000000000000000000000000000000000000000000000000000000000004":
+    //       {
+    //         token.dataView = (
+    //           <Canvas>
+    //             <Suspense fallback={<Loader />}>
+    //               <ErrorBoundary>
+    //                 <Model />
+    //               </ErrorBoundary>
+    //               <OrbitControls />
+    //               <Environment preset="forest" background />
+    //             </Suspense>
+    //           </Canvas>
+    //         );
+    //       }
+    //       break;
 
-        default: {
-          token.dataView = <img src={dataUrl} style={{ width: "100%" }}></img>;
-          break;
-        }
-      }
+    //     default: {
+    //       token.dataView = <img src={dataUrl} style={{ width: "100%" }}></img>;
+    //       break;
+    //     }
+    //   }
     }
 
     //console.log(token);
@@ -185,21 +171,13 @@ export default function DMTViewer(props) {
   });
 
   const getLinks = useCallback(async () => {
-    //setLoading(true);
     if (contract != null) {
-      //var name = await helpers.makeCall("name", contract);
-      //var links = await helpers.makeCall("getLinks", contract, [token.id]);
       console.log(token.name + " links", links);
-      //setLinks(links)
     }
   });
   const getParentLinks = useCallback(async () => {
-    //setLoading(true);
     if (contract != null) {
-      //var name = await helpers.makeCall("name", contract);
-      //var links = await helpers.makeCall("getLinks", contract, [token.id]);
       console.log(token.name + " parentLinks", parentLinks);
-      //setLinks(links)
     }
   });
 
@@ -207,49 +185,19 @@ export default function DMTViewer(props) {
     retrieveNFTData();
   }, [contract]);
 
- /* 
+  /*
   useEffect(() => {
     getLinks();
   }, [links]);
   useEffect(() => {
     getParentLinks();
-  }, [links]); 
-  */
+  }, [links]);*/
 
-  // useEffect(() => {
-  //    fbx = useFBX(dataUrl);
-  //    console.log ()
-  //    token.dataView = <primitive object={fbx} />
-  // }, [loadModel]);
-
-  const Model = props => {
-    //const fbx = useFBX(dataUrl);
-    const fbx = useLoader(FBXLoader, dataUrl);
-    return null;
-    // return <primitive object={fbx} dispose={null} scale={0.4} {...props} />;
-  };
-
-  if (loading === true) return <h1>Please wait...</h1>;
-
-  //const hasMeta = token.m === "0x0000000000000000000000000000000000000000000000000000000000000000"; // process metadata
-
-  // const onLoad = e => {
-  //   console.log(e);
+  if (loading === true) return <h5>Please wait...</h5>;
+  // var dataView = null;
+  // const onTabChange = key => {
+  //   setActiveTabKey(key);
   // };
-
-  // const onError = e => {
-  //   console.log(e);
-  // };
-
-  var dataView = null;
-  /*
-  var audioSource = <AudioPlayer url={dataUrl} />
-  var imageSource = <img src={dataUrl} style={{ width: "180px" }}></img>
-  var videoSource = <video controls src={dataUrl} /> 
-  */
-  const onTabChange = key => {
-    setActiveTabKey(key);
-  };
   const contentListNoTitle = {
     contents: <p>{token.dataView}</p>,
     info: (
@@ -281,20 +229,20 @@ export default function DMTViewer(props) {
   };
 
   return (
-    <div >
+    <>
       <Card.Grid
+        title={token.name}
         size="small"
         style={{
           minWidth: "2rem",
           maxWidth: "20rem",
-          minHeight: "20rem",
-          maxHeight: "20rem",
+          minHeight: "3rem",
+          maxHeight: "3rem",
           margin: "auto",
           marginTop: 0,
           padding: "1px",
           lineHeight: 1,
         }}
-        // style={{ minHeight:"25rem", maxHeight:"25rem",weight:"100%",  margin: "auto" }}
         onClick={() => console.log(token)}
         hoverable
         onMouseEnter={e => {
@@ -304,26 +252,19 @@ export default function DMTViewer(props) {
           setDetails(false);
         }}
       >
-        <h2>{token.name}</h2>
-        {/* <span
-        style={{ display: "flex", right: "0", top: "0", position: "absolute" }}
-        onClick={() => {
-          setDetails(!details);
-        }}
-      >
-        ⓘ
-      </span>  */}
-        {contentListNoTitle[activeTabKey]}
+        <h2 style={{ textAlign: "center", padding: 10}}>{token.name}</h2>
+        {/* {contentListNoTitle[activeTabKey]}
         {details == true ? (
           <Tabs
             style={{
               display: "block",
               left: "0",
-              right: "0",
+              //right: "0",
               bottom: "0",
+              top: "0",
               position: "absolute",
               background: "#0000005f",
-              padding: "20px",
+              padding: "5px",
             }}
             defaultActiveKey={activeTabKey}
             onChange={key => {
@@ -332,13 +273,11 @@ export default function DMTViewer(props) {
           >
             {tabListNoTitle.map((c, i) => (
               <TabPane tab={c.tab} key={c.key} style={{ fontSize: "8px" }}>
-                {/* {contentListNoTitle[activeTabKey]} */}
-                {/* Content of tab {i} */}
               </TabPane>
             ))}
           </Tabs>
-        ) : null}
+        ) : null} */}
       </Card.Grid>
-    </div>
+    </>
   );
 }

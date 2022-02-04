@@ -20,6 +20,7 @@ import { debuggerStatement } from "@babel/types";
 
 import * as helpers from "./helpers";
 import DMTViewer from "./DMTViewer";
+import DMTSimpleViewer from "./DMTSimpleViewer";
 
 /*
   function bytes32ToString(bytes32 _bytes32) public pure returns (string memory) {
@@ -160,7 +161,7 @@ export default function TemplatesMinter(props) {
   });
 
   const toks = yourTokens.map((t, i) => {
-    return <DMTViewer key={"tok" + i} token={t} contract={contract} address={address} />; //<Card>{<h2>{t.name}</h2>}</Card>;
+    return <DMTSimpleViewer key={"tok" + i} token={t} contract={contract} address={address} />; //<Card>{<h2>{t.name}</h2>}</Card>;
   });
 
   if (loading === true) return <h1>Please wait...</h1>;
@@ -231,7 +232,12 @@ export default function TemplatesMinter(props) {
       //   You can liquidate your <strong>DM</strong>s anytime but will loose value on {contractName}.
       // </p>
       null}
-      {yourTokenBalance > 0 ? <>{toks} </> : null}
+      
+      <div className="card-grid-container ">
+          {yourTokenBalance > 0 ? <>{toks} </> : null}
+      </div>
+
+      <br/>
       Can {finiteCount == 0 ? "" : <strong>NOT</strong>} be accumulated and are{" "}
       {isNonTransferable ? <strong>NON-</strong> : ""}transferable. <br />
     </div>

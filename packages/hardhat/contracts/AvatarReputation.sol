@@ -48,7 +48,6 @@ contract AvatarReputation is ERC721, Ownable {
         uint256 transparency    = 0; //1 + ((random % 100000000) / 1000000 ) % 10;
         uint256 consistency     = 0; //1 + ((random % 10000000000) / 100000000 ) % 10;
         uint256 vision          = 0; //1 + ((random % 1000000000000) / 10000000000) % 10;
-        //uint256 experience = 2;
         uint256 reputationpoints = 100;
 
         properties.push(

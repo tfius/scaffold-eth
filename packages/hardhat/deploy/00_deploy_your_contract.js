@@ -164,7 +164,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
 
   await dm.collectionAdd(memberShipCollection.address); // 0
-  await dm.collectionAdd(sponsorhipCollection.address); // 1
+  await dm.collectionAdd(sponsorhipCollection.address); // 1 should be 1 
   await dm.collectionAdd(allegianceCollection.address); // 2
   await dm.collectionAdd(teamsCollection.address);      // 3
   await dm.collectionAdd(groupsCollection.address);     // 4
@@ -180,11 +180,11 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   console.log("Templates Sponsor");     
   await dm.templatesInCollectionCreate(1, ["Bronze","Silver","Gold"], ["1000000000000000000","10000000000000000000","100000000000000000000"] ); // sponsorship
   console.log("Templates Allegiance");     
-  await dm.templatesInCollectionCreate(2, ["Developer","Artist","Manager","Publisher","Player"/*,"Grunt"*/],[0,0,0,0,0/*,0*/]); // Allegiance
+  await dm.templatesInCollectionCreate(2, ["Developer","Artist","Manager","Publisher","Player"],[0,0,0,0,0]); // Allegiance // ,"Grunt"
   console.log("Templates Team");     
-  await dm.templatesInCollectionCreate(3, ["Artisan Landscape","Research Cave","Innovators Den", "Game Devisers", "Digital Nation"],[0,0,0,0,0]); // Teams
+  await dm.templatesInCollectionCreate(3, ["Artisan Landscape","Research Cave","Innovators Den", "Game Devisers", "Digital Nation", "Space Che"], [0,0,0,0,0,0]); // Teams
   console.log("Templates Group");     
-  await dm.templatesInCollectionCreate(4, ["Metier", "Evolve", "Trendsetter", "Fearless", "Nekkhamma"],[0,0,0,0,0]); // Groups
+  await dm.templatesInCollectionCreate(4, ["Metier", "Evolve", "Trendsetter", "Fearless", "Nekkhamma"], [0,0,0,0,0]); // Groups
 
   console.log("Additional Team");
   await dm.templatesInCollectionCreate(3, ["Party Warriors","Flag Wavers","Love Protectors", "Equality Advocates","Peace Champions", "Radical Decentralization"], [0,0,0,0,0,0]); // Teams
