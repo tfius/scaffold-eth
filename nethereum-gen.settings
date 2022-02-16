@@ -1,0 +1,7 @@
+{
+    "projectName": "LandscapeComposableSvgNft",
+    "namespace": "LandscapeComposableSvgNft.Contracts",
+    "lang": 0,
+    "autoCodeGen": true,
+    "projectPath": "../"
+}

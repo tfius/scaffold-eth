@@ -40,25 +40,23 @@ function ValueProgress(props) {
   );
 }
 
+// this is needed for fairdrop to work
 async function getPublicKey(signer) {
   // yarn ganache-cli -p 8545 -d
   //const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545')
   //const signer = provider.getSigner();
-
-  // 0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1
   const ethAddress = await signer.getAddress();
   const hash = await ethers.utils.keccak256(ethAddress);
-
+  //
   const message = "Join Resistance";
   const sig = await signer.signMessage(message);
   const msgHash = ethers.utils.hashMessage(message);
   const msgHashBytes = ethers.utils.arrayify(msgHash);
-
   // Now you have the digest,
   const pk = ethers.utils.recoverPublicKey(msgHashBytes, sig);
   const addr = ethers.utils.recoverAddress(msgHashBytes, sig);
   console.log("Got PK", pk, addr);
-
+  // recover address
   const recoveredAddress = ethers.utils.computeAddress(ethers.utils.arrayify(pk));
   // Throwing here
   if (recoveredAddress != ethAddress) {
@@ -209,7 +207,7 @@ async function getPublicKey(signer) {
             //console.log(props.userProviderAndSigner.signer);
           }}
         >
-          Create Explorer
+          Create Avatar
         </Button>
       </div>
     </>

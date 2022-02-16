@@ -129,48 +129,18 @@ contract Avatar is ERC721Enumerable, Ownable {
     {
         return avatars[tokenId];
     } 
-    /*function getAvatarInfo(uint256 tokenId) 
-        public
-        view
-        returns ( 
-            string memory name,
-            uint256 experience,
-            uint256 journey,
-            uint256 lastJourneyDuration, 
-            uint256 totalTime,
-            uint256 askCostPerH
-        ) 
-    {
-        return ( 
-            avatars[tokenId].name,
-            avatars[tokenId].experience,
-            avatars[tokenId].journey,
-            avatars[tokenId].lastJourneyDuration, 
-            avatars[tokenId].totalTime,
-            avatars[tokenId].askCostPerH
-        );
-    }*/
-
-    /*function upgradeAvatar(uint256 tokenId,  
-            uint256 strength
-           ) 
-            internal 
-    {
-        require(_isApprovedOrOwner(tokenId)); 
-
-    } */
 
     function _isApprovedOrOwner(uint256 tokenId) internal view returns (bool) {
         return getApproved(tokenId) == msg.sender || ownerOf(tokenId) == msg.sender;
     }
 
     function setCostPerH(uint tokenId, uint256 amount) public {
-        require(msg.sender==ownerOf(tokenId));
+        require(msg.sender==ownerOf(tokenId),"not owner");
         avatars[tokenId].askCostPerH = amount;
     }
 
     function journeyStart(uint tokenId) public {
-        require(_isApprovedOrOwner(tokenId));
+        require(_isApprovedOrOwner(tokenId),"not approved or owner");
         require(avatars[tokenId].journey<1,"already on journey");
         avatars[tokenId].journey = block.timestamp;
     }

@@ -23,9 +23,6 @@ const { utils, BigNumber } = require("ethers");
 import * as helpers from "./helpers";
 import AudioPlayer from "./AudioPlayer";
 
-//const gatewayUrl = "https://gw-testnet.fairdatasociety.org/";
-
-// get data from https://gw-testnet.fairdatasociety.org/bzz/109dfe7be464b749bd2d29db0f1ba2b3229973c1b9b3b5fffed289766c4a88ae/
 /*
     function bytes32ToString(bytes32 _bytes32) public pure returns (string memory) {
       uint8 i = 0;

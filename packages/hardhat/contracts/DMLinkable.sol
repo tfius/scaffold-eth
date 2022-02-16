@@ -3,7 +3,6 @@ pragma solidity >=0.8.0 <0.9.0;
 
 contract DMLinkable {
     struct TokenLink {
-        //address  collection; // from where
         uint256  tokenId; // what id
         bool     approved; // is it approved
     }

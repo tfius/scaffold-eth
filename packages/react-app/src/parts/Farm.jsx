@@ -102,7 +102,7 @@ export default function Farm(props) {
   return (
     <div>
       <div style={{ maxWidth: 800, margin: "auto", marginTop: 5, paddingBottom: 5, lineHeight: 1.2 }}>
-        Balance <strong> {ethers.utils.formatEther(goldinarBalance)}</strong> Goldinars
+        Balance <strong> {ethers.utils.formatEther(goldinarBalance)}</strong> Goldinars (WITHDRAW)
         {isStaking ? (
           <List
             style={{
