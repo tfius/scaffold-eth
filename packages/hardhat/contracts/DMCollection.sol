@@ -547,10 +547,11 @@ function onERC721Received(address to, address collection, uint256 tokenId) priva
     /**
      * @dev adds addressable data to tokenId, with triples to,metadata,data
     */
-    function addresableAdd(uint256 tokenId, address to/*, bytes32 metadataSwarmLocation*/, bytes32 tokenDataSwarmLocation) public {
+    function addDataLocation(uint256 tokenId/*, address to/*, bytes32 metadataSwarmLocation*/, bytes32 tokenDataSwarmLocation) public {
         require(msg.sender==ownerOf(tokenId), "!o"); // not owner
-        addressablesAdd( tokenId,  to/*,  metadataSwarmLocation*/, tokenDataSwarmLocation); 
-    } 
+        dataLocationAdd( tokenId/*,  to,  metadataSwarmLocation*/, tokenDataSwarmLocation); 
+    }
+
 
     /* @dev See {IERC721Metadata-tokenURI}.*/
     function tokenData(uint256 tokenId) public view virtual returns (string memory) {
@@ -583,10 +584,10 @@ function onERC721Received(address to, address collection, uint256 tokenId) priva
         // return json;
     }
     /* Get All addresses and their data tied to this to token*/
-    function tokenAddressables(uint256 tokenId) public view returns (string memory) {
+    /*function tokenAddressables(uint256 tokenId) public view returns (string memory) {
         return string(abi.encodePacked('{ "o":"', ownerOf(tokenId), 
                                        '","r": ', super.addressablesJSON(tokenId), '}'));
-    }  
+    }*/  
 
     function _baseMint(address to) internal returns (uint256)
     {

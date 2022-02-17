@@ -93,6 +93,7 @@ export default function DMTSimpleViewer(props) {
   const {
     contract,
     token,
+    onClickRedirect,
     selectedCollection,
     writeContracts,
     readContracts,
@@ -122,45 +123,45 @@ export default function DMTSimpleViewer(props) {
       //var newBalance = await helpers.makeCall("balanceOf", contract, [address]);
       //if (newBalance != undefined) setYourTokenBalance(newBalance.toNumber());
 
-    //   switch (token.m) {
-    //     case "0x0000000000000000000000000000000000000000000000000000000000000001":
-    //       {
-    //         token.dataView = <AudioPlayer url={dataUrl} />;
-    //       }
-    //       break;
-    //     case "0x0000000000000000000000000000000000000000000000000000000000000002":
-    //       {
-    //         token.dataView = (
-    //           <img src={dataUrl} style={{ width: "19rem", height: "19rem", objectFit: "scale-down", top: 0 }}></img>
-    //         );
-    //       }
-    //       break;
-    //     case "0x0000000000000000000000000000000000000000000000000000000000000003":
-    //       {
-    //         token.dataView = <video controls src={dataUrl} style={{ width: "100%" }} />;
-    //       }
-    //       break;
-    //     case "0x0000000000000000000000000000000000000000000000000000000000000004":
-    //       {
-    //         token.dataView = (
-    //           <Canvas>
-    //             <Suspense fallback={<Loader />}>
-    //               <ErrorBoundary>
-    //                 <Model />
-    //               </ErrorBoundary>
-    //               <OrbitControls />
-    //               <Environment preset="forest" background />
-    //             </Suspense>
-    //           </Canvas>
-    //         );
-    //       }
-    //       break;
+      //   switch (token.m) {
+      //     case "0x0000000000000000000000000000000000000000000000000000000000000001":
+      //       {
+      //         token.dataView = <AudioPlayer url={dataUrl} />;
+      //       }
+      //       break;
+      //     case "0x0000000000000000000000000000000000000000000000000000000000000002":
+      //       {
+      //         token.dataView = (
+      //           <img src={dataUrl} style={{ width: "19rem", height: "19rem", objectFit: "scale-down", top: 0 }}></img>
+      //         );
+      //       }
+      //       break;
+      //     case "0x0000000000000000000000000000000000000000000000000000000000000003":
+      //       {
+      //         token.dataView = <video controls src={dataUrl} style={{ width: "100%" }} />;
+      //       }
+      //       break;
+      //     case "0x0000000000000000000000000000000000000000000000000000000000000004":
+      //       {
+      //         token.dataView = (
+      //           <Canvas>
+      //             <Suspense fallback={<Loader />}>
+      //               <ErrorBoundary>
+      //                 <Model />
+      //               </ErrorBoundary>
+      //               <OrbitControls />
+      //               <Environment preset="forest" background />
+      //             </Suspense>
+      //           </Canvas>
+      //         );
+      //       }
+      //       break;
 
-    //     default: {
-    //       token.dataView = <img src={dataUrl} style={{ width: "100%" }}></img>;
-    //       break;
-    //     }
-    //   }
+      //     default: {
+      //       token.dataView = <img src={dataUrl} style={{ width: "100%" }}></img>;
+      //       break;
+      //     }
+      //   }
     }
 
     //console.log(token);
@@ -240,7 +241,6 @@ export default function DMTSimpleViewer(props) {
           padding: "1px",
           lineHeight: 1,
         }}
-        onClick={() => console.log(token)}
         hoverable
         onMouseEnter={e => {
           setDetails(true);
@@ -248,8 +248,14 @@ export default function DMTSimpleViewer(props) {
         onMouseLeave={e => {
           setDetails(false);
         }}
+        onClick={e => {
+          if(onClickRedirect!=undefined)
+             onClickRedirect(token);
+          else   
+             console.log("DMT Simple view ", token);
+        }}
       >
-        <h2 style={{ textAlign: "center", padding: 10}}>{token.name}</h2>
+        <h2 style={{ textAlign: "center", padding: 10 }}>{token.name}</h2>
         {/* {contentListNoTitle[activeTabKey]}
         {details == true ? (
           <Tabs

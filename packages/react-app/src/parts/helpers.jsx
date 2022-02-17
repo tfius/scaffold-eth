@@ -4,9 +4,12 @@
 // export const downloadGateway = "https://fairos-mainnet.fairdatasociety.org/bzz/"; 
 // export const uploadGateway   = "https://fairdrive-mainnet.fairdatasociety.org/proxy/"; 
 
+// mainnet 
+// export const downloadGateway = "https://gateway.fairdatasociety.org/bzz/"; 
+// export const uploadGateway   = "https://gateway.fairdatasociety.org/proxy"; 
 // testnet 
-export const downloadGateway = "https://gateway.fairdatasociety.org/bzz/"; 
-export const uploadGateway   = "https://gateway.fairdatasociety.org/proxy"; 
+export const downloadGateway = "https://gw-testnet.fairdatasociety.org/bzz/"; 
+export const uploadGateway   = "https://gw-testnet.fairdatasociety.org/proxy"; 
 // https://gw-testnet.fairdatasociety.org/proxy/health
 // https://gw-testnet.fairdatasociety.org/proxy/readiness 
 // https://gw-testnet.fairdatasociety.org/access/e75defedaf98ff89100ae0b514237b871939aee2553e6a108f618d7ffe9e42a6

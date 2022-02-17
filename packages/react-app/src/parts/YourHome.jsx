@@ -9,6 +9,8 @@ import {
 
 import { SendOutlined } from "@ant-design/icons";
 import React, { useCallback, useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
+
 import { Link } from "react-dom";
 import { Select, Button, Card, Col, Input, List, Menu, Row, Progress } from "antd";
 //const { ethers } = require("ethers");
@@ -61,7 +63,7 @@ async function getPublicKey(signer) {
   // Throwing here
   if (recoveredAddress != ethAddress) {
     throw Error(`Address recovered do not match, original ${ethAddress} versus computed ${recoveredAddress}`);
-    console.log("error", recoveredAddress, ethAddress)
+    console.log("error", recoveredAddress, ethAddress);
   }
 }
 
@@ -175,10 +177,12 @@ async function getPublicKey(signer) {
 
 /*export default*/ function MintAvatar(props) {
   const [tokenName, setTokenName] = useState("");
-  const { avatars, tx, writeContracts } = props;
+  const { avatars, tx, writeContracts, avatarsLoaded } = props;
+  const [triggered, setTriggered] = useState(false);
   useEffect(() => {}, [tokenName]);
-
-  if (avatars.length != 0) return null;
+  // console.log("mintAvatar", avatars, avatarsLoaded);
+   
+  if (avatarsLoaded == false || avatars.length != 0 || triggered == true) return <h1>Please wait</h1>;
   //return <>{avatars.length == 0 ? "Create Explorer" : { avatars }}</>;
   return (
     <>
@@ -202,8 +206,11 @@ async function getPublicKey(signer) {
           style={{ width: "20%" }}
           type={"primary"}
           onClick={() => {
-            tx(writeContracts.Avatar.mintNewAvatar(tokenName, "0x" + helpers.randomString(64)));
-            getPublicKey(props.userProviderAndSigner.signer)
+            if (tokenName.length > 2) {
+              tx(writeContracts.Avatar.mintNewAvatar(tokenName, "0x" + helpers.randomString(64)));
+              getPublicKey(props.userProviderAndSigner.signer);
+              setTriggered(true);
+            }
             //console.log(props.userProviderAndSigner.signer);
           }}
         >
@@ -215,6 +222,7 @@ async function getPublicKey(signer) {
 }
 
 export default function YourHome(props) {
+  const history = useHistory();
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(true);
 
@@ -224,6 +232,7 @@ export default function YourHome(props) {
   const [avatars, setAvatars] = useState([]);
   const [teams, setTeams] = useState([]);
   const [groups, setGroups] = useState([]);
+  const [avatarsLoaded, setAvatarsLoaded] = useState();
 
   const {
     yourDmBalance,
@@ -313,6 +322,8 @@ export default function YourHome(props) {
   }
   async function getAvatars(contract, isAvatar) {
     var tokens = [];
+
+    setAvatarsLoaded(false);
     try {
       var balance = await helpers.makeCall("balanceOf", contract, [address]);
       if (balance != undefined) balance = balance.toNumber();
@@ -323,12 +334,12 @@ export default function YourHome(props) {
     if (balance >= 0) {
       for (let tokenIndex = 0; tokenIndex < balance; tokenIndex++) {
         try {
-          const tokenId = await helpers.makeCall("tokenOfOwnerByIndex", contract, [address, tokenIndex]);
+          var tokenId = await helpers.makeCall("tokenOfOwnerByIndex", contract, [address, tokenIndex]);
           var tokenInfo = await helpers.makeCall("tokenData", contract, [tokenId.toNumber()]);
           var tokenUri = await helpers.makeCall("tokenURI", contract, [tokenId.toNumber()]);
           //debugger;
           var avatarInfo = await helpers.makeCall("getAvatarInfo", contract, [tokenId.toNumber()]);
-          console.log("avatar", tokenId.toNumber(), avatarInfo, tokenInfo);
+          //console.log("avatar", tokenId.toNumber(), avatarInfo, tokenInfo);
           try {
             var token = {};
             token.name = avatarInfo.name;
@@ -365,6 +376,7 @@ export default function YourHome(props) {
         }
       }
     }
+    setAvatarsLoaded(true);
     return tokens;
   }
 
@@ -378,7 +390,7 @@ export default function YourHome(props) {
     var avatartokens = await getAvatars(avatarcontract);
     const avs = avatartokens.map((t, i) => {
       return (
-        <>
+        <div key={"tok" + i}>
           {/* <Card onClick={e => viewToken(t)} className="posParent"> */}
           <span style={{ fontSize: "5vmin" }}>{t.name}</span>
           {/* </Card> */}
@@ -387,7 +399,7 @@ export default function YourHome(props) {
           <ReputationView reputation={t.reputation} onClick={e => viewToken(t)} />
           <DrawbacksView drawbacks={t.drawbacks} onClick={e => viewToken(t)} />
           <RelatableView relatable={t.relatable} onClick={e => viewToken(t)} />
-        </>
+        </div>
       );
     });
     setAvatars(avs); //getDMTs(av, cav));
@@ -435,13 +447,20 @@ export default function YourHome(props) {
     const tes = team.tokens.map((t, i) => {
       //return <span onClick={e => viewToken(t)}>{t.name} </span>;
       return (
-        <DMTSimpleViewer
-          key={"ttok" + i}
-          token={t}
-          contract={team.contract}
-          address={address}
-          onClick={e => viewToken(t)}
-        />
+        <div>
+          <DMTSimpleViewer
+            key={"ttok" + i}
+            token={t}
+            link={"/team/"}
+            contract={team.contract}
+            address={address}
+            onClickRedirect={(e) => {
+              //viewToken(t);
+              console.log("team", t);
+              history.push("/team/" + t.id);
+            }}
+          />
+        </div>
       );
     });
     setTeams(tes); //getDMTs(te, cte));
@@ -498,7 +517,7 @@ export default function YourHome(props) {
   }, [seconds]);
 
   useEffect(() => {
-    console.log("Your Home Seconds")
+    console.log("Your Home Seconds");
     fetchAvatar();
   }, [seconds]);
 
@@ -521,6 +540,7 @@ export default function YourHome(props) {
       {avatars} <br />
       <MintAvatar
         avatars={avatars}
+        avatarsLoaded={avatarsLoaded}
         contract={getAvatarContract(5)}
         tx={tx}
         writeContracts={writeContracts}

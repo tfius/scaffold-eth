@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { uploadFileToBee } from "./service";
+import { uploadFileToBee } from "./BeeService";
 
 
 

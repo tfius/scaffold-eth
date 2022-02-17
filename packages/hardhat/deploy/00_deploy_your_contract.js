@@ -150,6 +150,16 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   console.log("Setting Goldinar Minter Role:" + goldinarMinter); 
   await gt.grantRole(goldinarMinter, goldinarFarm.address);
 
+  console.log("Avatar Voting *********************************"); 
+  const voting = await deploy('Voting', {
+    from: deployer,
+    args: [goldinarToken.address, avatar.address],
+    log: true,
+  })
+
+  console.log("Setting Voting Goldinar Minter Role:" + goldinarMinter); 
+  await gt.grantRole(goldinarMinter, voting.address);
+
   console.log("Minter *********************************"); 
   const dmMinter = await deploy('DMMinter', {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
@@ -187,7 +197,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   await dm.templatesInCollectionCreate(4, ["Metier", "Evolve", "Trendsetter", "Fearless", "Nekkhamma"], [0,0,0,0,0]); // Groups
 
   console.log("Additional Team");
-  await dm.templatesInCollectionCreate(3, ["Party Warriors","Flag Wavers","Love Protectors", "Equality Advocates","Peace Champions", "Radical Decentralization"], [0,0,0,0,0,0]); // Teams
+  await dm.templatesInCollectionCreate(3, ["Party Warriors","Flag Wavers","Love Protectors", "Equality Advocates","Peace Champions", "Radical Decentral"], [0,0,0,0,0,0]); // Teams
 
   console.log("Additional Groups");
   await dm.templatesInCollectionCreate(4, ["Humanists","Technologists","Democratizers", "Traditionalists", "Industrialists", "Pluralists", "Paternalists", "Anarchists", "Revolutionists"], 

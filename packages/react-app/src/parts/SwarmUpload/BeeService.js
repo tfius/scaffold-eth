@@ -38,7 +38,7 @@ export const uploadFileToBee = async file => {
   const fileHash = await bee.uploadData(batchId, "Bee is awesome!"); 
   console.log("fileHash", fileHash);
 */
-/* 
+  /* 
   const config = {
     onUploadProgress: progressEvent => {
       // let { progress } = this.state;
@@ -49,11 +49,11 @@ export const uploadFileToBee = async file => {
   };
   const axiosInstance = axios.create({ onDonwloadProgress: progressCb });
   const fetch = bioččdAxopsFetcj(axiosInstance);
-  */ 
+  */
 
   const { reference } = await bee.uploadFiles(batchId, files, {
     indexDocument: metadata.name,
-    /*fetch,*/ 
+    /*fetch,*/
   });
 
   console.log("reference", reference);
@@ -61,14 +61,18 @@ export const uploadFileToBee = async file => {
   return reference;
 };
 
-export const uploadDataToBee = async (data, type, filename, url) => {
+export const uploadDataToBee = async (data, type, filename) => {
   const file = new File([data], filename, { type });
-  return uploadFileToBee(file, url);
+  return uploadFileToBee(file);
 };
 
-export const uploadJsonToBee = async (object, url, filename) => {
+export const uploadJsonToBee = async (object, filename) => {
+  const jsn = JSON.stringify(object);
+  const blob = new Blob([jsn], { type: "application/json" });
+  const file = new File([blob], filename);
+  /*
   const file = new File([JSON.stringify(object)], filename, {
-    type: "application/json",
-  });
-  return uploadFileToBee(file, url);
+    type: "application/json"
+  });*/
+  return uploadFileToBee(file);
 };

@@ -229,11 +229,12 @@ export default function DataMinter(props) {
 
   return (
     <div>
+      <h1>Create Your Token</h1>
       Balance: <strong> {ethers.utils.formatEther(balance)} DM</strong> <br />
       <strong>{yourTokenBalance}</strong> Tokens in {collectionName} ({collectionSymbol})
       {/* : <strong>{yourDmNftBalance}</strong> */}
       <div style={{ maxWidth: 820, margin: "auto", marginTop: 16, paddingBottom: 16 }}>
-        <Card>
+        <>
           <div style={{ borderRadius: "10px" }} className="ant-card-body">
             <div style={{ borderRadius: "10px", margin: "auto" }} className="ant-card-body">
               <FileUpload
@@ -312,7 +313,7 @@ export default function DataMinter(props) {
               Create
             </Button>
           </div>
-        </Card>
+        </>
       </div>
       <div className="card-grid-container card-grid-container-fill">
         {yourTokenBalance > 0 ? <>{tokList} </> : null}

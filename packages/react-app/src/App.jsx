@@ -32,6 +32,8 @@ import { Select } from "antd";
 //import SwarmLocationInput from "./parts/SwarmLocationInput.jsx";
 import YourHome from "./parts/YourHome.jsx";
 import Farm from "./parts/Farm.jsx";
+import Leaderboard from "./parts/Leaderboard.jsx";
+import TeamView from "./parts/views/TeamView.jsx";
 import TemplatesMinter from "./parts/TemplatesMinter.jsx";
 import DataMinter from "./parts/DataMinter.jsx";
 import TeamsMinter from "./parts/TeamsMinter.jsx";
@@ -265,7 +267,7 @@ function App(props) {
   const yourDmBalance = dmBalance && dmBalance.toString && dmBalance.toString();
   const [yourDMs, setYourDMs] = useState();
   const yourDmNftBalance = dmnftBalance && dmnftBalance.toNumber && dmnftBalance.toNumber();
-  
+
   const [yourDmNfts, setYourDmNfts] = useState();
   const [selectedCollection, setSelectedCollection] = useState(0);
   const [collectionInformation, setCollectionInformation] = useState({
@@ -372,7 +374,7 @@ function App(props) {
 
   useEffect(() => {
     const updateYourNFTs = async () => {
-     /* const listDmNfts = [];
+      /* const listDmNfts = [];
       console.log("yourDmNftBalance", yourDmNftBalance);
       for (let tokenIndex = 0; tokenIndex < yourDmNftBalance; tokenIndex++) {
         try {
@@ -686,7 +688,7 @@ function App(props) {
           </Menu.Item>
         </Menu>
 
-        <Menu style={{ textAlign: "center", fontSize:"1.3vmin" }} selectedKeys={[route]} mode="horizontal">
+        <Menu style={{ textAlign: "center", fontSize: "1.3vmin" }} selectedKeys={[route]} mode="horizontal">
           <Menu.Item key="/markable">
             <Link
               onClick={() => {
@@ -791,7 +793,17 @@ function App(props) {
             >
               Bank
             </Link>
-          </Menu.Item>          
+          </Menu.Item>
+          <Menu.Item key="/leaderboard">
+            <Link
+              onClick={() => {
+                setRoute("/leaderboard/0");
+              }}
+              to="/leaderboard/0"
+            >
+              Leaderboard
+            </Link>
+          </Menu.Item>
           <Menu.Item key="/sponsorshipminter">
             <Link
               onClick={() => {
@@ -879,6 +891,42 @@ function App(props) {
               contractConfig={contractConfig}
             />
           </Route>
+          <Route path="/team/:id">
+            <TeamView
+              dmCollections={dmCollections}
+              contractConfig={contractConfig}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              localProvider={localProvider}
+              userSigner={userSigner}
+              tx={tx}
+              title="Team"
+              address={address}
+            />
+          </Route>
+          <Route path="/leaderboard/:collectionId">
+            <Leaderboard
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              tx={tx}
+              title="Leaderboards"
+              address={address}
+            />
+            {/* <YourHome
+              yourDmBalance={yourDmBalance}
+              yourDmNftBalance={yourDmNftBalance}
+              dmCollections={dmCollections}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              contractConfig={contractConfig}
+              address={address}
+              userProviderAndSigner={userProviderAndSigner}
+              tx={tx}
+              title="Home"
+            />  */}
+          </Route>
           <Route exact path="/">
             <YourHome
               yourDmBalance={yourDmBalance}
@@ -894,7 +942,6 @@ function App(props) {
               tx={tx}
               title="Home"
             />
-
           </Route>
 
           <Route exact path="/bank">
@@ -930,7 +977,7 @@ function App(props) {
             />
           </Route>
           <Route exact path="/avatarcontract">
-          <Contract
+            <Contract
               name="Avatar"
               customContract={writeContracts && writeContracts.Avatar}
               signer={userSigner}
@@ -1394,8 +1441,8 @@ function App(props) {
               collectionInformation={collectionInformation}
               tx={tx}
             />
-           </Route>
-           <Route exact path="/listtokensinselected">
+          </Route>
+          <Route exact path="/listtokensinselected">
             {/* <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5 }}>
               Balance: <strong>{yourDmBalance} DM</strong> &nbsp; You have: <strong>{yourDmNftBalance} NFTs</strong>
             </div>
@@ -1474,7 +1521,7 @@ function App(props) {
                   return (
                     <List.Item key={id + "_" + item.uri + "_" + item.owner}>
                       <Card
-                        style={{ margin: 0, textAlign:"left" }}
+                        style={{ margin: 0, textAlign: "left" }}
                         title={
                           <div>
                             <div style={{ lineHeight: 0.5 }}>
@@ -1674,7 +1721,7 @@ function App(props) {
           </Col>
 
           <Col span={13} style={{ textAlign: "center" }}>
-            <GasGauge gasPrice={gasPrice} /> 
+            <GasGauge gasPrice={gasPrice} />
           </Col>
 
           {/* <Col span={8} style={{ textAlign: "center", opacity: 1 }}>

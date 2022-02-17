@@ -79,7 +79,7 @@ export default function Farm(props) {
 
     var yieldBalance = await readContracts.GoldinarFarm.calculateYieldTotal(address);
     setYieldBalance(yieldBalance);
-    console.log("yieldBalance", yieldBalance);
+    //console.log("yieldBalance", yieldBalance);
   });
 
   const updateYieldBalance = useCallback(async () => {
@@ -88,7 +88,7 @@ export default function Farm(props) {
 
     var yieldBalance = await readContracts.GoldinarFarm.calculateYieldTotal(address);
     setYieldBalance(yieldBalance);
-    console.log("yieldBalance", yieldBalance);
+    //console.log("yieldBalance", yieldBalance);
   });
 
   useEffect(() => {
