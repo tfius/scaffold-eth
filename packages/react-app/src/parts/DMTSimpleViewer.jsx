@@ -109,8 +109,8 @@ export default function DMTSimpleViewer(props) {
   const retrieveNFTData = useCallback(async () => {
     setLoading(true);
     if (contract != null) {
-      var name = await helpers.makeCall("name", contract);
-      var links = await helpers.makeCall("getLinks", contract, [token.id]);
+      /* var name = await helpers.makeCall("name", contract);
+     var links = await helpers.makeCall("getLinks", contract, [token.id]);
       //console.log(token.name + " links", links);
       setLinks(links);
 
@@ -119,10 +119,9 @@ export default function DMTSimpleViewer(props) {
         //console.log(token.name + " parents ", parentLinks);
         setParentLinks(parentLinks);
       } else setParentLinks([]);
-
+    */
       //var newBalance = await helpers.makeCall("balanceOf", contract, [address]);
       //if (newBalance != undefined) setYourTokenBalance(newBalance.toNumber());
-
       //   switch (token.m) {
       //     case "0x0000000000000000000000000000000000000000000000000000000000000001":
       //       {
@@ -156,7 +155,6 @@ export default function DMTSimpleViewer(props) {
       //         );
       //       }
       //       break;
-
       //     default: {
       //       token.dataView = <img src={dataUrl} style={{ width: "100%" }}></img>;
       //       break;
@@ -249,10 +247,8 @@ export default function DMTSimpleViewer(props) {
           setDetails(false);
         }}
         onClick={e => {
-          if(onClickRedirect!=undefined)
-             onClickRedirect(token);
-          else   
-             console.log("DMT Simple view ", token);
+          if (onClickRedirect != undefined) onClickRedirect(token);
+          else console.log("DMT Simple view ", token);
         }}
       >
         <h2 style={{ textAlign: "center", padding: 10 }}>{token.name}</h2>

@@ -8,6 +8,7 @@ import {
 } from "eth-hooks";
 
 import { SendOutlined } from "@ant-design/icons";
+import { useHistory } from "react-router-dom";
 import React, { useCallback, useEffect, useState } from "react";
 import { Select, Button, Card, Col, Input, List, Menu, Row } from "antd";
 //const { ethers } = require("ethers");
@@ -36,6 +37,7 @@ import DMTSimpleViewer from "./DMTSimpleViewer";
   }*/
 
 export default function TemplatesMinter(props) {
+  const history = useHistory();
   const [loading, setLoading] = useState(true);
   const [contractName, setContractName] = useState([]);
   const [contractSymbol, setContractSymbol] = useState([]);
@@ -57,6 +59,7 @@ export default function TemplatesMinter(props) {
     gasPrice,
     tx,
     title,
+    urlOpener
   } = props;
 
   const updateNFTBalance = useCallback(async () => {
@@ -72,6 +75,11 @@ export default function TemplatesMinter(props) {
     if (dmCollectionContract != null) {
       const addr = address.toLowerCase();
       setContract(dmCollectionContract);
+
+      var newBalance = await helpers.makeCall("balanceOf", dmCollectionContract, [address]);
+      if (newBalance != undefined) setYourTokenBalance(newBalance.toNumber());
+      //console.log("balance", newBalance);
+
       var name = await helpers.makeCall("name", dmCollectionContract);
       setContractName(name);
       var symbol = await helpers.makeCall("symbol", dmCollectionContract);
@@ -90,18 +98,14 @@ export default function TemplatesMinter(props) {
         data.n = ethers.utils.toUtf8String(data.n).replace(/[^\x01-\x7F]/g, "");
 
         var links = await helpers.makeCall("getLinks", dmCollectionContract, [indices[i]]);
-        console.log(data.n + " children ", links);
+        //console.log(data.n + " children ", links);
         data.links = links;
 
-        console.log(data.o, address, data.o === addr);
+        //console.log(data.o, address, data.o === addr);
         if (data.o != addr) tokens.push(data);
       }
 
       setTemplateTokens(tokens);
-
-      var newBalance = await helpers.makeCall("balanceOf", dmCollectionContract, [address]);
-      if (newBalance != undefined) setYourTokenBalance(newBalance.toNumber());
-      console.log("balance", newBalance);
     }
 
     setLoading(false);
@@ -161,7 +165,19 @@ export default function TemplatesMinter(props) {
   });
 
   const toks = yourTokens.map((t, i) => {
-    return <DMTSimpleViewer key={"tok" + i} token={t} contract={contract} address={address} />; //<Card>{<h2>{t.name}</h2>}</Card>;
+    return (
+      <DMTSimpleViewer
+        key={"tok" + i}
+        token={t}
+        contract={contract}
+        address={address}
+        onClickRedirect={e => {
+          //viewToken(t);
+          console.log("TemplatesMinter ", t, urlOpener);
+          history.push(urlOpener + t.id); // "/team/"
+        }}
+      />
+    ); //<Card>{<h2>{t.name}</h2>}</Card>;
   });
 
   if (loading === true) return <h1>Please wait...</h1>;
@@ -170,6 +186,15 @@ export default function TemplatesMinter(props) {
     <div style={{ maxWidth: 1000, margin: "auto", marginTop: 5, paddingBottom: 25, lineHeight: 1.5 }}>
       {/* Balance: <strong>{yourDmBalance} DM</strong> <br /> */}
       <h1>{title}</h1>
+      {yourTokenBalance > 0 ? (
+        <h3>
+          {contractName}: {yourTokenBalance} {contractSymbol} <br />
+        </h3>
+      ) : 
+      null}
+      <div >{yourTokenBalance > 0 ? <><div className="card-grid-container ">{toks}</div> </> : null}</div>
+      
+
       {/* {finiteCount < yourTokenBalance ? "DISP" : "DONT DISP"} */}
       {finiteCount == 0 || yourTokenBalance != finiteCount ? (
         <List
@@ -221,23 +246,6 @@ export default function TemplatesMinter(props) {
         ""
       )}
       <br />
-      {yourTokenBalance > 0 ? (
-        <h3>
-          {contractName}: {yourTokenBalance} {contractSymbol} <br />
-        </h3>
-      ) : // <p>
-      //   Become a {contractSymbol}. <br />
-      //   0.05% of your {contractName} will go to treasury and rest you will receive <strong>DM</strong>s. <br />
-      //   In meantime your funds can be used as flash loans by other members. <br />
-      //   You can liquidate your <strong>DM</strong>s anytime but will loose value on {contractName}.
-      // </p>
-      null}
-      
-      <div className="card-grid-container ">
-          {yourTokenBalance > 0 ? <>{toks} </> : null}
-      </div>
-
-      <br/>
       Can {finiteCount == 0 ? "" : <strong>NOT</strong>} be accumulated and are{" "}
       {isNonTransferable ? <strong>NON-</strong> : ""}transferable. <br />
     </div>

@@ -1268,6 +1268,7 @@ function App(props) {
               userProviderAndSigner={userProviderAndSigner}
               setSelectedCollection={setSelectedCollection}
               collectionInformation={collectionInformation}
+              urlOpener="/membership/"
               tx={tx}
               title="Society Membership"
             />
@@ -1307,6 +1308,7 @@ function App(props) {
               userProviderAndSigner={userProviderAndSigner}
               setSelectedCollection={setSelectedCollection}
               collectionInformation={collectionInformation}
+              urlOpener="/sponsorship/"
               tx={tx}
               title="Society Sponsorship"
             />
@@ -1343,6 +1345,7 @@ function App(props) {
               address={address}
               setSelectedCollection={setSelectedCollection}
               collectionInformation={collectionInformation}
+              urlOpener="/team/"
               tx={tx}
               title="Join or Create A Team"
             />
@@ -1372,6 +1375,7 @@ function App(props) {
               userProviderAndSigner={userProviderAndSigner}
               setSelectedCollection={setSelectedCollection}
               collectionInformation={collectionInformation}
+              urlOpener="/group/"
               tx={tx}
               title="Join or Create A Group"
             />
@@ -1401,6 +1405,7 @@ function App(props) {
               userProviderAndSigner={userProviderAndSigner}
               setSelectedCollection={setSelectedCollection}
               collectionInformation={collectionInformation}
+              urlOpener="/allegiance/"
               tx={tx}
               title="Choose Allegiance"
             />

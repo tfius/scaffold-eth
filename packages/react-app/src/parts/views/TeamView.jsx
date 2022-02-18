@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Select, Button, Card, Col, Input, List, Menu, Row, Progress } from "antd";
+import { Select, Button, Card, Col, Input, List, Menu, Row, Progress, Tooltip } from "antd";
 import FText from "../../components/FText";
 import { useContractReader } from "eth-hooks";
 import { notification } from "antd";
@@ -37,6 +37,8 @@ export default function TeamView(props) {
   const [tokenData, setTokenData] = useState({ name: "", links: [], parents: [], uri: "", posts: [] });
   const [avatarToken, setAvatarToken] = useState({ name: "", links: [], parents: [], uri: "", posts: [] });
   const [postText, setPostText] = useState("");
+  const [canVote, setCanVote] = useState();
+
   //const [posts, setPosts] = useState([]);
   const [links, setLinks] = useState([]);
   const [parentLinks, setParentLinks] = useState([]);
@@ -115,6 +117,8 @@ export default function TeamView(props) {
     var tokenUri = await helpers.makeCall("tokenURI", contract, [id]);
     var dataLocationCount = await helpers.makeCall("dataLocationCount", contract, [id]);
 
+    var numVotes = await readContracts.Voting.totalVotesFor(contract.address, id);
+
     //console.log("dataLocationCount", dataLocationCount);
     var locations = [];
     var posts = [];
@@ -141,7 +145,6 @@ export default function TeamView(props) {
     }
 
     //var tokenAddressables = await helpers.makeCall("tokenAddressables", contract, [id]);
-
     try {
       var data = JSON.parse(tokenInfo);
       data.id = id.toString();
@@ -152,6 +155,7 @@ export default function TeamView(props) {
       data.parents = parentLinks;
       data.locations = locations;
       data.posts = posts;
+      data.numVotes = numVotes.toNumber();
       console.log("tokenData", data);
       setTokenData(data);
     } catch (e) {
@@ -178,6 +182,7 @@ export default function TeamView(props) {
       id: tokenData.id,
       uri: tokenData.uri,
       contract: contract.address,
+      type: "post",
     };
     tokenData.posts.push(post);
     console.log("post text", post);
@@ -187,11 +192,36 @@ export default function TeamView(props) {
     //console.log("result", result);
   }
 
+  async function voteForToken(token) {
+    setCanVote(false); //console.log("voteForToken", token);
+    tx(writeContracts.Voting.voteFor(contract.address, token.id));
+
+    notification.success({
+      message: "Voted",
+      description: "Your vote has been sent",
+      placement: "topRight",
+    });
+  }
+
   //console.log("posts", tokenData.posts);
-  tokenData.posts.map((d, i) => {console.log(d.text)});
+  //tokenData.posts.map((d, i) => {console.log(d.text)});
   return (
-    <div style={{ maxWidth: 600, margin: "auto", marginTop: 5, paddingBottom: 25, lineHeight: 1.5 }}>
-      <Card title={<h1>{tokenData.name}</h1>}>
+    <div style={{ maxWidth: 800, margin: "auto", marginTop: 5, paddingBottom: 25, lineHeight: 1.5 }}>
+      <Card
+        title={
+          <>
+            <h1>
+              {avatarToken.name}'s {tokenData.name}
+            </h1>
+
+            <div style={{ position: "absolute", right: "5px", top: "1px" }}>
+              <Tooltip title="Click to vote.">
+                <small onClick={()=>voteForToken(tokenData)}>▲{tokenData.numVotes}</small>
+              </Tooltip>
+            </div>
+          </>
+        }
+      >
         <Input
           style={{ width: "80%" }}
           min={0}
@@ -216,12 +246,20 @@ export default function TeamView(props) {
         <br />
       </Card>
 
-      {tokenData.posts.map((d, i) => 
-      <div>
-        <div style={{textAlign:"right"}}><small>{d.avatarName}</small></div>
-        <div style={{textAlign:"center"}}>{d.title}</div>
-        <div style={{textAlign:"left"}}>{d.text}</div>
-      </div>)}
+      {tokenData.posts.map((d, i) => (
+        <div className="">
+          <div style={{ textAlign: "left" }}>
+            <small>{d.avatarName}</small>
+          </div>
+          <div style={{ textAlign: "center" }}>{d.title}</div>
+          <div
+            className="ant-card-body"
+            style={{ textAlign: "left", paddingLeft: "20px", paddingTop: "0px", paddingBottom: "0px" }}
+          >
+            {d.text}
+          </div>
+        </div>
+      ))}
 
       {/* {tokenData.posts.map((post, i) => {
           <p key={"post_" + i}>
