@@ -54,12 +54,13 @@ export default function TemplatesMinter(props) {
     selectedCollection,
     localProvider,
     writeContracts,
+    readContracts,
     address,
     contractConfig,
     gasPrice,
     tx,
     title,
-    urlOpener
+    urlOpener,
   } = props;
 
   const updateNFTBalance = useCallback(async () => {
@@ -171,6 +172,9 @@ export default function TemplatesMinter(props) {
         token={t}
         contract={contract}
         address={address}
+        readContracts={readContracts}
+        writeContracts={writeContracts}
+        tx={tx}
         onClickRedirect={e => {
           //viewToken(t);
           console.log("TemplatesMinter ", t, urlOpener);
@@ -190,11 +194,14 @@ export default function TemplatesMinter(props) {
         <h3>
           {contractName}: {yourTokenBalance} {contractSymbol} <br />
         </h3>
-      ) : 
-      null}
-      <div >{yourTokenBalance > 0 ? <><div className="card-grid-container ">{toks}</div> </> : null}</div>
-      
-
+      ) : null}
+      <div>
+        {yourTokenBalance > 0 ? (
+          <>
+            <div className="card-grid-container ">{toks}</div>{" "}
+          </>
+        ) : null}
+      </div>
       {/* {finiteCount < yourTokenBalance ? "DISP" : "DONT DISP"} */}
       {finiteCount == 0 || yourTokenBalance != finiteCount ? (
         <List
