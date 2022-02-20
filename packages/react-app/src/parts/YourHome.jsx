@@ -423,6 +423,9 @@ export default function YourHome(props) {
           contract={member.contract}
           address={address}
           onClick={e => viewToken(t)}
+          readContracts={readContracts}
+          writeContracts={writeContracts}
+          tx={tx}
         />
       );
     });
@@ -438,6 +441,9 @@ export default function YourHome(props) {
           contract={alliance.contract}
           address={address}
           onClick={e => viewToken(t)}
+          readContracts={readContracts}
+          writeContracts={writeContracts}
+          tx={tx}
         />
       );
     });
@@ -459,6 +465,9 @@ export default function YourHome(props) {
               console.log("team", t);
               history.push("/team/" + t.id);
             }}
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            tx={tx}            
           />
         </div>
       );
@@ -475,6 +484,9 @@ export default function YourHome(props) {
           contract={group.contract}
           address={address}
           onClick={e => viewToken(t)}
+          readContracts={readContracts}
+          writeContracts={writeContracts}
+          tx={tx}          
         />
       );
     });
@@ -489,6 +501,9 @@ export default function YourHome(props) {
           contract={sponsor.contract}
           address={address}
           onClick={e => viewToken(t)}
+          readContracts={readContracts}
+          writeContracts={writeContracts}
+          tx={tx}          
         />
       );
     });

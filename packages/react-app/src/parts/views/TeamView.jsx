@@ -210,7 +210,9 @@ export default function TeamView(props) {
       <Card
         title={
           <>
-            <h1>
+            <h1 onClick={()=>{
+                helpers.speak(avatarToken.name+"'s"+  tokenData.name);
+            }}>
               {avatarToken.name}'s {tokenData.name}
             </h1>
 

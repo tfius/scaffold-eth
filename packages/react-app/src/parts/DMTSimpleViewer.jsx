@@ -7,18 +7,11 @@ import {
   useUserProviderAndSigner,
 } from "eth-hooks";
 
-import { Canvas, useThree, useLoader } from "@react-three/fiber";
-import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
-import { Environment, OrbitControls, useProgress, Html, useFBX, Float } from "@react-three/drei";
-
-import Blockies from "react-blockies";
-import { SendOutlined } from "@ant-design/icons";
 import React, { useCallback, useEffect, useState, Suspense } from "react";
 import { Link } from "react-router-dom";
-import { Select, Button, Card, Col, Input, List, Menu, Row, Tabs } from "antd";
+import { Select, Button, Card, Col, Input, List, Menu, Row, Tabs, Tooltip, notification } from "antd";
 const { TabPane } = Tabs;
 import { ethers } from "ethers";
-import ReactThreeFbxViewer from "react-three-fbx-viewer";
 const { utils, BigNumber } = require("ethers");
 import * as helpers from "./helpers";
 import AudioPlayer from "./AudioPlayer";
@@ -85,6 +78,7 @@ export default function DMTSimpleViewer(props) {
   const [loadModel, setLoadModel] = useState();
 
   const [details, setDetails] = useState();
+  const [numVotes, setNumVotes] = useState();
   const [links, setLinks] = useState();
   const [parentLinks, setParentLinks] = useState();
 
@@ -108,7 +102,10 @@ export default function DMTSimpleViewer(props) {
 
   const retrieveNFTData = useCallback(async () => {
     setLoading(true);
-    if (contract != null) {
+    if (contract != null && readContracts != undefined) {
+      var numVotes = await readContracts.Voting.totalVotesFor(contract.address, token.id);
+      setNumVotes(numVotes.toNumber());
+
       /* var name = await helpers.makeCall("name", contract);
      var links = await helpers.makeCall("getLinks", contract, [token.id]);
       //console.log(token.name + " links", links);
@@ -224,6 +221,19 @@ export default function DMTSimpleViewer(props) {
     parents: <p>parents content</p>,
   };
 
+  async function voteForToken(token) {
+    //setCanVote(false); //console.log("voteForToken", token);
+    if (writeContracts != undefined && tx != undefined) {
+      var res = await tx(writeContracts.Voting.voteFor(contract.address, token.id));
+      /*console.log("voteForToken", res);
+      notification.success({
+        message: "Voted",
+        description: "Your vote has been sent",
+        placement: "topRight",
+      });*/
+    }
+  }
+
   return (
     <>
       <Card.Grid
@@ -246,12 +256,27 @@ export default function DMTSimpleViewer(props) {
         onMouseLeave={e => {
           setDetails(false);
         }}
-        onClick={e => {
-          if (onClickRedirect != undefined) onClickRedirect(token);
-          else console.log("DMT Simple view ", token);
-        }}
       >
-        <h2 style={{ textAlign: "center", padding: 10 }}>{token.name}</h2>
+        <h2
+          style={{ textAlign: "center", padding: 10 }}
+          onClick={e => {
+            if (onClickRedirect != undefined) {
+              helpers.speak(token.name);
+              onClickRedirect(token);
+            }
+            else console.log("DMT Simple view ", token);
+          }}
+        >
+          {token.name}
+        </h2>
+        {details ? (
+          <div style={{ position: "absolute", right: "5px", top: "1px" }}>
+            <Tooltip title="Click to vote.">
+              <small onClick={() => voteForToken(token)}>▲{numVotes}</small>
+              {/* <small>▲{numVotes}</small> */}
+            </Tooltip>
+          </div>
+        ) : null}
         {/* {contentListNoTitle[activeTabKey]}
         {details == true ? (
           <Tabs

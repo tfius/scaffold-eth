@@ -41,10 +41,14 @@ import GroupsMinter from "./parts/GroupsMinter.jsx";
 import MembershipMinter from "./parts/MembershipMinter.jsx";
 import SponsorshipMinter from "./parts/SponsorshipMinter.jsx";
 import AllegianceMinter from "./parts/AllegianceMinter.jsx";
+
+import * as helpers from "./parts/helpers";
 //import ContractABIs from "./contracts/hardhat_contracts.json";
 
 //const { ethers } = require("ethers");
 import { ethers } from "ethers";
+
+
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -424,7 +428,7 @@ function App(props) {
 
       setCollectionInformation({
         name: "Name " + selectedCollection,
-        description: "Description can be long or short as long as its UTF-8 string",
+        description: "Description",
         data: "other data and information to be displayed to end user",
         creator: "Creator Generator" + selectedCollection,
       });
@@ -471,8 +475,9 @@ function App(props) {
       console.log("💵 yourMainnetBalance", yourMainnetBalance ? ethers.utils.formatEther(yourMainnetBalance) : "...");
       console.log("📝 readContracts", readContracts);
       console.log("🌍 DAI contract on mainnet:", mainnetContracts);
-      console.log("💵 yourMainnetDAIBalance", myMainnetDAIBalance);
+      //console.log("💵 yourMainnetDAIBalance", myMainnetDAIBalance);
       console.log("🔐 writeContracts", writeContracts);
+      loadSpeech();
     }
   }, [
     mainnetProvider,
@@ -602,6 +607,15 @@ function App(props) {
     setRoute(window.location.pathname);
   }, [setRoute]);
 
+  const loadSpeech = useCallback(async () => {
+      // console.log("check speechSynthesis"); 
+      if ("speechSynthesis" in window)  {
+        console.log("speechSynthesis is supported"); 
+        window.voices = true;
+        helpers.prepareVoices();
+      }
+  },[])
+
   let faucetHint = "";
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
 
@@ -638,6 +652,8 @@ function App(props) {
   const [visibleTransfer, setVisibleTransfer] = useState({});
   const [metadataAddresses, setMetadataAddresses] = useState({});
   const [locationAddresses, setLocationAddresses] = useState({});
+
+
 
   return (
     <div className="App">
