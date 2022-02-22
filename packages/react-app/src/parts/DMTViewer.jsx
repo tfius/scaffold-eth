@@ -22,7 +22,7 @@ import ReactThreeFbxViewer from "react-three-fbx-viewer";
 const { utils, BigNumber } = require("ethers");
 import * as helpers from "./helpers";
 import AudioPlayer from "./AudioPlayer";
-
+import EtherInput from "./../components/EtherInput";
 
 /*
   function bytes32ToString(bytes32 _bytes32) public pure returns (string memory) {
@@ -65,19 +65,19 @@ class ErrorBoundary extends React.Component {
 const tabListNoTitle = [
   {
     key: "contents",
-    tab: "contents",
+    tab: "Contents",
   },
   {
     key: "info",
-    tab: "info",
+    tab: "Info",
   },
   {
     key: "links",
-    tab: "links",
+    tab: "Sell",
   },
   {
     key: "parents",
-    tab: "parents",
+    tab: "Parents",
   },
 ];
 
@@ -86,6 +86,7 @@ export default function DMTViewer(props) {
   const [loadModel, setLoadModel] = useState();
 
   const [details, setDetails] = useState();
+  const [tokenAskPrice, setTokenAskPrice] = useState();
   const [links, setLinks] = useState();
   const [parentLinks, setParentLinks] = useState();
 
@@ -100,8 +101,12 @@ export default function DMTViewer(props) {
     address,
     contractConfig,
     gasPrice,
+    price,
     tx,
     title,
+    provider,
+    onSellToken,
+    onApproveToken,
   } = props;
 
   const dataUrl = helpers.downloadGateway + token.d.substring(2) + "/";
@@ -147,7 +152,9 @@ export default function DMTViewer(props) {
           break;
         case "0x0000000000000000000000000000000000000000000000000000000000000002":
           {
-            token.dataView = <img src={dataUrl} style={{width: "19rem", height:"19rem", objectFit: "scale-down", top:0 }}></img>;
+            token.dataView = (
+              <img src={dataUrl} style={{ width: "19rem", height: "19rem", objectFit: "scale-down", top: 0 }}></img>
+            );
           }
           break;
         case "0x0000000000000000000000000000000000000000000000000000000000000003":
@@ -181,13 +188,13 @@ export default function DMTViewer(props) {
     //console.log(token);
     setLoading(false);
   });
-
+  /* 
   const getLinks = useCallback(async () => {
     //setLoading(true);
     if (contract != null) {
       //var name = await helpers.makeCall("name", contract);
       //var links = await helpers.makeCall("getLinks", contract, [token.id]);
-      console.log(token.name + " links", links);
+      //console.log(token.name + " links", links);
       //setLinks(links)
     }
   });
@@ -196,16 +203,17 @@ export default function DMTViewer(props) {
     if (contract != null) {
       //var name = await helpers.makeCall("name", contract);
       //var links = await helpers.makeCall("getLinks", contract, [token.id]);
-      console.log(token.name + " parentLinks", parentLinks);
+      //console.log(token.name + " parentLinks", parentLinks);
       //setLinks(links)
     }
   });
+  */
 
   useEffect(() => {
     retrieveNFTData();
   }, [contract]);
 
- /* 
+  /* 
   useEffect(() => {
     getLinks();
   }, [links]);
@@ -230,15 +238,12 @@ export default function DMTViewer(props) {
   if (loading === true) return <h1>Please wait...</h1>;
 
   //const hasMeta = token.m === "0x0000000000000000000000000000000000000000000000000000000000000000"; // process metadata
-
   // const onLoad = e => {
   //   console.log(e);
   // };
-
   // const onError = e => {
   //   console.log(e);
   // };
-
   var dataView = null;
   /*
   var audioSource = <AudioPlayer url={dataUrl} />
@@ -261,25 +266,61 @@ export default function DMTViewer(props) {
             View token #{token.id}
           </a>
         </div>
-        <div style={{ fontSize: "0.5rem" }}>
+        <div style={{ fontSize: "0.4rem" }}>
           <br />
           Owner: {token.o}
           <br />
-          Creator: {token.o}
+          Creator: {token.c}
           <br />
-          {token.d}
+          Data {token.d}
           <br />
-          {token.m}
+          Meta {token.m}
           <br />
         </div>
       </p>
     ),
-    links: <p>links content</p>,
+    links: (
+      <div style={{ lineHeight: "1.1rem", textAlign: "center", padding: "10px" }}>
+        <h2>Sell token</h2>
+        <span>Offer on Marketplace</span> <br />
+        <span>Duration: <strong>Indefinite</strong></span> <br />
+        <span>Royalties: <strong>1%</strong></span> <br />
+        <strong>NOTE: </strong>Cancel order on marketplace<br />
+        <br />
+        {token.isApproved ? (
+          <>
+            <EtherInput
+              value={tokenAskPrice}
+              price={price}
+              onChange={value => {
+                setTokenAskPrice(value);
+              }}
+            />
+
+            <Button type={"primary"} onClick={e => onSellToken(token, tokenAskPrice)}>
+              Sell
+            </Button>
+
+          </>
+        ) : (
+          <>
+          <Button type={"primary"} onClick={e => onSellToken(token, tokenAskPrice)}>
+          Sell
+        </Button>
+
+          <Button type={"primary"} onClick={e => onApproveToken(contract,token)}>
+            Approve
+          </Button>
+          </>
+        )}
+        <br />
+      </div>
+    ),
     parents: <p>parents content</p>,
   };
 
   return (
-    <div >
+    <div>
       <Card.Grid
         size="small"
         style={{

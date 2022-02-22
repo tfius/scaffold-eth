@@ -83,7 +83,7 @@ contract Avatar is ERC721Enumerable, Ownable {
 
     function getTokenIdForName(string memory avatarName) public view returns (uint256 ) {
         bytes32 n = keccak256(abi.encodePacked(avatarName));
-        require(nameToTokenId[n]!=0, "!exists"); 
+        require(nameToTokenId[n]!=0, "does not exist"); 
         return nameToTokenId[n];  
     }
  

@@ -609,7 +609,7 @@ function App(props) {
 
   const loadSpeech = useCallback(async () => {
       // console.log("check speechSynthesis"); 
-      if ("speechSynthesis" in window)  {
+      if ("speechSynthesis" in window && window.voices==undefined)  {
         console.log("speechSynthesis is supported"); 
         window.voices = true;
         helpers.prepareVoices();

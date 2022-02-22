@@ -76,6 +76,7 @@ export default function DataMinter(props) {
     setSelectedCollection,
     collectionInformation,
     contractConfig,
+    userSigner,
     tx,
   } = props;
 
@@ -99,7 +100,7 @@ export default function DataMinter(props) {
     const dmCollectionContract = new ethers.Contract(
       dmCollections[selectedCollection],
       contracts.DMCollection.abi,
-      localProvider,
+      userSigner,
     );
 
     if (dmCollectionContract != null) {
@@ -134,11 +135,16 @@ export default function DataMinter(props) {
             const tokenId = await helpers.makeCall("tokenOfOwnerByIndex", contract, [address, tokenIndex]);
             var tokenInfo = await helpers.makeCall("tokenData", contract, [tokenId.toNumber()]);
             var tokenUri = await helpers.makeCall("tokenURI", contract, [tokenId.toNumber()]);
+            var isApproved = await helpers.makeCall("isApprovedForAll", contract, [
+              address,
+              readContracts.ExchangeDM.address,
+            ]);
             try {
               var data = JSON.parse(tokenInfo);
               data.id = tokenId.toString();
               data.tokenUri = tokenUri;
               data.name = ethers.utils.toUtf8String(data.n).replace(/[^\x01-\x7F]/g, "");
+              data.isApproved = isApproved;
 
               nfts.push(data);
               console.log(data);
@@ -171,9 +177,7 @@ export default function DataMinter(props) {
   }, [yourTokenBalance]);
 
   useEffect(() => {}, [locationAddress]);
-
   useEffect(() => {}, [mimeHash, mimeType, filename, canCreate, error, metadataAddress]);
-
   useEffect(() => {
     updateNFTBalance();
   }, [seconds]);
@@ -184,7 +188,22 @@ export default function DataMinter(props) {
   };
 
   var toks = yourTokens.map((t, i) => {
-    return <DMTViewer key={"tok" + i} token={t} contract={contract} address={address} />;
+    return (
+      <>
+        <DMTViewer
+          key={"tok" + i}
+          token={t}
+          contract={contract}
+          address={address}
+          readContracts={readContracts}
+          //writeContract={writeContracts}
+          //provider={localProvider}
+          //tx={tx}
+          onSellToken={sellToken}
+          onApproveToken={approveToken}
+        />
+      </>
+    );
   });
 
   var tokList = <div>{toks}</div>;
@@ -227,6 +246,52 @@ export default function DataMinter(props) {
     }
   });
 
+  async function sellToken(token, askPrice) {
+    console.log("sellToken",  tx);
+
+    let value;
+    try {
+      try {
+        value = ethers.utils.parseEther("" + askPrice);
+      } catch (e) {
+        // failed to parseEther, try something else
+        value = ethers.utils.parseEther("" + parseFloat(askPrice).toFixed(8));
+      }
+      console.log("sellToken", token, askPrice, value.toString());
+    } catch (e) {
+      console.error(e);
+    }
+
+    if (writeContracts != undefined && tx != undefined) {
+      var res = await tx(
+        writeContracts.ExchangeDM.sell(
+          address,
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          contract.address,
+          token.id,
+          value,
+          [address],
+          [1000], // so 1% fees for seller
+        ),
+      );
+    }
+  }
+  async function approveToken(contract, token) {
+    console.log("approveToken",  tx);
+    if (writeContracts != undefined /*&& tx != undefined*/) {
+      var tx = await helpers.makeCall("setApprovalForAll", contract, [writeContracts.ExchangeDM.address, true]);
+      console.log("approveToken tx", tx);
+    }
+  }
+
+  /*
+  async function voteForToken(token) {
+    //setCanVote(false); //console.log("voteForToken", token);
+    if (writeContracts != undefined && tx != undefined) {
+      var res = await tx(writeContracts.Voting.voteFor(contract.address, token.id));
+    }
+  }*/
+
   return (
     <div>
       <h1>Create Your Token</h1>
@@ -248,12 +313,7 @@ export default function DataMinter(props) {
             </div>
             {filesize != 0 ? (
               <>
-                {" "}
                 <br />
-                {/* <small><span style={{color:"gray"}}>FILE</span></small> 
-                    <span style={{color:"gray"}}>TYPE</span> 
-                    <span style={{color:"gray"}}>SIZE</span>
-                */}
                 <strong>{filename}</strong> <br />
                 <small>
                   {mimeType == "uploading" ? (
@@ -321,14 +381,6 @@ export default function DataMinter(props) {
       {/* <div style={{ width: "80%", margin: "auto" }}>{yourTokenBalance > 0 ? <>{tokList} </> : null}</div> */}
       <div style={{ width: "80%", margin: "auto" }}>
         <Card>
-          {/* <SwarmLocationInput
-            ensProvider={mainnetProvider}
-            placeholder="metadata location"
-            value={metadataAddress}
-            onChange={newValue => {
-              setMetadataAddress(newValue);
-            }}
-          /> */}
           <Select
             showSearch
             value={selectedCollection}

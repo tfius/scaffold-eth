@@ -17,6 +17,12 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     log: true,
   })*/
 
+  const exchangeDM = await deploy('ExchangeDM', {
+    from: deployer,
+    //args: [dataMarket.address, deployer],
+    log: true,
+  })
+
   const avatarAbility = await deploy('AvatarAbility', {
     from: deployer,
     //args: [dataMarket.address, deployer],

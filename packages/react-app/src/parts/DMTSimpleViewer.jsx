@@ -106,57 +106,6 @@ export default function DMTSimpleViewer(props) {
       var numVotes = await readContracts.Voting.totalVotesFor(contract.address, token.id);
       setNumVotes(numVotes.toNumber());
 
-      /* var name = await helpers.makeCall("name", contract);
-     var links = await helpers.makeCall("getLinks", contract, [token.id]);
-      //console.log(token.name + " links", links);
-      setLinks(links);
-
-      if (links.length > 0) {
-        var parentLinks = await helpers.makeCall("getLinks", contract, [links[0].tokenId]);
-        //console.log(token.name + " parents ", parentLinks);
-        setParentLinks(parentLinks);
-      } else setParentLinks([]);
-    */
-      //var newBalance = await helpers.makeCall("balanceOf", contract, [address]);
-      //if (newBalance != undefined) setYourTokenBalance(newBalance.toNumber());
-      //   switch (token.m) {
-      //     case "0x0000000000000000000000000000000000000000000000000000000000000001":
-      //       {
-      //         token.dataView = <AudioPlayer url={dataUrl} />;
-      //       }
-      //       break;
-      //     case "0x0000000000000000000000000000000000000000000000000000000000000002":
-      //       {
-      //         token.dataView = (
-      //           <img src={dataUrl} style={{ width: "19rem", height: "19rem", objectFit: "scale-down", top: 0 }}></img>
-      //         );
-      //       }
-      //       break;
-      //     case "0x0000000000000000000000000000000000000000000000000000000000000003":
-      //       {
-      //         token.dataView = <video controls src={dataUrl} style={{ width: "100%" }} />;
-      //       }
-      //       break;
-      //     case "0x0000000000000000000000000000000000000000000000000000000000000004":
-      //       {
-      //         token.dataView = (
-      //           <Canvas>
-      //             <Suspense fallback={<Loader />}>
-      //               <ErrorBoundary>
-      //                 <Model />
-      //               </ErrorBoundary>
-      //               <OrbitControls />
-      //               <Environment preset="forest" background />
-      //             </Suspense>
-      //           </Canvas>
-      //         );
-      //       }
-      //       break;
-      //     default: {
-      //       token.dataView = <img src={dataUrl} style={{ width: "100%" }}></img>;
-      //       break;
-      //     }
-      //   }
     }
 
     //console.log(token);
@@ -177,14 +126,6 @@ export default function DMTSimpleViewer(props) {
   useEffect(() => {
     retrieveNFTData();
   }, [contract]);
-
-  /*
-  useEffect(() => {
-    getLinks();
-  }, [links]);
-  useEffect(() => {
-    getParentLinks();
-  }, [links]);*/
 
   if (loading === true) return <h5>Please wait...</h5>;
   // var dataView = null;
@@ -215,7 +156,7 @@ export default function DMTSimpleViewer(props) {
           {token.m}
           <br />
         </div>
-      </p>
+      </p> 
     ),
     links: <p>links content</p>,
     parents: <p>parents content</p>,

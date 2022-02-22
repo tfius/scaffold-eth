@@ -364,8 +364,7 @@ contract DMCollection is Context, ERC165, IERC721, DMAddressable, DMLinkable {
         emit Approval(ownerOf(tokenId), to, tokenId);
     }
     function _checkOnERC721Received(address from, address to, uint256 tokenId, bytes memory _data) private returns (bool) {
-        return true; // this is not 721
-        /*
+        //return true; // this is not 721
         if (to.isContract()) {
             try IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, _data) returns (bytes4 retval) {
                 return retval == IERC721Receiver(to).onERC721Received.selector;
@@ -382,7 +381,6 @@ contract DMCollection is Context, ERC165, IERC721, DMAddressable, DMLinkable {
         } else {
             return true;
         }
-        */
     }
 
     
@@ -687,6 +685,7 @@ function onERC721Received(address to, address collection, uint256 tokenId) priva
       //composed[tokenHash].push(Composable(targetCollection, targetTokenId));
       return this.transferCompose.selector;
     }
+    
     // TODO: needs checking to see that sourceCollection sourceTokenId is owned by msg.sender
     function compose(bytes32 tokenHash, address sourceCollection, uint256 sourceTokenId) external returns (bool) 
     {
