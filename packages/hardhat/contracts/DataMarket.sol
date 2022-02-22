@@ -443,7 +443,7 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
         IDMCollection NFT = collectionGet(collectionIndex); 
         NFT.templateCreatable(msg.sender, to, tokenName, duplicationPrice);
 
-        payable(contractTresury).transfer(msg.value);    // cost to  go to treasury
+        payable(contractTresury).transfer(msg.value); // cost to  go to treasury
     } 
     
     function templatesMintFrom(address to, uint256 collectionIndex, uint256 mintFromTemplateTokenId) public payable

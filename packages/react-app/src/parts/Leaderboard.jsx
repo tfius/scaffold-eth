@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Select, Button, Card, Col, Input, List, Menu, Row, Progress } from "antd";
+import { Select, Button, Card, Col, Input, List, Menu, Row, Progress, Tooltip } from "antd";
 import FText from "../components/FText";
 import { useContractReader } from "eth-hooks";
 import { notification } from "antd";
@@ -11,14 +11,16 @@ function TokenVoteView(props) {
     <Card size="large" hoverable>
       <div style={{ display: "block", alignItems: "right" }}>
         <div style={{ float: "left", textAlign: "center" }}>
-          <small>{index}.</small> &nbsp;&nbsp;&nbsp; <strong>{token.name}</strong> &nbsp;&nbsp;&nbsp; votes: {token.votes} 
+          <small>{index}.</small> &nbsp;&nbsp;&nbsp; <strong>{token.name}</strong> &nbsp;&nbsp;&nbsp; {token.votes} 
         </div>
 
         <div style={{ float: "right" }}>
           {canVote ? (
+              <Tooltip title="Click to vote.">
             <span style={{ /*textDecoration: "underline",*/ cursor: "pointer" }} onClick={e => onVote(token)}>
-              <FText>vote</FText>
+              ▲
             </span>
+            </Tooltip>
           ) : null}
         </div>
       </div>
