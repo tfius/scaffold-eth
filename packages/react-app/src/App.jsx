@@ -832,7 +832,7 @@ function App(props) {
               Leaderboard
             </Link>
           </Menu.Item>
-          <Menu.Item key="/sponsorshipminter">
+          {/* <Menu.Item key="/sponsorshipminter">
             <Link
               onClick={() => {
                 setRoute("/sponsorshipminter");
@@ -851,7 +851,7 @@ function App(props) {
             >
               Membership
             </Link>
-          </Menu.Item>
+          </Menu.Item> */}
 
           <Menu.Item key="/allegianceminter">
             <Link
@@ -875,7 +875,7 @@ function App(props) {
             </Link>
           </Menu.Item>
 
-          <Menu.Item key="/groupsminter">
+          {/* <Menu.Item key="/groupsminter">
             <Link
               onClick={() => {
                 setRoute("/groupsminter");
@@ -884,7 +884,7 @@ function App(props) {
             >
               Groups
             </Link>
-          </Menu.Item>
+          </Menu.Item>  */}
 
           <Menu.Item key="/dataminter">
             <Link
@@ -893,7 +893,7 @@ function App(props) {
               }}
               to="/dataminter"
             >
-              DataMinter
+              Minter
             </Link>
           </Menu.Item>
           <Menu.Item key="/exchange">
@@ -903,7 +903,7 @@ function App(props) {
               }}
               to="/exchange"
             >
-              Exchange
+              Marketplace
             </Link>
           </Menu.Item>
           {/* <Menu.Item key="/datatoken">

@@ -223,7 +223,7 @@ export default function DMTViewer(props) {
         </span>{" "}
         <br />
         <span>
-          Royalties: <strong>1%</strong>
+          Royalties: <strong>0%</strong>
         </span>{" "}
         <br />
         <strong>NOTE: </strong>Cancel order on marketplace
