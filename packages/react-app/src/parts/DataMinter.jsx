@@ -9,7 +9,7 @@ import {
 
 import { SendOutlined } from "@ant-design/icons";
 import React, { useCallback, useEffect, useState } from "react";
-import { Select, Button, Card, Spin, Col, Input, List, Menu, Row } from "antd";
+import { Select, Button, Card, Spin, Col, Input, List, Menu, Row, notification } from "antd";
 //const { ethers } = require("ethers");
 import { ethers } from "ethers";
 
@@ -42,6 +42,7 @@ const metadataTypes = [
 export default function DataMinter(props) {
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [visibleTransfer, setVisibleTransfer] = useState([]);
   const [metadataAddress, setMetadataAddress] = useState("");
@@ -62,6 +63,7 @@ export default function DataMinter(props) {
   const [selectedType, setSelectedType] = useState("");
 
   const [contract, setContract] = useState([]);
+  const [isApproved, setIsApproved] = useState(false);
 
   const {
     yourDmBalance,
@@ -85,7 +87,7 @@ export default function DataMinter(props) {
     if (isActive) {
       interval = setInterval(() => {
         setSeconds(seconds => seconds + 1);
-      }, 10000);
+      }, 15000);
     } else if (!isActive && seconds !== 0) {
       clearInterval(interval);
     }
@@ -96,7 +98,7 @@ export default function DataMinter(props) {
     setMetadataAddress("0x0000000000000000000000000000000000000000000000000000000000000000");
 
     if (dmCollections === undefined) return;
-    const contracts = helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
+    const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
     const dmCollectionContract = new ethers.Contract(
       dmCollections[selectedCollection],
       contracts.DMCollection.abi,
@@ -120,13 +122,21 @@ export default function DataMinter(props) {
     if (contract != null) {
       try {
         var newBalance = await helpers.makeCall("balanceOf", contract, [address]);
-        if (newBalance != undefined) setYourTokenBalance(newBalance.toNumber());
+        if (newBalance != undefined) {
+          if(newBalance.toNumber() < yourTokenBalance) {
+            setYourTokens([]);
+          }
+          setYourTokenBalance(newBalance.toNumber());
+          console.log("new balance", newBalance.toString());
+        }
       } catch (e) {
         console.log(e);
       }
     }
-  });
+  }, [contract, address]);
   const updateTokens = useCallback(async () => {
+    console.log("updateTokens");
+    setIsLoading(true);
     if (contract != null) {
       if (yourTokenBalance >= 0) {
         var nfts = [];
@@ -135,16 +145,16 @@ export default function DataMinter(props) {
             const tokenId = await helpers.makeCall("tokenOfOwnerByIndex", contract, [address, tokenIndex]);
             var tokenInfo = await helpers.makeCall("tokenData", contract, [tokenId.toNumber()]);
             var tokenUri = await helpers.makeCall("tokenURI", contract, [tokenId.toNumber()]);
-            var isApproved = await helpers.makeCall("isApprovedForAll", contract, [
-              address,
-              readContracts.ExchangeDM.address,
-            ]);
+            // var isApproved = await helpers.makeCall("isApprovedForAll", contract, [
+            //   address,
+            //   readContracts.ExchangeDM.address,
+            // ]);
             try {
               var data = JSON.parse(tokenInfo);
               data.id = tokenId.toString();
               data.tokenUri = tokenUri;
               data.name = ethers.utils.toUtf8String(data.n).replace(/[^\x01-\x7F]/g, "");
-              data.isApproved = isApproved;
+              // data.isApproved = isApproved;
 
               nfts.push(data);
               console.log(data);
@@ -161,25 +171,41 @@ export default function DataMinter(props) {
         else setYourTokens([...yourTokens, ...nfts]);
       }
     }
+    setIsLoading(false);
   });
+
+  const getApproval = useCallback(async () => {
+    if (contract != null) {
+      var approved = await helpers.makeCall("isApprovedForAll", contract, [address, readContracts.ExchangeDM.address]);
+      setIsApproved(approved);
+    }
+  }, [contract, isApproved]);
 
   useEffect(() => {
     updateContract();
+    setIsApproved(false);
     setYourTokens([]);
+    setYourTokenBalance(0);
+    console.log("selectedCollection", selectedCollection);
   }, [selectedCollection]);
 
   useEffect(() => {
     updateNFTBalance();
+    getApproval();
+    console.log("updateNFTBalance");
   }, [contract]);
 
   useEffect(() => {
     updateTokens();
+    console.log("yourTokenBalance", yourTokenBalance);
   }, [yourTokenBalance]);
 
   useEffect(() => {}, [locationAddress]);
   useEffect(() => {}, [mimeHash, mimeType, filename, canCreate, error, metadataAddress]);
   useEffect(() => {
     updateNFTBalance();
+    getApproval();
+    console.log("seconds");
   }, [seconds]);
 
   const gridStyle = {
@@ -196,11 +222,9 @@ export default function DataMinter(props) {
           contract={contract}
           address={address}
           readContracts={readContracts}
-          //writeContract={writeContracts}
-          //provider={localProvider}
-          //tx={tx}
           onSellToken={sellToken}
           onApproveToken={approveToken}
+          isApproved={isApproved}
         />
       </>
     );
@@ -247,15 +271,13 @@ export default function DataMinter(props) {
   });
 
   async function sellToken(token, askPrice) {
-    console.log("sellToken",  tx);
-
+    console.log("sellToken", tx);
     let value;
     try {
       try {
         value = ethers.utils.parseEther("" + askPrice);
       } catch (e) {
-        // failed to parseEther, try something else
-        value = ethers.utils.parseEther("" + parseFloat(askPrice).toFixed(8));
+        value = ethers.utils.parseEther("" + parseFloat(askPrice).toFixed(8)); // failed to parseEther, try something else
       }
       console.log("sellToken", token, askPrice, value.toString());
     } catch (e) {
@@ -274,13 +296,25 @@ export default function DataMinter(props) {
           [1000], // so 1% fees for seller
         ),
       );
+
+      notification.success({
+        message: "Selling",
+        description: "Your token is being sent to the exchange",
+        placement: "topLeft",
+      });
     }
   }
   async function approveToken(contract, token) {
-    console.log("approveToken",  tx);
+    console.log("approveToken", token);
     if (writeContracts != undefined /*&& tx != undefined*/) {
       var tx = await helpers.makeCall("setApprovalForAll", contract, [writeContracts.ExchangeDM.address, true]);
       console.log("approveToken tx", tx);
+
+      notification.success({
+        message: "Approve",
+        description: "You are giving the Exchange permission to transfer your token",
+        placement: "topLeft",
+      });
     }
   }
 
@@ -368,6 +402,9 @@ export default function DataMinter(props) {
                     locationAddress, //
                   ),
                 );
+                setMimeType("");
+                setFilename("");
+                setFilesize("");
               }}
             >
               Create
@@ -375,6 +412,11 @@ export default function DataMinter(props) {
           </div>
         </>
       </div>
+      {isLoading ? (
+        <>
+          <Spin />
+        </>
+      ) : null}
       <div className="card-grid-container card-grid-container-fill">
         {yourTokenBalance > 0 ? <>{tokList} </> : null}
       </div>

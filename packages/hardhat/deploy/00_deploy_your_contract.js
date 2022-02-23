@@ -17,9 +17,17 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     log: true,
   })*/
 
+  console.log("Goldinar *********************************"); 
+  const goldinarToken = await deploy('Goldinar', {
+    // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
+    from: deployer,
+    //args: [dataMarket.address, "DM-C-0"],
+    log: true,
+  })
+
   const exchangeDM = await deploy('ExchangeDM', {
     from: deployer,
-    //args: [dataMarket.address, deployer],
+    args: [goldinarToken.address],
     log: true,
   })
 
@@ -134,13 +142,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     log: true,
   })
 
-  console.log("Goldinar *********************************"); 
-  const goldinarToken = await deploy('Goldinar', {
-    // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
-    from: deployer,
-    //args: [dataMarket.address, "DM-C-0"],
-    log: true,
-  })
+
   console.log("Goldinar Farm *********************************"); 
   const goldinarFarm = await deploy('GoldinarFarm', {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy

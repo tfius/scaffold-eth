@@ -10,7 +10,7 @@ import {
 import { SendOutlined } from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
 import React, { useCallback, useEffect, useState } from "react";
-import { Select, Button, Card, Col, Input, List, Menu, Row } from "antd";
+import { Select, Button, Card, Col, Input, List, Menu, Row, Spin } from "antd";
 //const { ethers } = require("ethers");
 import { ethers } from "ethers";
 
@@ -66,7 +66,7 @@ export default function TemplatesMinter(props) {
   const updateNFTBalance = useCallback(async () => {
     setLoading(true);
     if (dmCollections === undefined) return;
-    const contracts = helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
+    const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
     const dmCollectionContract = new ethers.Contract(
       dmCollections[selectedCollection],
       contracts.DMCollection.abi,
@@ -85,10 +85,6 @@ export default function TemplatesMinter(props) {
       setContractName(name);
       var symbol = await helpers.makeCall("symbol", dmCollectionContract);
       setContractSymbol(symbol);
-      var nonTrans = await helpers.makeCall("nonTransferable", dmCollectionContract);
-      setIsNonTransferable(nonTrans);
-      var finite = await helpers.makeCall("finiteCount", dmCollectionContract);
-      setFiniteCount(finite.toNumber());
       // GET TEMPLATES
       var indices = await helpers.makeCall("getTemplateIndices", dmCollectionContract);
       var tokens = [];
@@ -104,9 +100,22 @@ export default function TemplatesMinter(props) {
 
         //console.log(data.o, address, data.o === addr);
         if (data.o != addr) tokens.push(data);
+
+        /*if (templateTokens.length == 0) setYourTokens(tokens);
+        else 
+        {
+           setTemplateTokens([...templateTokens, ...tokens]);
+           tokens = [];
+        }*/
       }
 
       setTemplateTokens(tokens);
+
+      var nonTrans = await helpers.makeCall("nonTransferable", dmCollectionContract);
+      setIsNonTransferable(nonTrans);
+      var finite = await helpers.makeCall("finiteCount", dmCollectionContract);
+      setFiniteCount(finite.toNumber());
+
     }
 
     setLoading(false);
@@ -184,10 +193,10 @@ export default function TemplatesMinter(props) {
     ); //<Card>{<h2>{t.name}</h2>}</Card>;
   });
 
-  if (loading === true) return <h1>Please wait...</h1>;
+  if (loading === true) return <><h1>Please wait...</h1><Spin/></>;
 
   return (
-    <div style={{ maxWidth: 1000, margin: "auto", marginTop: 5, paddingBottom: 25, lineHeight: 1.5 }}>
+    <div style={{ maxWidth: "70.5rem", margin: "auto", marginTop: 5, paddingBottom: 25, lineHeight: 1.5 }}>
       {/* Balance: <strong>{yourDmBalance} DM</strong> <br /> */}
       <h1>{title}</h1>
       {yourTokenBalance > 0 ? (

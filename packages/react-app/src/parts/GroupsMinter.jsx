@@ -12,7 +12,7 @@ export default function GroupsMinter(props) {
 
   const updateContract = useCallback(async () => {
     if (dmCollections === undefined) return;
-    const contracts = helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
+    const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
     const dmCollectionContract = new ethers.Contract(
       dmCollections[selectedCollection],
       contracts.DMCollection.abi,

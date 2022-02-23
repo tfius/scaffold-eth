@@ -105,7 +105,6 @@ export default function DMTSimpleViewer(props) {
     if (contract != null && readContracts != undefined) {
       var numVotes = await readContracts.Voting.totalVotesFor(contract.address, token.id);
       setNumVotes(numVotes.toNumber());
-
     }
 
     //console.log(token);
@@ -156,7 +155,7 @@ export default function DMTSimpleViewer(props) {
           {token.m}
           <br />
         </div>
-      </p> 
+      </p>
     ),
     links: <p>links content</p>,
     parents: <p>parents content</p>,
@@ -166,12 +165,6 @@ export default function DMTSimpleViewer(props) {
     //setCanVote(false); //console.log("voteForToken", token);
     if (writeContracts != undefined && tx != undefined) {
       var res = await tx(writeContracts.Voting.voteFor(contract.address, token.id));
-      /*console.log("voteForToken", res);
-      notification.success({
-        message: "Voted",
-        description: "Your vote has been sent",
-        placement: "topRight",
-      });*/
     }
   }
 
@@ -204,8 +197,7 @@ export default function DMTSimpleViewer(props) {
             if (onClickRedirect != undefined) {
               helpers.speak(token.name);
               onClickRedirect(token);
-            }
-            else console.log("DMT Simple view ", token);
+            } else console.log("DMT Simple view ", token);
           }}
         >
           {token.name}

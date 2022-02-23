@@ -12,7 +12,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 
 import { Link } from "react-dom";
-import { Select, Button, Card, Col, Input, List, Menu, Row, Progress } from "antd";
+import { Select, Button, Card, Col, Input, List, Menu, Row, Progress, Spin } from "antd";
 //const { ethers } = require("ethers");
 import { ethers } from "ethers";
 
@@ -182,7 +182,7 @@ async function getPublicKey(signer) {
   useEffect(() => {}, [tokenName]);
   // console.log("mintAvatar", avatars, avatarsLoaded);
    
-  if (avatarsLoaded == false || avatars.length != 0 || triggered == true) return <h1>Please wait</h1>;
+  if (avatarsLoaded == false || avatars.length != 0 || triggered == true) return <h1></h1>;
   //return <>{avatars.length == 0 ? "Create Explorer" : { avatars }}</>;
   return (
     <>
@@ -257,37 +257,37 @@ export default function YourHome(props) {
   }
   function getDMCollectionContract(contractIndex) {
     if (dmCollections === undefined) return null;
-    const contracts = helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
+    const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
     const contract = new ethers.Contract(dmCollections[contractIndex], contracts.DMCollection.abi, localProvider);
     return contract;
   }
   function getAvatarContract(contractIndex) {
     if (dmCollections === undefined) return null;
-    const contracts = helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
+    const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
     const contract = new ethers.Contract(dmCollections[contractIndex], contracts.Avatar.abi, localProvider);
     return contract;
   }
   function getAvatarAbilityContract(contractIndex) {
     if (dmCollections === undefined) return null;
-    const contracts = helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
+    const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
     const contract = new ethers.Contract(dmCollections[contractIndex], contracts.AvatarAbility.abi, localProvider);
     return contract;
   }
   function getAvatarReputationContract(contractIndex) {
     if (dmCollections === undefined) return null;
-    const contracts = helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
+    const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
     const contract = new ethers.Contract(dmCollections[contractIndex], contracts.AvatarReputation.abi, localProvider);
     return contract;
   }
   function getAvatarDrawbackContract(contractIndex) {
     if (dmCollections === undefined) return null;
-    const contracts = helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
+    const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
     const contract = new ethers.Contract(dmCollections[contractIndex], contracts.AvatarDrawbacks.abi, localProvider);
     return contract;
   }
   function getAvatarRelatableContract(contractIndex) {
     if (dmCollections === undefined) return null;
-    const contracts = helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
+    const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
     const contract = new ethers.Contract(dmCollections[contractIndex], contracts.AvatarRelatable.abi, localProvider);
     return contract;
   }
@@ -543,7 +543,7 @@ export default function YourHome(props) {
   return (
     <div
       style={{
-        maxWidth: 820,
+        maxWidth: "56.5rem",
         margin: "auto",
         marginTop: 16,
         paddingBottom: 16,

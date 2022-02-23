@@ -11,8 +11,6 @@ import { Canvas, useThree, useLoader } from "@react-three/fiber";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { Environment, OrbitControls, useProgress, Html, useFBX, Float } from "@react-three/drei";
 
-import Blockies from "react-blockies";
-import { SendOutlined } from "@ant-design/icons";
 import React, { useCallback, useEffect, useState, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { Select, Button, Card, Col, Input, List, Menu, Row, Tabs } from "antd";
@@ -77,7 +75,7 @@ const tabListNoTitle = [
   },
   {
     key: "parents",
-    tab: "Parents",
+    tab: "Data",
   },
 ];
 
@@ -86,28 +84,14 @@ export default function DMTViewer(props) {
   const [loadModel, setLoadModel] = useState();
 
   const [details, setDetails] = useState();
+  const [approval, setApproval] = useState("Approve");
   const [tokenAskPrice, setTokenAskPrice] = useState();
   const [links, setLinks] = useState();
   const [parentLinks, setParentLinks] = useState();
 
   const [activeTabKey, setActiveTabKey] = useState("contents");
 
-  const {
-    contract,
-    token,
-    selectedCollection,
-    writeContracts,
-    readContracts,
-    address,
-    contractConfig,
-    gasPrice,
-    price,
-    tx,
-    title,
-    provider,
-    onSellToken,
-    onApproveToken,
-  } = props;
+  const { contract, token, isApproved, price, onSellToken, onApproveToken } = props;
 
   const dataUrl = helpers.downloadGateway + token.d.substring(2) + "/";
   let cameraPosition = {
@@ -188,106 +172,63 @@ export default function DMTViewer(props) {
     //console.log(token);
     setLoading(false);
   });
-  /* 
-  const getLinks = useCallback(async () => {
-    //setLoading(true);
-    if (contract != null) {
-      //var name = await helpers.makeCall("name", contract);
-      //var links = await helpers.makeCall("getLinks", contract, [token.id]);
-      //console.log(token.name + " links", links);
-      //setLinks(links)
-    }
-  });
-  const getParentLinks = useCallback(async () => {
-    //setLoading(true);
-    if (contract != null) {
-      //var name = await helpers.makeCall("name", contract);
-      //var links = await helpers.makeCall("getLinks", contract, [token.id]);
-      //console.log(token.name + " parentLinks", parentLinks);
-      //setLinks(links)
-    }
-  });
-  */
 
   useEffect(() => {
     retrieveNFTData();
   }, [contract]);
 
-  /* 
-  useEffect(() => {
-    getLinks();
-  }, [links]);
-  useEffect(() => {
-    getParentLinks();
-  }, [links]); 
-  */
-
-  // useEffect(() => {
-  //    fbx = useFBX(dataUrl);
-  //    console.log ()
-  //    token.dataView = <primitive object={fbx} />
-  // }, [loadModel]);
-
   const Model = props => {
-    //const fbx = useFBX(dataUrl);
     const fbx = useLoader(FBXLoader, dataUrl);
     return null;
-    // return <primitive object={fbx} dispose={null} scale={0.4} {...props} />;
   };
 
   if (loading === true) return <h1>Please wait...</h1>;
 
-  //const hasMeta = token.m === "0x0000000000000000000000000000000000000000000000000000000000000000"; // process metadata
-  // const onLoad = e => {
-  //   console.log(e);
-  // };
-  // const onError = e => {
-  //   console.log(e);
-  // };
   var dataView = null;
-  /*
-  var audioSource = <AudioPlayer url={dataUrl} />
-  var imageSource = <img src={dataUrl} style={{ width: "180px" }}></img>
-  var videoSource = <video controls src={dataUrl} /> 
-  */
   const onTabChange = key => {
     setActiveTabKey(key);
   };
   const contentListNoTitle = {
     contents: <p>{token.dataView}</p>,
     info: (
-      <p>
+      <div style={{ lineHeight: "1.5rem", textAlign: "center", padding: "10px" }}>
+        <h2>Token</h2>
         <div>
           <a
             href={token.tokenUri.replace("swarm://", helpers.downloadGateway) + "/"}
             target="_blank"
             rel="noopener noreferrer"
           >
-            View token #{token.id}
+            Download #{token.id}
           </a>
         </div>
-        <div style={{ fontSize: "0.4rem" }}>
+        <div>
+          Owner: <span style={{ fontSize: "0.4rem" }}>{token.o}</span>
           <br />
-          Owner: {token.o}
+          Creator: <span style={{ fontSize: "0.4rem" }}>{token.c}</span>
           <br />
-          Creator: {token.c}
+          Data <span style={{ fontSize: "0.4rem" }}>{token.d}</span>
           <br />
-          Data {token.d}
-          <br />
-          Meta {token.m}
+          Meta <span style={{ fontSize: "0.4rem" }}>{token.m}</span>
           <br />
         </div>
-      </p>
+      </div>
     ),
     links: (
-      <div style={{ lineHeight: "1.1rem", textAlign: "center", padding: "10px" }}>
+      <div style={{ lineHeight: "1.5rem", textAlign: "center", padding: "10px" }}>
         <h2>Sell token</h2>
-        <span>Offer on Marketplace</span> <br />
-        <span>Duration: <strong>Indefinite</strong></span> <br />
-        <span>Royalties: <strong>1%</strong></span> <br />
-        <strong>NOTE: </strong>Cancel order on marketplace<br />
+        <span>Put offer on Exchange</span> <br />
+        <span>
+          Duration: <strong>Indefinite</strong>
+        </span>{" "}
         <br />
-        {token.isApproved ? (
+        <span>
+          Royalties: <strong>1%</strong>
+        </span>{" "}
+        <br />
+        <strong>NOTE: </strong>Cancel order on marketplace
+        <br />
+        {isApproved ? (
           <>
             <EtherInput
               value={tokenAskPrice}
@@ -296,27 +237,31 @@ export default function DMTViewer(props) {
                 setTokenAskPrice(value);
               }}
             />
-
             <Button type={"primary"} onClick={e => onSellToken(token, tokenAskPrice)}>
               Sell
             </Button>
-
           </>
         ) : (
           <>
-          <Button type={"primary"} onClick={e => onSellToken(token, tokenAskPrice)}>
-          Sell
-        </Button>
-
-          <Button type={"primary"} onClick={e => onApproveToken(contract,token)}>
-            Approve
-          </Button>
+            <Button
+              type={"primary"}
+              onClick={e => {
+                onApproveToken(contract, token);
+                setApproval("wait");
+              }}
+            >
+              {approval}
+            </Button>
           </>
         )}
         <br />
       </div>
     ),
-    parents: <p>parents content</p>,
+    parents: (
+      <div style={{ lineHeight: "1.5rem", textAlign: "center", padding: "10px" }}>
+        <h2>Data</h2>
+      </div>
+    ),
   };
 
   return (

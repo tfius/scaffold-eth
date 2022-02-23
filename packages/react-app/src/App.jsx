@@ -34,6 +34,7 @@ import YourHome from "./parts/YourHome.jsx";
 import Farm from "./parts/Farm.jsx";
 import Leaderboard from "./parts/Leaderboard.jsx";
 import TeamView from "./parts/views/TeamView.jsx";
+import ExchangeView from "./parts/views/ExchangeView.jsx";
 import TemplatesMinter from "./parts/TemplatesMinter.jsx";
 import DataMinter from "./parts/DataMinter.jsx";
 import TeamsMinter from "./parts/TeamsMinter.jsx";
@@ -47,7 +48,6 @@ import * as helpers from "./parts/helpers";
 
 //const { ethers } = require("ethers");
 import { ethers } from "ethers";
-
 
 /*
     Welcome to 🏗 scaffold-eth !
@@ -191,6 +191,7 @@ function App(props) {
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
+  const [isRelease, setIsRelease] = useState(true);
 
   const logoutOfWeb3Modal = async () => {
     await web3Modal.clearCachedProvider();
@@ -273,7 +274,7 @@ function App(props) {
   const yourDmNftBalance = dmnftBalance && dmnftBalance.toNumber && dmnftBalance.toNumber();
 
   const [yourDmNfts, setYourDmNfts] = useState();
-  const [selectedCollection, setSelectedCollection] = useState(0);
+  const [selectedCollection, setSelectedCollection] = useState(10);
   const [collectionInformation, setCollectionInformation] = useState({
     name: "Default Name",
     description: "Default description",
@@ -400,6 +401,15 @@ function App(props) {
     };
     updateYourNFTs();
   }, [address, yourDmBalance, yourDmNftBalance]);
+
+  useEffect(() => {
+    const getDeployedContracts = async () => {
+      const contracts = helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
+      helpers.setDeployedContracts(contracts);
+      console.log("🤗 getDeployedContracts", helpers.getDeployedContracts());
+    };
+    getDeployedContracts();
+  }, [contractConfig]);
 
   useEffect(() => {
     const updateSelectedCollections = async () => {
@@ -608,13 +618,13 @@ function App(props) {
   }, [setRoute]);
 
   const loadSpeech = useCallback(async () => {
-      // console.log("check speechSynthesis"); 
-      if ("speechSynthesis" in window && window.voices==undefined)  {
-        console.log("speechSynthesis is supported"); 
-        window.voices = true;
-        helpers.prepareVoices();
-      }
-  },[])
+    // console.log("check speechSynthesis");
+    if ("speechSynthesis" in window && window.voices == undefined) {
+      console.log("speechSynthesis is supported");
+      window.voices = true;
+      helpers.prepareVoices();
+    }
+  }, []);
 
   let faucetHint = "";
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
@@ -653,142 +663,144 @@ function App(props) {
   const [metadataAddresses, setMetadataAddresses] = useState({});
   const [locationAddresses, setLocationAddresses] = useState({});
 
-
-
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
       <Header />
       {networkDisplay}
       <BrowserRouter>
-        <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/loogies">
-            <Link
-              onClick={() => {
-                setRoute("/loogies");
-              }}
-              to="/loogies"
-            >
-              Loogies
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/loogietank">
-            <Link
-              onClick={() => {
-                setRoute("/loogietank");
-              }}
-              to="/loogietank"
-            >
-              Loogie Tank
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/mintloogies">
-            <Link
-              onClick={() => {
-                setRoute("/mintloogies");
-              }}
-              to="/mintloogies"
-            >
-              Mint Loogies
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/mintloogietank">
-            <Link
-              onClick={() => {
-                setRoute("/mintloogietank");
-              }}
-              to="/mintloogietank"
-            >
-              Mint Loogie Tank
-            </Link>
-          </Menu.Item>
-        </Menu>
+        {!isRelease ? (
+          <>
+            <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
+              <Menu.Item key="/loogies">
+                <Link
+                  onClick={() => {
+                    setRoute("/loogies");
+                  }}
+                  to="/loogies"
+                >
+                  Loogies
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="/loogietank">
+                <Link
+                  onClick={() => {
+                    setRoute("/loogietank");
+                  }}
+                  to="/loogietank"
+                >
+                  Loogie Tank
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="/mintloogies">
+                <Link
+                  onClick={() => {
+                    setRoute("/mintloogies");
+                  }}
+                  to="/mintloogies"
+                >
+                  Mint Loogies
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="/mintloogietank">
+                <Link
+                  onClick={() => {
+                    setRoute("/mintloogietank");
+                  }}
+                  to="/mintloogietank"
+                >
+                  Mint Loogie Tank
+                </Link>
+              </Menu.Item>
+            </Menu>
 
-        <Menu style={{ textAlign: "center", fontSize: "1.3vmin" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/markable">
-            <Link
-              onClick={() => {
-                setRoute("/markable");
-              }}
-              to="/markable"
-            >
-              Markable
-            </Link>
-          </Menu.Item>
+            <Menu style={{ textAlign: "center", fontSize: "1.3vmin" }} selectedKeys={[route]} mode="horizontal">
+              <Menu.Item key="/markable">
+                <Link
+                  onClick={() => {
+                    setRoute("/markable");
+                  }}
+                  to="/markable"
+                >
+                  Markable
+                </Link>
+              </Menu.Item>
 
-          <Menu.Item key="/graphable">
-            <Link
-              onClick={() => {
-                setRoute("/graphable");
-              }}
-              to="/graphable"
-            >
-              Graphable
-            </Link>
-          </Menu.Item>
+              <Menu.Item key="/graphable">
+                <Link
+                  onClick={() => {
+                    setRoute("/graphable");
+                  }}
+                  to="/graphable"
+                >
+                  Graphable
+                </Link>
+              </Menu.Item>
 
-          <Menu.Item key="/ex">
-            <Link
-              onClick={() => {
-                setRoute("/ex");
-              }}
-              to="/ex"
-            >
-              Exchange
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/dm">
-            <Link
-              onClick={() => {
-                setRoute("/dm");
-              }}
-              to="/dm"
-            >
-              DataMarket
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/dmnft">
-            <Link
-              onClick={() => {
-                setRoute("/dmnft");
-              }}
-              to="/dmnft"
-            >
-              Collection
-            </Link>
-          </Menu.Item>
+              <Menu.Item key="/ex">
+                <Link
+                  onClick={() => {
+                    setRoute("/ex");
+                  }}
+                  to="/ex"
+                >
+                  Exchange
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="/dm">
+                <Link
+                  onClick={() => {
+                    setRoute("/dm");
+                  }}
+                  to="/dm"
+                >
+                  DataMarket
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="/dmnft">
+                <Link
+                  onClick={() => {
+                    setRoute("/dmnft");
+                  }}
+                  to="/dmnft"
+                >
+                  Collection
+                </Link>
+              </Menu.Item>
 
-          <Menu.Item key="/goldinar">
-            <Link
-              onClick={() => {
-                setRoute("/goldinar");
-              }}
-              to="/goldinar"
-            >
-              Goldinar
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/goldinarfarm">
-            <Link
-              onClick={() => {
-                setRoute("/goldinarfarm");
-              }}
-              to="/goldinarfarm"
-            >
-              Farm
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/avatarcontract">
-            <Link
-              onClick={() => {
-                setRoute("/avatarcontract");
-              }}
-              to="/avatarcontract"
-            >
-              Avatar
-            </Link>
-          </Menu.Item>
-        </Menu>
+              <Menu.Item key="/goldinar">
+                <Link
+                  onClick={() => {
+                    setRoute("/goldinar");
+                  }}
+                  to="/goldinar"
+                >
+                  Goldinar
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="/goldinarfarm">
+                <Link
+                  onClick={() => {
+                    setRoute("/goldinarfarm");
+                  }}
+                  to="/goldinarfarm"
+                >
+                  Farm
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="/avatarcontract">
+                <Link
+                  onClick={() => {
+                    setRoute("/avatarcontract");
+                  }}
+                  to="/avatarcontract"
+                >
+                  Avatar
+                </Link>
+              </Menu.Item>
+            </Menu>
+          </>
+        ) : null}
         <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
           <Menu.Item key="/">
             <Link
@@ -884,7 +896,17 @@ function App(props) {
               DataMinter
             </Link>
           </Menu.Item>
-          <Menu.Item key="/datatoken">
+          <Menu.Item key="/exchange">
+            <Link
+              onClick={() => {
+                setRoute("/exchange");
+              }}
+              to="/exchange"
+            >
+              Exchange
+            </Link>
+          </Menu.Item>
+          {/* <Menu.Item key="/datatoken">
             <Link
               onClick={() => {
                 setRoute("/datatoken");
@@ -893,7 +915,7 @@ function App(props) {
             >
               DataToken
             </Link>
-          </Menu.Item>
+          </Menu.Item> */}
         </Menu>
         <Switch>
           <Route exact path="/loogies">
@@ -917,6 +939,20 @@ function App(props) {
               userSigner={userSigner}
               tx={tx}
               title="Team"
+              address={address}
+            />
+          </Route>
+          <Route path="/exchange">
+            <ExchangeView
+              dmCollections={dmCollections}
+              contractConfig={contractConfig}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              localProvider={localProvider}
+              userSigner={userSigner}
+              gasPrice={gasPrice}
+              tx={tx}
+              title="Exchange"
               address={address}
             />
           </Route>

@@ -43,7 +43,7 @@ const FileUpload = (props) => {
   return (
     <div {...getRootProps()}>
       <input {...getInputProps()} />
-      {isDragActive ? <p>Drop the file here ...</p> : <p>Drag 'n' drop your file here, or click to select one</p>}
+      {isDragActive ? <p>Drop the file here ...</p> : <strong>Drop your file here, or click to select one</strong>}
     </div>
   );
 };
