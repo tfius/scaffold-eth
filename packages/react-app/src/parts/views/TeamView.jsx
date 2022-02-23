@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Select, Button, Card, Col, Input, List, Menu, Row, Progress, Tooltip } from "antd";
-import FText from "../../components/FText";
-import { useContractReader } from "eth-hooks";
+import { Button, Card, Input, Tooltip } from "antd";
 import { notification } from "antd";
 import { ethers } from "ethers";
 import * as helpers from "./../helpers";
@@ -35,7 +33,7 @@ export default function TeamView(props) {
 
   const [contract, setContract] = useState(null);
   const [tokenData, setTokenData] = useState({ name: "", links: [], parents: [], uri: "", posts: [] });
-  const [avatarToken, setAvatarToken] = useState({ name: "", links: [], parents: [], uri: "", posts: [] });
+  const [avatarToken, setAvatarToken] = useState({ name: "Unknown", links: [], parents: [], uri: "", posts: [] });
   const [postText, setPostText] = useState("");
   const [canVote, setCanVote] = useState();
 
@@ -87,7 +85,7 @@ export default function TeamView(props) {
 
   function getDMCollectionContract(contractIndex) {
     if (dmCollections === undefined) return null;
-    const contracts = helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
+    const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
     const teamsContract = new ethers.Contract(dmCollections[contractIndex], contracts.DMCollection.abi, userSigner);
     setContract(teamsContract);
   }
@@ -167,7 +165,7 @@ export default function TeamView(props) {
     notification.success({
       message: "Data",
       description: "Adding data to token",
-      placement: "topRight",
+      placement: "topLeft",
     });
     // post to data to swarm get swarm hash
 
@@ -199,7 +197,7 @@ export default function TeamView(props) {
     notification.success({
       message: "Voted",
       description: "Your vote has been sent",
-      placement: "topRight",
+      placement: "topLeft",
     });
   }
 

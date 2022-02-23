@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./Goldinar.sol";
 
 interface ERC721 {
-  // function transferFrom(address from, address to, uint256 idOrAmount) external;
+  //function transferFrom(address from, address to, uint256 idOrAmount) external;
   //function transfer(address to, uint256 idOrAmount) external;
   function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) external;
   function ownerOf(uint256 tokenId) external returns (address);
@@ -21,14 +21,7 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
   event OrderExecuted(bytes32 indexed order, address indexed seller, address indexed buyer);
   event OrderCanceled(bytes32 indexed order, address indexed seller);
   event OrderRemoved(bytes32 indexed order, address indexed seller);
-
-  // Errors
-  error OrderExpired();
-  error InvalidSignature();
   error InvalidArrays();
-  error OrderNotOpen();
-  error InvalidPayment();
-  error InvalidOrderType();
 
    // Order structure
   struct Order {
@@ -47,15 +40,34 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
     uint    categoryIndex; // Pointer to the order in the category list 
   }
 
+  uint256 sellPrize = 1 ether;
+
   Goldinar public goldinarToken;
-  constructor() {
+  constructor(Goldinar _goldinarToken) {
       _setupRole(DEFAULT_ADMIN_ROLE, msg.sender); 
+      goldinarToken=_goldinarToken;
   }  
 
   Order[] public orders;
   mapping(bytes32 => uint256)    public hashToOrder;    // orders per seller
   mapping(address => uint256[])  public sellerOrders;   // orders per seller 
   mapping(bytes32 => uint256[])  public categoryOrders; // orders per category
+
+  bytes32[] public categories;
+  mapping(bytes32 => uint256)    public categoryToIndex;    // orders per seller
+
+  function numOrders() public view returns (uint256) {
+    return orders.length;
+  }
+  function numSellerOrders(address seller) public view returns (uint256) {
+    return sellerOrders[seller].length;
+  }
+  function numCategoryOrders(bytes32 category) public view returns (uint256) {
+    return categoryOrders[category].length;
+  }
+  function numCategories() public view returns (uint256) {
+    return categories.length;
+  }
 
   function sell(address _seller, bytes32 _category, address _nftCollection, uint256 _tokenId, uint256 _askPrice, 
                            address[] memory _feeRecipients, uint256[] memory _feeAmounts) public returns (uint256 orderId) {
@@ -70,7 +82,13 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
 
      hashToOrder[tokenHash] = idx; // order added to category's order list
      sellerOrders[_seller].push(idx); // order added to seller's order list
-     categoryOrders[_category].push(idx); // order added to seller's order list
+     categoryOrders[_category].push(idx); // order added to categoryOrders's order list
+
+     if(categoryToIndex[_category] == 0) // add category if it doesn't exist
+     {
+        categories.push(_category);
+        categoryToIndex[_category] = categories.length;
+     }
      
      orders.push(Order({
        seller: _seller,
@@ -103,9 +121,21 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
       }
       if (amount > 0) {
             payable(order.seller).transfer(amount); // send rest to BENEFICIARY
-      }
+      } 
+      // TODO do fees here
 
       ERC721(order.nftCollection).safeTransferFrom(address(this), msg.sender, order.tokenId, "");
+      emit OrderExecuted(order.tokenHash, order.seller, msg.sender);
+
+
+      if(msg.sender!=order.seller) // don't give prize when same addresses
+      {
+        goldinarToken.mint(msg.sender, sellPrize); // send earned to wallet
+        goldinarToken.mint(order.seller, sellPrize); // send earned to wallet
+      }
+
+      removeOrder(order.tokenHash);
+
       emit OrderExecuted(order.tokenHash, order.seller, msg.sender);
   }
 
@@ -121,21 +151,28 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
       return true;
   }
 
-  function removeOrder(bytes32 tokenHash) nonReentrant internal returns (bool)
+  function removeOrder(bytes32 _tokenHash) internal returns (bool)
   {
-    require(tokenHash!=0x0, "invalid token hash");
+    require(_tokenHash!=0x0, "invalid token hash");
 
-    Order memory order = orders[hashToOrder[tokenHash]];
-    Order memory orderToMove = orders[orders.length-1]; // last order in the list
-    uint  toReplace  = hashToOrder[orderToMove.tokenHash]; // index of the order to replace
+    uint256 idx = hashToOrder[_tokenHash];               // ie 4
+    Order memory  order       = orders[idx];             // ie 4
+    Order storage orderToMove = orders[orders.length-1]; // last order in the list
 
+    uint  toReplace  = hashToOrder[order.tokenHash]; // ie 5 index of the order to replace
     hashToOrder[orderToMove.tokenHash] = toReplace;
+
     orderToMove.orderIndex    = order.orderIndex;
-    orderToMove.sellerIndex   = _removeSellerOrders(order.seller, order.sellerIndex);
-    orderToMove.categoryIndex = _removeCategoryOrders(order.category, order.categoryIndex);
+    orderToMove.sellerIndex   = order.sellerIndex; 
+    orderToMove.categoryIndex = order.categoryIndex; 
     orders[toReplace] = orderToMove;
 
+    _removeSellerOrders(order.seller, order.sellerIndex);
+    _removeCategoryOrders(order.category, order.categoryIndex);
+
     orders.pop();
+
+    hashToOrder[order.tokenHash] = 0x0;
 
     emit OrderRemoved(_tokenHash, order.seller);
     return true;
@@ -164,6 +201,11 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
     return  keccak256(abi.encodePacked(nftCollection,tokenId));
   }
 
+  function setSellPrize(uint256 newAmount) public {
+     require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender) || hasRole(REVIEWER_ROLE, msg.sender), "Caller has no rights");
+     sellPrize = newAmount;
+  } 
+
   /**
    * @notice Will pay the fee recipients
    * @param _currency      Token used as currency for fee payment
@@ -186,6 +228,25 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
 
     return totalFeeAmount;
   }
+
+   // to receive ERC721 tokens
+  function onERC721Received(
+      address operator,
+      address from,
+      uint256 tokenId,
+      bytes calldata collectionIdData) external returns (bytes4) {
+
+      /*uint256 tankId = toUint256(tankIdData);
+      require(ownerOf(tankId) == from, "you can only add loogies to a tank you own.");
+      loogiesById[tankId].push(loogieTokenId);
+
+      bytes32 randish = keccak256(abi.encodePacked( blockhash(block.number-1), from, address(this), loogieTokenId, tankIdData  ));
+      x[loogieTokenId] = uint8(randish[0]);
+      y[loogieTokenId] = uint8(randish[1]);
+      blockAdded[loogieTokenId] = block.number;*/ 
+
+      return this.onERC721Received.selector;
+    }
 
   /**
    * @notice Will self-destruct the contract
