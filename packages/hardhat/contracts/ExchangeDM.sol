@@ -32,12 +32,13 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
     bytes32 category;            // category of the order
     address[] feeRecipients;     // Array of who will receive fee for the trade
     uint256[] feeAmounts;        // Amount to be sent for respective fee recipient
-    uint256 expiration;          // When the order expires
+    //uint256 expiration;          // When the order expires
 
     bytes32 tokenHash;     // needed to remove from category list
     uint    orderIndex;    // Pointer to the order in the list
     uint    sellerIndex;   // Pointer to the order in the sellers list
     uint    categoryIndex; // Pointer to the order in the category list 
+    bool    sellable;
   }
 
   uint256 sellPrize = 1 ether;
@@ -83,9 +84,15 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
   function numCategories() public view returns (uint256) {
     return categories.length;
   }
+  function getCategoryName(bytes32 category) public pure returns (string memory) {
+    return string(bytes32string(category));
+  }
+  function bytes32ForCategoryName(string memory nameCategory) public pure returns (bytes32) {
+    return stringToBytes32(nameCategory);
+  }
 
   function sell(address _seller, bytes32 _category, address _nftCollection, uint256 _tokenId, uint256 _askPrice, 
-                           address[] memory _feeRecipients, uint256[] memory _feeAmounts) public returns (uint256 orderId) {
+                           address[] memory _feeRecipients, uint256[] memory _feeAmounts, bool _sellable) public returns (uint256 orderId) {
      require(msg.sender==ERC721(_nftCollection).ownerOf(_tokenId), "not owner");
      if (_feeRecipients.length != _feeAmounts.length) {
       revert InvalidArrays();
@@ -93,11 +100,11 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
 
      bytes32 tokenHash = getTokenHash(_nftCollection, _tokenId);
      require(hashToOrder[tokenHash]==0x0, "already listed");
-     uint256 idx = orders.length;
+     //uint256 idx = orders.length;
 
-     hashToOrder[tokenHash] = idx; // order added to category's order list
-     sellerOrders[_seller].push(idx); // order added to seller's order list
-     categoryOrders[_category].push(idx); // order added to categoryOrders's order list
+     hashToOrder[tokenHash] = orders.length; // order added to category's order list
+     sellerOrders[_seller].push(orders.length); // order added to seller's order list
+     categoryOrders[_category].push(orders.length); // order added to categoryOrders's order list
 
      if(categoryToIndex[_category] == 0) // add category if it doesn't exist
      {
@@ -113,22 +120,24 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
        category: _category,
        feeRecipients: _feeRecipients,
        feeAmounts: _feeAmounts,
-       expiration: block.timestamp + (84600*30), // 30 days from now
-
+       //expiration: block.timestamp + (84600*30), // 30 days from now
        tokenHash: tokenHash,
-       orderIndex: idx,
+       orderIndex: hashToOrder[tokenHash],
        sellerIndex: sellerOrders[_seller].length - 1,
-       categoryIndex: categoryOrders[_category].length - 1
+       categoryIndex: categoryOrders[_category].length - 1,
+       sellable: _sellable
      }));
 
      // must be approved
      ERC721(_nftCollection).safeTransferFrom(msg.sender, address(this), _tokenId, "");
+     return hashToOrder[tokenHash];
   }
   function buy(bytes32 _tokenHash) public payable returns(bool success) 
   {
       Order memory order = orders[hashToOrder[_tokenHash]];
       uint amount = order.askPrice;
       require(msg.value >= amount, "not enough funds");
+      require(order.sellable, "not sellable");
       // check expiriy time (TODO)
 
       if (msg.value > amount) {
@@ -253,6 +262,34 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
       require(msg.sender==contractTresury, "!rights");
       marketFee = newFee; 
   }  
+
+  function stringToBytes32(string memory source) public pure returns (bytes32 result) {
+      bytes memory tempEmptyStringTest = bytes(source);
+      if (tempEmptyStringTest.length == 0) {
+          return 0x0;
+      }
+      assembly {
+          result := mload(add(source, 32))
+      }
+  }
+
+  function bytes32string(bytes32 b32) public pure returns (string memory out) {
+      bytes memory s = new bytes(64);
+
+      for (uint i = 0; i < 32; i++) {
+          bytes1 b = bytes1(b32[i]);
+          bytes1 hi = bytes1(uint8(b) / 16);
+          bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
+          s[i*2]   = char(hi);
+          s[i*2+1] = char(lo);            
+      } 
+
+      out = string(s);
+  }
+  function char(bytes1 b) internal pure returns (bytes1 c) {
+      if (uint8(b) < 10) return bytes1(uint8(b) + 0x30);
+      else return bytes1(uint8(b) + 0x57);
+  }
 
    // to receive ERC721 tokens
   function onERC721Received(

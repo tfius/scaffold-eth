@@ -75,7 +75,7 @@ const tabListNoTitle = [
   },
   {
     key: "parents",
-    tab: "Data",
+    tab: "List",
   },
 ];
 
@@ -91,7 +91,7 @@ export default function DMTViewer(props) {
 
   const [activeTabKey, setActiveTabKey] = useState("contents");
 
-  const { contract, token, isApproved, price, onSellToken, onApproveToken } = props;
+  const { contract, token, isApproved, price, onSellToken, onApproveToken, onListToken } = props;
 
   const dataUrl = helpers.downloadGateway + token.d.substring(2) + "/";
   let cameraPosition = {
@@ -259,7 +259,38 @@ export default function DMTViewer(props) {
     ),
     parents: (
       <div style={{ lineHeight: "1.5rem", textAlign: "center", padding: "10px" }}>
-        <h2>Data</h2>
+        <h2>List</h2>
+        <span>Display token on Marketplace for others to see and vote</span> <br />
+        <strong>NOTE: </strong>Delist it on marketplace
+        <br />
+        {isApproved ? (
+          <>
+            {/* <EtherInput
+              value={tokenAskPrice}
+              price={price}
+              onChange={value => {
+                setTokenAskPrice(value);
+              }}
+            /> */}
+            <br/><br/>
+            <Button type={"primary"} onClick={e => onListToken(token, 0)}>
+              List
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              type={"primary"}
+              onClick={e => {
+                onApproveToken(contract, token);
+                setApproval("wait");
+              }}
+            >
+              {approval}
+            </Button>
+          </>
+        )}
+        <br />
       </div>
     ),
   };

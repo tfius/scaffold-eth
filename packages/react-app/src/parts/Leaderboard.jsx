@@ -11,10 +11,11 @@ function TokenVoteView(props) {
     <Card size="large" hoverable>
       <div style={{ display: "block", alignItems: "right" }}>
         <div style={{ float: "left", textAlign: "center" }}>
-          <small>{index}.</small> &nbsp;&nbsp;&nbsp; <strong>{token.name}</strong> &nbsp;&nbsp;&nbsp; {token.votes} 
+          <small>{index}.</small> &nbsp;<strong>{token.name}</strong>&nbsp;&nbsp;&nbsp;<strong>{token.xp}</strong><small> XP</small> 
         </div>
 
         <div style={{ float: "right" }}>
+          <small>Votes: </small>{token.votes} 
           {canVote ? (
               <Tooltip title="Click to vote.">
             <span style={{ /*textDecoration: "underline",*/ cursor: "pointer" }} onClick={e => onVote(token)}>
@@ -89,9 +90,9 @@ export default function Leaderboard(props) {
     for (let tokenIndex = 0; tokenIndex < allTokens; tokenIndex++) {
       try {
         const token = await readContracts.Avatar.getAvatarInfo(tokenIndex);
-        // console.log("token", token);
+        console.log("token", token);
         var numVotes = await readContracts.Voting.totalVotesFor(avatarAddress, tokenIndex);
-        readTokens.push({ id: tokenIndex, name: token.name, xp: token.experience, votes: numVotes.toNumber() });
+        readTokens.push({ id: tokenIndex, name: token.name, xp: token.experience.toNumber(), votes: numVotes.toNumber() });
       } catch (e) {
         console.log(e);
       }

@@ -123,7 +123,7 @@ export default function DataMinter(props) {
       try {
         var newBalance = await helpers.makeCall("balanceOf", contract, [address]);
         if (newBalance != undefined) {
-          if(newBalance.toNumber() < yourTokenBalance) {
+          if (newBalance.toNumber() < yourTokenBalance) {
             setYourTokens([]);
           }
           setYourTokenBalance(newBalance.toNumber());
@@ -175,7 +175,7 @@ export default function DataMinter(props) {
   });
 
   const getApproval = useCallback(async () => {
-    if (contract != null) {
+    if (contract != null && readContracts.ExchangeDM != undefined) {
       var approved = await helpers.makeCall("isApprovedForAll", contract, [address, readContracts.ExchangeDM.address]);
       setIsApproved(approved);
     }
@@ -224,6 +224,7 @@ export default function DataMinter(props) {
           readContracts={readContracts}
           onSellToken={sellToken}
           onApproveToken={approveToken}
+          onListToken={listToken}
           isApproved={isApproved}
         />
       </>
@@ -271,7 +272,6 @@ export default function DataMinter(props) {
   });
 
   async function sellToken(token, askPrice) {
-    console.log("sellToken", tx);
     let value;
     try {
       try {
@@ -282,28 +282,54 @@ export default function DataMinter(props) {
       console.log("sellToken", token, askPrice, value.toString());
     } catch (e) {
       console.error(e);
+      notification.error({ description: e });
+      return;
     }
 
     if (writeContracts != undefined && tx != undefined) {
       var res = await tx(
         writeContracts.ExchangeDM.sell(
           address,
-          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x53656c6c61626c65000000000000000000000000000000000000000000000000",
           contract.address,
           token.id,
           value,
           [address],
           [1000], // so 1% fees for seller
+          true
         ),
       );
 
       notification.success({
-        message: "Selling",
+        message: "Offer",
         description: "Your token is being sent to the exchange",
         placement: "topLeft",
       });
     }
   }
+  async function listToken(token, value) {
+    if (writeContracts != undefined && tx != undefined) {
+      var res = await tx(
+        writeContracts.ExchangeDM.sell(
+          address,
+          "0x4c69737465640000000000000000000000000000000000000000000000000000",
+          contract.address,
+          token.id,
+          value,
+          [address],
+          [1000], // so 1% fees for seller
+          false
+        ),
+      );
+
+      notification.success({
+        message: "List",
+        description: "Token will be listed but will not be sellable",
+        placement: "topLeft",
+      });
+    }
+  }
+
   async function approveToken(contract, token) {
     console.log("approveToken", token);
     if (writeContracts != undefined /*&& tx != undefined*/) {
@@ -366,6 +392,7 @@ export default function DataMinter(props) {
             <br />
             <span style={{ color: "red" }}> {error} </span>
 
+            <span hidden={canCreate}>Type: </span>
             <Select
               style={{ width: "200px" }}
               hidden={canCreate}
@@ -386,7 +413,37 @@ export default function DataMinter(props) {
                   ))
                 : null}
             </Select>
-
+            <Input
+              hidden={canCreate}
+              style={{ width: "80%" }}
+              min={0}
+              size="large"
+              //value={postText}
+              placeholder={"Name"}
+              onChange={e => {
+                try {
+                  //setPostText(e.target.value);
+                } catch (e) {
+                  console.log(e);
+                }
+              }}
+            />
+            <Input
+              style={{ width: "80%" }}
+              min={0}
+              size="large"
+              hidden={canCreate}
+              //value={postText}
+              placeholder={"Description"}
+              onChange={e => {
+                try {
+                  //setPostText(e.target.value);
+                } catch (e) {
+                  console.log(e);
+                }
+              }}
+            />
+            <br/>
             <Button
               type={"primary"}
               hidden={canCreate}

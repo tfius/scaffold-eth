@@ -952,7 +952,7 @@ function App(props) {
               userSigner={userSigner}
               gasPrice={gasPrice}
               tx={tx}
-              title="Exchange"
+              title="Marketplace"
               address={address}
             />
           </Route>
@@ -1039,6 +1039,17 @@ function App(props) {
               contractConfig={contractConfig}
             />
           </Route>
+          <Route exact path="/ex">
+            <Contract
+              name="Exchnage"
+              customContract={writeContracts && writeContracts.ExchangeDM}
+              signer={userSigner}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+              contractConfig={contractConfig}
+            />
+          </Route>          
           <Route exact path="/markable">
             <Contract
               name="Markable"
@@ -1051,7 +1062,7 @@ function App(props) {
             />
           </Route>
 
-          <Route exact path="/ex">
+          {/* <Route exact path="/ex">
             <Contract
               name="Exchange"
               signer={userSigner}
@@ -1060,7 +1071,7 @@ function App(props) {
               blockExplorer={blockExplorer}
               contractConfig={contractConfig}
             />
-          </Route>
+          </Route> */}
           <Route exact path="/dm">
             <Contract
               name="DataMarket"

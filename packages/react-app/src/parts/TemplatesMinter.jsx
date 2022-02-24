@@ -196,7 +196,7 @@ export default function TemplatesMinter(props) {
   if (loading === true) return <><h1>Please wait...</h1><Spin/></>;
 
   return (
-    <div style={{ maxWidth: 1000, margin: "auto", marginTop: 5, paddingBottom: 25, lineHeight: 1.5 }}>
+    <div style={{ maxWidth: 800, margin: "auto", marginTop: 5, paddingBottom: 25, lineHeight: 1.5 }}>
       {/* Balance: <strong>{yourDmBalance} DM</strong> <br /> */}
       <h1>{title}</h1>
       {yourTokenBalance > 0 ? (

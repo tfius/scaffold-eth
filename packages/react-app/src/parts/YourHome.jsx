@@ -543,7 +543,7 @@ export default function YourHome(props) {
   return (
     <div
       style={{
-        maxWidth: 1000,
+        maxWidth: 800,
         margin: "auto",
         marginTop: 16,
         paddingBottom: 16,

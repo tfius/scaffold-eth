@@ -43,10 +43,13 @@ export default function ExchangeView(props) {
   const [orders, setOrders] = useState([]);
 
   const [numCategories, setNumCategories] = useState();
-  const [numCategoryOrders, setNumCategoryOrders] = useState();
-  const [category, setCategory] = useState("0x0000000000000000000000000000000000000000000000000000000000000000");
-  const [categories, setCategories] = useState();
+  const [numCategoryOrders, setNumCategoryOrders] = useState(); //0
+  const [category, setCategory] = useState(); // "0x0000000000000000000000000000000000000000000000000000000000000000"
+  const [categories, setCategories] = useState([]);
   const [sellerOrders, setSellerOrders] = useState();
+
+  const [categoryNames, setCategoryNames] = useState([]);
+  const [categoryBytes, setCategoryBytes] = useState([]);
 
   /*  
   const [contract, setContract] = useState(null);
@@ -91,72 +94,155 @@ export default function ExchangeView(props) {
 
   useEffect(() => {
     getNumOrders();
+    getCategories();
     getYourOrdersCount();
-    getCategoriesCount();
-    //getOrders();
   }, []);
 
   useEffect(() => {
-    getNumOrders();
+     getNumOrders();
   }, [seconds]);
 
   useEffect(() => {
     getOrders();
   }, [numOrders]);
-
   
+  // useEffect(() => {
+  //   //    getOrders();
+  // }, [numOrders, categories, category, page, pageSize]);
+
+  // useEffect(() => {
+  //   //console.log("getting getCategoriesOrdersCount")
+  //   //getCategoriesOrdersCount();
+  // }, [category]);
+
+  /*
+  useEffect(() => {
+    getCategoriesOrders();
+  }, [category]); */
+  useEffect(() => {
+    //getCategoriesOrders();
+    //getCategoryOrdersCount();
+    getCategoryOrders();
+  }, [category]); 
+
+  const getCategories = useCallback(async () => {
+    if (readContracts == undefined || readContracts.ExchangeDM == undefined) return;
+    var catNames = ["Sellable", "Listed"];
+    var cats = [];
+    for (var i = 0; i < catNames.length; i++) {
+      var catBytes32 = await readContracts.ExchangeDM.bytes32ForCategoryName(catNames[i]);
+      cats.push({ name: catNames[i], bytes32: catBytes32 });
+    }
+
+    setCategories(cats);
+    setCategory(cats[0].bytes32);
+    console.log("known categories ", cats);
+
+    var numCategories = await readContracts.ExchangeDM.numCategories();
+    console.log("CategoriesCount", numCategories.toString());
+    setNumCategories(numCategories.toNumber());
+  }, [readContracts, category, numCategories]);
+
+  // const getCategoriesCount = useCallback(async () => {
+  //    if (readContracts == undefined || readContracts.ExchangeDM == undefined) return;
+  //    var numCategories = await readContracts.ExchangeDM.numCategories();
+  //    console.log("CategoriesCount", numCategories.toString());
+  //    setNumCategories(numCategories.toNumber());
+  //  });
+
+  // const getCategoryOrdersCount = async () => {
+  //   if (readContracts == undefined || readContracts.ExchangeDM == undefined || category==undefined) return;
+  //   var categoryOrdersCount = await readContracts.ExchangeDM.numCategoryOrders(category);
+  //   console.log("numCategoryOrders", categoryOrdersCount.toString());
+  //   setNumCategoryOrders(categoryOrdersCount.toNumber());
+  // };
+
+  const getCategoryOrders = async () => {
+    console.log("getCategoryOrders", category, page, pageSize);
+    if (readContracts == undefined || readContracts.ExchangeDM == undefined || category == undefined) return;
+    
+    setIsLoading(true);
+    var categoryOrdersCount = await readContracts.ExchangeDM.numCategoryOrders(category);
+    console.log("numCategoryOrders", categoryOrdersCount.toString());
+    setNumCategoryOrders(categoryOrdersCount.toNumber());
+
+    var maxCatOrders = categoryOrdersCount.toNumber();
+    var ordersIndexList = [];
+    //for (var i = page * pageSize; i < (page + 1) * pageSize && i <= numCategoryOrders; i++) {
+    for (var i = 0; i < maxCatOrders; i++) {
+      try {
+        console.log("categoryOrders", category, i);
+        const orderIndex = await readContracts.ExchangeDM.categoryOrders(category, i);
+        console.log("gotOrderIndex", i, orderIndex.toString());
+        ordersIndexList.push(orderIndex);
+      } catch (error) {
+        console.error(error);
+        //break;
+      }
+    }
+    /*  
+    var ordersList = [];
+    for (var i = 0; i < ordersIndexList.length; i++) {
+      const order = await getOrder(ordersIndexList[i]);
+      if (order != null) ordersList.push(order);
+    }
+
+    setOrders(ordersList); */ 
+    setIsLoading(false); 
+  };
+
+  const getOrder = async orderIndex => {
+    try {
+      const orderNE = await readContracts.ExchangeDM.orders(orderIndex);
+      var order = Object.assign([], orderNE);
+      var hashToOrder = await readContracts.ExchangeDM.hashToOrder(order.tokenHash);
+      order.hashToOrder = hashToOrder;
+      console.log("order", order);
+      return order;
+    } catch (error) {
+      return null;
+    }
+  };
 
   const getYourOrdersCount = useCallback(async () => {
     if (readContracts == undefined || readContracts.ExchangeDM == undefined) return;
     var yourOrdersCount = await readContracts.ExchangeDM.numSellerOrders(address);
     console.log("YourOrdersCount", yourOrdersCount.toString());
     setSellerOrders(yourOrdersCount.toNumber());
-  }, [readContracts, address]);
-
-  const getCategoriesCount = useCallback(async () => {
-    if (readContracts == undefined || readContracts.ExchangeDM == undefined) return;
-    var numCategories = await readContracts.ExchangeDM.numCategories();
-    console.log("CategoriesCount", numCategories.toString());
-    setNumCategories(numCategories.toNumber());
-
-    var categoryOrdersCount = await readContracts.ExchangeDM.numCategoryOrders(category);
-    console.log("CategoryOrders", categoryOrdersCount.toString());
-    setNumCategoryOrders(categoryOrdersCount.toNumber());
-  }, [readContracts, address]);
+  });
 
   const getNumOrders = useCallback(async () => {
     if (readContracts == undefined || readContracts.ExchangeDM == undefined) return;
     var orderCount = await readContracts.ExchangeDM.numOrders();
-    console.log("orderCount", orderCount);
+    console.log("NumOrders", orderCount.toString());
     setNumOrders(orderCount.toNumber());
     setMaxPages(Math.ceil(orderCount.toNumber() / pageSize));
-  });
+  }, [readContracts, page, pageSize]);
 
   const getOrders = useCallback(async () => {
     console.log("getOrders", readContracts.ExchangeDM);
     if (readContracts == undefined || readContracts.ExchangeDM == undefined) return;
     setIsLoading(true);
     var ordersList = [];
-    for (var i = page * pageSize; i < (page + 1) * pageSize; i++) {
+    for (var i = page * pageSize; i < (page + 1) * pageSize && i <= numOrders; i++) {
       try {
         const orderNE = await readContracts.ExchangeDM.orders(i);
         var order = Object.assign([], orderNE);
-        // console.log("order", order);
-        // this is debug only 
+        console.log("order", order);
+
         var hashToOrder = await readContracts.ExchangeDM.hashToOrder(order.tokenHash);
         order.hashToOrder = hashToOrder;
-
         console.log("order", order);
+
         ordersList.push(order);
       } catch (error) {
         console.error(error);
         break;
       }
     }
-
     setOrders(ordersList);
     setIsLoading(false);
-  }, [readContracts]);
+  }, [readContracts, page, pageSize, categoryNames, numOrders]);
 
   const nextPage = () => {
     if (page < maxPages - 1) {
@@ -170,6 +256,10 @@ export default function ExchangeView(props) {
       getOrders();
     }
   };
+  const onCategoryChange = async cat => {
+    console.log("onCategoryChange", cat);
+    setCategory(cat.bytes32.toString());
+  };
 
   const buy = useCallback(async order => {
     var metadata = {};
@@ -182,30 +272,12 @@ export default function ExchangeView(props) {
   //console.log("exchange", tokenData.posts);
   //tokenData.posts.map((d, i) => {console.log(d.text)});
   return (
-    <div style={{ maxWidth: "70.5rem", margin: "auto", marginTop: 5, paddingBottom: 25, lineHeight: 1.5 }}>
+    <div style={{ maxWidth: 800, margin: "auto", marginTop: 5, paddingBottom: 25, lineHeight: 1.5 }}>
       <h1>{title}</h1>
-      <div style={{ position: "fixed", right: "3rem", top: "8rem", textAlign:"right" }}>
-        <span style={{ cursor: "pointer" }} onClick={() => prevPage()}>
-          ←
-        </span>
-        {page + 1}/{maxPages}
-        <span style={{ cursor: "pointer" }} onClick={() => nextPage()}>
-          →
-        </span>
-        <br/>
-        <span>{orders.length}/{numOrders} offers</span>
-        <br />
-        <span>Yours: {sellerOrders}</span><br/>
-        <span>Categories: {numCategories}</span><br/>
-
-
-        {/* <span>{category}</span> */}
-      </div>
-
       {isLoading ? <Spin /> : null}
       <List
         style={{ verticalAlign: "top" }}
-        dataSource={orders}
+        dataSource={orders.filter(order => order.category == category)}
         renderItem={(order, i) => {
           return (
             <List.Item key={i} style={{ maxWidth: "25%", minWidth: "200px", display: "inline-block", padding: "2px" }}>
@@ -222,14 +294,14 @@ export default function ExchangeView(props) {
                   userSigner={userSigner}
                 />
                 <br />
-                <Button
+                {/* <Button
                   type="primary"
                   onClick={() => {
                     buy(order);
                   }}
                 >
                   Buy
-                </Button>
+                </Button> */}
 
                 {address == order.seller ? (
                   <Button
@@ -241,45 +313,91 @@ export default function ExchangeView(props) {
                     Delist
                   </Button>
                 ) : null}
+
+                {order.sellable && address != order.seller ? (
+                  <Button
+                    type="primary"
+                    onClick={() => {
+                      buy(order);
+                    }}
+                  >
+                    Buy
+                  </Button>
+                ) : null}
+                {address == order.seller ? (
+                  <Tooltip title="You are owner">
+                    <span>*</span>
+                  </Tooltip>
+                ) : null}
                 {/* <Card.Meta title={"Reviews in queue:"} description="" /> */}
               </Card>
             </List.Item>
           );
         }}
       />
-
-      {orders.map((order, i) => {
-        return (
-          <Card key={i}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-              <div>
-                <span>ID {order.tokenId.toString()}</span>
-                <br />
-                <span>Collection {order.nftCollection}</span>
-                <br />
-                <span>Seller {order.seller}</span>
-                <br />
-                <span>Price {order.askPrice.toString()}</span>
-                <br />
-                <span>Category {order.category}</span>
-                <br />
-                <span>hash {order.tokenHash}</span>
-                <br />
-                <span>ordIdx {order.categoryIndex.toString()}</span>
-                <br />
-                <span>catIdx {order.categoryIndex.toString()}</span>
-                <br />
-                <span>usrIdx {order.sellerIndex.toString()}</span>
-                <br />
-
-                <span>hToO {order.hashToOrder.toString()}</span>
-                <br />
+      <div style={{ position: "fixed", right: "3rem", top: "8rem", textAlign: "right", zIndex: 10 }}>
+        <span style={{ cursor: "pointer" }} onClick={() => prevPage()}>
+          ←
+        </span>
+        {page + 1}/{maxPages}
+        <span style={{ cursor: "pointer" }} onClick={() => nextPage()}>
+          →
+        </span>
+        <br />
+        <span>
+          {orders.length}/{numOrders} offers
+        </span>
+        <br />
+        <span>Yours: {sellerOrders}</span>
+        <br />
+        <span>Categories: {numCategories}</span>
+        <br />
+        {categories.map((cat, i) => {
+          return (
+            <>
+              <div key={i} style={{ cursor: "pointer" }} onClick={() => onCategoryChange(cat)}>
+                <strong>{cat.name}</strong>
               </div>
-            </div>
-            {/* <Card.Meta title={"Reviews in queue:"} description="" /> */}
-          </Card>
-        );
-      })}
+            </>
+          );
+        })}
+        {/* <span>{category}</span> */}
+      </div>
+      <div style={{ marginTop: "10rem" }}>  
+        {orders.map((order, i) => {
+          return (
+            <Card key={i}>
+              <div style={{ justifyContent: "space-between", marginBottom: 0 }}>
+                <div>
+                  <span>ID {order.tokenId.toString()}</span>
+                  <br />
+                  <span>Collection {order.nftCollection}</span>
+                  <br />
+                  <span>Seller {order.seller}</span>
+                  <br />
+                  <span>Price {order.askPrice.toString()}</span>
+                  <br />
+                  <span>Category {order.category}</span>
+                  <br />
+                  <span>hash {order.tokenHash}</span>
+                  <br />
+                  <span>ordIdx {order.categoryIndex.toString()}</span>
+                  <br />
+                  <span>catIdx {order.categoryIndex.toString()}</span>
+                  <br />
+                  <span>usrIdx {order.sellerIndex.toString()}</span>
+                  <br />
+                  <span>usrIdx {order.sellerIndex.toString()}</span>
+                  <br />
+                  <span>Sell {order.sellable.toString()}</span>
+                  <br />
+                </div>
+              </div>
+              {/* <Card.Meta title={"Reviews in queue:"} description="" /> */}
+            </Card>
+          );
+        })}
+      </div>
 
       {/* <Card
         title={
