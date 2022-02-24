@@ -272,7 +272,11 @@ export default function Farm(props) {
             <br />
             <div style={{ textAlign: "center" }}>{buyBalance}</div>
           </Card>
+
+          
         </List>
+        <br/>
+        <p>0.05% Fees go to tresury</p>
       </div>
 
       {/* <div style={{ maxWidth: 820, margin: "auto", marginTop: 16, paddingBottom: 16 }}>

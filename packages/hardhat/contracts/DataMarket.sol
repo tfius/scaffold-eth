@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 //import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "hardhat/console.sol";  
+//import "hardhat/console.sol";  
 
 // flash loans into ERC20 
 interface Borrower {
@@ -71,7 +71,8 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
     //using SafeMath for uint256;
     IDMMinter public dmMinter;
     address payable public contractTresury;
-    address public  contractGraphable;
+    address payable public contractController;
+    address public         contractGraphable;
     
     uint256 private constant FEE = 50; // 0.05%
     uint256 private constant FEE_PRECISION = 1e5;
@@ -117,7 +118,8 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
         _symbol = symbol_;  
         //_nftAddress = nftAddress_;
         
-        contractTresury = payable(address(0)); //payable(msg.sender); 
+        contractTresury = payable(msg.sender); //payable(address(0)); //payable(msg.sender); 
+        contractController = payable(msg.sender);  
         contractGraphable = address(0);
         //addValidator(msg.sender, 1, address(0)); 
         //addCollection(name_, string(abi.encodePacked(symbol_, "C", collections.length)));
@@ -387,28 +389,23 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
     /* Set graphable contract address */
     function setGraphable(address graphableContract) public 
     {
-         if(contractGraphable==address(0))
-        {
-            contractGraphable = graphableContract;
-            return;
-        }
-        require(msg.sender==contractTresury,"!o");
+        require(msg.sender==contractController,"!c");
         contractGraphable = (graphableContract);
     }  
     /* set treasury receiver */
     function setTreasury(address newTreasury) public  {
-        if(contractTresury==address(0))
-        {
-            contractTresury = payable(newTreasury);
-            return;
-        }
-        require(msg.sender==contractTresury, "!o");
+        require(msg.sender==contractController, "!c");
         contractTresury = payable(newTreasury); 
     }  
     function setMinter(IDMMinter minter) public
     {
-        require(msg.sender==contractTresury, "!o");
+        require(msg.sender==contractController, "!c");
         dmMinter = minter;
+    }
+    function setController(address newController) public
+    {
+        require(msg.sender==contractController, "!c");
+        contractController = payable(newController);
     }
     /* get treasury receiver */
     /*function getTreasury() public view returns (address) {
@@ -421,13 +418,13 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
     }*/ 
     function setCollectionParams(uint256 collectionIndex, bool isNotTransferable, uint isFiniteCount) public 
     {
-        require(msg.sender==contractTresury, "!o!t");
+        require(msg.sender==contractController, "!o!c");
         IDMCollection NFT = collectionGet(collectionIndex);  
         NFT.setCollectionParams(isNotTransferable, isFiniteCount); 
     }
     function templatesInCollectionCreate(uint256 collectionIndex, string[] memory namesOfTemplates, uint256[] memory prices) public
     { 
-        require(msg.sender==contractTresury, "!o!t");
+        require(msg.sender==contractController, "!o!c");
         IDMCollection NFT = collectionGet(collectionIndex); 
         for(uint i=0;i<namesOfTemplates.length;i++)
         {
@@ -469,7 +466,7 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
     mapping (uint256 => uint256) private _fees;
     function defineCollectionFee(uint256 collectionIndex, uint256 newFee) public
     {
-        require(msg.sender==contractTresury, "!o!t");
+        require(msg.sender==contractController, "!o!t");
         _fees[collectionIndex] = newFee; 
     } 
 

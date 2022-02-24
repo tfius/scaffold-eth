@@ -56,6 +56,21 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
   bytes32[] public categories;
   mapping(bytes32 => uint256)    public categoryToIndex;    // orders per seller
 
+  address payable public contractTresury;
+  uint256 private constant FEE_PRECISION = 1e5;  
+  uint256 private marketFee = 50; // 0.05%
+
+  function setTreasury(address newTreasury) public  {
+      if(contractTresury==address(0))
+      {
+          contractTresury = payable(newTreasury);
+          return;
+      }
+      require(msg.sender==contractTresury, "!o");
+      contractTresury = payable(newTreasury); 
+  }
+
+
   function numOrders() public view returns (uint256) {
     return orders.length;
   }
@@ -120,7 +135,10 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
             payable(msg.sender).transfer(msg.value - amount); // send back whats more then list price 
       }
       if (amount > 0) {
-            payable(order.seller).transfer(amount); // send rest to BENEFICIARY
+          uint256 fee = getFee(marketFee, amount);
+
+          payable(contractTresury).transfer(fee);    // fees go to treasury        
+          payable(order.seller).transfer(amount-fee); // send rest to BENEFICIARY
       } 
       // TODO do fees here
 
@@ -228,6 +246,13 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
 
     return totalFeeAmount;
   }
+  function getFee(uint256 _fee, uint256 amount) public pure returns (uint256) {
+    return (amount * _fee) / FEE_PRECISION;
+  }
+  function setFee(uint256 newFee) public  {
+      require(msg.sender==contractTresury, "!rights");
+      marketFee = newFee; 
+  }  
 
    // to receive ERC721 tokens
   function onERC721Received(

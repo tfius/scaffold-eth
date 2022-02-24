@@ -106,13 +106,13 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const nftCollection2 = await deploy('DMCollection', {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
-    args: ["DMNFT3", "DM-C-2", dmHelpers.address],
+    args: ["DMTNFT3", "DM-C-2", dmHelpers.address],
     log: true,
   })
   const nftCollection1 = await deploy('DMCollection', {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
-    args: ["DMNFT2", "DM-C-1", dmHelpers.address],
+    args: ["DMTNFT2", "DM-C-1", dmHelpers.address],
     log: true,
   })
 
@@ -120,7 +120,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const nftCollection0 = await deploy('DMCollection', {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
-    args: ["DMNFT", "DM-C-0", dmHelpers.address],
+    args: ["DMTNFT", "DM-C-0", dmHelpers.address],
     log: true,
   })
 
@@ -130,9 +130,10 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
     //args: ["DataMarket", "DM", nftCollection.address],   //     //args: [ "Hello", ethers.utils.parseEther("1.5") ],
-    args: ["DataMarket", "DM"],   //     //args: [ "Hello", ethers.utils.parseEther("1.5") ],
+    args: ["DataMarket", "DMT"],   //     //args: [ "Hello", ethers.utils.parseEther("1.5") ],
     log: true,
   })
+
 
   console.log("SafeRangePool *********************************"); 
   const safeRangePool = await deploy('SafeRangePool', {
@@ -179,7 +180,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
   console.log("Getting DataMarket", deployer); 
   const dm = await ethers.getContract("DataMarket", deployer);
-
+  const em = await ethers.getContract("ExchangeDM", deployer);
+  
 
   await dm.collectionAdd(memberShipCollection.address); // 0
   await dm.collectionAdd(sponsorhipCollection.address); // 1 should be 1 
@@ -187,9 +189,15 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   await dm.collectionAdd(teamsCollection.address);      // 3
   await dm.collectionAdd(groupsCollection.address);     // 4
 
-  console.log("Treasury"); 
+  console.log("SetController *********************************"); 
+  //await dm.setController(deployer); 
+
+  console.log("Treasury Exchange & DataMarket *********************************"); 
   await dm.setTreasury(deployer); 
+  await em.setTreasury(deployer); 
+  
   await dm.setMinter(dmMinter.address);
+
   await dm.defineCollectionFee(1, 5000);  // sponsorship fee 5%
  
   console.log("Templates Membership");   
@@ -214,7 +222,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   // The most useful technology is the unwritten knowledge in people's heads, not intellectual property.                                          
   // define properties 
   console.log("Requirements");
-  await minter.defineBalanceRequirements(2, 0, 1, 3);   // allegianceCollection requires memberShipCollection balanceof 1 and can have max 3 tokens
+  await minter.defineBalanceRequirements(2, 0, 0, 3);   // allegianceCollection requires memberShipCollection balanceof 1 and can have max 3 tokens
   await minter.defineBalanceRequirements(3, 2, 1, 42);  // teamsCollection requires allegianceCollection balanceof 1 and max 42 tokens
   await minter.defineBalanceRequirements(4, 3, 1, 42);  // groupsCollection requires teamsCollection balanceof 1  and max 42
 
@@ -240,9 +248,9 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   await dm.collectionAdd(avatarReputation.address);  
   await dm.collectionAdd(avatarDrawbacks.address);  
   await dm.collectionAdd(avatarRelatable.address);  
-  //// add apps 
-  /// quake https://bee-9.gateway.ethswarm.org/bzz/2e805e4c38566d8351ccc4b255552632bf15d389d62e59939c3d6082dfcc263f/ 
-  /// 
+  // add apps 
+  // quake https://bee-9.gateway.ethswarm.org/bzz/2e805e4c38566d8351ccc4b255552632bf15d389d62e59939c3d6082dfcc263f/ 
+  // 
 
   console.log("Collections Adding");     
     await dm.collectionAdd(nftCollection0.address);
@@ -268,14 +276,17 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     log: true,
   })
 
+/*
+  // this is old exchange
   console.log("Exchange *********************************"); 
   const exchange = await deploy('Exchange', {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
     args: [dataMarket.address, 1], //     //args: [ "Hello", ethers.utils.parseEther("1.5") ],
     log: true,
-  })
+  }) */
   
+  /*
   console.log("Deploying Loogies"); 
   const loogies = await deploy('Loogies', {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
@@ -290,7 +301,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     args: [loogies.address],
     log: true,
   })
-  
+  */
 
   /*
     // Getting a previously deployed contract
