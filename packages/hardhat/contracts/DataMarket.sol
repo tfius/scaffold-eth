@@ -491,7 +491,7 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
 
     // https://twitter.com/recmo/status/1229171153597386752
     // "Anyone can be rich for an instant." -> https://github.com/Austin-Williams/flash-mintable-tokens
-    // this is dangeraous as fuck and maybe should not be included, flash loan any amount of DMs that exists and do whatever you want as long as you return 
+    // this is dangeraous as fuck and maybe should not be included, flash loan any amount of DMTs that exists and do whatever you want as long as you return 
     // https://github.com/Austin-Williams/flash-mintable-tokens/blob/master/FlashWETH/FlashWETH.sol
     function flash(uint256 amount) public {
         require(_balances[msg.sender] * 2<amount, "f2xBal"); 

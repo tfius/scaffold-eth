@@ -543,7 +543,7 @@ export default function YourHome(props) {
   return (
     <div
       style={{
-        maxWidth: "56.5rem",
+        maxWidth: 1000,
         margin: "auto",
         marginTop: 16,
         paddingBottom: 16,
@@ -551,7 +551,7 @@ export default function YourHome(props) {
         textAlign: "left",
       }}
     >
-      Balance: <strong> {ethers.utils.formatEther(balance)} DM</strong> <br />
+      Balance: <strong> {ethers.utils.formatEther(balance)} DMTs</strong> <br />
       {avatars} <br />
       <MintAvatar
         avatars={avatars}

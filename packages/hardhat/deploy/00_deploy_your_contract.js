@@ -181,7 +181,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   console.log("Getting DataMarket", deployer); 
   const dm = await ethers.getContract("DataMarket", deployer);
   const em = await ethers.getContract("ExchangeDM", deployer);
-  
+
 
   await dm.collectionAdd(memberShipCollection.address); // 0
   await dm.collectionAdd(sponsorhipCollection.address); // 1 should be 1 
@@ -195,6 +195,9 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   console.log("Treasury Exchange & DataMarket *********************************"); 
   await dm.setTreasury(deployer); 
   await em.setTreasury(deployer); 
+
+  const roleReview = await em.REVIEWER_ROLE()
+  await em.grantRole(roleReview, deployer)
   
   await dm.setMinter(dmMinter.address);
 

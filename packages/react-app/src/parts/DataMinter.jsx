@@ -329,7 +329,7 @@ export default function DataMinter(props) {
   return (
     <div>
       <h1>Create Your Token</h1>
-      Balance: <strong> {ethers.utils.formatEther(balance)} DM</strong> <br />
+      Balance: <strong> {ethers.utils.formatEther(balance)} DMTs</strong> <br />
       <strong>{yourTokenBalance}</strong> Tokens in {collectionName} ({collectionSymbol})
       {/* : <strong>{yourDmNftBalance}</strong> */}
       <div style={{ maxWidth: 820, margin: "auto", marginTop: 16, paddingBottom: 16 }}>

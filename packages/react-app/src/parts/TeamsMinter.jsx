@@ -64,7 +64,7 @@ export default function TeamsMinter(props) {
           <FText>Teams might require members to be accepted.</FText>
           <FText>This registry is currated.</FText>
           <FText>
-            You will NOT receive any <strong>&nbsp;DM</strong>s.
+            You will NOT receive any <strong>&nbsp;DMT</strong>s.
           </FText>
 
           <br />

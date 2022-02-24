@@ -129,7 +129,7 @@ export default function Farm(props) {
 
             <Card style={{ display: "inline-block", width: "400px" }}>
               <h1>Deposited</h1>
-              <h3>{ethers.utils.formatEther(stakingBalance)} DMs</h3>
+              <h3>{ethers.utils.formatEther(stakingBalance)} DMTs</h3>
               <Button
                 type={"primary"}
                 onClick={() => {
@@ -153,7 +153,7 @@ export default function Farm(props) {
                 {" "}
                 {ethers.utils.formatEther(dmBalance)}{" "}
               </strong>{" "}
-              DMs <br />
+              DMTs <br />
             </div>
             <Input
               style={{ width: "80%" }}
@@ -207,7 +207,7 @@ export default function Farm(props) {
                 {" "}
                 {ethers.utils.formatEther(dmBalance)}{" "}
               </strong>{" "}
-              DMs <br />
+              DMTs <br />
             </div>
             <Input
               style={{ width: "80%" }}
