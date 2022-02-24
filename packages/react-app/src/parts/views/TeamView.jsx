@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams, useHistory } from "react-router-dom";
 import { Button, Card, Input, Tooltip } from "antd";
 import { notification } from "antd";
 import { ethers } from "ethers";
@@ -28,6 +28,7 @@ import { uploadJsonToBee } from "./../SwarmUpload/BeeService";
 // }
 
 export default function TeamView(props) {
+  const history = useHistory();
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(true);
 
@@ -55,6 +56,7 @@ export default function TeamView(props) {
     userProviderAndSigner,
     address,
     tx,
+    url,
   } = props;
 
   useEffect(() => {
@@ -108,6 +110,12 @@ export default function TeamView(props) {
     var parentLinks = [];
     if (links != undefined && links.length > 0) {
       parentLinks = await helpers.makeCall("getLinks", contract, [links[0].tokenId]);
+    }
+
+    var toParentUrls = [];
+    for (var i = 0; i < parentLinks.length; i++) {
+      //console.log(parentLinks[i].tokenId.toNumber())
+      toParentUrls.push({ id: parentLinks[i].tokenId.toNumber(), approved: parentLinks[i].approved });
     }
 
     setParentLinks(parentLinks);
@@ -208,15 +216,17 @@ export default function TeamView(props) {
       <Card
         title={
           <>
-            <h1 onClick={()=>{
-                helpers.speak(avatarToken.name+"'s"+  tokenData.name);
-            }}>
+            <h1
+              onClick={() => {
+                helpers.speak(avatarToken.name + "'s" + tokenData.name);
+              }}
+            >
               {avatarToken.name}'s {tokenData.name}
             </h1>
 
             <div style={{ position: "absolute", right: "5px", top: "1px" }}>
               <Tooltip title="Click to vote.">
-                <small onClick={()=>voteForToken(tokenData)}>▲{tokenData.numVotes}</small>
+                <small onClick={() => voteForToken(tokenData)}>▲{tokenData.numVotes}</small>
               </Tooltip>
             </div>
           </>
@@ -270,8 +280,31 @@ export default function TeamView(props) {
         })} */}
 
       <small>
-        Team Members: {tokenData.links.length} Parents: {tokenData.parents.length}
+        Team Members: {tokenData.links.length} Parents: {tokenData.parents.length} 
+        {tokenData.links.map((p, i) => (
+          <div
+            key={"parent_" + i}
+            onClick={e => {
+              history.push(url + p.tokenId.toString());
+            }}
+          >
+            avatar {p.tokenId.toString()}
+          </div>
+        ))}
+
+        {tokenData.parents.map((p, i) => (
+          <div
+            key={"parent_" + i}
+            onClick={e => {
+              history.push(url + p.tokenId.toString());
+            }}
+          >
+            avatar {p.tokenId.toString()}
+          </div>
+        ))}        
       </small>
+      
+      <strong>TODO query names</strong>
 
       {/* {tokens.map((token, index) => {
         return <TokenVoteView key={index} index={index + 1} token={token} onVote={voteForToken} canVote={canVote} />;

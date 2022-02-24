@@ -939,6 +939,7 @@ function App(props) {
               userSigner={userSigner}
               tx={tx}
               title="Team"
+              url="/team/"
               address={address}
             />
           </Route>

@@ -5,8 +5,15 @@ import { ethers } from "ethers";
 import FText from "../components/FText";
 
 export default function AboutThisProject(props) {
-  const chain = "XDAI";
-  const symbol = "XDai";
+  // const chain = "XDAI";
+  // const symbol = "XDai";
+  // const RPC = "https://dai.poa.network";
+  // const chainId = "100";
+  // const blockExplorer = "https://goerli.etherscan.io/";
+  // const faucet = "https://goerli-faucet.slock.it/";
+
+  const chain = "Polygon";
+  const symbol = "MATIC";
   const RPC = "https://dai.poa.network";
   const chainId = "100";
   const blockExplorer = "https://goerli.etherscan.io/";
