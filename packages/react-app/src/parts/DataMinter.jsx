@@ -123,7 +123,7 @@ export default function DataMinter(props) {
       try {
         var newBalance = await helpers.makeCall("balanceOf", contract, [address]);
         if (newBalance != undefined) {
-          if (newBalance.toNumber() < yourTokenBalance) {
+          if (newBalance.toNumber() < yourTokenBalance || newBalance.toNumber()==0) {
             setYourTokens([]);
           }
           setYourTokenBalance(newBalance.toNumber());
@@ -302,7 +302,7 @@ export default function DataMinter(props) {
 
       notification.success({
         message: "Offer",
-        description: "Your token is being sent to the exchange",
+        description: "Your token is being sent to the marketplace",
         placement: "topLeft",
       });
     }
@@ -324,7 +324,7 @@ export default function DataMinter(props) {
 
       notification.success({
         message: "List",
-        description: "Token will be listed but will not be sellable",
+        description: "Not selable token will be listed",
         placement: "topLeft",
       });
     }
@@ -338,7 +338,7 @@ export default function DataMinter(props) {
 
       notification.success({
         message: "Approve",
-        description: "You are giving the Exchange permission to transfer your token",
+        description: "You are giving Marketplace permission to transfer your token",
         placement: "topLeft",
       });
     }

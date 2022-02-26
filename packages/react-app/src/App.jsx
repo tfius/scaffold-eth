@@ -975,6 +975,7 @@ function App(props) {
               tx={tx}
               title="Marketplace"
               address={address}
+              chainId={selectedChainId}
             />
           </Route>
           <Route path="/leaderboard/:collectionId">

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Card, Spin } from "antd";
+import { Card, Spin, Tooltip } from "antd";
 import { ethers } from "ethers";
 import * as helpers from "./../helpers";
 
@@ -36,9 +36,13 @@ export default function DMTToken(props) {
     setLoading(false);
   });
 
+
+
   return (
     <Card>
       {loading ? <Spin/> : <>{tokenId.toString()}</>}
+
+
     </Card>
   );
 }

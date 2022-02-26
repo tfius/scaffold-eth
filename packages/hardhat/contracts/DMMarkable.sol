@@ -27,7 +27,7 @@ contract DMMarkable
     function addMarker(uint chainId, address nftCollection, uint256 tokenId) public returns (bytes32)
     {
        bytes32 tokenHash = getTokenHash(chainId, nftCollection,tokenId);
-       return addMarker(tokenHash);
+       return addMarkerTo(tokenHash);
     }  
     /* only owners of marker can remove themselfs*/
     function removeMarker(uint chainId, address nftCollection, uint256 tokenId, uint index) public returns (bool)
@@ -46,7 +46,7 @@ contract DMMarkable
        return true;
     }    
     // mark any NFT 
-    function addMarker(bytes32 tokenHash) public returns (bytes32)
+    function addMarkerTo(bytes32 tokenHash) public returns (bytes32)
     {
        markerOwners[tokenHash].push(msg.sender);
        return tokenHash;

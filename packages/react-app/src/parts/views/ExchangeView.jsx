@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Select, Button, Card, Spin, Col, Input, List, Menu, Row, Progress, Tooltip, notification } from "antd";
+import { Select, Button, Card, Spin, Col, Input, List, Menu, Row, Progress, Tooltip, notification, Modal } from "antd";
 import FText from "../../components/FText";
 import { useContractReader } from "eth-hooks";
 import { ethers } from "ethers";
@@ -42,6 +42,8 @@ export default function ExchangeView(props) {
   const [pageSize, setPageSize] = useState(50);
   const [orders, setOrders] = useState([]);
 
+  const [openMarkable, setOpenMarkable] = useState(false);
+
   const [numCategories, setNumCategories] = useState();
   const [numCategoryOrders, setNumCategoryOrders] = useState(); //0
   const [category, setCategory] = useState(); // "0x0000000000000000000000000000000000000000000000000000000000000000"
@@ -50,6 +52,8 @@ export default function ExchangeView(props) {
 
   const [categoryNames, setCategoryNames] = useState([]);
   const [categoryBytes, setCategoryBytes] = useState([]);
+
+  const [currentOrder, setCurrentOrder] = useState([]);
 
   /*  
   const [contract, setContract] = useState(null);
@@ -78,7 +82,8 @@ export default function ExchangeView(props) {
     address,
     tx,
     title,
-  } = props;
+    chainId,
+  } = props; 
 
   useEffect(() => {
     let interval = null;
@@ -173,21 +178,24 @@ export default function ExchangeView(props) {
     //console.log("numCategoryOrders", categoryOrdersCount.toString());
     setNumCategoryOrders(categoryOrdersCount.toNumber());
 
+    /*
     var maxCatOrders = categoryOrdersCount.toNumber();
     var ordersIndexList = [];
     for (var i = 0; i < maxCatOrders; i++) {
       try {
         //console.log("categoryOrders", categoryBytes32, i);
-        const catOrderHash = await readContracts.ExchangeDM.categoryOrders(categoryBytes32, i);
-        const order = await readContracts.ExchangeDM.tokenToOrder(catOrderHash);
+        // const catOrderHash = await readContracts.ExchangeDM.categoryOrders(categoryBytes32, i);
+        // const order = await readContracts.ExchangeDM.hashToToken(catOrderHash);
         //console.log("gotOrderIndex", i, orderIndex.toString());
-        ordersIndexList.push(order);
+        //ordersIndexList.push(order);
       } catch (error) {
         console.error(error);
         //break;
       }
     }
+    
     console.log("cat " + catName, ordersIndexList);
+    */
     /*  
     var ordersList = [];
     for (var i = 0; i < ordersIndexList.length; i++) {
@@ -279,62 +287,132 @@ export default function ExchangeView(props) {
     tx(writeContracts.ExchangeDM.buy(order.tokenHash, metadata));
   });
 
+  async function voteForTokenInOrder(order) {
+    console.log("voteForTokenInOrder", order);
+    //setCanVote(false);
+    //var tx = await writeContracts.Voting.voteFor(readContracts.Avatar.address, token.id);
+    tx(writeContracts.Voting.voteFor(order.nftCollection, order.tokenId));
+
+    notification.success({
+      message: "Voting",
+      description: "Sending your vote",
+      placement: "topRight",
+    });
+  }
+
+  async function markToken(order) {
+    console.log("voteForTokenInOrder", order);
+    //setCanVote(false);
+    //var tx = await writeContracts.Voting.voteFor(readContracts.Avatar.address, token.id);
+    //debugger;
+    tx(writeContracts.DMMarkable.addMarker(chainId, order.nftCollection, order.tokenId));
+
+    notification.success({
+      message: "Marking",
+      description: "You added a mark to token " + order.tokenId + " from " + order.nftCollection + " chain " + chainId,
+      placement: "topRight",
+    });
+  }
+
   //console.log("exchange", tokenData.posts);
   //tokenData.posts.map((d, i) => {console.log(d.text)});
   return (
     <div style={{ maxWidth: 800, margin: "auto", marginTop: 5, paddingBottom: 25, lineHeight: 1.5 }}>
       <h1>{title}</h1>
       {isLoading ? <Spin /> : null}
+      <Modal
+        title={<hi>Mark token</hi>}
+        visible={openMarkable}
+        onOk={() => {
+          setOpenMarkable(!openMarkable);
+          markToken(currentOrder); 
+        }}
+        onCancel={() => {
+          setOpenMarkable(!openMarkable);
+        }}
+        //  footer={<div>footer</div>}
+      >
+        {currentOrder.nftCollection ? (
+          <>
+            Token Id: {currentOrder.tokenId.toString()} <br/>
+            Collection: {currentOrder.nftCollection.toString()}
+          </>
+        ) : null}
+      </Modal>
       <List
         style={{ verticalAlign: "top" }}
         //dataSource={orders.filter(order => order.category == category)}
         dataSource={orders}
         renderItem={(order, i) => {
           return (
-            <List.Item key={i} style={{ maxWidth: "25%", minWidth: "200px", display: "inline-block", padding: "2px" }}>
-              <Card key={i} className={order.sellable ? "card-second" : ""}>
-                <div className={order.sellable ? "card-second" : ""}> 
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+            <List.Item
+              key={i}
+              style={{
+                maxWidth: "30%",
+                maxWidth: "25%",
+                minWidth: "200px",
+                minHeight: "200px",
+                display: "inline-block",
+                padding: "0px",
+              }}
+            >
+              <Card key={i} className={order.sellable ? "card-second" : ""} style={{}}>
+                <div
+                  className={order.sellable ? "card-second" : ""}
+                  onClick={e => {
+                    setCurrentOrder(order);
+                    setOpenMarkable(true);
+                  }}
+                >
+                  {/* <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
                   <span>o {order.orderIndex.toString()} </span>
                   <span>c {order.categoryIndex.toString()} </span>
                   <span>s {order.sellerIndex.toString()} </span>
+                  </div> */}
+
+                  <DMTToken
+                    key={"tok" + i}
+                    contractAddress={order.nftCollection}
+                    tokenId={order.tokenId}
+                    deployedContracts={contractConfig.deployedContracts}
+                    userSigner={userSigner}
+                  />
                 </div>
 
-                <DMTToken
-                  key={"tok" + i}
-                  contractAddress={order.nftCollection}
-                  tokenId={order.tokenId}
-                  deployedContracts={contractConfig.deployedContracts}
-                  userSigner={userSigner}
-                />
-                <br />
-                {address == order.seller ? (
-                  <Button
-                    type="primary"
-                    onClick={() => {
-                      tx(writeContracts.ExchangeDM.cancelOrder(order.tokenHash));
-                    }}
-                  >
-                    Delist
-                  </Button>
-                ) : null}
+                <div>
+                  <br />
+                  {address == order.seller ? (
+                    <Button
+                      type="primary"
+                      onClick={() => {
+                        tx(writeContracts.ExchangeDM.cancelOrder(order.tokenHash));
+                      }}
+                    >
+                      Delist
+                    </Button>
+                  ) : null}
 
-                {order.sellable && address != order.seller ? (
-                  <Button
-                    type="primary"
-                    onClick={() => {
-                      buy(order);
-                    }}
-                  >
-                    Buy
-                  </Button>
-                ) : null}
-                {address == order.seller ? (
-                  <Tooltip title="You are owner">
-                    <span>*</span>
+                  {order.sellable && address != order.seller ? (
+                    <Button
+                      type="primary"
+                      onClick={() => {
+                        buy(order);
+                      }}
+                    >
+                      Buy
+                    </Button>
+                  ) : null}
+                  {address == order.seller ? (
+                    <Tooltip title="You are owner">
+                      <span>*</span>
+                    </Tooltip>
+                  ) : null}
+                  {/* <Card.Meta title={"Reviews in queue:"} description="" /> */}
+                </div>
+                <div style={{ position: "absolute", right: "5px", top: "1px", cursor: "pointer" }}>
+                  <Tooltip title="Click to vote.">
+                    <small onClick={e => voteForTokenInOrder(order)}>▲{order.numVotes}</small>
                   </Tooltip>
-                ) : null}
-                {/* <Card.Meta title={"Reviews in queue:"} description="" /> */}
                 </div>
               </Card>
             </List.Item>
@@ -354,10 +432,10 @@ export default function ExchangeView(props) {
           {orders.length}/{numOrders} offers
         </span>
         <br />
-        <span>Yours: {sellerOrders}</span>
+        {/* <span>Yours: {sellerOrders}</span>
         <br />
         <span>Categories: {numCategories}</span>
-        <br />
+        <br /> */}
         {categories.map((cat, i) => {
           return (
             <>
@@ -386,8 +464,8 @@ export default function ExchangeView(props) {
                   <span>Category {order.category}</span>
                   <br />
                   <span>ordIdx {order.orderIndex.toString()} </span>
-                  <span>catIdx {order.categoryIndex.toString()} </span>
-                  <span>selIdx {order.sellerIndex.toString()} </span>
+                  {/* <span>catIdx {order.categoryIndex.toString()} </span>
+                  <span>selIdx {order.sellerIndex.toString()} </span> */}
                   <br />
                   <span>Sell {order.sellable.toString()}</span>
                   <br />
