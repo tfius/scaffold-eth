@@ -50,8 +50,6 @@ body {
 .ant-card-head {
   background: linear-gradient(-90deg, #f74f1c10, #e91e6b10, #23a6d510, #23d5ab10);
 	background-size: 400% 400%;
-  /* animation: fadeInFromNone 0.5s linear; */
-	/* animation: appGradient 1s ease infinite; */
   animation-name: fadeInFromNone, appGradient;
   animation-duration: 0.5s, 21s;
   animation-iteration-count: 1, infinite;
@@ -61,6 +59,12 @@ body {
 
 .card-second {
   background: linear-gradient(-90deg, #ff3c0010, #ff006210, #00bafd10, #00ffc310);
+	background-size: 400% 400%;
+  animation-name: fadeInFromNone, appGradient;
+  animation-duration: 0.5s, 21s;
+  animation-iteration-count: 1, infinite;
+  animation-delay: 0s, 0.5s; 
+  animation-timing-function: ease-in, ease-in-out;  
 }
 
 

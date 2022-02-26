@@ -100,13 +100,13 @@ export default function ExchangeView(props) {
 
   useEffect(() => {
     getAllCategoryOrders();
-     getNumOrders();
+    getNumOrders();
   }, [seconds]);
 
   useEffect(() => {
     getOrders();
   }, [numOrders]);
-  
+
   // useEffect(() => {
   //   //    getOrders();
   // }, [numOrders, categories, category, page, pageSize]);
@@ -124,7 +124,7 @@ export default function ExchangeView(props) {
     //getCategoriesOrders();
     //getCategoryOrdersCount();
     getCategoryOrders(category);
-  }, [category]); 
+  }, [category]);
 
   const getCategories = useCallback(async () => {
     if (readContracts == undefined || readContracts.ExchangeDM == undefined) return;
@@ -159,16 +159,16 @@ export default function ExchangeView(props) {
   // };
 
   const getAllCategoryOrders = useCallback(async () => {
-    for(var i = 0; i < categories.length; i++) {
-       await getCategoryOrders(categories[i].name, categories[i].bytes32);
+    for (var i = 0; i < categories.length; i++) {
+      await getCategoryOrders(categories[i].name, categories[i].bytes32);
     }
   });
 
   const getCategoryOrders = useCallback(async (catName, categoryBytes32) => {
     //console.log("getCategoryOrders", catName);
     if (readContracts == undefined || readContracts.ExchangeDM == undefined || categoryBytes32 == undefined) return;
-    
-//    setIsLoading(true);
+
+    //    setIsLoading(true);
     var categoryOrdersCount = await readContracts.ExchangeDM.numCategoryOrders(categoryBytes32);
     //console.log("numCategoryOrders", categoryOrdersCount.toString());
     setNumCategoryOrders(categoryOrdersCount.toNumber());
@@ -178,9 +178,10 @@ export default function ExchangeView(props) {
     for (var i = 0; i < maxCatOrders; i++) {
       try {
         //console.log("categoryOrders", categoryBytes32, i);
-        const orderIndex = await readContracts.ExchangeDM.categoryOrders(categoryBytes32, i);
+        const catOrderHash = await readContracts.ExchangeDM.categoryOrders(categoryBytes32, i);
+        const order = await readContracts.ExchangeDM.tokenToOrder(catOrderHash);
         //console.log("gotOrderIndex", i, orderIndex.toString());
-        ordersIndexList.push(orderIndex.toNumber());
+        ordersIndexList.push(order);
       } catch (error) {
         console.error(error);
         //break;
@@ -193,10 +194,11 @@ export default function ExchangeView(props) {
       const order = await getOrder(ordersIndexList[i]);
       if (order != null) ordersList.push(order);
     }
-    setOrders(ordersList); */ 
-//    setIsLoading(false); 
+    setOrders(ordersList); */
+    //    setIsLoading(false);
   });
 
+  /*
   const getOrder = async orderIndex => {
     try {
       const orderNE = await readContracts.ExchangeDM.orders(orderIndex);
@@ -208,7 +210,7 @@ export default function ExchangeView(props) {
     } catch (error) {
       return null;
     }
-  };
+  };*/
 
   const getYourOrdersCount = useCallback(async () => {
     if (readContracts == undefined || readContracts.ExchangeDM == undefined) return;
@@ -226,18 +228,20 @@ export default function ExchangeView(props) {
   }, [readContracts, page, pageSize]);
 
   const getOrders = useCallback(async () => {
-    console.log("getOrders", readContracts.ExchangeDM);
+    //console.log("getOrders", readContracts.ExchangeDM);
     if (readContracts == undefined || readContracts.ExchangeDM == undefined) return;
     setIsLoading(true);
     var ordersList = [];
     for (var i = page * pageSize; i < (page + 1) * pageSize && i <= numOrders; i++) {
       try {
         const orderNE = await readContracts.ExchangeDM.orders(i);
-        var order = Object.assign([], orderNE);
         //console.log("order", order);
+        //const orderNE = await readContracts.ExchangeDM.tokenToOrder(tokenHash);
+        var order = Object.assign([], orderNE);
+        console.log("order", order);
 
-        var hashToOrder = await readContracts.ExchangeDM.hashToOrder(order.tokenHash);
-        order.hashToOrder = hashToOrder;
+        //var hashToOrder = await readContracts.ExchangeDM.hashToOrder(order.tokenHash);
+        // order.hashToOrder = hashToOrder;
         //console.log("order", order);
 
         ordersList.push(order);
@@ -283,11 +287,13 @@ export default function ExchangeView(props) {
       {isLoading ? <Spin /> : null}
       <List
         style={{ verticalAlign: "top" }}
-        dataSource={orders.filter(order => order.category == category)}
+        //dataSource={orders.filter(order => order.category == category)}
+        dataSource={orders}
         renderItem={(order, i) => {
           return (
             <List.Item key={i} style={{ maxWidth: "25%", minWidth: "200px", display: "inline-block", padding: "2px" }}>
               <Card key={i} className={order.sellable ? "card-second" : ""}>
+                <div className={order.sellable ? "card-second" : ""}> 
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
                   <span>o {order.orderIndex.toString()} </span>
                   <span>c {order.categoryIndex.toString()} </span>
@@ -329,6 +335,7 @@ export default function ExchangeView(props) {
                   </Tooltip>
                 ) : null}
                 {/* <Card.Meta title={"Reviews in queue:"} description="" /> */}
+                </div>
               </Card>
             </List.Item>
           );
@@ -362,7 +369,7 @@ export default function ExchangeView(props) {
         })}
         {/* <span>{category}</span> */}
       </div>
-      <div style={{ marginTop: "10rem" }}>  
+      <div style={{ marginTop: "10rem" }}>
         {orders.map((order, i) => {
           return (
             <Card key={i}>
@@ -385,7 +392,7 @@ export default function ExchangeView(props) {
                   <span>Sell {order.sellable.toString()}</span>
                   <br />
                   <span>hash {order.tokenHash}</span>
-                  <br />                  
+                  <br />
                 </div>
               </div>
               {/* <Card.Meta title={"Reviews in queue:"} description="" /> */}

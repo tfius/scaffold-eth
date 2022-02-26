@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./Goldinar.sol";
-
+// import "hardhat/console.sol"; 
 interface ERC721 {
   //function transferFrom(address from, address to, uint256 idOrAmount) external;
   //function transfer(address to, uint256 idOrAmount) external;
@@ -36,8 +36,8 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
 
     bytes32 tokenHash;     // needed to remove from category list
     uint    orderIndex;    // Pointer to the order in the list
-    uint    sellerIndex;   // Pointer to the order in the sellers list
-    uint    categoryIndex; // Pointer to the order in the category list 
+    //uint    sellerIndex;   // Pointer to the order in the sellers list
+    //uint    categoryIndex; // Pointer to the order in the category list 
     bool    sellable;
   }
 
@@ -50,9 +50,9 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
   }  
 
   Order[] public orders;
-  mapping(bytes32 => uint256)    public hashToOrder;    // orders per seller
-  mapping(address => uint256[])  public sellerOrders;   // orders per seller 
-  mapping(bytes32 => uint256[])  public categoryOrders; // orders per category
+  mapping(bytes32 => uint256)    public hashToOrder;    // hash To Order 
+  //mapping(address => bytes32[])  public sellerOrders;   // orders per seller 
+  //mapping(bytes32 => bytes32[])  public categoryOrders; // orders per category
 
   bytes32[] public categories;
   mapping(bytes32 => uint256)    public categoryToIndex; 
@@ -76,10 +76,10 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
     return orders.length;
   }
   function numSellerOrders(address seller) public view returns (uint256) {
-    return sellerOrders[seller].length;
+    return 0; //sellerOrders[seller].length;
   }
   function numCategoryOrders(bytes32 category) public view returns (uint256) {
-    return categoryOrders[category].length;
+    return 0; //categoryOrders[category].length;
   }
   function numCategories() public view returns (uint256) {
     return categories.length;
@@ -101,8 +101,8 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
      //uint256 idx = orders.length;
 
      hashToOrder[tokenHash] = orders.length; // order added to category's order list
-     sellerOrders[_seller].push(orders.length); // order added to seller's order list
-     categoryOrders[_category].push(orders.length); // order added to categoryOrders's order list
+     //sellerOrders[_seller].push(tokenHash); // order added to seller's order list
+     //categoryOrders[_category].push(tokenHash); // order added to categoryOrders's order list
 
      if(categoryToIndex[_category] == 0) // add category if it doesn't exist
      {
@@ -121,8 +121,8 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
        //expiration: block.timestamp + (84600*30), // 30 days from now
        tokenHash: tokenHash,
        orderIndex:    hashToOrder[tokenHash],
-       sellerIndex:   sellerOrders[_seller].length - 1,
-       categoryIndex: categoryOrders[_category].length - 1,
+       //sellerIndex:   sellerOrders[_seller].length - 1,
+       //categoryIndex: categoryOrders[_category].length - 1,
        sellable: _sellable
      }));
 
@@ -185,54 +185,51 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
     hashToOrder[m.tokenHash] = toReplace;
 
     m.orderIndex    = o.orderIndex;
-    //orderToMove.sellerIndex   = order.sellerIndex; 
-    //orderToMove.categoryIndex = _removeCategoryOrders(order.category, order.categoryIndex); //order.categoryIndex; 
 
+    /*
     _removeSellerOrders(o.seller, o.sellerIndex);
-    if(m.seller==o.seller) // if same seller update m.sellerIndex
+    _removeCategoryOrders(o.category, o.categoryIndex); 
+
+    if(m.seller == o.seller)
     {
       m.sellerIndex = o.sellerIndex;
-    } else 
-    {
-      // update m.seller orders index
-      sellerOrders[m.seller][m.sellerIndex] = o.orderIndex; 
     }
+    else 
+    {
 
-    // update m.category index
-    // _removeCategoryOrders(o.category, o.categoryIndex); 
-    if(m.category==o.category) // same category ? 
+    }
+    
+    if(m.category==o.category)
     {
       m.categoryIndex = o.categoryIndex;
-    }
-    else  // change value, while index stays the same
+    } else 
     {
-      categoryOrders[m.category][m.categoryIndex] = o.orderIndex; // fix category index
-    }
+      categoryOrders[m.category][m.categoryIndex] = o.tokenHash;
+    }*/
+    
 
     // swap m to position of o
     orders[toReplace] = m;
     orders.pop();
     // //
-
     hashToOrder[o.tokenHash] = 0x0;
 
     emit OrderRemoved(_tokenHash, o.seller);
     return true;
   }
-  function _removeSellerOrders(address seller, uint index) internal returns (uint256) {
+  /*
+  function _removeSellerOrders(address seller, uint index) internal {
     require(index < sellerOrders[seller].length, "sell idx");
-    uint256 prevVal = sellerOrders[seller][sellerOrders[seller].length-1];
+    bytes32 prevVal = sellerOrders[seller][sellerOrders[seller].length-1];
     sellerOrders[seller][index] = prevVal;
     sellerOrders[seller].pop();
-    return prevVal;
   }
-  function _removeCategoryOrders(bytes32 category, uint index) internal returns (uint256) {
+  function _removeCategoryOrders(bytes32 category, uint index) internal  {
     require(index < categoryOrders[category].length, "cat idx");
-    uint256 prevVal = categoryOrders[category][categoryOrders[category].length-1];
+    bytes32 prevVal = categoryOrders[category][categoryOrders[category].length-1];
     categoryOrders[category][index] = prevVal;
     categoryOrders[category].pop();
-    return prevVal;
-  }
+  }*/ 
 
   function getTokenHash(address nftCollection, uint256 tokenId) public pure returns (bytes32)
   {
