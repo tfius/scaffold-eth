@@ -5,6 +5,7 @@ import { notification } from "antd";
 import { ethers } from "ethers";
 import * as helpers from "./../helpers";
 import { uploadJsonToBee } from "./../SwarmUpload/BeeService";
+import Upload from "../Upload";
 
 // function TokenVoteView(props) {
 //   const { index, token, onVote, canVote } = props;
@@ -31,6 +32,7 @@ export default function TeamView(props) {
   const history = useHistory();
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(true);
+  const [locationAddress, setLocationAddress] = useState("");
 
   const [contract, setContract] = useState(null);
   const [tokenData, setTokenData] = useState({ name: "", links: [], parents: [], uri: "", posts: [] });
@@ -184,12 +186,14 @@ export default function TeamView(props) {
       time: Date.now(),
       avatarId: avatarToken.id,
       avatarName: avatarToken.name,
+      fileHash: locationAddress,
       /*name: tokenData.name,*/
       id: tokenData.id,
       uri: tokenData.uri,
       contract: contract.address,
       type: "post",
     };
+
     tokenData.posts.push(post);
     console.log("post text", post);
     const swarmHash = await uploadJsonToBee(post, "post.json");
@@ -246,6 +250,9 @@ export default function TeamView(props) {
             }
           }}
         />
+        <span style={{ borderRadius: "10px", margin: "auto" }} className="ant-card-body">
+          <Upload onDataUpload={setLocationAddress} />
+        </span>
         <Button
           onClick={e => {
             addPostToToken();
@@ -280,7 +287,7 @@ export default function TeamView(props) {
         })} */}
 
       <small>
-        Team Members: {tokenData.links.length} Parents: {tokenData.parents.length} 
+        Team Members: {tokenData.links.length} Parents: {tokenData.parents.length}
         {tokenData.links.map((p, i) => (
           <div
             key={"parent_" + i}
@@ -291,7 +298,6 @@ export default function TeamView(props) {
             avatar {p.tokenId.toString()}
           </div>
         ))}
-
         {tokenData.parents.map((p, i) => (
           <div
             key={"parent_" + i}
@@ -301,9 +307,9 @@ export default function TeamView(props) {
           >
             avatar {p.tokenId.toString()}
           </div>
-        ))}        
+        ))}
       </small>
-      
+
       <strong>TODO query names</strong>
 
       {/* {tokens.map((token, index) => {

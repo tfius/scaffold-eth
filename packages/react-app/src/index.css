@@ -2,6 +2,10 @@ body {
   margin: 0;
 }
 
+iframe {
+  pointer-events: none;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
