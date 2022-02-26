@@ -34,6 +34,7 @@ import YourHome from "./parts/YourHome.jsx";
 import Farm from "./parts/Farm.jsx";
 import Leaderboard from "./parts/Leaderboard.jsx";
 import TeamView from "./parts/views/TeamView.jsx";
+import TokenEditView from "./parts/views/TokenEditView.jsx";
 import ExchangeView from "./parts/views/ExchangeView.jsx";
 import TemplatesMinter from "./parts/TemplatesMinter.jsx";
 import DataMinter from "./parts/DataMinter.jsx";
@@ -946,6 +947,22 @@ function App(props) {
               address={address}
             />
           </Route>
+
+          <Route path="/edittoken/:contractAddress/:id">
+            <TokenEditView
+              dmCollections={dmCollections}
+              contractConfig={contractConfig}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              localProvider={localProvider}
+              userSigner={userSigner}
+              tx={tx}
+              title="Team"
+              url="/team/"
+              address={address}
+            />
+          </Route>
+
           <Route path="/exchange">
             <ExchangeView
               dmCollections={dmCollections}
