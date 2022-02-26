@@ -10,6 +10,7 @@ import {
 import { Canvas, useThree, useLoader } from "@react-three/fiber";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { Environment, OrbitControls, useProgress, Html, useFBX, Float } from "@react-three/drei";
+import { useHistory } from "react-router-dom";
 
 import React, { useCallback, useEffect, useState, Suspense } from "react";
 import { Link } from "react-router-dom";
@@ -80,6 +81,7 @@ const tabListNoTitle = [
 ];
 
 export default function DMTViewer(props) {
+  const history = useHistory(true);
   const [loading, setLoading] = useState(true);
   const [loadModel, setLoadModel] = useState();
 
@@ -201,6 +203,13 @@ export default function DMTViewer(props) {
           >
             Download #{token.id}
           </a>
+        </div>
+        <div>
+           <a onClick={(e) => {
+              console.log("view", contract.address, token.id);
+              history.push("/edittoken/" + contract.address + "/" + token.id);
+            }}>Append Data</a>
+           
         </div>
         <div>
           Owner: <span style={{ fontSize: "0.4rem" }}>{token.o}</span>
