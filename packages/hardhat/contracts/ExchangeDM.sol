@@ -55,7 +55,7 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
   mapping(bytes32 => uint256[])  public categoryOrders; // orders per category
 
   bytes32[] public categories;
-  mapping(bytes32 => uint256)    public categoryToIndex;    // orders per seller
+  mapping(bytes32 => uint256)    public categoryToIndex; 
 
   address payable public contractTresury;
   uint256 private constant FEE_PRECISION = 1e5;  
@@ -94,9 +94,7 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
   function sell(address _seller, bytes32 _category, address _nftCollection, uint256 _tokenId, uint256 _askPrice, 
                            address[] memory _feeRecipients, uint256[] memory _feeAmounts, bool _sellable) public returns (uint256 orderId) {
      require(msg.sender==ERC721(_nftCollection).ownerOf(_tokenId), "not owner");
-     if (_feeRecipients.length != _feeAmounts.length) {
-      revert InvalidArrays();
-    }
+     require(_feeRecipients.length == _feeAmounts.length,"arrays");
 
      bytes32 tokenHash = getTokenHash(_nftCollection, _tokenId);
      require(hashToOrder[tokenHash]==0x0, "already listed");
@@ -109,7 +107,7 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
      if(categoryToIndex[_category] == 0) // add category if it doesn't exist
      {
         categories.push(_category);
-        categoryToIndex[_category] = categories.length;
+        categoryToIndex[_category] = categories.length-1;
      }
      
      orders.push(Order({
@@ -122,8 +120,8 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
        feeAmounts: _feeAmounts,
        //expiration: block.timestamp + (84600*30), // 30 days from now
        tokenHash: tokenHash,
-       orderIndex: hashToOrder[tokenHash],
-       sellerIndex: sellerOrders[_seller].length - 1,
+       orderIndex:    hashToOrder[tokenHash],
+       sellerIndex:   sellerOrders[_seller].length - 1,
        categoryIndex: categoryOrders[_category].length - 1,
        sellable: _sellable
      }));
@@ -145,15 +143,12 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
       }
       if (amount > 0) {
           uint256 fee = getFee(marketFee, amount);
-
           payable(contractTresury).transfer(fee);    // fees go to treasury        
           payable(order.seller).transfer(amount-fee); // send rest to BENEFICIARY
       } 
       // TODO do fees here
-
       ERC721(order.nftCollection).safeTransferFrom(address(this), msg.sender, order.tokenId, "");
       emit OrderExecuted(order.tokenHash, order.seller, msg.sender);
-
 
       if(msg.sender!=order.seller) // don't give prize when same addresses
       {
@@ -162,8 +157,8 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
       }
 
       removeOrder(order.tokenHash);
-
       emit OrderExecuted(order.tokenHash, order.seller, msg.sender);
+      return true;
   }
 
   function cancelOrder(bytes32 _tokenHash) nonReentrant public returns(bool success) 
@@ -182,47 +177,63 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
   {
     require(_tokenHash!=0x0, "invalid token hash");
 
-    uint256 idx = hashToOrder[_tokenHash];               // ie 4
-    Order memory  order       = orders[idx];             // ie 4
-    Order storage orderToMove = orders[orders.length-1]; // last order in the list
+    uint256     idx = hashToOrder[_tokenHash];  // ie 4
+    Order memory  o = orders[idx];              // ie 4
+    Order storage m = orders[orders.length-1];  // last order in the list
 
-    uint  toReplace  = hashToOrder[order.tokenHash]; // ie 5 index of the order to replace
-    hashToOrder[orderToMove.tokenHash] = toReplace;
+    uint  toReplace  = hashToOrder[o.tokenHash]; // ie 5 index of the order to replace
+    hashToOrder[m.tokenHash] = toReplace;
 
-    orderToMove.orderIndex    = order.orderIndex;
-    orderToMove.sellerIndex   = order.sellerIndex; 
-    orderToMove.categoryIndex = order.categoryIndex; 
-    orders[toReplace] = orderToMove;
+    m.orderIndex    = o.orderIndex;
+    //orderToMove.sellerIndex   = order.sellerIndex; 
+    //orderToMove.categoryIndex = _removeCategoryOrders(order.category, order.categoryIndex); //order.categoryIndex; 
 
-    _removeSellerOrders(order.seller, order.sellerIndex);
-    _removeCategoryOrders(order.category, order.categoryIndex);
+    _removeSellerOrders(o.seller, o.sellerIndex);
+    if(m.seller==o.seller) // if same seller update m.sellerIndex
+    {
+      m.sellerIndex = o.sellerIndex;
+    } else 
+    {
+      // update m.seller orders index
+      sellerOrders[m.seller][m.sellerIndex] = o.orderIndex; 
+    }
 
+    // update m.category index
+    // _removeCategoryOrders(o.category, o.categoryIndex); 
+    if(m.category==o.category) // same category ? 
+    {
+      m.categoryIndex = o.categoryIndex;
+    }
+    else  // change value, while index stays the same
+    {
+      categoryOrders[m.category][m.categoryIndex] = o.orderIndex; // fix category index
+    }
+
+    // swap m to position of o
+    orders[toReplace] = m;
     orders.pop();
+    // //
 
-    hashToOrder[order.tokenHash] = 0x0;
+    hashToOrder[o.tokenHash] = 0x0;
 
-    emit OrderRemoved(_tokenHash, order.seller);
+    emit OrderRemoved(_tokenHash, o.seller);
     return true;
   }
   function _removeSellerOrders(address seller, uint index) internal returns (uint256) {
-    require(index < sellerOrders[seller].length);
-    uint256 prevIndex = sellerOrders[seller][sellerOrders[seller].length-1];
-    sellerOrders[seller][index] = prevIndex;
+    require(index < sellerOrders[seller].length, "sell idx");
+    uint256 prevVal = sellerOrders[seller][sellerOrders[seller].length-1];
+    sellerOrders[seller][index] = prevVal;
     sellerOrders[seller].pop();
-    return prevIndex;
+    return prevVal;
   }
   function _removeCategoryOrders(bytes32 category, uint index) internal returns (uint256) {
-    require(index < categoryOrders[category].length);
-    uint256 prevIndex = categoryOrders[category][categoryOrders[category].length-1];
-    categoryOrders[category][index] = prevIndex;
+    require(index < categoryOrders[category].length, "cat idx");
+    uint256 prevVal = categoryOrders[category][categoryOrders[category].length-1];
+    categoryOrders[category][index] = prevVal;
     categoryOrders[category].pop();
-    return prevIndex;
+    return prevVal;
   }
-  /*function _removeOrder(uint256 index) internal {
-    require(index < orders[index].length);
-    orders[index] = orders[orders[index].length-1];
-    orders.pop();
-  }*/
+
   function getTokenHash(address nftCollection, uint256 tokenId) public pure returns (bytes32)
   {
     return  keccak256(abi.encodePacked(nftCollection,tokenId));
@@ -291,7 +302,8 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
       else return bytes1(uint8(b) + 0x57);
   }
 
-   // to receive ERC721 tokens
+   // to receive ERC721 tokens (does nothing, will be called by ERC721 tokens, 
+   // ALWAYS use SELL function to sent tokens to this contract for exchange
   function onERC721Received(
       address operator,
       address from,

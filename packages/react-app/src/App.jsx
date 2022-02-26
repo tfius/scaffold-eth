@@ -191,7 +191,7 @@ function App(props) {
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
-  const [isRelease, setIsRelease] = useState(true);
+  const [isRelease, setIsRelease] = useState(false);
 
   const logoutOfWeb3Modal = async () => {
     await web3Modal.clearCachedProvider();
@@ -250,7 +250,7 @@ function App(props) {
   // If you want to call a function on a new block
   useOnBlock(localProvider, () => {
     console.log(`⛓ A new rinkeby block is here: ${localProvider._lastBlockNumber}`);
-    updateLoogieTanks();
+    // updateLoogieTanks();
   });
 
   const myMainnetDAIBalance = 0;
@@ -282,6 +282,7 @@ function App(props) {
     creator: "Creator Description",
   });
 
+  /* 
   // 📟 Listen for broadcast events
   const dmTransferEvents = useEventListener(readContracts, "DataMarket", "Transfer", localProvider, 1);
   //console.log("DM Transfer events:", dmTransferEvents);
@@ -344,11 +345,11 @@ function App(props) {
           console.log("loggie tokenURI", tokenURI);
           const jsonManifestString = atob(tokenURI.substring(29));
           console.log("loggie jsonManifestString", jsonManifestString);
-          /*
-          const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "");
-          console.log("ipfsHash", ipfsHash);
-          const jsonManifestBuffer = await getFromIPFS(ipfsHash);
-        */
+          
+          //const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "");
+          //console.log("ipfsHash", ipfsHash);
+          //const jsonManifestBuffer = await getFromIPFS(ipfsHash);
+        
           try {
             const jsonManifest = JSON.parse(jsonManifestString);
             console.log(" loggie jsonManifest", jsonManifest);
@@ -365,6 +366,8 @@ function App(props) {
     };
     updateYourCollectibles();
   }, [address, yourLoogieBalance, yourLoogieTankBalance]);
+
+  */
 
   /*useEffect(() => {
     const updateDmCollections = async () => {
@@ -391,7 +394,7 @@ function App(props) {
           try {
             listDmNfts.push({ id: tokenId, data: tokenURI, owner: address });
           } catch (e) {
-            console.log(e);
+            console.log(e);   
           }
         } catch (e) {
           console.log(e);
@@ -1127,6 +1130,7 @@ function App(props) {
               contractConfig={contractConfig}
             />
           </Route>
+          {/*
           <Route exact path="/mintloogies">
             <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               <Button
@@ -1138,7 +1142,6 @@ function App(props) {
                 MINT
               </Button>
             </div>
-            {/* */}
             <div style={{ width: 820, margin: "auto", paddingBottom: 256 }}>
               <List
                 bordered
@@ -1232,8 +1235,8 @@ function App(props) {
                 }}
               />
             </div>
-            {/* */}
-          </Route>
+              </Route>*/}
+          {/*    
           <Route exact path="/mintloogietank">
             <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               <Button
@@ -1246,8 +1249,6 @@ function App(props) {
               </Button>
               <Button onClick={() => updateLoogieTanks()}>Refresh</Button>
             </div>
-            {/* */}
-
             <div style={{ width: 820, margin: "auto", paddingBottom: 256 }}>
               <List
                 bordered
@@ -1311,9 +1312,8 @@ function App(props) {
                 }}
               />
             </div>
-
-            {/* */}
           </Route>
+          */}
 
           <Route exact path="/membershipminter">
             <TemplatesMinter

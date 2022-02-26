@@ -168,6 +168,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
   console.log("Setting Voting Goldinar Minter Role:" + goldinarMinter); 
   await gt.grantRole(goldinarMinter, voting.address);
+  console.log("Setting Exchange Goldinar Minter Role:" + goldinarMinter); 
+  await gt.grantRole(goldinarMinter, exchangeDM.address);
 
   console.log("Minter *********************************"); 
   const dmMinter = await deploy('DMMinter', {

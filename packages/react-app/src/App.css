@@ -59,6 +59,10 @@ body {
   animation-timing-function: ease-in, ease-in-out;
 }
 
+.card-second {
+  background: linear-gradient(-90deg, #ff3c0010, #ff006210, #00bafd10, #00ffc310);
+}
+
 
 body {
   -moz-transition: all 0.3s ease-in-out;

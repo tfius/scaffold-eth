@@ -99,6 +99,7 @@ export default function ExchangeView(props) {
   }, []);
 
   useEffect(() => {
+    getAllCategoryOrders();
      getNumOrders();
   }, [seconds]);
 
@@ -122,7 +123,7 @@ export default function ExchangeView(props) {
   useEffect(() => {
     //getCategoriesOrders();
     //getCategoryOrdersCount();
-    getCategoryOrders();
+    getCategoryOrders(category);
   }, [category]); 
 
   const getCategories = useCallback(async () => {
@@ -157,39 +158,44 @@ export default function ExchangeView(props) {
   //   setNumCategoryOrders(categoryOrdersCount.toNumber());
   // };
 
-  const getCategoryOrders = async () => {
-    console.log("getCategoryOrders", category, page, pageSize);
-    if (readContracts == undefined || readContracts.ExchangeDM == undefined || category == undefined) return;
+  const getAllCategoryOrders = useCallback(async () => {
+    for(var i = 0; i < categories.length; i++) {
+       await getCategoryOrders(categories[i].name, categories[i].bytes32);
+    }
+  });
+
+  const getCategoryOrders = useCallback(async (catName, categoryBytes32) => {
+    //console.log("getCategoryOrders", catName);
+    if (readContracts == undefined || readContracts.ExchangeDM == undefined || categoryBytes32 == undefined) return;
     
-    setIsLoading(true);
-    var categoryOrdersCount = await readContracts.ExchangeDM.numCategoryOrders(category);
-    console.log("numCategoryOrders", categoryOrdersCount.toString());
+//    setIsLoading(true);
+    var categoryOrdersCount = await readContracts.ExchangeDM.numCategoryOrders(categoryBytes32);
+    //console.log("numCategoryOrders", categoryOrdersCount.toString());
     setNumCategoryOrders(categoryOrdersCount.toNumber());
 
     var maxCatOrders = categoryOrdersCount.toNumber();
     var ordersIndexList = [];
-    //for (var i = page * pageSize; i < (page + 1) * pageSize && i <= numCategoryOrders; i++) {
     for (var i = 0; i < maxCatOrders; i++) {
       try {
-        console.log("categoryOrders", category, i);
-        const orderIndex = await readContracts.ExchangeDM.categoryOrders(category, i);
-        console.log("gotOrderIndex", i, orderIndex.toString());
-        ordersIndexList.push(orderIndex);
+        //console.log("categoryOrders", categoryBytes32, i);
+        const orderIndex = await readContracts.ExchangeDM.categoryOrders(categoryBytes32, i);
+        //console.log("gotOrderIndex", i, orderIndex.toString());
+        ordersIndexList.push(orderIndex.toNumber());
       } catch (error) {
         console.error(error);
         //break;
       }
     }
+    console.log("cat " + catName, ordersIndexList);
     /*  
     var ordersList = [];
     for (var i = 0; i < ordersIndexList.length; i++) {
       const order = await getOrder(ordersIndexList[i]);
       if (order != null) ordersList.push(order);
     }
-
     setOrders(ordersList); */ 
-    setIsLoading(false); 
-  };
+//    setIsLoading(false); 
+  });
 
   const getOrder = async orderIndex => {
     try {
@@ -214,7 +220,7 @@ export default function ExchangeView(props) {
   const getNumOrders = useCallback(async () => {
     if (readContracts == undefined || readContracts.ExchangeDM == undefined) return;
     var orderCount = await readContracts.ExchangeDM.numOrders();
-    console.log("NumOrders", orderCount.toString());
+    //console.log("NumOrders", orderCount.toString());
     setNumOrders(orderCount.toNumber());
     setMaxPages(Math.ceil(orderCount.toNumber() / pageSize));
   }, [readContracts, page, pageSize]);
@@ -228,11 +234,11 @@ export default function ExchangeView(props) {
       try {
         const orderNE = await readContracts.ExchangeDM.orders(i);
         var order = Object.assign([], orderNE);
-        console.log("order", order);
+        //console.log("order", order);
 
         var hashToOrder = await readContracts.ExchangeDM.hashToOrder(order.tokenHash);
         order.hashToOrder = hashToOrder;
-        console.log("order", order);
+        //console.log("order", order);
 
         ordersList.push(order);
       } catch (error) {
@@ -281,9 +287,11 @@ export default function ExchangeView(props) {
         renderItem={(order, i) => {
           return (
             <List.Item key={i} style={{ maxWidth: "25%", minWidth: "200px", display: "inline-block", padding: "2px" }}>
-              <Card key={i}>
+              <Card key={i} className={order.sellable ? "card-second" : ""}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                  <div></div>
+                  <span>o {order.orderIndex.toString()} </span>
+                  <span>c {order.categoryIndex.toString()} </span>
+                  <span>s {order.sellerIndex.toString()} </span>
                 </div>
 
                 <DMTToken
@@ -294,15 +302,6 @@ export default function ExchangeView(props) {
                   userSigner={userSigner}
                 />
                 <br />
-                {/* <Button
-                  type="primary"
-                  onClick={() => {
-                    buy(order);
-                  }}
-                >
-                  Buy
-                </Button> */}
-
                 {address == order.seller ? (
                   <Button
                     type="primary"
@@ -367,7 +366,7 @@ export default function ExchangeView(props) {
         {orders.map((order, i) => {
           return (
             <Card key={i}>
-              <div style={{ justifyContent: "space-between", marginBottom: 0 }}>
+              <div style={{ marginBottom: 0 }}>
                 <div>
                   <span>ID {order.tokenId.toString()}</span>
                   <br />
@@ -379,18 +378,14 @@ export default function ExchangeView(props) {
                   <br />
                   <span>Category {order.category}</span>
                   <br />
-                  <span>hash {order.tokenHash}</span>
-                  <br />
-                  <span>ordIdx {order.categoryIndex.toString()}</span>
-                  <br />
-                  <span>catIdx {order.categoryIndex.toString()}</span>
-                  <br />
-                  <span>usrIdx {order.sellerIndex.toString()}</span>
-                  <br />
-                  <span>usrIdx {order.sellerIndex.toString()}</span>
+                  <span>ordIdx {order.orderIndex.toString()} </span>
+                  <span>catIdx {order.categoryIndex.toString()} </span>
+                  <span>selIdx {order.sellerIndex.toString()} </span>
                   <br />
                   <span>Sell {order.sellable.toString()}</span>
                   <br />
+                  <span>hash {order.tokenHash}</span>
+                  <br />                  
                 </div>
               </div>
               {/* <Card.Meta title={"Reviews in queue:"} description="" /> */}
