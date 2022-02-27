@@ -63,9 +63,7 @@ export default function TokenEditView(props) {
   }, [seconds]);
 
   useEffect(() => {
-    if (post != null) {
-      tokenData.posts.push(post);
-    }
+    tokenData.posts.push(post);
   }, [post]);
 
   useEffect(() => {}, [tokenData]);
@@ -135,11 +133,7 @@ export default function TokenEditView(props) {
         try {
           console.log("dataLocationCount", start, i);
           var dataLocation = await helpers.makeCall("dataLocations", contract, [id, i]);
-          if (dataLocation === "0x0000000000000000000000000000000000000000000000000000000000000000") {
-            continue;
-          }
           locations.push(dataLocation);
-
           var url = helpers.downloadGateway + dataLocation.substring(2) + "/";
           var json = await (await fetch(url)).json();
           posts.push(json);
@@ -171,7 +165,7 @@ export default function TokenEditView(props) {
       var url = helpers.downloadGateway + data.m.substring(2) + "/";
       var json = await (await fetch(url)).json();
 
-      setPostText(json);
+      setPost(json);
 
       console.log("post: ", json);
 
@@ -189,10 +183,48 @@ export default function TokenEditView(props) {
     });
   };
 
+  async function addFileToToken(token) {
+    addToTokenNotification();
+
+    var post = {
+      title: "",
+      text: postText,
+      address: address,
+      time: Date.now(),
+      avatarId: avatarToken.id,
+      avatarName: avatarToken.name,
+      hash: filehash,
+      /*name: tokenData.name,*/
+      id: tokenData.id,
+      uri: tokenData.uri,
+      contract: contract.address,
+      type: "post",
+    };
+  }
+
   async function addPostToToken() {
     addToTokenNotification();
-    dispatch({ type: "APPEND_DATA_TOKEN", payload: { postText, address, avatarToken, tokenData, contract, id } });
-    setPostText("");
+
+    dispatch({ type: "APPEND_DATA_TOKEN", payload: { postText, address, avatarToken, tokenData, contract } });
+
+    // var post = {
+    //   title: "",
+    //   text: postText,
+    //   address: address,
+    //   time: Date.now(),
+    //   avatarId: avatarToken.id,
+    //   avatarName: avatarToken.name,
+    //   id: tokenData.id,
+    //   uri: tokenData.uri,
+    //   contract: contract.address,
+    //   type: "post",
+    // };
+    // tokenData.posts.push(post);
+    // console.log("post text", post);
+    // const swarmHash = await uploadJsonToBee(post, "post.json");
+    // console.log("swarmHash", swarmHash);
+    // const result = await helpers.makeCall("addDataLocation", contract, [id, "0x" + swarmHash]); // make tx
+    // //console.log("result", result);
   }
 
   async function voteForToken(token) {
@@ -249,6 +281,7 @@ export default function TokenEditView(props) {
           style={{ width: "80%" }}
           min={0}
           size="large"
+          value={postText}
           placeholder={"Add your thoughts to the token, " + avatarToken.name + " ... "}
           onChange={e => {
             try {
@@ -267,24 +300,27 @@ export default function TokenEditView(props) {
         </Button>
         <br />
         <div style={{ borderRadius: "10px", margin: "auto" }} className="ant-card-body">
-          <FileUpload options={{ address, append: true, tokenData, contract, id, avatarToken }} />
+          <FileUpload options={{ address, append: true }} />
         </div>
       </Card>
 
-      {tokenData.posts.map((d, i) => (
-        <div className="">
-          <div style={{ textAlign: "left" }}>
-            <small>{d.avatarName}</small>
+      {tokenData &&
+        tokenData.posts &&
+        tokenData.posts.length > 0 &&
+        tokenData.posts.map((d, i) => (
+          <div className="">
+            <div style={{ textAlign: "left" }}>
+              <small>{d.avatarName}</small>
+            </div>
+            <div style={{ textAlign: "center" }}>{d.title}</div>
+            <div
+              className="ant-card-body"
+              style={{ textAlign: "left", paddingLeft: "20px", paddingTop: "0px", paddingBottom: "0px" }}
+            >
+              {d.text}
+            </div>
           </div>
-          <div style={{ textAlign: "center" }}>{d.title}</div>
-          <div
-            className="ant-card-body"
-            style={{ textAlign: "left", paddingLeft: "20px", paddingTop: "0px", paddingBottom: "0px" }}
-          >
-            {d.postText}
-          </div>
-        </div>
-      ))}
+        ))}
 
       {/* {tokenData.posts.map((post, i) => {
           <p key={"post_" + i}>

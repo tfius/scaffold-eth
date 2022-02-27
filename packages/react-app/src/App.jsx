@@ -674,183 +674,6 @@ function App(props) {
       {/* ✏️ Edit the header and change the title to your project name */}
       <Header />
       {networkDisplay}
-<<<<<<< HEAD
-      <BrowserRouter>
-        {!isRelease ? (
-          <>
-            <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
-              <Menu.Item key="/loogies">
-                <Link
-                  onClick={() => {
-                    setRoute("/loogies");
-                  }}
-                  to="/loogies"
-                >
-                  Loogies
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="/loogietank">
-                <Link
-                  onClick={() => {
-                    setRoute("/loogietank");
-                  }}
-                  to="/loogietank"
-                >
-                  Loogie Tank
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="/mintloogies">
-                <Link
-                  onClick={() => {
-                    setRoute("/mintloogies");
-                  }}
-                  to="/mintloogies"
-                >
-                  Mint Loogies
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="/mintloogietank">
-                <Link
-                  onClick={() => {
-                    setRoute("/mintloogietank");
-                  }}
-                  to="/mintloogietank"
-                >
-                  Mint Loogie Tank
-                </Link>
-              </Menu.Item>
-            </Menu>
-
-            <Menu style={{ textAlign: "center", fontSize: "1.3vmin" }} selectedKeys={[route]} mode="horizontal">
-              <Menu.Item key="/markable">
-                <Link
-                  onClick={() => {
-                    setRoute("/markable");
-                  }}
-                  to="/markable"
-                >
-                  Markable
-                </Link>
-              </Menu.Item>
-
-              <Menu.Item key="/graphable">
-                <Link
-                  onClick={() => {
-                    setRoute("/graphable");
-                  }}
-                  to="/graphable"
-                >
-                  Graphable
-                </Link>
-              </Menu.Item>
-
-              <Menu.Item key="/ex">
-                <Link
-                  onClick={() => {
-                    setRoute("/ex");
-                  }}
-                  to="/ex"
-                >
-                  Exchange
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="/dm">
-                <Link
-                  onClick={() => {
-                    setRoute("/dm");
-                  }}
-                  to="/dm"
-                >
-                  DataMarket
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="/dmnft">
-                <Link
-                  onClick={() => {
-                    setRoute("/dmnft");
-                  }}
-                  to="/dmnft"
-                >
-                  Collection
-                </Link>
-              </Menu.Item>
-
-              <Menu.Item key="/goldinar">
-                <Link
-                  onClick={() => {
-                    setRoute("/goldinar");
-                  }}
-                  to="/goldinar"
-                >
-                  Goldinar
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="/goldinarfarm">
-                <Link
-                  onClick={() => {
-                    setRoute("/goldinarfarm");
-                  }}
-                  to="/goldinarfarm"
-                >
-                  Farm
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="/avatarcontract">
-                <Link
-                  onClick={() => {
-                    setRoute("/avatarcontract");
-                  }}
-                  to="/avatarcontract"
-                >
-                  Avatar
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="/avatartaskmint">
-                <Link
-                  onClick={() => {
-                    setRoute("/avatartaskmint");
-                  }}
-                  to="/avatartaskmint"
-                >
-                  AvatarTask
-                </Link>
-              </Menu.Item>              
-            </Menu>
-          </>
-        ) : null}
-        <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/">
-            <Link
-              onClick={() => {
-                setRoute("/");
-              }}
-              to="/"
-            >
-              Home
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/bank">
-            <Link
-              onClick={() => {
-                setRoute("/bank");
-              }}
-              to="/bank"
-            >
-              Bank
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/leaderboard">
-            <Link
-              onClick={() => {
-                setRoute("/leaderboard/0");
-              }}
-              to="/leaderboard/0"
-            >
-              Leaderboard
-            </Link>
-          </Menu.Item>
-          {/* <Menu.Item key="/sponsorshipminter">
-=======
       <StoreProvider>
         <BrowserRouter>
           {!isRelease ? (
@@ -982,6 +805,16 @@ function App(props) {
                     Avatar
                   </Link>
                 </Menu.Item>
+                <Menu.Item key="/avatartaskmint">
+                  <Link
+                    onClick={() => {
+                      setRoute("/avatartaskmint");
+                    }}
+                    to="/avatartaskmint"
+                  >
+                    AvatarTask
+                  </Link>
+                </Menu.Item>
               </Menu>
             </>
           ) : null}
@@ -1017,7 +850,6 @@ function App(props) {
               </Link>
             </Menu.Item>
             {/* <Menu.Item key="/sponsorshipminter">
->>>>>>> 2d83b0041508eb86bf6afe65f340600499f6c6ad
             <Link
               onClick={() => {
                 setRoute("/sponsorshipminter");
@@ -1101,90 +933,6 @@ function App(props) {
               DataToken
             </Link>
           </Menu.Item> */}
-<<<<<<< HEAD
-        </Menu>
-        <Switch>
-          <Route exact path="/loogies">
-            <Contract
-              name="Loogies"
-              customContract={writeContracts && writeContracts.Loogies}
-              signer={userSigner}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-              contractConfig={contractConfig}
-            />
-          </Route>
-          <Route path="/team/:id">
-            <TeamView
-              dmCollections={dmCollections}
-              contractConfig={contractConfig}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              localProvider={localProvider}
-              userSigner={userSigner}
-              tx={tx}
-              title="Team"
-              url="/team/"
-              address={address}
-            />
-          </Route>
-
-          <Route path="/edittoken/:contractAddress/:id">
-            <TokenEditView
-              dmCollections={dmCollections}
-              contractConfig={contractConfig}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              localProvider={localProvider}
-              userSigner={userSigner}
-              tx={tx}
-              title="Team"
-              url="/team/"
-              address={address}
-            />
-          </Route>
-
-          <Route path="/avatarTaskMint">
-            <AvatarTaskMint
-              dmCollections={dmCollections}
-              contractConfig={contractConfig}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              localProvider={localProvider}
-              userSigner={userSigner}
-              gasPrice={gasPrice}
-              tx={tx}
-              title="Marketplace"
-              address={address}
-              chainId={selectedChainId}
-            />
-          </Route>
-          <Route path="/exchange">
-            <ExchangeView
-              dmCollections={dmCollections}
-              contractConfig={contractConfig}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              localProvider={localProvider}
-              userSigner={userSigner}
-              gasPrice={gasPrice}
-              tx={tx}
-              title="Marketplace"
-              address={address}
-              chainId={selectedChainId}
-            />
-          </Route>
-          <Route path="/leaderboard/:collectionId">
-            <Leaderboard
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              tx={tx}
-              title="Leaderboards"
-              address={address}
-            />
-            {/* <YourHome
-=======
           </Menu>
           <Switch>
             <Route exact path="/loogies">
@@ -1228,6 +976,21 @@ function App(props) {
               />
             </Route>
 
+            <Route path="/avatarTaskMint">
+              <AvatarTaskMint
+                dmCollections={dmCollections}
+                contractConfig={contractConfig}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                localProvider={localProvider}
+                userSigner={userSigner}
+                gasPrice={gasPrice}
+                tx={tx}
+                title="Marketplace"
+                address={address}
+                chainId={selectedChainId}
+              />
+            </Route>
             <Route path="/exchange">
               <ExchangeView
                 dmCollections={dmCollections}
@@ -1252,7 +1015,6 @@ function App(props) {
                 address={address}
               />
               {/* <YourHome
->>>>>>> 2d83b0041508eb86bf6afe65f340600499f6c6ad
               yourDmBalance={yourDmBalance}
               yourDmNftBalance={yourDmNftBalance}
               dmCollections={dmCollections}

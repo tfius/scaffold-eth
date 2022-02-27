@@ -1,39 +1,65 @@
-import React, { useCallback } from "react";
+import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { uploadFileToBee } from "./BeeService";
+import { useStore, metadataTypes } from "../../state";
+import { Select, Input, Button, Spin } from "antd";
 
+const thumb = {
+  display: "inline-flex",
+  borderRadius: 2,
+  border: "1px solid #eaeaea",
+  marginBottom: 8,
+  marginRight: 8,
+  width: 100,
+  height: 100,
+  padding: 4,
+  boxSizing: "border-box",
+};
 
+const thumbInner = {
+  display: "flex",
+  minWidth: 0,
+  overflow: "hidden",
+};
 
-//const FileUpload = ({ onDataUpload, url }) => {
-const FileUpload = (props) => {
-//const { onDataUpload } = props;
+const img = {
+  display: "block",
+  width: "auto",
+  height: "100%",
+};
 
-  const onDrop = useCallback(async filesArray => {
-    try {
-      props.onCanCreate(true);
+const FileUpload = props => {
+  const [title, setTitle] = useState("");
+  const [text, setText] = useState("");
+  const {
+    options: {
+      tx,
+      writeContracts,
+      selectedCollection,
+      address,
+      metadataAddress,
+      locationAddress,
+      append,
+      avatarToken,
+      tokenData,
+      contract,
+      id,
+    },
+  } = props;
 
-      props.onError("");
-      props.onFilename(filesArray[0].name);
-      props.onFilesize((filesArray[0].size/1024).toFixed(1));
-      props.onMimeType("uploading");
+  const {
+    state: { file, hash, loading, error, errorMessage },
+    dispatch,
+  } = useStore();
 
-      const hash = await uploadFileToBee(filesArray[0]);
-      console.log("upload hash", "0x" + hash);
-      
-      props.onMimeType(filesArray[0].type);
-      props.onDataUpload("0x" + hash);
-
-      props.onCanCreate(false);
-      
-    } catch (error) {
-      console.error(error);
-      
-      props.onError(error.toString());
-      props.onMimeType("");
-      props.onFilename("");
-      props.onFilesize(0);
+  const onDrop = async files => {
+    if (files.length > 0) {
+      let file = files[0];
+      dispatch({ type: "UPLOAD_TO_SWARM", payload: file });
+      if (append) {
+        dispatch({ type: "APPEND_DATA_TOKEN", payload: { address, avatarToken, tokenData, contract, id } });
+      }
     }
-  }, []);
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -41,10 +67,123 @@ const FileUpload = (props) => {
   });
 
   return (
-    <div {...getRootProps()}>
-      <input {...getInputProps()} />
-      {isDragActive ? <p>Drop the file here ...</p> : <strong>Drop your file here, or click to select one</strong>}
-    </div>
+    <>
+      <span style={{ color: "red" }}> {errorMessage} </span>
+      <div {...getRootProps()}>
+        <input {...getInputProps()} />
+        {isDragActive ? <p>Drop the file here ...</p> : <strong>Drop your file here, or click to select one</strong>}
+      </div>
+      <>
+        {file?.filesize && file.filesize !== 0 && (
+          <>
+            <br />
+            <strong>{file?.filename}</strong> <br />
+            <small>
+              {loading ? (
+                <>
+                  <Spin /> {file?.mimeType}
+                </>
+              ) : (
+                file?.mimeType
+              )}
+            </small>
+            <br />
+            {file?.mimeType.includes("image") && (
+              <>
+                <div style={thumb}>
+                  <div style={thumbInner}>
+                    <img src={file?.previewUrl} style={img} />
+                  </div>
+                </div>
+                <br />
+              </>
+            )}
+            <small>{file?.filesize} Kb</small> <br />
+            <br />
+            <div hidden={hash === null}>
+              <span>Type: </span>
+              <Select
+                style={{ width: "200px" }}
+                showSearch
+                value={file?.selectedType}
+                onChange={value => {
+                  console.log(`selected ${value} ${metadataTypes[value].metadata}`);
+                  //setSelectedCollection(value);
+                  setMetadataAddress(metadataTypes[value].metadata);
+                  setSelectedType(metadataTypes[value].name);
+                }}
+              >
+                {metadataTypes
+                  ? metadataTypes.map((collection, index) => (
+                      <Select.Option key={collection.metadata + "" + index} value={index}>
+                        {index}: {collection.name}
+                      </Select.Option>
+                    ))
+                  : null}
+              </Select>
+              <Input
+                style={{ width: "80%" }}
+                min={0}
+                size="large"
+                placeholder={"Name"}
+                onChange={e => {
+                  try {
+                    setTitle(e.target.value);
+                  } catch (e) {
+                    console.log(e);
+                  }
+                }}
+              />
+              <Input
+                style={{ width: "80%" }}
+                min={0}
+                size="large"
+                placeholder={"Description"}
+                onChange={e => {
+                  try {
+                    setText(e.target.value);
+                  } catch (e) {
+                    console.log(e);
+                  }
+                }}
+              />
+              <br />
+              <Button
+                type={"primary"}
+                onClick={() => {
+                  console.log("append: ", append);
+                  if (append) {
+                    dispatch({
+                      type: "APPEND_DATA_TOKEN",
+                      payload: {
+                        title,
+                        text,
+                      },
+                    });
+                  } else {
+                    dispatch({
+                      type: "CREATE_DATA_TOKEN",
+                      payload: {
+                        tx,
+                        writeContracts,
+                        selectedCollection,
+                        address,
+                        metadataAddress,
+                        locationAddress,
+                        title,
+                        text,
+                      },
+                    });
+                  }
+                }}
+              >
+                {append ? "Create" : "Append"}
+              </Button>
+            </div>
+          </>
+        )}
+      </>
+    </>
   );
 };
 
