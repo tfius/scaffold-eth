@@ -14,6 +14,7 @@ const reducerActions = (state = initialState, action) => {
         payload,
         progressCb: action.progressCb,
         upload: true,
+        hash: null,
       };
     case "CREATE_DATA_TOKEN":
       return {
@@ -52,6 +53,8 @@ const reducerActions = (state = initialState, action) => {
         loading: false,
         upload: false,
         file: null,
+        createDataToken: false,
+        hash: null,
       };
     case "LOADING":
       return { ...state, loading: true, error: false };
@@ -75,7 +78,7 @@ const initialState = {
   file: null,
   error: false,
   errorMessage: "",
-  hash: "",
+  hash: null,
 };
 
 const StoreProvider = ({ children }) => {

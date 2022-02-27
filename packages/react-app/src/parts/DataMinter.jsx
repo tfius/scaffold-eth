@@ -342,7 +342,6 @@ export default function DataMinter(props) {
             <div style={{ borderRadius: "10px", margin: "auto" }} className="ant-card-body">
               <FileUpload onDataUpload={setLocationAddress} />
             </div>
-
             {file?.filesize && file.filesize !== 0 && (
               <>
                 <br />
@@ -370,7 +369,7 @@ export default function DataMinter(props) {
                 <small>{file?.filesize} Kb</small> <br />
                 <br />
                 <span style={{ color: "red" }}> {error} </span>
-                <div hidden={hash === ""}>
+                <div hidden={hash === null}>
                   <span>Type: </span>
                   <Select
                     style={{ width: "200px" }}
