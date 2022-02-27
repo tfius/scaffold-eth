@@ -11,18 +11,18 @@ contract AvatarAbility is ERC721, Ownable {
     address public avatarCollection = address(0);
     struct Ability { 
         uint256 avatarId;
-        uint256 strength; 
-        uint256 dexterity;
-        uint256 constitution;
-        uint256 intelligence;
-        uint256 wisdom; 
-        uint256 charisma; 
-        uint256 experience;  
+        uint256 p1; //strength; 
+        uint256 p2; //dexterity;
+        uint256 p3; //constitution;
+        uint256 p4; //intelligence;
+        uint256 p5; //wisdom; 
+        uint256 p6; //charisma; 
+        uint256 level;  
         uint256 points;
     }
     Ability[] public abilities;
     mapping(uint256 => uint256) avatarToAbility; 
-    constructor() public ERC721("FDS AvatarAbility", "Avatar Ability")
+    constructor() ERC721("FDS AvatarAbility", "Avatar Ability")
     {    
     } 
  
@@ -34,34 +34,35 @@ contract AvatarAbility is ERC721, Ownable {
         require(avatarCollection==address(0), "already set"); 
         avatarCollection = _avatarCollection; 
     }
-    function create(uint256 avatarId, address to, bytes32 randomness) public returns (uint256)
+    function create(uint256 avatarId, address to) public returns (uint256)
     {
         require(avatarToAbility[avatarId]==0,"Avatar Has This Set");
         require(msg.sender==avatarCollection, "!collection");
 
         uint256 newId = abilities.length; 
+        /*
         uint256 random = _random(randomness);
         // always start with stats from 1 to 10 
-        uint256 strength     = 1 + (random % 100) % 20;
-        uint256 dexterity    = 1 + ((random % 10000) / 100 ) % 20;
-        uint256 constitution = 1 + ((random % 1000000) / 10000 ) % 20;
-        uint256 intelligence = 1 + ((random % 100000000) / 1000000 ) % 20;
-        uint256 wisdom       = 1 + ((random % 10000000000) / 100000000 ) % 20;
-        uint256 charisma     = 1 + ((random % 1000000000000) / 10000000000) % 20;
+        uint256 strength     = 0;//1 +  (random % 100) % 20;
+        uint256 dexterity    = 0;//1 + ((random % 10000) / 100 ) % 20;
+        uint256 constitution = 0;//1 + ((random % 1000000) / 10000 ) % 20;
+        uint256 intelligence = 0;//1 + ((random % 100000000) / 1000000 ) % 20;
+        uint256 wisdom       = 0;//1 + ((random % 10000000000) / 100000000 ) % 20;
+        uint256 charisma     = 0;//1 + ((random % 1000000000000) / 10000000000) % 20;
         //uint256 p7 = 1 + ((random % 10000000000000) / 100000000000) % 20;
-        uint256 points = 70 - (strength + dexterity + constitution + intelligence + wisdom + charisma); // be fair and add skill points to unlucky
-
+        uint256 points = 0; //70 - (strength + dexterity + constitution + intelligence + wisdom + charisma); // be fair and add skill points to unlucky
+        */
         abilities.push(
             Ability(
-                avatarId,
-                strength,
-                dexterity,
-                constitution,
-                intelligence,
-                wisdom,
-                charisma,
+                0,//avatarId,
+                0,//strength,
+                0,//dexterity,
+                0,//constitution,
+                0,//intelligence,
+                0,//wisdom,
+                0,//charisma,
                 0,
-                points
+                0 //points
             )
         );
         _safeMint(to, newId);
@@ -76,42 +77,33 @@ contract AvatarAbility is ERC721, Ownable {
     {
         return  abilities[tokenId];
     }
-    function sqrt(uint256 x) internal pure returns (uint256 y) {
-        uint256 z = (x + 1) / 2;
-        y = x;
-        while (z < y) { 
-            y = z;
-            z = (x / z + z) / 2;  
-        }
-    }
-
-    function getLevel(uint256 tokenId) public view returns (uint256) {
-        return sqrt(abilities[tokenId].experience);
-    }
     function upgrade(uint256 tokenId,  
+            uint256 data/*,
             uint256 strength,
             uint256 dexterity,
             uint256 constitution,
             uint256 intelligence,
             uint256 wisdom,
-            uint256 charisma)  
+            uint256 charisma*/)  
             public 
     {
         require(_isApprovedOrOwner(tokenId),"!approved"); 
-        uint available_skillpoints = abilities[tokenId].points; // how much avatar can spend
-        uint skillpoints = strength + dexterity + constitution + intelligence + wisdom + charisma; 
-        require(skillpoints<=available_skillpoints,"not enough skill points");
+        abilities[tokenId].p1 += (data % 100) % 10;
+        abilities[tokenId].p2 += ((data % 10000) / 100) % 10;
+        abilities[tokenId].p3 += ((data % 1000000) / 10000) % 10;
+        abilities[tokenId].p4 += ((data % 100000000) / 1000000) % 10;
+        abilities[tokenId].p5 += ((data % 10000000000)/ 100000000) % 10;
+        abilities[tokenId].p6 += ((data % 1000000000000)/ 10000000000) % 10;
 
-        uint cost = calculate_exp(strength, dexterity, constitution, intelligence, wisdom, charisma);
-        abilities[tokenId].experience += cost;
-        abilities[tokenId].strength += strength;
-        abilities[tokenId].dexterity += dexterity;
-        abilities[tokenId].constitution += constitution;
-        abilities[tokenId].intelligence += intelligence;
-        abilities[tokenId].wisdom += wisdom;
-        abilities[tokenId].charisma += charisma;
-        abilities[tokenId].points -= skillpoints;
+        abilities[tokenId].level  += 1;
+        abilities[tokenId].points += calculate_exp(abilities[tokenId].p1,  
+                                                   abilities[tokenId].p2, 
+                                                   abilities[tokenId].p3, 
+                                                   abilities[tokenId].p4, 
+                                                   abilities[tokenId].p5, 
+                                                   abilities[tokenId].p6);
     }
+
     function calc(uint score) public pure returns (uint) {
         if (score <= 12) {
             return score;

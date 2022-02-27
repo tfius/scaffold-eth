@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { Select, Button, Card, Spin, Col, Input, List, Menu, Row, Progress, Tooltip, notification, Modal } from "antd";
 import FText from "../../components/FText";
 import { useContractReader } from "eth-hooks";
@@ -30,6 +30,7 @@ import DMTToken from "./DMTToken";
 // }
 
 export default function ExchangeView(props) {
+  const history = useHistory();
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,10 +40,11 @@ export default function ExchangeView(props) {
   const [numOrders, setNumOrders] = useState();
   const [page, setPage] = useState(0);
   const [maxPages, setMaxPages] = useState(1);
-  const [pageSize, setPageSize] = useState(50);
+  const [pageSize, setPageSize] = useState(8);
   const [orders, setOrders] = useState([]);
 
   const [openMarkable, setOpenMarkable] = useState(false);
+  const [openDetails, setOpenDetails] = useState(false);
 
   const [numCategories, setNumCategories] = useState();
   const [numCategoryOrders, setNumCategoryOrders] = useState(); //0
@@ -53,7 +55,7 @@ export default function ExchangeView(props) {
   const [categoryNames, setCategoryNames] = useState([]);
   const [categoryBytes, setCategoryBytes] = useState([]);
 
-  const [currentOrder, setCurrentOrder] = useState([]);
+  const [currentOrder, setCurrentOrder] = useState(null);
 
   /*  
   const [contract, setContract] = useState(null);
@@ -83,7 +85,7 @@ export default function ExchangeView(props) {
     tx,
     title,
     chainId,
-  } = props; 
+  } = props;
 
   useEffect(() => {
     let interval = null;
@@ -110,26 +112,15 @@ export default function ExchangeView(props) {
 
   useEffect(() => {
     getOrders();
-  }, [numOrders]);
+  }, [numOrders, page]);
 
-  // useEffect(() => {
-  //   //    getOrders();
-  // }, [numOrders, categories, category, page, pageSize]);
-
-  // useEffect(() => {
-  //   //console.log("getting getCategoriesOrdersCount")
-  //   //getCategoriesOrdersCount();
-  // }, [category]);
-
-  /*
   useEffect(() => {
-    getCategoriesOrders();
-  }, [category]); */
-  useEffect(() => {
-    //getCategoriesOrders();
-    //getCategoryOrdersCount();
     getCategoryOrders(category);
   }, [category]);
+
+  useEffect(() => {
+    getMarkableCount();
+  }, [openMarkable]);
 
   const getCategories = useCallback(async () => {
     if (readContracts == undefined || readContracts.ExchangeDM == undefined) return;
@@ -243,14 +234,8 @@ export default function ExchangeView(props) {
     for (var i = page * pageSize; i < (page + 1) * pageSize && i <= numOrders; i++) {
       try {
         const orderNE = await readContracts.ExchangeDM.orders(i);
-        //console.log("order", order);
-        //const orderNE = await readContracts.ExchangeDM.tokenToOrder(tokenHash);
         var order = Object.assign([], orderNE);
         console.log("order", order);
-
-        //var hashToOrder = await readContracts.ExchangeDM.hashToOrder(order.tokenHash);
-        // order.hashToOrder = hashToOrder;
-        //console.log("order", order);
 
         ordersList.push(order);
       } catch (error) {
@@ -262,16 +247,39 @@ export default function ExchangeView(props) {
     setIsLoading(false);
   }, [readContracts, page, pageSize, categoryNames, numOrders]);
 
+  const getMarkableCount = useCallback(async () => {
+    if (currentOrder == null) return;
+
+    var markableTokenHash = await readContracts.DMMarkable.getTokenHash(
+      chainId,
+      currentOrder.nftCollection,
+      currentOrder.tokenId,
+    );
+    console.log("markableTokenHash", markableTokenHash);
+    currentOrder.markableTokenHash = markableTokenHash;
+
+    var markerOwners = await readContracts.DMMarkable.getMarkerOwners(markableTokenHash); //chainId, currentOrder.nftCollection, currentOrder.tokenId);
+    console.log("markerOwners", markerOwners);
+
+    for (var i = 0; i < markerOwners.length; i++) {
+      if (markerOwners[i] == address) {
+        currentOrder.isMarked = true;
+        break;
+      }
+    }
+    currentOrder.numMarks = markerOwners.length;
+  });
+
   const nextPage = () => {
     if (page < maxPages - 1) {
       setPage(page + 1);
-      getOrders();
+      //getOrders();
     }
   };
   const prevPage = () => {
     if (page > 0) {
       setPage(page - 1);
-      getOrders();
+      //getOrders();
     }
   };
   const onCategoryChange = async cat => {
@@ -289,10 +297,7 @@ export default function ExchangeView(props) {
 
   async function voteForTokenInOrder(order) {
     console.log("voteForTokenInOrder", order);
-    //setCanVote(false);
-    //var tx = await writeContracts.Voting.voteFor(readContracts.Avatar.address, token.id);
     tx(writeContracts.Voting.voteFor(order.nftCollection, order.tokenId));
-
     notification.success({
       message: "Voting",
       description: "Sending your vote",
@@ -302,11 +307,15 @@ export default function ExchangeView(props) {
 
   async function markToken(order) {
     console.log("voteForTokenInOrder", order);
-    //setCanVote(false);
-    //var tx = await writeContracts.Voting.voteFor(readContracts.Avatar.address, token.id);
-    //debugger;
+    if (order.isMarked) {
+      notification.success({
+        message: "Marked",
+        description: "You already marked this token",
+        placement: "topRight",
+      });
+      return;
+    }
     tx(writeContracts.DMMarkable.addMarker(chainId, order.nftCollection, order.tokenId));
-
     notification.success({
       message: "Marking",
       description: "You added a mark to token " + order.tokenId + " from " + order.nftCollection + " chain " + chainId,
@@ -321,23 +330,60 @@ export default function ExchangeView(props) {
       <h1>{title}</h1>
       {isLoading ? <Spin /> : null}
       <Modal
-        title={<hi>Mark token</hi>}
+        title={<h2>Add Mark</h2>}
         visible={openMarkable}
         onOk={() => {
           setOpenMarkable(!openMarkable);
-          markToken(currentOrder); 
+          markToken(currentOrder);
         }}
         onCancel={() => {
           setOpenMarkable(!openMarkable);
         }}
         //  footer={<div>footer</div>}
       >
-        {currentOrder.nftCollection ? (
+        {currentOrder && currentOrder.nftCollection ? (
           <>
-            Token Id: {currentOrder.tokenId.toString()} <br/>
-            Collection: {currentOrder.nftCollection.toString()}
+            {currentOrder.isMarked ? (
+              <>
+                <h1 style={{ fontSize: "5rem", textAlign: "center" }}>💖</h1>{" "}
+              </>
+            ) : (
+              <>
+                {currentOrder.markableTokenHash == undefined ? (
+                  <>
+                    <Spin />
+                  </>
+                ) : (
+                  <>
+                    {/* Token Id: {currentOrder.tokenId.toString()} <br />
+             Collection: {currentOrder.nftCollection.toString()} <br />
+             Markable: {currentOrder.markableTokenHash}  */}
+                    Mark this token ?
+                  </>
+                )}
+              </>
+            )}
           </>
         ) : null}
+      </Modal>
+      <Modal
+        title={<h2>Details</h2>}
+        visible={openDetails}
+        onOk={() => {
+          setOpenDetails(!openDetails);
+        }}
+        onCancel={() => {
+          setOpenDetails(!openDetails);
+        }}
+      >
+        <a
+          onClick={e => {
+            console.log("view", currentOrder.nftCollection, currentOrder.tokenId);
+            history.push("/edittoken/" + currentOrder.nftCollection + "/" + currentOrder.tokenId);
+          }}
+        >
+          View details of this token
+        </a>
       </Modal>
       <List
         style={{ verticalAlign: "top" }}
@@ -346,7 +392,7 @@ export default function ExchangeView(props) {
         renderItem={(order, i) => {
           return (
             <List.Item
-              key={i}
+              key={"eli" + i}
               style={{
                 maxWidth: "30%",
                 maxWidth: "25%",
@@ -356,12 +402,12 @@ export default function ExchangeView(props) {
                 padding: "0px",
               }}
             >
-              <Card key={i} className={order.sellable ? "card-second" : ""} style={{}}>
+              <Card key={"ecrd" + i} className={order.sellable ? "card-second" : ""} style={{}}>
                 <div
                   className={order.sellable ? "card-second" : ""}
                   onClick={e => {
                     setCurrentOrder(order);
-                    setOpenMarkable(true);
+                    setOpenDetails(true);
                   }}
                 >
                   {/* <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
@@ -392,14 +438,15 @@ export default function ExchangeView(props) {
                     </Button>
                   ) : null}
 
-                  {order.sellable && address != order.seller ? (
+                  {address != order.seller ? (
                     <Button
                       type="primary"
+                      disabled={!order.sellable}
                       onClick={() => {
                         buy(order);
                       }}
                     >
-                      Buy
+                      Buy Ξ{ethers.utils.formatEther(order.askPrice)}
                     </Button>
                   ) : null}
                   {address == order.seller ? (
@@ -411,7 +458,19 @@ export default function ExchangeView(props) {
                 </div>
                 <div style={{ position: "absolute", right: "5px", top: "1px", cursor: "pointer" }}>
                   <Tooltip title="Click to vote.">
-                    <small onClick={e => voteForTokenInOrder(order)}>▲{order.numVotes}</small>
+                    <small onClick={e => voteForTokenInOrder(order)}>{order.numVotes}▲</small>
+                  </Tooltip>
+                </div>
+                <div style={{ position: "absolute", left: "5px", top: "1px", cursor: "pointer" }}>
+                  <Tooltip title="Click to mark.">
+                    <small
+                      onClick={e => {
+                        setCurrentOrder(order);
+                        setOpenMarkable(true);
+                      }}
+                    >
+                      ♡ {order.numMarks}
+                    </small>
                   </Tooltip>
                 </div>
               </Card>
@@ -447,6 +506,24 @@ export default function ExchangeView(props) {
         })}
         {/* <span>{category}</span> */}
       </div>
+
+      <div
+        style={{
+          maxWidth: 800,
+          margin: "auto",
+          marginTop: 16,
+          paddingBottom: 16,
+          alignItems: "left",
+          textAlign: "left",
+        }}
+      >
+        <Card title="Disclaimer">
+          Resistance is highly experimental beta software. It is not ready for production use. Use at your own risk. It
+          is not endorsed by any organization. Contracts are not audited. We do not guarantee the security of the
+          contracts and persistance of the data.
+        </Card>
+      </div>
+
       <div style={{ marginTop: "10rem" }}>
         {orders.map((order, i) => {
           return (

@@ -5,62 +5,64 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+//import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract AvatarRelatable is ERC721, Ownable { 
     using Strings for string; 
     address public avatarCollection = address(0);
     struct Property { 
         uint256 avatarId;
-        uint256 identity;  
-        uint256 fear;
-        uint256 desire;
-        uint256 grief;
-        uint256 love; 
-        uint256 loss;  
-        uint256 humanity;  
+        uint256 p1; //privacy;  
+        uint256 p2; //interoperability;
+        uint256 p3; //sovereignty;
+        uint256 p4; //force_for_good;
+        uint256 p5; //love; 
+        uint256 p6; //loss;  
+        uint256 level;  
         uint256 points;        
     }
     Property[] public properties; 
     mapping(uint256 => uint256) avatarToThis; 
-    constructor() public ERC721("FDS AvatarRelatable", "Avatar Relatable")
+    constructor() ERC721("FDS AvatarRelatable", "Avatar Relatable")
     {    
     } 
 
     function setMinter(address newMinter) public {
-       // does nothing as anyone can mint Avatar
+        
     }
     function setAvatarCollection(address _avatarCollection) external
     {    
         require(avatarCollection==address(0), "already set"); 
         avatarCollection = _avatarCollection; 
     }
-    function create(uint256 avatarId, address to, bytes32 randomness) public returns (uint256)
+    function create(uint256 avatarId, address to) public returns (uint256)
     {
         require(avatarToThis[avatarId]==0,"Avatar Has This Set");
         require(msg.sender==avatarCollection, "!collection");
 
         uint256 newId = properties.length;
-        uint256 random = _random(randomness);
+        //uint256 random = _random(randomness);  
         // always start with stats from 1 to 10 
+        /*
         uint256 identity = 0; //1 + (random % 100) % 10;
         uint256 fear     = 0; //1 + ((random % 10000) / 100 ) % 10;
         uint256 desire   = 0; //1 + ((random % 1000000) / 10000 ) % 10;
         uint256 grief    = 0; //1 + ((random % 100000000) / 1000000 ) % 10;
         uint256 love     = 0; //1 + ((random % 10000000000) / 100000000 ) % 10;
-        uint256 loss     = 0; //1 + ((random % 1000000000000) / 10000000000) % 10;
-        uint256 points   = 100;
+        uint256 loss     = 0; //1 + ((random % 1000000000000) / 10000000000) % 10; */
+        //uint256 points   = 0;
 
         properties.push(
             Property(
                 avatarId, 
-                identity,
-                fear,
-                desire,
-                grief,
-                love,
-                loss,
+                0,//identity,
+                0,//fear,
+                0,//desire,
+                0,//grief,
+                0,//love,
+                0,//loss,
                 0,
-                points
+                0 //points
             )
         );
         _safeMint(to, newId);
@@ -75,44 +77,26 @@ contract AvatarRelatable is ERC721, Ownable {
     {
         return  properties[tokenId];
     }
-    function sqrt(uint256 x) internal pure returns (uint256 y) {
-        uint256 z = (x + 1) / 2;
-        y = x;
-        while (z < y) {
-            y = z;
-            z = (x / z + z) / 2;
-        }
-    }
-
-    function getLevel(uint256 tokenId) public view returns (uint256) {
-        return sqrt(properties[tokenId].humanity);
-    }
-    function upgrade(uint256 tokenId,  
-            uint256 identity,
-            uint256 fear,
-            uint256 desire,
-            uint256 grief,
-            uint256 love,
-            uint256 loss) 
-            public 
+    function upgrade(uint256 tokenId, uint256 data)  public 
     {
-        require(_isApprovedOrOwner(tokenId),"!approved"); 
-        uint available_skillpoints = properties[tokenId].points; // how much avatar can spend
-        uint skillpoints = identity + fear + desire + grief + love + loss; 
-        require(skillpoints<=available_skillpoints,"not enough skill points");
+        require(_isApprovedOrOwner(tokenId),"!approved");  
 
-        uint cost = calculate_exp(identity, fear, desire, grief, love, loss);
-        
-        properties[tokenId].identity += identity;
-        properties[tokenId].fear += fear;
-        properties[tokenId].desire += desire;
-        properties[tokenId].grief += grief;
-        properties[tokenId].love += love;
-        properties[tokenId].loss += loss;
+        properties[tokenId].p1 += (data % 100) % 10;
+        properties[tokenId].p2 += ((data % 10000) / 100) % 10;
+        properties[tokenId].p3 += ((data % 1000000) / 10000) % 10;
+        properties[tokenId].p4 += ((data % 100000000) / 1000000) % 10;
+        properties[tokenId].p5 += ((data % 10000000000)/ 100000000) % 10;
+        properties[tokenId].p6 += ((data % 1000000000000)/ 10000000000) % 10;
 
-        properties[tokenId].humanity += cost;
-        properties[tokenId].points -= skillpoints;
+        properties[tokenId].level  += 1;
+        properties[tokenId].points += calculate_exp(properties[tokenId].p1,  
+                                                    properties[tokenId].p2, 
+                                                    properties[tokenId].p3, 
+                                                    properties[tokenId].p4, 
+                                                    properties[tokenId].p5, 
+                                                    properties[tokenId].p6);
     }
+
     function calc(uint score) public pure returns (uint) {
         if (score <= 12) {
             return score;

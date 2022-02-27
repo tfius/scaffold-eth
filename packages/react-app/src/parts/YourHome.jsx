@@ -11,8 +11,7 @@ import { SendOutlined } from "@ant-design/icons";
 import React, { useCallback, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 
-import { Link } from "react-dom";
-import { Select, Button, Card, Col, Input, List, Menu, Row, Progress, Spin } from "antd";
+import { Button, Card, Input, Progress, Spin, Tooltip } from "antd";
 //const { ethers } = require("ethers");
 import { ethers } from "ethers";
 
@@ -26,8 +25,11 @@ function NameProgress(props) {
   const { name, value } = props;
   return (
     <div style={{ display: "block", margin: "auto" }}>
-      <small>{name}</small>
-      <Progress size="small" percent={value} status="active" strokeColor={{ "0%": "#108ee9", "100%": "#87d068" }} />
+      <small>{name}</small><br/>
+      <Tooltip title={<>{name} {value}</>}>
+        <div style={{textAlign:"center", fontWeight:"bold"}}>{value}</div>
+        {/* <Progress size="small" percent={value} status="active" showInfo={false} strokeColor={{ "0%": "#108ee9", "100%": "#87d068" }} /> */}
+      </Tooltip>
     </div>
   );
 }
@@ -37,7 +39,8 @@ function ValueProgress(props) {
     <div style={{ display: "block", textAlign: "center", margin: "auto" }}>
       <small>{name}</small>
       <br />
-      <small>{value}</small>
+      {/* <small>{value}</small> */}
+      <div style={{textAlign:"center", fontWeight:"bold"}}>{value}</div>
     </div>
   );
 }
@@ -68,17 +71,18 @@ async function getPublicKey(signer) {
 }
 
 /*export default*/ function AbilityView(props) {
-  const { ability } = props;
+const { ability } = props;
+  if (ability == undefined || ability.p1 == undefined) return null;
   return (
     <Card>
       <div style={{ display: "flex", textAlign: "left" }}>
-        <NameProgress name={"Experience"} value={ability.charisma.toNumber()} />
-        <NameProgress name={"Charisma"} value={ability.charisma.toNumber()} />
-        <NameProgress name={"Constitution"} value={ability.constitution.toNumber()} />
-        <NameProgress name={"Dexterity"} value={ability.dexterity.toNumber()} />
-        <NameProgress name={"Intelligence"} value={ability.intelligence.toNumber()} />
-        <NameProgress name={"Strength"} value={ability.strength.toNumber()} />
-        <NameProgress name={"Wisdom"} value={ability.wisdom.toNumber()} />
+        <NameProgress name={"Training"} value={ability.p1.toNumber()} />
+        <NameProgress name={"Charisma"} value={ability.p2.toNumber()} />
+        <NameProgress name={"Constitution"} value={ability.p3.toNumber()} />
+        <NameProgress name={"Dexterity"} value={ability.p4.toNumber()} />
+        <NameProgress name={"Intelligence"} value={ability.p5.toNumber()} />
+        <NameProgress name={"Strength"} value={ability.p6.toNumber()} />
+        <NameProgress name={"Level"} value={ability.level.toNumber()} />
         <NameProgress name={"Skill Points"} value={ability.points.toNumber()} />
       </div>
     </Card>
@@ -86,36 +90,38 @@ async function getPublicKey(signer) {
 }
 /*export default*/ function ReputationView(props) {
   const { reputation } = props;
+  if (reputation == undefined || reputation.p1 == undefined) return null;
   return (
     <Card>
       <div style={{ display: "flex", textAlign: "left" }}>
-        <NameProgress name={"Reputation"} value={reputation.reputation.toNumber()} />
-        <NameProgress name={"Visibility"} value={reputation.visibility.toNumber()} />
-        <NameProgress name={"Distinctiveness"} value={reputation.distinctiveness.toNumber()} />
-        <NameProgress name={"Authenticity"} value={reputation.authenticity.toNumber()} />
-        <NameProgress name={"Transparency"} value={reputation.transparency.toNumber()} />
-        <NameProgress name={"Consistency"} value={reputation.consistency.toNumber()} />
-        <NameProgress name={"Vision"} value={reputation.vision.toNumber()} />
+        <NameProgress name={"Reputation"} value={reputation.p1.toNumber()} />
+        <NameProgress name={"Visibility"} value={reputation.p2.toNumber()} />
+        <NameProgress name={"Distinctiveness"} value={reputation.p3.toNumber()} />
+        <NameProgress name={"Authenticity"} value={reputation.p4.toNumber()} />
+        <NameProgress name={"Transparency"} value={reputation.p5.toNumber()} />
+        <NameProgress name={"Consistency"} value={reputation.p6.toNumber()} />
+        <NameProgress name={"Level"} value={reputation.level.toNumber()} />
         <NameProgress name={"Reputation Points"} value={reputation.points.toNumber()} />
       </div>
     </Card>
   );
 }
 
-/*export default*/ function DrawbacksView(props) {
-  const { drawbacks } = props;
+/*export default*/ function PlurView(props) {
+  const { plur } = props;
+  if (plur == undefined || plur.p1 == undefined) return null;
   return (
     <Card>
       <div style={{ display: "flex", textAlign: "left" }}>
         {/* <NameProgress name={"Reputation"} value={drawbacks.reputation.toNumber()} /> */}
-        <NameProgress name={"Proficiency"} value={drawbacks.proficiency.toNumber()} />
-        <NameProgress name={"Encumbrance"} value={drawbacks.encumbrance.toNumber()} />
-        <NameProgress name={"Constraint"} value={drawbacks.constraint.toNumber()} />
-        <NameProgress name={"Obstruction"} value={drawbacks.obstruction.toNumber()} />
-        <NameProgress name={"Strain"} value={drawbacks.strain.toNumber()} />
-        <NameProgress name={"Pressure"} value={drawbacks.pressure.toNumber()} />
-        <NameProgress name={"Drawback"} value={drawbacks.drawback.toNumber()} />
-        <NameProgress name={"Drawback Points"} value={drawbacks.points.toNumber()} />
+        <NameProgress name={"Peace"} value={plur.p1.toNumber()} />
+        <NameProgress name={"Love"} value={plur.p2.toNumber()} />
+        <NameProgress name={"Unity"} value={plur.p3.toNumber()} />
+        <NameProgress name={"Respect"} value={plur.p4.toNumber()} />
+        <NameProgress name={"Courage"} value={plur.p5.toNumber()} />
+        <NameProgress name={"Justice"} value={plur.p6.toNumber()} />
+        <NameProgress name={"Level"} value={plur.level.toNumber()} />
+        <NameProgress name={"PLUR Points"} value={plur.points.toNumber()} />
       </div>
     </Card>
   );
@@ -123,18 +129,19 @@ async function getPublicKey(signer) {
 
 /*export default*/ function RelatableView(props) {
   const { relatable } = props;
+  if (relatable == undefined || relatable.p1 == undefined) return null;
   return (
     <Card>
       <div style={{ display: "flex", textAlign: "left" }}>
         {/* <NameProgress name={"Reputation"} value={drawbacks.reputation.toNumber()} /> */}
-        <NameProgress name={"Identity"} value={relatable.identity.toNumber()} />
-        <NameProgress name={"Fear"} value={relatable.fear.toNumber()} />
-        <NameProgress name={"Desire"} value={relatable.desire.toNumber()} />
-        <NameProgress name={"Grief"} value={relatable.grief.toNumber()} />
-        <NameProgress name={"Love"} value={relatable.love.toNumber()} />
-        <NameProgress name={"Loss"} value={relatable.loss.toNumber()} />
-        <NameProgress name={"Humanity"} value={relatable.humanity.toNumber()} />
-        <NameProgress name={"Relatable Points"} value={relatable.points.toNumber()} />
+        <NameProgress name={"Privacy"} value={relatable.p1.toNumber()} />
+        <NameProgress name={"Interoperability"} value={relatable.p2.toNumber()} />
+        <NameProgress name={"Sovereignty"} value={relatable.p3.toNumber()} />
+        <NameProgress name={"Force for good"} value={relatable.p4.toNumber()} />
+        <NameProgress name={"Support"} value={relatable.p5.toNumber()} />
+        <NameProgress name={"Symmetry"} value={relatable.p6.toNumber()} />
+        <NameProgress name={"Level"} value={relatable.level.toNumber()} />
+        <NameProgress name={"Data Points"} value={relatable.points.toNumber()} />
       </div>
     </Card>
   );
@@ -180,10 +187,9 @@ async function getPublicKey(signer) {
   const { avatars, tx, writeContracts, avatarsLoaded } = props;
   const [triggered, setTriggered] = useState(false);
   useEffect(() => {}, [tokenName]);
-  // console.log("mintAvatar", avatars, avatarsLoaded);
-   
+
   if (avatarsLoaded == false || avatars.length != 0 || triggered == true) return <h1></h1>;
-  //return <>{avatars.length == 0 ? "Create Explorer" : { avatars }}</>;
+
   return (
     <>
       Seems like you have no meta representation in Resistance. Create your avatar to start exploring.
@@ -208,13 +214,57 @@ async function getPublicKey(signer) {
           onClick={() => {
             if (tokenName.length > 2) {
               tx(writeContracts.Avatar.mintNewAvatar(tokenName, "0x" + helpers.randomString(64)));
-              getPublicKey(props.userProviderAndSigner.signer);
+              // getPublicKey(props.userProviderAndSigner.signer);
               setTriggered(true);
             }
             //console.log(props.userProviderAndSigner.signer);
           }}
         >
           Create Avatar
+        </Button>
+      </div>
+    </>
+  );
+}
+/*export default*/ function NameAvatar(props) {
+  const [tokenName, setTokenName] = useState("");
+  const { avatars, tx, writeContracts, avatarsLoaded } = props;
+  const [ triggered, setTriggered] = useState(false);
+  useEffect(() => {}, [tokenName]);
+
+  if (avatars.length == 0 || triggered == true) return null;
+  if(avatars[0].name.length>0) return null;
+
+  return (
+    <>
+      Would you like to give a name to your Avatar ?
+      <div style={{ width: "100%" }}>
+        <Input
+          style={{ width: "80%" }}
+          min={0}
+          size="large"
+          value={tokenName}
+          placeholder="Enter Name"
+          onChange={e => {
+            try {
+              setTokenName(e.target.value);
+            } catch (e) {
+              console.log(e);
+            }
+          }}
+        />
+        <Button
+          style={{ width: "20%" }}
+          type={"primary"}
+          onClick={() => {
+            if (tokenName.length > 2) {
+              tx(writeContracts.Avatar.setName(tokenName));
+              helpers.speak(tokenName); 
+              setTriggered(true);
+            }
+          }}
+        >
+          Name Your Avatar
         </Button>
       </div>
     </>
@@ -229,6 +279,7 @@ export default function YourHome(props) {
   const [sponsorship, setSponsorship] = useState([]);
   const [membership, setMembership] = useState([]);
   const [allegiance, setAllegiance] = useState([]);
+  const [avatarTokens, setAvatarTokens] = useState([]);
   const [avatars, setAvatars] = useState([]);
   const [teams, setTeams] = useState([]);
   const [groups, setGroups] = useState([]);
@@ -279,10 +330,10 @@ export default function YourHome(props) {
     const contract = new ethers.Contract(dmCollections[contractIndex], contracts.AvatarReputation.abi, localProvider);
     return contract;
   }
-  function getAvatarDrawbackContract(contractIndex) {
+  function getAvatarPlurContract(contractIndex) {
     if (dmCollections === undefined) return null;
     const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
-    const contract = new ethers.Contract(dmCollections[contractIndex], contracts.AvatarDrawbacks.abi, localProvider);
+    const contract = new ethers.Contract(dmCollections[contractIndex], contracts.AvatarPlur.abi, localProvider);
     return contract;
   }
   function getAvatarRelatableContract(contractIndex) {
@@ -346,6 +397,8 @@ export default function YourHome(props) {
             token.avatar = avatarInfo;
             token.uri = tokenUri;
 
+            console.log("avatarInfo", avatarInfo);
+
             var abilityContract = getAvatarAbilityContract(6);
             token.ability = await helpers.makeCall("getInfo", abilityContract, [avatarInfo.skillId.toNumber()]);
 
@@ -354,8 +407,8 @@ export default function YourHome(props) {
               avatarInfo.reputationId.toNumber(),
             ]);
             //debugger;
-            var drawbacksContract = getAvatarDrawbackContract(8);
-            token.drawbacks = await helpers.makeCall("getInfo", drawbacksContract, [avatarInfo.drawbacksId.toNumber()]);
+            var plurContract = getAvatarPlurContract(8);
+            token.plur = await helpers.makeCall("getInfo", plurContract, [avatarInfo.plurId.toNumber()]);
             //debugger;
 
             var relatableContract = getAvatarRelatableContract(9);
@@ -375,6 +428,8 @@ export default function YourHome(props) {
           console.log(e);
         }
       }
+      console.log("avatarTokens", tokens);
+      setAvatarTokens(tokens);
     }
     setAvatarsLoaded(true);
     return tokens;
@@ -397,7 +452,7 @@ export default function YourHome(props) {
           <AvatarView avatar={t.avatar} />
           <AbilityView ability={t.ability} onClick={e => viewToken(t)} />
           <ReputationView reputation={t.reputation} onClick={e => viewToken(t)} />
-          <DrawbacksView drawbacks={t.drawbacks} onClick={e => viewToken(t)} />
+          <PlurView plur={t.plur} onClick={e => viewToken(t)} />
           <RelatableView relatable={t.relatable} onClick={e => viewToken(t)} />
         </div>
       );
@@ -460,14 +515,14 @@ export default function YourHome(props) {
             link={"/team/"}
             contract={team.contract}
             address={address}
-            onClickRedirect={(e) => {
+            onClickRedirect={e => {
               //viewToken(t);
               console.log("team", t);
               history.push("/team/" + t.id);
             }}
             readContracts={readContracts}
             writeContracts={writeContracts}
-            tx={tx}            
+            tx={tx}
           />
         </div>
       );
@@ -486,7 +541,7 @@ export default function YourHome(props) {
           onClick={e => viewToken(t)}
           readContracts={readContracts}
           writeContracts={writeContracts}
-          tx={tx}          
+          tx={tx}
         />
       );
     });
@@ -503,7 +558,7 @@ export default function YourHome(props) {
           onClick={e => viewToken(t)}
           readContracts={readContracts}
           writeContracts={writeContracts}
-          tx={tx}          
+          tx={tx}
         />
       );
     });
@@ -532,7 +587,7 @@ export default function YourHome(props) {
   }, [seconds]);
 
   useEffect(() => {
-    console.log("Your Home Seconds");
+    //console.log("Your Home Seconds");
     fetchAvatar();
   }, [seconds]);
 
@@ -552,15 +607,25 @@ export default function YourHome(props) {
       }}
     >
       Balance: <strong> {ethers.utils.formatEther(balance)} DMTs</strong> <br />
+      <NameAvatar
+        avatars={avatarTokens}
+        avatarsLoaded={avatarsLoaded}
+        contract={getAvatarContract(5)}
+        tx={tx}
+        writeContracts={writeContracts}
+        userProviderAndSigner={userProviderAndSigner}
+      />      
       {avatars} <br />
-      <MintAvatar
+
+      {/* <MintAvatar
         avatars={avatars}
         avatarsLoaded={avatarsLoaded}
         contract={getAvatarContract(5)}
         tx={tx}
         writeContracts={writeContracts}
         userProviderAndSigner={userProviderAndSigner}
-      />
+      /> */}
+
       <AllegianceView allegiance={allegiance} />
       <TeamsView teams={teams} />
       <GroupsView groups={groups} />

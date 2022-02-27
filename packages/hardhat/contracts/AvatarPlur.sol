@@ -6,26 +6,26 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract AvatarReputation is ERC721, Ownable { 
-    using Strings for string; 
+contract AvatarPlur is ERC721, Ownable { 
+    using Strings for string;  
     address public avatarCollection = address(0);
     struct Property { 
         uint256 avatarId;
-        uint256 p1; //visibility;  
-        uint256 p2; //distinctiveness;
-        uint256 p3;// authenticity;
-        uint256 p4; //transparency;
-        uint256 p5; // consistency; 
-        uint256 p6; //vision;  
+        uint256 p1; //peace;  
+        uint256 p2; //love;
+        uint256 p3; //unity;
+        uint256 p4; //respect;
+        uint256 p5; //courage; 
+        uint256 p6; //justice; 
         uint256 level;  
         uint256 points;        
     }
-    Property[] public properties; 
-    mapping(uint256 => uint256) avatarToThis; 
-    constructor() public ERC721("FDS AvatarReputation", "Avatar Reputation")
+    Property[] public properties;
+    mapping(uint256 => uint256) avatarToThis;  
+    constructor() ERC721("FDS AvatarPLUR", "Avatar PLUR")
     {    
     } 
-
+ 
     function setMinter(address newMinter) public {
     }
     function setAvatarCollection(address _avatarCollection) external
@@ -35,38 +35,39 @@ contract AvatarReputation is ERC721, Ownable {
     }
     function create(uint256 avatarId, address to) public returns (uint256)
     {
-        require(avatarToThis[avatarId]==0,"Avatar Has This Set");
+        require(avatarToThis[avatarId]==0,"Avatar Has PLUR");
         require(msg.sender==avatarCollection, "!collection");
 
         uint256 newId = properties.length;
-        //uint256 random = _random(randomness);
+        // uint256 random = _random(randomness);
         // always start with stats from 1 to 10 
-        /*uint256 visibility      = 0; //1 + (random % 100) % 10;
-        uint256 distinctiveness = 0; //1 + ((random % 10000) / 100 ) % 10;
-        uint256 authenticity    = 0; //1 + ((random % 1000000) / 10000 ) % 10;
-        uint256 transparency    = 0; //1 + ((random % 100000000) / 1000000 ) % 10;
-        uint256 consistency     = 0; //1 + ((random % 10000000000) / 100000000 ) % 10;
-        uint256 vision          = 0; //1 + ((random % 1000000000000) / 10000000000) % 10;
-        uint256 reputationpoints = 0;*/
-
+        /*uint256 peace = 0; //1 + (random % 100) % 10;
+        uint256 love = 0; //1 + ((random % 10000) / 100 ) % 10;
+        uint256 unity  = 0; //1 + ((random % 1000000) / 10000 ) % 10;
+        uint256 respect = 0; //1 + ((random % 100000000) / 1000000 ) % 10;
+        uint256 courage      = 0; //1 + ((random % 10000000000) / 100000000 ) % 10;
+        uint256 justice    = 0; //1 + ((random % 1000000000000) / 10000000000) % 10;
+        //uint256 experience = 2;
+        uint256 points = 0;// - (proficiency + encumbrance + constraint + obstruction + strain + pressure); // be fair and add skill points to unlucky
+        */ 
         properties.push(
             Property(
                 avatarId, 
-                0,//visibility,
-                0,//distinctiveness,
-                0,//authenticity,
-                0,//transparency,
-                0,//consistency,
-                0,//vision,
+                0,//peace,
+                0,//love,
+                0,//unity,
+                0,//respect,
+                0,//courage,
+                0,//justice,
                 0,
-                0 //reputationpoints
+                0 //points
             )
         );
         _safeMint(to, newId);
         avatarToThis[avatarId] = newId;
-        return newId; 
+        return newId;
     }
- 
+
     function _random(bytes32 input) internal view returns (uint256) {
         return uint256(keccak256(abi.encodePacked(msg.sender, input, block.timestamp, blockhash(block.number-1))));
     }
@@ -81,19 +82,19 @@ contract AvatarReputation is ERC721, Ownable {
             y = z;
             z = (x / z + z) / 2;
         }
-    }
+    } 
 
     function getLevel(uint256 tokenId) public view returns (uint256) {
         return sqrt(properties[tokenId].level);
     }
     function upgrade(uint256 tokenId,  
-            uint256 data /*
-            uint256 visibility,
-            uint256 distinctiveness,
-            uint256 authenticity,
-            uint256 transparency,
-            uint256 consistency,
-            uint256 vision*/) 
+            uint256 data/*
+            uint256 peace,
+            uint256 love,
+            uint256 unity,
+            uint256 respect,
+            uint256 courage,
+            uint256 justice*/) 
             public 
     {
         require(_isApprovedOrOwner(tokenId),"!approved");  
@@ -112,22 +113,23 @@ contract AvatarReputation is ERC721, Ownable {
                                                     properties[tokenId].p4, 
                                                     properties[tokenId].p5, 
                                                     properties[tokenId].p6);
-/*                                                    
-        require(_isApprovedOrOwner(tokenId),"!approved"); 
+
+        /*
+        require(_isApprovedOrOwner(tokenId) || msg.sender==minter,"!approved"); 
         uint available_skillpoints = properties[tokenId].points; // how much avatar can spend
-        uint skillpoints = visibility + distinctiveness + authenticity + transparency + consistency + vision; 
+        uint skillpoints = peace + love + unity + respect + courage + justice; 
         require(skillpoints<=available_skillpoints,"not enough skill points");
 
-        uint cost = calculate_exp(visibility, distinctiveness, authenticity, transparency, consistency, vision);
+        uint cost = calculate_exp(peace, love, unity, respect, courage, justice);
         
-        properties[tokenId].visibility += visibility;
-        properties[tokenId].distinctiveness += distinctiveness;
-        properties[tokenId].authenticity += authenticity;
-        properties[tokenId].transparency += transparency;
-        properties[tokenId].consistency += consistency;
-        properties[tokenId].vision += vision;
+        properties[tokenId].peace += peace;
+        properties[tokenId].love += love;
+        properties[tokenId].unity += unity;
+        properties[tokenId].respect += respect;
+        properties[tokenId].courage += courage;
+        properties[tokenId].justice += justice;
 
-        properties[tokenId].reputation += cost;
+        properties[tokenId].level += 1;
         properties[tokenId].points -= skillpoints; */
     }
     function calc(uint score) public pure returns (uint) {

@@ -41,7 +41,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     //args: [dataMarket.address, deployer],
     log: true,
   })
-  const avatarDrawbacks = await deploy('AvatarDrawbacks', {
+  const avatarPlur = await deploy('AvatarPlur', {
     from: deployer,
     //args: [dataMarket.address, deployer],
     log: true,
@@ -53,9 +53,10 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   })
   const avatar = await deploy('Avatar', {
       from: deployer,
-      args: [avatarAbility.address, avatarReputation.address, avatarDrawbacks.address, avatarRelatable.address],
+      args: [avatarAbility.address, avatarReputation.address, avatarPlur.address, avatarRelatable.address],
       log: true,
    }); 
+
 
   // called from avatar constructor  
   const avatarAbilityContract = await ethers.getContract("AvatarAbility", deployer);
@@ -64,8 +65,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const avatarReputationContract = await ethers.getContract("AvatarReputation", deployer);
   await avatarReputationContract.setAvatarCollection(avatar.address);
 
-  const avatarDrawbacksContract = await ethers.getContract("AvatarDrawbacks", deployer);
-  await avatarDrawbacksContract.setAvatarCollection(avatar.address);
+  const avatarPlurContract = await ethers.getContract("AvatarPlur", deployer);
+  await avatarPlurContract.setAvatarCollection(avatar.address);
 
   const AvatarRelatableContract = await ethers.getContract("AvatarRelatable", deployer);
   await AvatarRelatableContract.setAvatarCollection(avatar.address);
@@ -195,8 +196,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   //await dm.setController(deployer); 
 
   console.log("Treasury Exchange & DataMarket *********************************"); 
-  await dm.setTreasury(deployer); 
-  await em.setTreasury(deployer); 
+  await dm.setTreasury("0xa4E8433686D1A2ae7187D5a08d639d63Ba38A260"); // deployer
+  await em.setTreasury("0xa4E8433686D1A2ae7187D5a08d639d63Ba38A260"); // deployer
 
   const roleReview = await em.REVIEWER_ROLE()
   await em.grantRole(roleReview, deployer)
@@ -251,7 +252,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   await dm.collectionAdd(avatar.address);  
   await dm.collectionAdd(avatarAbility.address);  
   await dm.collectionAdd(avatarReputation.address);  
-  await dm.collectionAdd(avatarDrawbacks.address);  
+  await dm.collectionAdd(avatarPlur.address);  
   await dm.collectionAdd(avatarRelatable.address);  
   // add apps 
   // quake https://bee-9.gateway.ethswarm.org/bzz/2e805e4c38566d8351ccc4b255552632bf15d389d62e59939c3d6082dfcc263f/ 

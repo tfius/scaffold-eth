@@ -19,7 +19,7 @@ contract DMMarkable
        return markerOwners[tokenHash].length;
     }
     /* retrieve the list of all targeters of this NFT */
-    function getMarkerOwners(uint chainId, address nftCollection, uint256 tokenId) public view returns (address[] memory)
+    function getMarkerOwnersFor(uint chainId, address nftCollection, uint256 tokenId) public view returns (address[] memory)
     {
         return getMarkerOwners(getTokenHash(chainId, nftCollection,tokenId)); // who is targeting
     }

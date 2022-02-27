@@ -49,6 +49,7 @@ import * as helpers from "./parts/helpers";
 
 //const { ethers } = require("ethers");
 import { ethers } from "ethers";
+import AvatarTaskMint from "./parts/views/AvatarTaskMint";
 
 /*
     Welcome to 🏗 scaffold-eth !
@@ -802,6 +803,16 @@ function App(props) {
                   Avatar
                 </Link>
               </Menu.Item>
+              <Menu.Item key="/avatartaskmint">
+                <Link
+                  onClick={() => {
+                    setRoute("/avatartaskmint");
+                  }}
+                  to="/avatartaskmint"
+                >
+                  AvatarTask
+                </Link>
+              </Menu.Item>              
             </Menu>
           </>
         ) : null}
@@ -963,6 +974,21 @@ function App(props) {
             />
           </Route>
 
+          <Route path="/avatarTaskMint">
+            <AvatarTaskMint
+              dmCollections={dmCollections}
+              contractConfig={contractConfig}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              localProvider={localProvider}
+              userSigner={userSigner}
+              gasPrice={gasPrice}
+              tx={tx}
+              title="Marketplace"
+              address={address}
+              chainId={selectedChainId}
+            />
+          </Route>
           <Route path="/exchange">
             <ExchangeView
               dmCollections={dmCollections}

@@ -1,6 +1,11 @@
-# 🏗 scaffold-eth - Composable SVG NFT
+# Resistance platform 
+This project started as an adventure into scaffold-eth and extending NFTs with functionality that Swarm offers. 
+Partially a 
 
-> Demonstration showing how SVG NFTs can be composed on top of each other.
+hardhat config: polygon
+yarn generate 
+yarn account (get address of deployer)
+# 🏗 scaffold-eth - Composable SVG NFT
 
 
 ## Prerequisites

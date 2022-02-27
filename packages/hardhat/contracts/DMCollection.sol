@@ -532,10 +532,21 @@ function onERC721Received(address to, address collection, uint256 tokenId) priva
     function _baseURI() internal view virtual returns (string memory) {
         return string(abi.encodePacked(helpers.bytes32string(collectionMetadataLocation)));
     }
+    string public gateway = "https://gateway.fairdatasociety.org/bzz/";
+    function setGateway(string memory newGateway) public returns (string memory)  {
+        require(msg.sender==contractOwner || msg.sender == contractMinter,"!o");
+        gateway = newGateway;
+        return gateway;
+    }
     function tokenURI(uint256 tokenId) public view virtual returns (string memory) 
     {
         require(_exists(tokenId), "!e");
-        return string(abi.encodePacked("swarm://", helpers.bytes32string(_tokenDataLocation[tokenId])));
+
+        string memory baseURI = _baseURI();
+        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, helpers.bytes32string(_tokenDataLocation[tokenId]),"/")) : "";
+
+        //require(_exists(tokenId), "!e");
+        //return string(abi.encodePacked("swarm://", helpers.bytes32string(_tokenDataLocation[tokenId])));
     } 
     function setTokenName(uint256 tokenId, string memory name) public 
     {
