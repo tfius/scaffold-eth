@@ -158,6 +158,10 @@ const FileUpload = props => {
                       payload: {
                         title,
                         text,
+                        tokenData,
+                        contract,
+                        id,
+                        avatarToken,
                       },
                     });
                   } else {
