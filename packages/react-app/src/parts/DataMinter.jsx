@@ -12,7 +12,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Select, Button, Card, Spin, Col, Input, List, Menu, Row, notification } from "antd";
 //const { ethers } = require("ethers");
 import { ethers } from "ethers";
-import { metadataTypes } from "../state";
 
 import * as helpers from "./helpers";
 import DMTViewer from "./DMTViewer";
@@ -21,30 +20,6 @@ import SwarmLocationInput from "./SwarmLocationInput";
 import FileUpload from "./SwarmUpload/FileUpload";
 
 import { useStore } from "../state";
-
-const thumb = {
-  display: "inline-flex",
-  borderRadius: 2,
-  border: "1px solid #eaeaea",
-  marginBottom: 8,
-  marginRight: 8,
-  width: 100,
-  height: 100,
-  padding: 4,
-  boxSizing: "border-box",
-};
-
-const thumbInner = {
-  display: "flex",
-  minWidth: 0,
-  overflow: "hidden",
-};
-
-const img = {
-  display: "block",
-  width: "auto",
-  height: "100%",
-};
 
 export default function DataMinter(props) {
   const {
@@ -200,7 +175,6 @@ export default function DataMinter(props) {
     setIsApproved(false);
     setYourTokens([]);
     setYourTokenBalance(0);
-    console.log("selectedCollection", selectedCollection);
   }, [selectedCollection]);
 
   useEffect(() => {
@@ -340,99 +314,10 @@ export default function DataMinter(props) {
         <>
           <div style={{ borderRadius: "10px" }} className="ant-card-body">
             <div style={{ borderRadius: "10px", margin: "auto" }} className="ant-card-body">
-              <FileUpload onDataUpload={setLocationAddress} />
+              <FileUpload
+                options={{ tx, writeContracts, selectedCollection, address, metadataAddress, locationAddress }}
+              />
             </div>
-            {file?.filesize && file.filesize !== 0 && (
-              <>
-                <br />
-                <strong>{file?.filename}</strong> <br />
-                <small>
-                  {loading ? (
-                    <>
-                      <Spin /> {file?.mimeType}
-                    </>
-                  ) : (
-                    file?.mimeType
-                  )}
-                </small>
-                <br />
-                {file?.mimeType.includes("image") && (
-                  <>
-                    <div style={thumb}>
-                      <div style={thumbInner}>
-                        <img src={file?.previewUrl} style={img} />
-                      </div>
-                    </div>
-                    <br />
-                  </>
-                )}
-                <small>{file?.filesize} Kb</small> <br />
-                <br />
-                <span style={{ color: "red" }}> {error} </span>
-                <div hidden={hash === null}>
-                  <span>Type: </span>
-                  <Select
-                    style={{ width: "200px" }}
-                    showSearch
-                    value={file?.selectedType}
-                    onChange={value => {
-                      console.log(`selected ${value} ${metadataTypes[value].metadata}`);
-                      //setSelectedCollection(value);
-                      setMetadataAddress(metadataTypes[value].metadata);
-                      setSelectedType(metadataTypes[value].name);
-                    }}
-                  >
-                    {metadataTypes
-                      ? metadataTypes.map((collection, index) => (
-                          <Select.Option key={collection.metadata + "" + index} value={index}>
-                            {index}: {collection.name}
-                          </Select.Option>
-                        ))
-                      : null}
-                  </Select>
-                  <Input
-                    style={{ width: "80%" }}
-                    min={0}
-                    size="large"
-                    //value={postText}
-                    placeholder={"Name"}
-                    onChange={e => {
-                      try {
-                        //setPostText(e.target.value);
-                      } catch (e) {
-                        console.log(e);
-                      }
-                    }}
-                  />
-                  <Input
-                    style={{ width: "80%" }}
-                    min={0}
-                    size="large"
-                    //value={postText}
-                    placeholder={"Description"}
-                    onChange={e => {
-                      try {
-                        //setPostText(e.target.value);
-                      } catch (e) {
-                        console.log(e);
-                      }
-                    }}
-                  />
-                  <br />
-                  <Button
-                    type={"primary"}
-                    onClick={() => {
-                      dispatch({
-                        type: "CREATE_DATA_TOKEN",
-                        payload: { tx, writeContracts, selectedCollection, address, metadataAddress, locationAddress },
-                      });
-                    }}
-                  >
-                    Create
-                  </Button>
-                </div>
-              </>
-            )}
           </div>
         </>
       </div>

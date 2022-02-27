@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useReducer } from "react";
-import { uploadFileToBee } from "../parts/SwarmUpload/BeeService";
+import { uploadFileToBee, uploadJsonToBee } from "../parts/SwarmUpload/BeeService";
 import { ethers } from "ethers";
 
 const reducerActions = (state = initialState, action) => {
@@ -11,6 +11,7 @@ const reducerActions = (state = initialState, action) => {
         ...state,
         loading: true,
         error: false,
+        errorMessage: null,
         payload,
         progressCb: action.progressCb,
         upload: true,
@@ -23,6 +24,17 @@ const reducerActions = (state = initialState, action) => {
         error: false,
         payload,
         createDataToken: true,
+      };
+    case "CREATE_DATA_TOKEN_FAIL":
+      return {
+        ...state,
+        loading: false,
+        upload: false,
+        file: null,
+        createDataToken: false,
+        hash: null,
+        error: true,
+        errorMessage: payload,
       };
     case "PREVIEW_UPLOAD":
       return {
@@ -50,6 +62,7 @@ const reducerActions = (state = initialState, action) => {
     case "DONE":
       return {
         ...state,
+        error: false,
         loading: false,
         upload: false,
         file: null,
@@ -77,7 +90,7 @@ const initialState = {
   loading: false,
   file: null,
   error: false,
-  errorMessage: "",
+  errorMessage: null,
   hash: null,
 };
 
@@ -91,9 +104,12 @@ const StoreProvider = ({ children }) => {
   }, [state.upload]);
 
   useEffect(() => {
-    if (state.createDataToken) {
-      createDataToken(state.payload);
-    }
+    const process = async () => {
+      if (state.createDataToken) {
+        await createDataToken(state.payload, state.file);
+      }
+    };
+    process();
   }, [state.createDataToken]);
 
   const uploadToSwarm = async file => {
@@ -116,9 +132,51 @@ const StoreProvider = ({ children }) => {
     }
   };
 
-  const createDataToken = ({ tx, writeContracts, selectedCollection, address, metadataAddress, locationAddress }) => {
-    tx(writeContracts.DataMarket.createDataToken(selectedCollection, address, 0, metadataAddress, locationAddress));
-    dispatch({ type: "DONE" });
+  const createDataToken = async (
+    { tx, writeContracts, selectedCollection, address, metadataAddress, locationAddress, title, text },
+    file,
+  ) => {
+    try {
+      let postHash = undefined;
+      if (title || text) {
+        let post = {
+          title,
+          text,
+          type: file?.selectedType,
+          time: Date.now(),
+          address: address,
+          dataHash: locationAddress,
+        };
+        console.log("post text", post);
+        postHash = "0x" + (await uploadJsonToBee(post, "post.json"));
+        console.log("postHash", postHash);
+        console.log("metadataAddress", metadataAddress);
+      }
+      tx(
+        writeContracts.DataMarket.createDataToken(
+          selectedCollection,
+          address,
+          0,
+          postHash ? postHash : metadataAddress,
+          locationAddress,
+        ),
+        update => {
+          if (update?.error?.toString().includes("string 'ex'")) {
+            console.log("dispatch token creation error due to an existing token");
+            dispatch({ type: "CREATE_DATA_TOKEN_FAIL", payload: "Token already exists, please try another file." });
+          }
+
+          if (update && (update.status === "confirmed" || update.status === 1)) {
+            console.log(" 🍾 Transaction " + update.hash + " finished!");
+            dispatch({ type: "DONE" });
+          }
+        },
+      );
+      // tx(writeContracts.DataMarket.createDataToken(selectedCollection, address, 0, metadataAddress, locationAddress));
+    } catch (error) {
+      console.log("error creating data token", error);
+      throw error;
+    }
   };
 
   return <StoreContext.Provider value={{ state, dispatch }}> {children} </StoreContext.Provider>;
