@@ -1,39 +1,19 @@
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { uploadFileToBee } from "./BeeService";
-
-
+import { useStore } from "../../state";
 
 //const FileUpload = ({ onDataUpload, url }) => {
-const FileUpload = (props) => {
-//const { onDataUpload } = props;
+const FileUpload = props => {
+  //const { onDataUpload } = props;
+  const { dispatch } = useStore();
 
-  const onDrop = useCallback(async filesArray => {
-    try {
-      props.onCanCreate(true);
-
-      props.onError("");
-      props.onFilename(filesArray[0].name);
-      props.onFilesize((filesArray[0].size/1024).toFixed(1));
-      props.onMimeType("uploading");
-
-      const hash = await uploadFileToBee(filesArray[0]);
-      console.log("upload hash", "0x" + hash);
-      
-      props.onMimeType(filesArray[0].type);
-      props.onDataUpload("0x" + hash);
-
-      props.onCanCreate(false);
-      
-    } catch (error) {
-      console.error(error);
-      
-      props.onError(error.toString());
-      props.onMimeType("");
-      props.onFilename("");
-      props.onFilesize(0);
+  const onDrop = async files => {
+    if (files.length > 0) {
+      let file = files[0];
+      dispatch({ type: "UPLOAD_TO_SWARM", payload: file });
     }
-  }, []);
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

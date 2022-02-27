@@ -43,6 +43,7 @@ import GroupsMinter from "./parts/GroupsMinter.jsx";
 import MembershipMinter from "./parts/MembershipMinter.jsx";
 import SponsorshipMinter from "./parts/SponsorshipMinter.jsx";
 import AllegianceMinter from "./parts/AllegianceMinter.jsx";
+import { StoreProvider } from "./state";
 
 import * as helpers from "./parts/helpers";
 //import ContractABIs from "./contracts/hardhat_contracts.json";
@@ -672,171 +673,172 @@ function App(props) {
       {/* ✏️ Edit the header and change the title to your project name */}
       <Header />
       {networkDisplay}
-      <BrowserRouter>
-        {!isRelease ? (
-          <>
-            <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
-              <Menu.Item key="/loogies">
-                <Link
-                  onClick={() => {
-                    setRoute("/loogies");
-                  }}
-                  to="/loogies"
-                >
-                  Loogies
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="/loogietank">
-                <Link
-                  onClick={() => {
-                    setRoute("/loogietank");
-                  }}
-                  to="/loogietank"
-                >
-                  Loogie Tank
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="/mintloogies">
-                <Link
-                  onClick={() => {
-                    setRoute("/mintloogies");
-                  }}
-                  to="/mintloogies"
-                >
-                  Mint Loogies
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="/mintloogietank">
-                <Link
-                  onClick={() => {
-                    setRoute("/mintloogietank");
-                  }}
-                  to="/mintloogietank"
-                >
-                  Mint Loogie Tank
-                </Link>
-              </Menu.Item>
-            </Menu>
+      <StoreProvider>
+        <BrowserRouter>
+          {!isRelease ? (
+            <>
+              <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
+                <Menu.Item key="/loogies">
+                  <Link
+                    onClick={() => {
+                      setRoute("/loogies");
+                    }}
+                    to="/loogies"
+                  >
+                    Loogies
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key="/loogietank">
+                  <Link
+                    onClick={() => {
+                      setRoute("/loogietank");
+                    }}
+                    to="/loogietank"
+                  >
+                    Loogie Tank
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key="/mintloogies">
+                  <Link
+                    onClick={() => {
+                      setRoute("/mintloogies");
+                    }}
+                    to="/mintloogies"
+                  >
+                    Mint Loogies
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key="/mintloogietank">
+                  <Link
+                    onClick={() => {
+                      setRoute("/mintloogietank");
+                    }}
+                    to="/mintloogietank"
+                  >
+                    Mint Loogie Tank
+                  </Link>
+                </Menu.Item>
+              </Menu>
 
-            <Menu style={{ textAlign: "center", fontSize: "1.3vmin" }} selectedKeys={[route]} mode="horizontal">
-              <Menu.Item key="/markable">
-                <Link
-                  onClick={() => {
-                    setRoute("/markable");
-                  }}
-                  to="/markable"
-                >
-                  Markable
-                </Link>
-              </Menu.Item>
+              <Menu style={{ textAlign: "center", fontSize: "1.3vmin" }} selectedKeys={[route]} mode="horizontal">
+                <Menu.Item key="/markable">
+                  <Link
+                    onClick={() => {
+                      setRoute("/markable");
+                    }}
+                    to="/markable"
+                  >
+                    Markable
+                  </Link>
+                </Menu.Item>
 
-              <Menu.Item key="/graphable">
-                <Link
-                  onClick={() => {
-                    setRoute("/graphable");
-                  }}
-                  to="/graphable"
-                >
-                  Graphable
-                </Link>
-              </Menu.Item>
+                <Menu.Item key="/graphable">
+                  <Link
+                    onClick={() => {
+                      setRoute("/graphable");
+                    }}
+                    to="/graphable"
+                  >
+                    Graphable
+                  </Link>
+                </Menu.Item>
 
-              <Menu.Item key="/ex">
-                <Link
-                  onClick={() => {
-                    setRoute("/ex");
-                  }}
-                  to="/ex"
-                >
-                  Exchange
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="/dm">
-                <Link
-                  onClick={() => {
-                    setRoute("/dm");
-                  }}
-                  to="/dm"
-                >
-                  DataMarket
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="/dmnft">
-                <Link
-                  onClick={() => {
-                    setRoute("/dmnft");
-                  }}
-                  to="/dmnft"
-                >
-                  Collection
-                </Link>
-              </Menu.Item>
+                <Menu.Item key="/ex">
+                  <Link
+                    onClick={() => {
+                      setRoute("/ex");
+                    }}
+                    to="/ex"
+                  >
+                    Exchange
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key="/dm">
+                  <Link
+                    onClick={() => {
+                      setRoute("/dm");
+                    }}
+                    to="/dm"
+                  >
+                    DataMarket
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key="/dmnft">
+                  <Link
+                    onClick={() => {
+                      setRoute("/dmnft");
+                    }}
+                    to="/dmnft"
+                  >
+                    Collection
+                  </Link>
+                </Menu.Item>
 
-              <Menu.Item key="/goldinar">
-                <Link
-                  onClick={() => {
-                    setRoute("/goldinar");
-                  }}
-                  to="/goldinar"
-                >
-                  Goldinar
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="/goldinarfarm">
-                <Link
-                  onClick={() => {
-                    setRoute("/goldinarfarm");
-                  }}
-                  to="/goldinarfarm"
-                >
-                  Farm
-                </Link>
-              </Menu.Item>
-              <Menu.Item key="/avatarcontract">
-                <Link
-                  onClick={() => {
-                    setRoute("/avatarcontract");
-                  }}
-                  to="/avatarcontract"
-                >
-                  Avatar
-                </Link>
-              </Menu.Item>
-            </Menu>
-          </>
-        ) : null}
-        <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/">
-            <Link
-              onClick={() => {
-                setRoute("/");
-              }}
-              to="/"
-            >
-              Home
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/bank">
-            <Link
-              onClick={() => {
-                setRoute("/bank");
-              }}
-              to="/bank"
-            >
-              Bank
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/leaderboard">
-            <Link
-              onClick={() => {
-                setRoute("/leaderboard/0");
-              }}
-              to="/leaderboard/0"
-            >
-              Leaderboard
-            </Link>
-          </Menu.Item>
-          {/* <Menu.Item key="/sponsorshipminter">
+                <Menu.Item key="/goldinar">
+                  <Link
+                    onClick={() => {
+                      setRoute("/goldinar");
+                    }}
+                    to="/goldinar"
+                  >
+                    Goldinar
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key="/goldinarfarm">
+                  <Link
+                    onClick={() => {
+                      setRoute("/goldinarfarm");
+                    }}
+                    to="/goldinarfarm"
+                  >
+                    Farm
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key="/avatarcontract">
+                  <Link
+                    onClick={() => {
+                      setRoute("/avatarcontract");
+                    }}
+                    to="/avatarcontract"
+                  >
+                    Avatar
+                  </Link>
+                </Menu.Item>
+              </Menu>
+            </>
+          ) : null}
+          <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
+            <Menu.Item key="/">
+              <Link
+                onClick={() => {
+                  setRoute("/");
+                }}
+                to="/"
+              >
+                Home
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="/bank">
+              <Link
+                onClick={() => {
+                  setRoute("/bank");
+                }}
+                to="/bank"
+              >
+                Bank
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="/leaderboard">
+              <Link
+                onClick={() => {
+                  setRoute("/leaderboard/0");
+                }}
+                to="/leaderboard/0"
+              >
+                Leaderboard
+              </Link>
+            </Menu.Item>
+            {/* <Menu.Item key="/sponsorshipminter">
             <Link
               onClick={() => {
                 setRoute("/sponsorshipminter");
@@ -857,29 +859,29 @@ function App(props) {
             </Link>
           </Menu.Item> */}
 
-          <Menu.Item key="/allegianceminter">
-            <Link
-              onClick={() => {
-                setRoute("/allegianceminter");
-              }}
-              to="/allegianceminter"
-            >
-              Allegiance
-            </Link>
-          </Menu.Item>
+            <Menu.Item key="/allegianceminter">
+              <Link
+                onClick={() => {
+                  setRoute("/allegianceminter");
+                }}
+                to="/allegianceminter"
+              >
+                Allegiance
+              </Link>
+            </Menu.Item>
 
-          <Menu.Item key="/teamsminter">
-            <Link
-              onClick={() => {
-                setRoute("/teamsminter");
-              }}
-              to="/teamsminter"
-            >
-              Teams
-            </Link>
-          </Menu.Item>
+            <Menu.Item key="/teamsminter">
+              <Link
+                onClick={() => {
+                  setRoute("/teamsminter");
+                }}
+                to="/teamsminter"
+              >
+                Teams
+              </Link>
+            </Menu.Item>
 
-          {/* <Menu.Item key="/groupsminter">
+            {/* <Menu.Item key="/groupsminter">
             <Link
               onClick={() => {
                 setRoute("/groupsminter");
@@ -890,27 +892,27 @@ function App(props) {
             </Link>
           </Menu.Item>  */}
 
-          <Menu.Item key="/dataminter">
-            <Link
-              onClick={() => {
-                setRoute("/dataminter");
-              }}
-              to="/dataminter"
-            >
-              Minter
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/exchange">
-            <Link
-              onClick={() => {
-                setRoute("/exchange");
-              }}
-              to="/exchange"
-            >
-              Marketplace
-            </Link>
-          </Menu.Item>
-          {/* <Menu.Item key="/datatoken">
+            <Menu.Item key="/dataminter">
+              <Link
+                onClick={() => {
+                  setRoute("/dataminter");
+                }}
+                to="/dataminter"
+              >
+                Minter
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="/exchange">
+              <Link
+                onClick={() => {
+                  setRoute("/exchange");
+                }}
+                to="/exchange"
+              >
+                Marketplace
+              </Link>
+            </Menu.Item>
+            {/* <Menu.Item key="/datatoken">
             <Link
               onClick={() => {
                 setRoute("/datatoken");
@@ -920,73 +922,73 @@ function App(props) {
               DataToken
             </Link>
           </Menu.Item> */}
-        </Menu>
-        <Switch>
-          <Route exact path="/loogies">
-            <Contract
-              name="Loogies"
-              customContract={writeContracts && writeContracts.Loogies}
-              signer={userSigner}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-              contractConfig={contractConfig}
-            />
-          </Route>
-          <Route path="/team/:id">
-            <TeamView
-              dmCollections={dmCollections}
-              contractConfig={contractConfig}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              localProvider={localProvider}
-              userSigner={userSigner}
-              tx={tx}
-              title="Team"
-              url="/team/"
-              address={address}
-            />
-          </Route>
+          </Menu>
+          <Switch>
+            <Route exact path="/loogies">
+              <Contract
+                name="Loogies"
+                customContract={writeContracts && writeContracts.Loogies}
+                signer={userSigner}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+                contractConfig={contractConfig}
+              />
+            </Route>
+            <Route path="/team/:id">
+              <TeamView
+                dmCollections={dmCollections}
+                contractConfig={contractConfig}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                localProvider={localProvider}
+                userSigner={userSigner}
+                tx={tx}
+                title="Team"
+                url="/team/"
+                address={address}
+              />
+            </Route>
 
-          <Route path="/edittoken/:contractAddress/:id">
-            <TokenEditView
-              dmCollections={dmCollections}
-              contractConfig={contractConfig}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              localProvider={localProvider}
-              userSigner={userSigner}
-              tx={tx}
-              title="Team"
-              url="/team/"
-              address={address}
-            />
-          </Route>
+            <Route path="/edittoken/:contractAddress/:id">
+              <TokenEditView
+                dmCollections={dmCollections}
+                contractConfig={contractConfig}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                localProvider={localProvider}
+                userSigner={userSigner}
+                tx={tx}
+                title="Team"
+                url="/team/"
+                address={address}
+              />
+            </Route>
 
-          <Route path="/exchange">
-            <ExchangeView
-              dmCollections={dmCollections}
-              contractConfig={contractConfig}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              localProvider={localProvider}
-              userSigner={userSigner}
-              gasPrice={gasPrice}
-              tx={tx}
-              title="Marketplace"
-              address={address}
-              chainId={selectedChainId}
-            />
-          </Route>
-          <Route path="/leaderboard/:collectionId">
-            <Leaderboard
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              tx={tx}
-              title="Leaderboards"
-              address={address}
-            />
-            {/* <YourHome
+            <Route path="/exchange">
+              <ExchangeView
+                dmCollections={dmCollections}
+                contractConfig={contractConfig}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                localProvider={localProvider}
+                userSigner={userSigner}
+                gasPrice={gasPrice}
+                tx={tx}
+                title="Marketplace"
+                address={address}
+                chainId={selectedChainId}
+              />
+            </Route>
+            <Route path="/leaderboard/:collectionId">
+              <Leaderboard
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                tx={tx}
+                title="Leaderboards"
+                address={address}
+              />
+              {/* <YourHome
               yourDmBalance={yourDmBalance}
               yourDmNftBalance={yourDmNftBalance}
               dmCollections={dmCollections}
@@ -1000,91 +1002,91 @@ function App(props) {
               tx={tx}
               title="Home"
             />  */}
-          </Route>
-          <Route exact path="/">
-            <YourHome
-              yourDmBalance={yourDmBalance}
-              yourDmNftBalance={yourDmNftBalance}
-              dmCollections={dmCollections}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              contractConfig={contractConfig}
-              address={address}
-              userProviderAndSigner={userProviderAndSigner}
-              tx={tx}
-              title="Home"
-            />
-          </Route>
+            </Route>
+            <Route exact path="/">
+              <YourHome
+                yourDmBalance={yourDmBalance}
+                yourDmNftBalance={yourDmNftBalance}
+                dmCollections={dmCollections}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                mainnetProvider={mainnetProvider}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                address={address}
+                userProviderAndSigner={userProviderAndSigner}
+                tx={tx}
+                title="Home"
+              />
+            </Route>
 
-          <Route exact path="/bank">
-            <Farm
-              yourDmBalance={yourDmBalance}
-              yourDmNftBalance={yourDmNftBalance}
-              dmCollections={dmCollections}
-              selectedCollection={0}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              contractConfig={contractConfig}
-              address={address}
-              userSigner={userSigner}
-              userProviderAndSigner={userProviderAndSigner}
-              setSelectedCollection={setSelectedCollection}
-              collectionInformation={collectionInformation}
-              tx={tx}
-              title="Farm"
-            />
-          </Route>
+            <Route exact path="/bank">
+              <Farm
+                yourDmBalance={yourDmBalance}
+                yourDmNftBalance={yourDmNftBalance}
+                dmCollections={dmCollections}
+                selectedCollection={0}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                mainnetProvider={mainnetProvider}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                address={address}
+                userSigner={userSigner}
+                userProviderAndSigner={userProviderAndSigner}
+                setSelectedCollection={setSelectedCollection}
+                collectionInformation={collectionInformation}
+                tx={tx}
+                title="Farm"
+              />
+            </Route>
 
-          <Route exact path="/graphable">
-            <Contract
-              name="Graphable"
-              customContract={writeContracts && writeContracts.DMGraphable}
-              signer={userSigner}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-              contractConfig={contractConfig}
-            />
-          </Route>
-          <Route exact path="/avatarcontract">
-            <Contract
-              name="Avatar"
-              customContract={writeContracts && writeContracts.Avatar}
-              signer={userSigner}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-              contractConfig={contractConfig}
-            />
-          </Route>
-          <Route exact path="/ex">
-            <Contract
-              name="Exchnage"
-              customContract={writeContracts && writeContracts.ExchangeDM}
-              signer={userSigner}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-              contractConfig={contractConfig}
-            />
-          </Route>          
-          <Route exact path="/markable">
-            <Contract
-              name="Markable"
-              customContract={writeContracts && writeContracts.DMMarkable}
-              signer={userSigner}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-              contractConfig={contractConfig}
-            />
-          </Route>
+            <Route exact path="/graphable">
+              <Contract
+                name="Graphable"
+                customContract={writeContracts && writeContracts.DMGraphable}
+                signer={userSigner}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+                contractConfig={contractConfig}
+              />
+            </Route>
+            <Route exact path="/avatarcontract">
+              <Contract
+                name="Avatar"
+                customContract={writeContracts && writeContracts.Avatar}
+                signer={userSigner}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+                contractConfig={contractConfig}
+              />
+            </Route>
+            <Route exact path="/ex">
+              <Contract
+                name="Exchnage"
+                customContract={writeContracts && writeContracts.ExchangeDM}
+                signer={userSigner}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+                contractConfig={contractConfig}
+              />
+            </Route>
+            <Route exact path="/markable">
+              <Contract
+                name="Markable"
+                customContract={writeContracts && writeContracts.DMMarkable}
+                signer={userSigner}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+                contractConfig={contractConfig}
+              />
+            </Route>
 
-          {/* <Route exact path="/ex">
+            {/* <Route exact path="/ex">
             <Contract
               name="Exchange"
               signer={userSigner}
@@ -1094,61 +1096,61 @@ function App(props) {
               contractConfig={contractConfig}
             />
           </Route> */}
-          <Route exact path="/dm">
-            <Contract
-              name="DataMarket"
-              signer={userSigner}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-              contractConfig={contractConfig}
-            />
-          </Route>
-          <Route exact path="/dmnft">
-            <Contract
-              name="Collection"
-              customContract={writeContracts && writeContracts.DMCollection}
-              signer={userSigner}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-              contractConfig={contractConfig}
-            />
-          </Route>
-          <Route exact path="/goldinar">
-            <Contract
-              name="Goldinar"
-              customContract={writeContracts && writeContracts.Goldinar}
-              signer={userSigner}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-              contractConfig={contractConfig}
-            />
-          </Route>
-          <Route exact path="/goldinarfarm">
-            <Contract
-              name="Goldinar Farm"
-              customContract={writeContracts && writeContracts.GoldinarFarm}
-              signer={userSigner}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-              contractConfig={contractConfig}
-            />
-          </Route>
+            <Route exact path="/dm">
+              <Contract
+                name="DataMarket"
+                signer={userSigner}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+                contractConfig={contractConfig}
+              />
+            </Route>
+            <Route exact path="/dmnft">
+              <Contract
+                name="Collection"
+                customContract={writeContracts && writeContracts.DMCollection}
+                signer={userSigner}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+                contractConfig={contractConfig}
+              />
+            </Route>
+            <Route exact path="/goldinar">
+              <Contract
+                name="Goldinar"
+                customContract={writeContracts && writeContracts.Goldinar}
+                signer={userSigner}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+                contractConfig={contractConfig}
+              />
+            </Route>
+            <Route exact path="/goldinarfarm">
+              <Contract
+                name="Goldinar Farm"
+                customContract={writeContracts && writeContracts.GoldinarFarm}
+                signer={userSigner}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+                contractConfig={contractConfig}
+              />
+            </Route>
 
-          <Route exact path="/loogietank">
-            <Contract
-              name="LoogieTank"
-              signer={userSigner}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-              contractConfig={contractConfig}
-            />
-          </Route>
-          {/*
+            <Route exact path="/loogietank">
+              <Contract
+                name="LoogieTank"
+                signer={userSigner}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+                contractConfig={contractConfig}
+              />
+            </Route>
+            {/*
           <Route exact path="/mintloogies">
             <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               <Button
@@ -1254,7 +1256,7 @@ function App(props) {
               />
             </div>
               </Route>*/}
-          {/*    
+            {/*    
           <Route exact path="/mintloogietank">
             <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               <Button
@@ -1333,204 +1335,204 @@ function App(props) {
           </Route>
           */}
 
-          <Route exact path="/membershipminter">
-            <TemplatesMinter
-              yourDmBalance={yourDmBalance}
-              yourDmNftBalance={yourDmNftBalance}
-              dmCollections={dmCollections}
-              selectedCollection={0}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              contractConfig={contractConfig}
-              gasPrice={gasPrice}
-              address={address}
-              userSigner={userSigner}
-              userProviderAndSigner={userProviderAndSigner}
-              setSelectedCollection={setSelectedCollection}
-              collectionInformation={collectionInformation}
-              urlOpener="/membership/"
-              tx={tx}
-              title="Society Membership"
-            />
-            <MembershipMinter
-              yourDmBalance={yourDmBalance}
-              yourDmNftBalance={yourDmNftBalance}
-              dmCollections={dmCollections}
-              selectedCollection={0}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              contractConfig={contractConfig}
-              gasPrice={gasPrice}
-              address={address}
-              userSigner={userSigner}
-              userProviderAndSigner={userProviderAndSigner}
-              setSelectedCollection={setSelectedCollection}
-              collectionInformation={collectionInformation}
-              tx={tx}
-              title="Society Membership"
-            />
-          </Route>
-          <Route exact path="/sponsorshipminter">
-            <TemplatesMinter
-              yourDmBalance={yourDmBalance}
-              yourDmNftBalance={yourDmNftBalance}
-              dmCollections={dmCollections}
-              selectedCollection={1}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              contractConfig={contractConfig}
-              address={address}
-              userSigner={userSigner}
-              userProviderAndSigner={userProviderAndSigner}
-              setSelectedCollection={setSelectedCollection}
-              collectionInformation={collectionInformation}
-              urlOpener="/sponsorship/"
-              tx={tx}
-              title="Society Sponsorship"
-            />
-            <SponsorshipMinter
-              yourDmBalance={yourDmBalance}
-              yourDmNftBalance={yourDmNftBalance}
-              dmCollections={dmCollections}
-              selectedCollection={0}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              contractConfig={contractConfig}
-              gasPrice={gasPrice}
-              address={address}
-              userSigner={userSigner}
-              userProviderAndSigner={userProviderAndSigner}
-              setSelectedCollection={setSelectedCollection}
-              collectionInformation={collectionInformation}
-              tx={tx}
-              title="Society Membership"
-            />
-          </Route>
+            <Route exact path="/membershipminter">
+              <TemplatesMinter
+                yourDmBalance={yourDmBalance}
+                yourDmNftBalance={yourDmNftBalance}
+                dmCollections={dmCollections}
+                selectedCollection={0}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                mainnetProvider={mainnetProvider}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                gasPrice={gasPrice}
+                address={address}
+                userSigner={userSigner}
+                userProviderAndSigner={userProviderAndSigner}
+                setSelectedCollection={setSelectedCollection}
+                collectionInformation={collectionInformation}
+                urlOpener="/membership/"
+                tx={tx}
+                title="Society Membership"
+              />
+              <MembershipMinter
+                yourDmBalance={yourDmBalance}
+                yourDmNftBalance={yourDmNftBalance}
+                dmCollections={dmCollections}
+                selectedCollection={0}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                mainnetProvider={mainnetProvider}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                gasPrice={gasPrice}
+                address={address}
+                userSigner={userSigner}
+                userProviderAndSigner={userProviderAndSigner}
+                setSelectedCollection={setSelectedCollection}
+                collectionInformation={collectionInformation}
+                tx={tx}
+                title="Society Membership"
+              />
+            </Route>
+            <Route exact path="/sponsorshipminter">
+              <TemplatesMinter
+                yourDmBalance={yourDmBalance}
+                yourDmNftBalance={yourDmNftBalance}
+                dmCollections={dmCollections}
+                selectedCollection={1}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                mainnetProvider={mainnetProvider}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                address={address}
+                userSigner={userSigner}
+                userProviderAndSigner={userProviderAndSigner}
+                setSelectedCollection={setSelectedCollection}
+                collectionInformation={collectionInformation}
+                urlOpener="/sponsorship/"
+                tx={tx}
+                title="Society Sponsorship"
+              />
+              <SponsorshipMinter
+                yourDmBalance={yourDmBalance}
+                yourDmNftBalance={yourDmNftBalance}
+                dmCollections={dmCollections}
+                selectedCollection={0}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                mainnetProvider={mainnetProvider}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                gasPrice={gasPrice}
+                address={address}
+                userSigner={userSigner}
+                userProviderAndSigner={userProviderAndSigner}
+                setSelectedCollection={setSelectedCollection}
+                collectionInformation={collectionInformation}
+                tx={tx}
+                title="Society Membership"
+              />
+            </Route>
 
-          <Route exact path="/teamsminter">
-            <TemplatesMinter
-              yourDmBalance={yourDmBalance}
-              dmCollections={dmCollections}
-              selectedCollection={3}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              localProvider={localProvider}
-              contractConfig={contractConfig}
-              address={address}
-              setSelectedCollection={setSelectedCollection}
-              collectionInformation={collectionInformation}
-              urlOpener="/team/"
-              tx={tx}
-              title="Join or Create A Team"
-            />
-            <TeamsMinter
-              dmCollections={dmCollections}
-              selectedCollection={3}
-              writeContracts={writeContracts}
-              localProvider={localProvider}
-              contractConfig={contractConfig}
-              address={address}
-              tx={tx}
-            />
-          </Route>
-          <Route exact path="/groupsminter">
-            <TemplatesMinter
-              yourDmBalance={yourDmBalance}
-              yourDmNftBalance={yourDmNftBalance}
-              dmCollections={dmCollections}
-              selectedCollection={4}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              contractConfig={contractConfig}
-              address={address}
-              userSigner={userSigner}
-              userProviderAndSigner={userProviderAndSigner}
-              setSelectedCollection={setSelectedCollection}
-              collectionInformation={collectionInformation}
-              urlOpener="/group/"
-              tx={tx}
-              title="Join or Create A Group"
-            />
-            <GroupsMinter
-              dmCollections={dmCollections}
-              selectedCollection={4}
-              writeContracts={writeContracts}
-              localProvider={localProvider}
-              contractConfig={contractConfig}
-              address={address}
-              tx={tx}
-            />
-          </Route>
-          <Route exact path="/allegianceminter">
-            <TemplatesMinter
-              yourDmBalance={yourDmBalance}
-              yourDmNftBalance={yourDmNftBalance}
-              dmCollections={dmCollections}
-              selectedCollection={2}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              contractConfig={contractConfig}
-              address={address}
-              userSigner={userSigner}
-              userProviderAndSigner={userProviderAndSigner}
-              setSelectedCollection={setSelectedCollection}
-              collectionInformation={collectionInformation}
-              urlOpener="/allegiance/"
-              tx={tx}
-              title="Choose Allegiance"
-            />
-            <AllegianceMinter
-              yourDmBalance={yourDmBalance}
-              yourDmNftBalance={yourDmNftBalance}
-              dmCollections={dmCollections}
-              selectedCollection={selectedCollection}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              contractConfig={contractConfig}
-              address={address}
-              userSigner={userSigner}
-              userProviderAndSigner={userProviderAndSigner}
-              setSelectedCollection={setSelectedCollection}
-              collectionInformation={collectionInformation}
-              tx={tx}
-            />
-          </Route>
+            <Route exact path="/teamsminter">
+              <TemplatesMinter
+                yourDmBalance={yourDmBalance}
+                dmCollections={dmCollections}
+                selectedCollection={3}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                address={address}
+                setSelectedCollection={setSelectedCollection}
+                collectionInformation={collectionInformation}
+                urlOpener="/team/"
+                tx={tx}
+                title="Join or Create A Team"
+              />
+              <TeamsMinter
+                dmCollections={dmCollections}
+                selectedCollection={3}
+                writeContracts={writeContracts}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                address={address}
+                tx={tx}
+              />
+            </Route>
+            <Route exact path="/groupsminter">
+              <TemplatesMinter
+                yourDmBalance={yourDmBalance}
+                yourDmNftBalance={yourDmNftBalance}
+                dmCollections={dmCollections}
+                selectedCollection={4}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                mainnetProvider={mainnetProvider}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                address={address}
+                userSigner={userSigner}
+                userProviderAndSigner={userProviderAndSigner}
+                setSelectedCollection={setSelectedCollection}
+                collectionInformation={collectionInformation}
+                urlOpener="/group/"
+                tx={tx}
+                title="Join or Create A Group"
+              />
+              <GroupsMinter
+                dmCollections={dmCollections}
+                selectedCollection={4}
+                writeContracts={writeContracts}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                address={address}
+                tx={tx}
+              />
+            </Route>
+            <Route exact path="/allegianceminter">
+              <TemplatesMinter
+                yourDmBalance={yourDmBalance}
+                yourDmNftBalance={yourDmNftBalance}
+                dmCollections={dmCollections}
+                selectedCollection={2}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                mainnetProvider={mainnetProvider}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                address={address}
+                userSigner={userSigner}
+                userProviderAndSigner={userProviderAndSigner}
+                setSelectedCollection={setSelectedCollection}
+                collectionInformation={collectionInformation}
+                urlOpener="/allegiance/"
+                tx={tx}
+                title="Choose Allegiance"
+              />
+              <AllegianceMinter
+                yourDmBalance={yourDmBalance}
+                yourDmNftBalance={yourDmNftBalance}
+                dmCollections={dmCollections}
+                selectedCollection={selectedCollection}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                mainnetProvider={mainnetProvider}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                address={address}
+                userSigner={userSigner}
+                userProviderAndSigner={userProviderAndSigner}
+                setSelectedCollection={setSelectedCollection}
+                collectionInformation={collectionInformation}
+                tx={tx}
+              />
+            </Route>
 
-          <Route exact path="/dataminter">
-            <DataMinter
-              yourDmBalance={yourDmBalance}
-              yourDmNftBalance={yourDmNftBalance}
-              dmCollections={dmCollections}
-              selectedCollection={selectedCollection}
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              contractConfig={contractConfig}
-              address={address}
-              userSigner={userSigner}
-              userProviderAndSigner={userProviderAndSigner}
-              setSelectedCollection={setSelectedCollection}
-              collectionInformation={collectionInformation}
-              tx={tx}
-            />
-          </Route>
-          <Route exact path="/listtokensinselected">
-            {/* <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5 }}>
+            <Route exact path="/dataminter">
+              <DataMinter
+                yourDmBalance={yourDmBalance}
+                yourDmNftBalance={yourDmNftBalance}
+                dmCollections={dmCollections}
+                selectedCollection={selectedCollection}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                mainnetProvider={mainnetProvider}
+                localProvider={localProvider}
+                contractConfig={contractConfig}
+                address={address}
+                userSigner={userSigner}
+                userProviderAndSigner={userProviderAndSigner}
+                setSelectedCollection={setSelectedCollection}
+                collectionInformation={collectionInformation}
+                tx={tx}
+              />
+            </Route>
+            <Route exact path="/listtokensinselected">
+              {/* <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5 }}>
               Balance: <strong>{yourDmBalance} DM</strong> &nbsp; You have: <strong>{yourDmNftBalance} NFTs</strong>
             </div>
 
@@ -1597,48 +1599,50 @@ function App(props) {
                 </Button>
               </Card>
             </div> */}
-            {/* */}
-            <div style={{ width: 820, margin: "auto", paddingBottom: 256 }}>
-              <List
-                bordered
-                dataSource={yourDmNfts}
-                renderItem={item => {
-                  const id = item.id.toNumber();
-                  // console.log("NFT", id);
-                  return (
-                    <List.Item key={id + "_" + item.uri + "_" + item.owner}>
-                      <Card
-                        style={{ margin: 0, textAlign: "left" }}
-                        title={
-                          <div>
-                            <div style={{ lineHeight: 0.5 }}>
-                              <span style={{ fontSize: 15, marginRight: 8, marginTop: 10 }}>#{item.id.toNumber()}</span>
-                              <span style={{ fontSize: 5, marginRight: 8, marginTop: 1 }}>
-                                <br />
-                                {item.data.creator}
-                              </span>
+              {/* */}
+              <div style={{ width: 820, margin: "auto", paddingBottom: 256 }}>
+                <List
+                  bordered
+                  dataSource={yourDmNfts}
+                  renderItem={item => {
+                    const id = item.id.toNumber();
+                    // console.log("NFT", id);
+                    return (
+                      <List.Item key={id + "_" + item.uri + "_" + item.owner}>
+                        <Card
+                          style={{ margin: 0, textAlign: "left" }}
+                          title={
+                            <div>
+                              <div style={{ lineHeight: 0.5 }}>
+                                <span style={{ fontSize: 15, marginRight: 8, marginTop: 10 }}>
+                                  #{item.id.toNumber()}
+                                </span>
+                                <span style={{ fontSize: 5, marginRight: 8, marginTop: 1 }}>
+                                  <br />
+                                  {item.data.creator}
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        }
-                      >
-                        <div style={{ fontSize: 6, marginRight: 8 }}>Meta:{item.data.m}</div>
-                        <div style={{ fontSize: 6, marginRight: 8 }}>Data:{item.data.d}</div>
-                        <div style={{ fontSize: 6, marginRight: 8 }}>Creator:{item.data.c}</div>
-                        <div style={{ fontSize: 6, marginRight: 8 }}>Owner:{item.data.o}</div>
-                        <div style={{ fontSize: 6, marginRight: 8 }}>Name:{item.data.n}</div>
-                        <Balance address={address} provider={localProvider} price={item.data.a} />
-                        <Button
-                          style={{ display: "flex", position: "relative", right: -90, bottom: -20 }}
-                          onClick={e => {
-                            const update = {};
-                            update[id] = visibleTransfer[id] === undefined ? true : !visibleTransfer[id];
-                            setVisibleTransfer({ ...setVisibleTransfer, ...update });
-                          }}
+                          }
                         >
-                          <SendOutlined style={{ fontSize: 16 }} />
-                        </Button>
-                      </Card>
-                      {/* 
+                          <div style={{ fontSize: 6, marginRight: 8 }}>Meta:{item.data.m}</div>
+                          <div style={{ fontSize: 6, marginRight: 8 }}>Data:{item.data.d}</div>
+                          <div style={{ fontSize: 6, marginRight: 8 }}>Creator:{item.data.c}</div>
+                          <div style={{ fontSize: 6, marginRight: 8 }}>Owner:{item.data.o}</div>
+                          <div style={{ fontSize: 6, marginRight: 8 }}>Name:{item.data.n}</div>
+                          <Balance address={address} provider={localProvider} price={item.data.a} />
+                          <Button
+                            style={{ display: "flex", position: "relative", right: -90, bottom: -20 }}
+                            onClick={e => {
+                              const update = {};
+                              update[id] = visibleTransfer[id] === undefined ? true : !visibleTransfer[id];
+                              setVisibleTransfer({ ...setVisibleTransfer, ...update });
+                            }}
+                          >
+                            <SendOutlined style={{ fontSize: 16 }} />
+                          </Button>
+                        </Card>
+                        {/* 
                       <div style={{ display: "flex", position: "relative", right: -20, top: -50 }}>
                         <Button
                           onClick={e => {
@@ -1651,49 +1655,49 @@ function App(props) {
                         </Button>
                       </div> */}
 
-                      {/* <div style={{ display: "flex", position: "relative", right: -20, top: -80 }}>
+                        {/* <div style={{ display: "flex", position: "relative", right: -20, top: -80 }}>
                         <div style={{ fontSize: 6, marginRight: 8 }}>Meta:{item.data.meta}</div>
                         <div style={{ fontSize: 6, marginRight: 8 }}>Data:{item.data.data}</div>
                         <br/>
                       </div> */}
-                      <div style={{ display: "flex", position: "relative", right: -20, top: -50 }}>
-                        {visibleTransfer[id] === true ? (
-                          <div>
-                            {/* owner:{" "}
+                        <div style={{ display: "flex", position: "relative", right: -20, top: -50 }}>
+                          {visibleTransfer[id] === true ? (
+                            <div>
+                              {/* owner:{" "}
                             <Address
                               address={item.owner}
                               ensProvider={mainnetProvider}
                               blockExplorer={blockExplorer}
                               fontSize={16}
                             /> */}
-                            <div style={{ display: "flex" }}>
-                              <AddressInput
-                                ensProvider={mainnetProvider}
-                                placeholder="transfer to address"
-                                value={transferToAddresses[id]}
-                                onChange={newValue => {
-                                  const update = {};
-                                  update[id] = newValue;
-                                  setTransferToAddresses({ ...transferToAddresses, ...update });
-                                }}
-                              />
-                              <Button
-                                onClick={() => {
-                                  console.log("writeContracts", writeContracts);
-                                  //debugger;
-                                  tx(writeContracts.DMCollection.transferFrom(address, transferToAddresses[id], id));
-                                }}
-                              >
-                                Transfer
-                              </Button>
+                              <div style={{ display: "flex" }}>
+                                <AddressInput
+                                  ensProvider={mainnetProvider}
+                                  placeholder="transfer to address"
+                                  value={transferToAddresses[id]}
+                                  onChange={newValue => {
+                                    const update = {};
+                                    update[id] = newValue;
+                                    setTransferToAddresses({ ...transferToAddresses, ...update });
+                                  }}
+                                />
+                                <Button
+                                  onClick={() => {
+                                    console.log("writeContracts", writeContracts);
+                                    //debugger;
+                                    tx(writeContracts.DMCollection.transferFrom(address, transferToAddresses[id], id));
+                                  }}
+                                >
+                                  Transfer
+                                </Button>
+                              </div>
                             </div>
-                          </div>
-                        ) : null}
-                      </div>
-                    </List.Item>
-                  );
+                          ) : null}
+                        </div>
+                      </List.Item>
+                    );
 
-                  /*return (
+                    /*return (
                     <List.Item key={id + "_" + item.uri + "_" + item.owner}>
                       <Card
                         title={
@@ -1774,13 +1778,14 @@ function App(props) {
                       </div>
                     </List.Item>
                   );*/
-                }}
-              />
-            </div>
-            {/* */}
-          </Route>
-        </Switch>
-      </BrowserRouter>
+                  }}
+                />
+              </div>
+              {/* */}
+            </Route>
+          </Switch>
+        </BrowserRouter>
+      </StoreProvider>
 
       <ThemeSwitch />
 

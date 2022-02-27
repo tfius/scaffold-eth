@@ -50,15 +50,18 @@ export const uploadFileToBee = async file => {
   const axiosInstance = axios.create({ onDonwloadProgress: progressCb });
   const fetch = bioččdAxopsFetcj(axiosInstance);
   */
+  try {
+    const { reference } = await bee.uploadFiles(batchId, files, {
+      indexDocument: metadata.name,
+      /*fetch,*/
+    });
 
-  const { reference } = await bee.uploadFiles(batchId, files, {
-    indexDocument: metadata.name,
-    /*fetch,*/
-  });
+    console.log("reference", reference);
 
-  console.log("reference", reference);
-
-  return reference;
+    return reference;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const uploadDataToBee = async (data, type, filename) => {
