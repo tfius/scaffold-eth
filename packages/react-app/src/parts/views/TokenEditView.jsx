@@ -224,8 +224,6 @@ export default function TokenEditView(props) {
     });
   }
 
-  console.log("file: ", file);
-
   //console.log("posts", tokenData.posts);
   //tokenData.posts.map((d, i) => {console.log(d.text)});
   return (
@@ -308,6 +306,7 @@ export default function TokenEditView(props) {
           <div style={{ textAlign: "left" }}>
             <small>{d.avatarName}</small>
           </div>
+
           <div style={{ textAlign: "center" }}>{d.title}</div>
           <div
             className="ant-card-body"
@@ -315,6 +314,12 @@ export default function TokenEditView(props) {
           >
             {d.postText}
           </div>
+          <br />
+          {d.fileHash && (
+            <a href={helpers.downloadGateway + d.fileHash?.substring(2) + "/"} target="_blank">
+              File
+            </a>
+          )}
         </div>
       ))}
 
