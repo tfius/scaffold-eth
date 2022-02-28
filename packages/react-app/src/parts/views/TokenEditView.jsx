@@ -10,7 +10,7 @@ import { useStore } from "../../state";
 
 export default function TokenEditView(props) {
   const {
-    state: { post },
+    state: { post, file },
     dispatch,
   } = useStore();
 
@@ -66,11 +66,12 @@ export default function TokenEditView(props) {
   useEffect(() => {}, [tokenData]);
 
   useEffect(() => {
-    // if (post != null) {
-    //   tokenData.posts.push(post);
-    // }
     getDMNFTToken();
   }, [post]);
+
+  useEffect(() => {
+    dispatch({ type: "RESET" });
+  }, []);
 
   useEffect(() => {
     getDMNFTToken();
@@ -223,6 +224,8 @@ export default function TokenEditView(props) {
     });
   }
 
+  console.log("file: ", file);
+
   //console.log("posts", tokenData.posts);
   //tokenData.posts.map((d, i) => {console.log(d.text)});
   return (
@@ -269,27 +272,31 @@ export default function TokenEditView(props) {
           </>
         )}
 
-        <Input
-          style={{ width: "80%" }}
-          min={0}
-          size="large"
-          value={postText}
-          placeholder={"Add your thoughts to the token, " + avatarToken.name + " ... "}
-          onChange={e => {
-            try {
-              setPostText(e.target.value);
-            } catch (e) {
-              console.log(e);
-            }
-          }}
-        />
-        <Button
-          onClick={e => {
-            addPostToToken();
-          }}
-        >
-          Append
-        </Button>
+        {file === null && (
+          <>
+            <Input
+              style={{ width: "80%" }}
+              min={0}
+              size="large"
+              value={postText}
+              placeholder={"Add your thoughts to the token, " + avatarToken.name + " ... "}
+              onChange={e => {
+                try {
+                  setPostText(e.target.value);
+                } catch (e) {
+                  console.log(e);
+                }
+              }}
+            />
+            <Button
+              onClick={e => {
+                addPostToToken();
+              }}
+            >
+              Append
+            </Button>
+          </>
+        )}
         <br />
         <div style={{ borderRadius: "10px", margin: "auto" }} className="ant-card-body">
           <FileUpload options={{ address, append: true, tokenData, contract, id, avatarToken }} />

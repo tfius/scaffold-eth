@@ -22,7 +22,7 @@ const reducerActions = (state = initialState, action) => {
     case "APPEND_DATA_TOKEN":
       return {
         ...state,
-        loading: true,
+        loading: false,
         error: false,
         payload,
         appendDataToken: true,
@@ -33,13 +33,14 @@ const reducerActions = (state = initialState, action) => {
         loading: false,
         error: false,
         payload,
+        file: null,
         appendDataToken: false,
       };
 
     case "CREATE_DATA_TOKEN":
       return {
         ...state,
-        loading: true,
+        loading: false,
         error: false,
         payload,
         createDataToken: true,
@@ -91,7 +92,8 @@ const reducerActions = (state = initialState, action) => {
         error: true,
         errorMessage: action.errorMessage,
       };
-
+    case "RESET":
+      return initialState;
     case "LOADING":
       return { ...state, loading: true, error: false };
     case "ERROR":
@@ -115,7 +117,9 @@ const initialState = {
   error: false,
   errorMessage: null,
   hash: null,
+  upload: false,
   appendDataToken: false,
+  metadataHash: null,
 };
 
 const StoreProvider = ({ children }) => {

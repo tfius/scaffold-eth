@@ -151,7 +151,6 @@ const FileUpload = props => {
               <Button
                 type={"primary"}
                 onClick={() => {
-                  console.log("append: ", append);
                   if (append) {
                     dispatch({
                       type: "APPEND_DATA_TOKEN",
@@ -184,6 +183,18 @@ const FileUpload = props => {
               >
                 {append ? "Append" : "Create"}
               </Button>
+              {append && (
+                <Button
+                  type={"primary"}
+                  onClick={() => {
+                    dispatch({
+                      type: "RESET",
+                    });
+                  }}
+                >
+                  CANCEL
+                </Button>
+              )}
             </div>
           </>
         )}
