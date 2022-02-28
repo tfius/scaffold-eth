@@ -27,7 +27,7 @@ const AudioPlayer = ({ url }) => {
 
   return (
     <div>
-      <span onClick={toggle}>{playing ? "⏸" : "▶"}</span>
+      <span onClick={toggle} style={{fontSize:"20vmin"}}>{playing ? "⏸" : "▶"}</span>
     </div>
   );
 };

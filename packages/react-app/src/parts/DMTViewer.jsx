@@ -140,7 +140,7 @@ export default function DMTViewer(props) {
 
       //var newBalance = await helpers.makeCall("balanceOf", contract, [address]);
       //if (newBalance != undefined) setYourTokenBalance(newBalance.toNumber());
-      console.log("DMTViewer", token);
+      console.log("DMTViewer", token, json);
       switch (json.type) {
         case "Audio":
           {
@@ -150,10 +150,10 @@ export default function DMTViewer(props) {
           break;
         case "Image":
           {
-            token.dataView = <img src={dataUrl} style={{ width: "10rem", maxHeight: "10rem", top: 0 }}></img>;
+            token.dataView = <img src={dataUrl} style={{ maxWidth: "100%", maxHeight: "250px", objectFit: "scale-down" }}></img>;
           }
           break;
-        case "0x0000000000000000000000000000000000000000000000000000000000000003":
+        case "Video":
           {
             token.dataView = <video controls src={dataUrl} style={{ width: "100%" }} />;
           }
@@ -176,7 +176,7 @@ export default function DMTViewer(props) {
 
         default: {
           token.dataView = (
-            <img src={dataUrl} style={{ maxWidth: "100%m", maxHeight: "250px", objectFit: "scale-down" }}></img>
+            <img src={dataUrl} style={{ maxWidth: "100%", maxHeight: "250px", objectFit: "scale-down" }}></img>
           );
           break;
         }
@@ -246,7 +246,7 @@ export default function DMTViewer(props) {
     contents: (
       <div style={{ position: "relative", maxHeight: "250px" }}>
         <div>{token.dataView}</div>
-        {details && (
+        {details && post.type==="Image" && (
           <>
           <div style={{ position: "absolute", textAlign: "center", top: "0px", bottom:"0px", left:"0px", right:"0px", background: "#000000bb" }}>
           </div>
