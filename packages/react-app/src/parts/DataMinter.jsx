@@ -24,6 +24,7 @@ import { useStore } from "../state";
 export default function DataMinter(props) {
   const {
     state: { hash, metadataHash },
+    dispatch,
   } = useStore();
 
   const [seconds, setSeconds] = useState(0);
@@ -81,6 +82,10 @@ export default function DataMinter(props) {
       setLocationAddress(hash);
     }
   }, [hash]);
+
+  useEffect(() => {
+    dispatch({ type: "RESET" });
+  }, []);
 
   useEffect(() => {
     if (metadataHash) {
@@ -321,9 +326,10 @@ export default function DataMinter(props) {
           <div style={{ borderRadius: "10px" }} className="ant-card-body">
             <div style={{ borderRadius: "10px", margin: "auto" }} className="ant-card-body">
               {tx != undefined && (
-              <FileUpload
-                options={{ tx, writeContracts, selectedCollection, address, metadataAddress, locationAddress }}
-              />)}
+                <FileUpload
+                  options={{ tx, writeContracts, selectedCollection, address, metadataAddress, locationAddress }}
+                />
+              )}
             </div>
           </div>
         </>
