@@ -156,6 +156,7 @@ const FileUpload = props => {
                     dispatch({
                       type: "APPEND_DATA_TOKEN",
                       payload: {
+                        address,
                         title,
                         text,
                         tokenData,
@@ -181,7 +182,7 @@ const FileUpload = props => {
                   }
                 }}
               >
-                {append ? "Create" : "Append"}
+                {append ? "Append" : "Create"}
               </Button>
             </div>
           </>

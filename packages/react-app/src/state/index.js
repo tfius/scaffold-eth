@@ -43,6 +43,17 @@ const reducerActions = (state = initialState, action) => {
         payload,
         createDataToken: true,
       };
+    case "CREATE_DATA_TOKEN_SUCCESS":
+      return {
+        ...state,
+        error: false,
+        loading: false,
+        upload: false,
+        file: null,
+        createDataToken: false,
+        hash: null,
+        metadataHash: payload,
+      };
     case "CREATE_DATA_TOKEN_FAIL":
       return {
         ...state,
@@ -77,16 +88,7 @@ const reducerActions = (state = initialState, action) => {
         error: true,
         errorMessage: action.errorMessage,
       };
-    case "DONE":
-      return {
-        ...state,
-        error: false,
-        loading: false,
-        upload: false,
-        file: null,
-        createDataToken: false,
-        hash: null,
-      };
+
     case "LOADING":
       return { ...state, loading: true, error: false };
     case "ERROR":
@@ -166,30 +168,22 @@ const StoreProvider = ({ children }) => {
   ) => {
     try {
       let postHash = undefined;
-      if (title || text) {
-        let post = {
-          title,
-          text,
-          type: file?.selectedType,
-          mimeHash: file?.mimeHash,
-          mimeType: file?.mimeType,
-          time: Date.now(),
-          address: address,
-          dataHash: locationAddress,
-        };
-        console.log("post text", post);
-        postHash = "0x" + (await uploadJsonToBee(post, "post.json"));
-        console.log("postHash", postHash);
-        console.log("metadataAddress", metadataAddress);
-      }
+      let post = {
+        title,
+        text,
+        type: file?.selectedType,
+        mimeHash: file?.mimeHash,
+        mimeType: file?.mimeType,
+        time: Date.now(),
+        address: address,
+        dataHash: locationAddress,
+      };
+      console.log("post text", post);
+      postHash = "0x" + (await uploadJsonToBee(post, "post.json"));
+      console.log("postHash", postHash);
+      console.log("metadataAddress", metadataAddress);
       tx(
-        writeContracts.DataMarket.createDataToken(
-          selectedCollection,
-          address,
-          0,
-          postHash ? postHash : metadataAddress,
-          locationAddress,
-        ),
+        writeContracts.DataMarket.createDataToken(selectedCollection, address, 0, postHash, locationAddress),
         update => {
           if (update?.error?.toString().includes("string 'ex'")) {
             console.log("dispatch token creation error due to an existing token");
@@ -198,7 +192,7 @@ const StoreProvider = ({ children }) => {
 
           if (update && (update.status === "confirmed" || update.status === 1)) {
             console.log(" 🍾 Transaction " + update.hash + " finished!");
-            dispatch({ type: "DONE" });
+            dispatch({ type: "CREATE_DATA_TOKEN_SUCCESS", payload: postHash });
           }
         },
       );
@@ -209,12 +203,12 @@ const StoreProvider = ({ children }) => {
     }
   };
 
-  const appendDataToken = async ({ title, postText, address, avatarToken, tokenData, contract, id }, hash) => {
-    console.log("appendDataToken", { title, postText, address, avatarToken, tokenData, contract, id }, hash);
+  const appendDataToken = async ({ title, postText, text, address, avatarToken, tokenData, contract, id }, hash) => {
+    console.log("appendDataToken", { title, postText, text, address, avatarToken, tokenData, contract, id }, hash);
     console.log("avatarToken", avatarToken);
     var post = {
       title,
-      postText,
+      postText: postText ? postText : text,
       address: address,
       time: Date.now(),
       avatarId: avatarToken?.id,

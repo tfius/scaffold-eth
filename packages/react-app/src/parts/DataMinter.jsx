@@ -23,7 +23,7 @@ import { useStore } from "../state";
 
 export default function DataMinter(props) {
   const {
-    state: { hash },
+    state: { hash, metadataHash },
   } = useStore();
 
   const [seconds, setSeconds] = useState(0);
@@ -81,6 +81,12 @@ export default function DataMinter(props) {
       setLocationAddress(hash);
     }
   }, [hash]);
+
+  useEffect(() => {
+    if (metadataHash) {
+      setMetadataAddress(metadataHash);
+    }
+  }, [metadataHash]);
 
   const updateContract = useCallback(async () => {
     setMetadataAddress("0x0000000000000000000000000000000000000000000000000000000000000000");
