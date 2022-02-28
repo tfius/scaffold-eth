@@ -141,18 +141,16 @@ export default function DMTViewer(props) {
       //var newBalance = await helpers.makeCall("balanceOf", contract, [address]);
       //if (newBalance != undefined) setYourTokenBalance(newBalance.toNumber());
       console.log("DMTViewer", token);
-      switch (token.m) {
-        case "0x0000000000000000000000000000000000000000000000000000000000000001":
+      switch (json.type) {
+        case "Audio":
           {
-            token.dataView = <AudioPlayer url={dataUrl} />;
+            token.dataView = <div><AudioPlayer url={dataUrl} />
+                            </div>;
           }
           break;
-        case "0x0000000000000000000000000000000000000000000000000000000000000002":
+        case "Image":
           {
-            // {dataUrl} {JSON.stringify(token)}
-            token.dataView = (
-              <img src={dataUrl} style={{ width: "19rem", height: "19rem", objectFit: "scale-down", top: 0 }}></img>
-            );
+            token.dataView = <img src={dataUrl} style={{ width: "10rem", maxHeight: "10rem", top: 0 }}></img>;
           }
           break;
         case "0x0000000000000000000000000000000000000000000000000000000000000003":
@@ -177,10 +175,52 @@ export default function DMTViewer(props) {
           break;
 
         default: {
-          token.dataView = <img src={dataUrl} style={{ width: "100%" }}></img>;
+          token.dataView = (
+            <img src={dataUrl} style={{ maxWidth: "100%m", maxHeight: "250px", objectFit: "scale-down" }}></img>
+          );
           break;
         }
       }
+      /*
+      switch (token.m) {
+        case "0x0000000000000000000000000000000000000000000000000000000000000001":
+          {
+            token.dataView = <AudioPlayer url={dataUrl} />;
+          }
+          break;
+        case "0x0000000000000000000000000000000000000000000000000000000000000002":
+          {
+            token.dataView = <img src={dataUrl} style={{ width: "10rem", maxHeight: "10rem", top: 0 }}></img>;
+          }
+          break;
+        case "0x0000000000000000000000000000000000000000000000000000000000000003":
+          {
+            token.dataView = <video controls src={dataUrl} style={{ width: "100%" }} />;
+          }
+          break;
+        case "0x0000000000000000000000000000000000000000000000000000000000000004":
+          {
+            token.dataView = (
+              <Canvas>
+                <Suspense fallback={<Loader />}>
+                  <ErrorBoundary>
+                    <Model />
+                  </ErrorBoundary>
+                  <OrbitControls />
+                  <Environment preset="forest" background />
+                </Suspense>
+              </Canvas>
+            );
+          }
+          break;
+
+        default: {
+          token.dataView = (
+            <img src={dataUrl} style={{ maxWidth: "100%m", maxHeight: "250px", objectFit: "scale-down" }}></img>
+          );
+          break;
+        }
+      }*/
     }
 
     //console.log(token);
@@ -204,17 +244,23 @@ export default function DMTViewer(props) {
   };
   const contentListNoTitle = {
     contents: (
-      <div>
-        {token.dataView}
-        <div style={{ position: "absolute", textAlign: "center", float: "center" }}>
-          <h2>{post.title}</h2>
-          <span>{post.text}</span>
-        </div>
+      <div style={{ position: "relative", maxHeight: "250px" }}>
+        <div>{token.dataView}</div>
+        {details && (
+          <>
+          <div style={{ position: "absolute", textAlign: "center", top: "0px", bottom:"0px", left:"0px", right:"0px", background: "#000000bb" }}>
+          </div>
+            <div style={{ position: "absolute", textAlign: "center", top: "1rem", width: "100%" }}>
+              <h2>{post.title}</h2>
+              <div style={{ position: "relative", maxHeight: "100px", overflow: "hidden" }}>{post.text}</div>
+            </div>
+          </>
+        )}
       </div>
     ),
     info: (
       <div style={{ lineHeight: "1.5rem", textAlign: "center", padding: "10px" }}>
-        <h2>Token</h2>
+        {/* <h2>Token</h2> */}
         <div>
           <a
             href={token.tokenUri.replace("swarm://", helpers.downloadGateway) + "/"}
@@ -233,6 +279,10 @@ export default function DMTViewer(props) {
           >
             Append Data
           </a>
+        </div>
+        <div>
+            <h4>{post.type}</h4>
+            <h4>{post.mimeType}</h4>
         </div>
         <div>
           Owner: <span style={{ fontSize: "0.4rem" }}>{token.o}</span>
