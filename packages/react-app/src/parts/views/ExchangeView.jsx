@@ -133,10 +133,10 @@ export default function ExchangeView(props) {
 
     setCategories(cats);
     setCategory(cats[0].bytes32);
-    console.log("known categories ", cats);
+    //console.log("known categories ", cats);
 
     var numCategories = await readContracts.ExchangeDM.numCategories();
-    console.log("CategoriesCount", numCategories.toString());
+    //console.log("CategoriesCount", numCategories.toString());
     setNumCategories(numCategories.toNumber());
   }, [readContracts, category, numCategories]);
 
@@ -214,7 +214,7 @@ export default function ExchangeView(props) {
   const getYourOrdersCount = useCallback(async () => {
     if (readContracts == undefined || readContracts.ExchangeDM == undefined) return;
     var yourOrdersCount = await readContracts.ExchangeDM.numSellerOrders(address);
-    console.log("YourOrdersCount", yourOrdersCount.toString());
+    // console.log("YourOrdersCount", yourOrdersCount.toString());
     setSellerOrders(yourOrdersCount.toNumber());
   });
 
@@ -235,7 +235,7 @@ export default function ExchangeView(props) {
       try {
         const orderNE = await readContracts.ExchangeDM.orders(i);
         var order = Object.assign([], orderNE);
-        console.log("order", order);
+        //console.log("order", order);
 
         ordersList.push(order);
       } catch (error) {
@@ -255,11 +255,11 @@ export default function ExchangeView(props) {
       currentOrder.nftCollection,
       currentOrder.tokenId,
     );
-    console.log("markableTokenHash", markableTokenHash);
+    //console.log("markableTokenHash", markableTokenHash);
     currentOrder.markableTokenHash = markableTokenHash;
 
     var markerOwners = await readContracts.DMMarkable.getMarkerOwners(markableTokenHash); //chainId, currentOrder.nftCollection, currentOrder.tokenId);
-    console.log("markerOwners", markerOwners);
+    //console.log("markerOwners", markerOwners);
 
     for (var i = 0; i < markerOwners.length; i++) {
       if (markerOwners[i] == address) {
@@ -408,6 +408,7 @@ export default function ExchangeView(props) {
                   onClick={e => {
                     setCurrentOrder(order);
                     setOpenDetails(true);
+                    console.log("order", order);
                   }}
                 >
                   {/* <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
@@ -524,7 +525,7 @@ export default function ExchangeView(props) {
         </Card>
       </div>
 
-      <div style={{ marginTop: "10rem" }}>
+      {/* <div style={{ marginTop: "10rem" }}>
         {orders.map((order, i) => {
           return (
             <Card key={i}>
@@ -541,8 +542,6 @@ export default function ExchangeView(props) {
                   <span>Category {order.category}</span>
                   <br />
                   <span>ordIdx {order.orderIndex.toString()} </span>
-                  {/* <span>catIdx {order.categoryIndex.toString()} </span>
-                  <span>selIdx {order.sellerIndex.toString()} </span> */}
                   <br />
                   <span>Sell {order.sellable.toString()}</span>
                   <br />
@@ -550,11 +549,10 @@ export default function ExchangeView(props) {
                   <br />
                 </div>
               </div>
-              {/* <Card.Meta title={"Reviews in queue:"} description="" /> */}
             </Card>
           );
         })}
-      </div>
+      </div> */}
 
       {/* <Card
         title={

@@ -143,6 +143,7 @@ export default function DataMinter(props) {
               data.tokenUri = tokenUri;
               data.name = ethers.utils.toUtf8String(data.n).replace(/[^\x01-\x7F]/g, "");
               // data.isApproved = isApproved;
+              console.log("token Data", data);
 
               nfts.push(data);
               console.log(data);

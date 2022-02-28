@@ -135,7 +135,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     log: true,
   })
 
-
+/*
   console.log("SafeRangePool *********************************"); 
   const safeRangePool = await deploy('SafeRangePool', {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
@@ -143,7 +143,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     //args: ["DMNFT", "DM-C-0"],
     log: true,
   })
-
+*/
 
   console.log("Goldinar Farm *********************************"); 
   const goldinarFarm = await deploy('GoldinarFarm', {

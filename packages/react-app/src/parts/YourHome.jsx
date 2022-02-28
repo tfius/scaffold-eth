@@ -163,23 +163,23 @@ const { ability } = props;
 }
 /*export default*/ function SponsorshipView(props) {
   const { sponsorship } = props;
-  return <>{sponsorship.length == 0 ? null : <Card title={"Sponsorships"}>{sponsorship}</Card>}</>;
+  return <>{sponsorship.length == 0 ? null : <Card key="sm"  title={"Sponsorships"}>{sponsorship}</Card>}</>;
 }
 /*export default*/ function MembershipView(props) {
   const { membership } = props;
-  return <>{membership.length == 0 ? null : <Card title={"Membership"}>{membership}</Card>}</>;
+  return <>{membership.length == 0 ? null : <Card key="mm" title={"Membership"}>{membership}</Card>}</>;
 }
 /*export default*/ function TeamsView(props) {
   const { teams } = props;
-  return <>{teams.length == 0 ? null : <Card title={"Teams"}>{teams}</Card>}</>;
+  return <>{teams.length == 0 ? null : <Card key="tm" title={"Teams"}>{teams}</Card>}</>;
 }
 /*export default*/ function GroupsView(props) {
   const { groups } = props;
-  return <>{groups.length == 0 ? null : <Card title={"Groups"}>{groups}</Card>}</>;
+  return <>{groups.length == 0 ? null : <Card key="gm" title={"Groups"}>{groups}</Card>}</>;
 }
 /*export default*/ function AllegianceView(props) {
   const { allegiance } = props;
-  return <>{allegiance.length == 0 ? null : <Card title={"Allegiance"}>{allegiance}</Card>}</>;
+  return <>{allegiance.length == 0 ? null : <Card key="am" title={"Allegiance"}>{allegiance}</Card>}</>;
 }
 
 /*export default*/ function MintAvatar(props) {
@@ -402,8 +402,9 @@ export default function YourHome(props) {
             token.name = avatarInfo.name;
             token.avatar = avatarInfo;
             token.uri = tokenUri;
+            // console.log("avatar uri", token.uri);
 
-            console.log("avatarInfo", avatarInfo);
+            // console.log("avatarInfo", avatarInfo);
 
             var abilityContract = getAvatarAbilityContract(6);
             token.ability = await helpers.makeCall("getInfo", abilityContract, [avatarInfo.skillId.toNumber()]);
@@ -424,7 +425,7 @@ export default function YourHome(props) {
             //data.id = tokenId.toString();
             //data.name = ethers.utils.toUtf8String(data.n).replace(/[^\x01-\x7F]/g, "");
             tokens.push(token);
-            console.log("avatar", tokenId.toNumber(), token);
+            //console.log("avatar", tokenId.toNumber(), token);
           } catch (e) {
             console.log(e);
             //var token = {name:tokenIndex, uri: tokenInfo};
@@ -434,7 +435,7 @@ export default function YourHome(props) {
           console.log(e);
         }
       }
-      console.log("avatarTokens", tokens);
+      //console.log("avatarTokens", tokens);
       setAvatarTokens(tokens);
     }
     setAvatarsLoaded(true);
@@ -508,6 +509,11 @@ export default function YourHome(props) {
           readContracts={readContracts}
           writeContracts={writeContracts}
           tx={tx}
+          onClickRedirect={e => {
+            //viewToken(t);
+            console.log("allegiance", t);
+            history.push("/edittoken/" + alliance.contract.address + "/"+ t.id);
+          }}          
         />
       );
     });
@@ -524,14 +530,14 @@ export default function YourHome(props) {
             link={"/team/"}
             contract={team.contract}
             address={address}
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            tx={tx}
             onClickRedirect={e => {
               //viewToken(t);
               console.log("team", t);
               history.push("/edittoken/" + team.contract.address + "/"+ t.id);
-            }}
-            readContracts={readContracts}
-            writeContracts={writeContracts}
-            tx={tx}
+            }}            
           />
         </div>
       );
@@ -615,7 +621,6 @@ export default function YourHome(props) {
         textAlign: "left",
       }}
     >
-      Balance: <strong> {ethers.utils.formatEther(balance)} DMTs</strong> <br />
       <NameAvatar
         avatars={avatarTokens}
         avatarsLoaded={avatarsLoaded}
@@ -643,6 +648,7 @@ export default function YourHome(props) {
       {/* {sponsorship} */}
       {/* <SponsorshipView sponsorship={sponsorship} /> */}
       <br />
+      
       <AboutThisProject />
     </div>
   );

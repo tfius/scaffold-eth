@@ -86,6 +86,7 @@ export default function DMTViewer(props) {
   const [loadModel, setLoadModel] = useState();
 
   const [details, setDetails] = useState();
+  const [post, setPost] = useState({ title: "", type: "", text: "", mimeType: "" });
   const [approval, setApproval] = useState("Approve");
   const [tokenAskPrice, setTokenAskPrice] = useState();
   const [links, setLinks] = useState();
@@ -116,6 +117,16 @@ export default function DMTViewer(props) {
   const retrieveNFTData = useCallback(async () => {
     setLoading(true);
     if (contract != null) {
+      var json = { title: "", type: "", text: "", mimeType: "" };
+      try {
+        if (token.m != 0x0000000000000000000000000000000000000000000000000000000000000000) {
+          var url = helpers.downloadGateway + token.m.substring(2) + "/";
+          json = await (await fetch(url)).json();
+          console.log("gotPost", json);
+          setPost(json);
+        }
+      } catch (e) {}
+
       var name = await helpers.makeCall("name", contract);
       var links = await helpers.makeCall("getLinks", contract, [token.id]);
       //console.log(token.name + " links", links);
@@ -129,7 +140,7 @@ export default function DMTViewer(props) {
 
       //var newBalance = await helpers.makeCall("balanceOf", contract, [address]);
       //if (newBalance != undefined) setYourTokenBalance(newBalance.toNumber());
-
+      console.log("DMTViewer", token);
       switch (token.m) {
         case "0x0000000000000000000000000000000000000000000000000000000000000001":
           {
@@ -138,6 +149,7 @@ export default function DMTViewer(props) {
           break;
         case "0x0000000000000000000000000000000000000000000000000000000000000002":
           {
+            // {dataUrl} {JSON.stringify(token)}
             token.dataView = (
               <img src={dataUrl} style={{ width: "19rem", height: "19rem", objectFit: "scale-down", top: 0 }}></img>
             );
@@ -191,7 +203,15 @@ export default function DMTViewer(props) {
     setActiveTabKey(key);
   };
   const contentListNoTitle = {
-    contents: <p>{token.dataView}</p>,
+    contents: (
+      <div>
+        {token.dataView}
+        <div style={{ position: "absolute", textAlign: "center", float: "center" }}>
+          <h2>{post.title}</h2>
+          <span>{post.text}</span>
+        </div>
+      </div>
+    ),
     info: (
       <div style={{ lineHeight: "1.5rem", textAlign: "center", padding: "10px" }}>
         <h2>Token</h2>
@@ -205,11 +225,14 @@ export default function DMTViewer(props) {
           </a>
         </div>
         <div>
-           <a onClick={(e) => {
+          <a
+            onClick={e => {
               console.log("view", contract.address, token.id);
               history.push("/edittoken/" + contract.address + "/" + token.id);
-            }}>Append Data</a>
-           
+            }}
+          >
+            Append Data
+          </a>
         </div>
         <div>
           Owner: <span style={{ fontSize: "0.4rem" }}>{token.o}</span>
@@ -281,7 +304,8 @@ export default function DMTViewer(props) {
                 setTokenAskPrice(value);
               }}
             /> */}
-            <br/><br/>
+            <br />
+            <br />
             <Button type={"primary"} onClick={e => onListToken(token, 0)}>
               List
             </Button>
@@ -355,10 +379,7 @@ export default function DMTViewer(props) {
             }}
           >
             {tabListNoTitle.map((c, i) => (
-              <TabPane tab={c.tab} key={c.key} style={{ fontSize: "8px" }}>
-                {/* {contentListNoTitle[activeTabKey]} */}
-                {/* Content of tab {i} */}
-              </TabPane>
+              <TabPane tab={c.tab} key={c.key} style={{ fontSize: "8px" }}></TabPane>
             ))}
           </Tabs>
         ) : null}
