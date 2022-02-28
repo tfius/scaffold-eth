@@ -21,7 +21,7 @@ export default function DMTToken(props) {
       try {
         var tokenInfo = await helpers.makeCall("tokenData", contract, [tokenId.toNumber()]);
         var tokenUri = await helpers.makeCall("tokenURI", contract, [tokenId.toNumber()]);
-        console.log("DMTToken", tokenInfo, tokenUri);
+        // console.log("DMTToken", tokenInfo, tokenUri);
         //console.log("DMTToken", tokenUri);
         setTokenInfo(tokenInfo);
         setTokenUri(tokenUri);
@@ -32,7 +32,7 @@ export default function DMTToken(props) {
           if (token.m != 0x0000000000000000000000000000000000000000000000000000000000000000) {
             var url = helpers.downloadGateway + token.m.substring(2) + "/";
             json = await (await fetch(url)).json();
-            console.log("gotPost", json);
+            // console.log("gotPost", json);
             //setPost(json);
           }
         } catch (e) {}
