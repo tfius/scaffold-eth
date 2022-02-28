@@ -313,9 +313,10 @@ export default function DataMinter(props) {
         <>
           <div style={{ borderRadius: "10px" }} className="ant-card-body">
             <div style={{ borderRadius: "10px", margin: "auto" }} className="ant-card-body">
+              {tx != undefined && (
               <FileUpload
                 options={{ tx, writeContracts, selectedCollection, address, metadataAddress, locationAddress }}
-              />
+              />)}
             </div>
           </div>
         </>

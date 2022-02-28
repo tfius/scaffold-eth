@@ -83,6 +83,19 @@ export default function TokenEditView(props) {
     getDMCollectionContract(3);
   }, []);
 
+  async function getTokenOwnerAvatar(data) {
+    //console.log("Avatar", readContracts.Avatar)
+    const tokenOwnerAvatar = await readContracts.Avatar.balanceOf(data.o);
+    //console.log("tokenOwnerId", tokenOwnerAvatar);
+    //console.log("tokenInfo",tokenInfo)
+    if (tokenOwnerAvatar.toNumber() > 0) {
+      const avatarTokenId = await readContracts.Avatar.tokenOfOwnerByIndex(data.o, 0);
+      const avatarToken = await readContracts.Avatar.getAvatarInfo(avatarTokenId);
+      console.log("tokenOwnerAvatar", avatarToken);
+      //setAvatarToken(avatarToken);
+    }
+  }
+
   function getDMCollectionContract(contractIndex) {
     if (dmCollections === undefined) return null;
     const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
@@ -176,6 +189,12 @@ export default function TokenEditView(props) {
       console.log("post: ", json);
 
       setTokenData(data);
+
+      try {
+        await getTokenOwnerAvatar(data);
+      } catch (e) {
+        console.log("getTokenOwnerAvatar error", e);
+      }
     } catch (e) {
       console.log(e);
     }
@@ -231,7 +250,16 @@ export default function TokenEditView(props) {
       >
         {dataUrl && (
           <>
-            <img src={dataUrl} style={{ width: "19rem", height: "19rem", top: 0 }}></img>
+            <img
+              src={dataUrl}
+              style={{ width: "10rem", height: "10rem", top: 0 }}
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/1772/1772485.png";  
+                //e.currentTarget.src = "https://avatars.githubusercontent.com/u/45981195?s=200&v=4"
+                // "https://fairdatasociety.org/assets/assets/FDS_star…1b6a72362c79f7f8498b640da2486692bd51eaf81bd43.svg";
+              }}
+            ></img>            
             {post && (
               <>
                 <br />

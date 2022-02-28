@@ -11,7 +11,7 @@ import { SendOutlined } from "@ant-design/icons";
 import React, { useCallback, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 
-import { Button, Card, Input, Progress, Spin, Tooltip } from "antd";
+import { Button, Card, Input, notification, Progress, Spin, Tooltip } from "antd";
 //const { ethers } = require("ethers");
 import { ethers } from "ethers";
 
@@ -261,6 +261,12 @@ const { ability } = props;
               tx(writeContracts.Avatar.setName(tokenName));
               helpers.speak(tokenName); 
               setTriggered(true);
+            } else {
+              notification.error({
+                message: "Name",
+                description: "Too short, please use at least 3 characters",
+                placement: "topLeft",
+              });
             }
           }}
         >
@@ -447,7 +453,10 @@ export default function YourHome(props) {
       return (
         <div key={"tok" + i}>
           {/* <Card onClick={e => viewToken(t)} className="posParent"> */}
-          <span style={{ fontSize: "5vmin" }}>{t.name}</span>
+          <div style={{ fontSize: "5vmin", textAlign:"center" }}>
+            <div style={{background:"black"}}><img src={t.uri} style={{maxWidth:"30%"}} className="avatar" /></div>
+            <div><span style={{ fontSize: "5vmin", textAlign:"center" }}>{t.name}</span></div>
+          </div>
           {/* </Card> */}
           <AvatarView avatar={t.avatar} />
           <AbilityView ability={t.ability} onClick={e => viewToken(t)} />
@@ -518,7 +527,7 @@ export default function YourHome(props) {
             onClickRedirect={e => {
               //viewToken(t);
               console.log("team", t);
-              history.push("/team/" + t.id);
+              history.push("/edittoken/" + team.contract.address + "/"+ t.id);
             }}
             readContracts={readContracts}
             writeContracts={writeContracts}

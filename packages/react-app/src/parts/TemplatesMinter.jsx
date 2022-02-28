@@ -187,7 +187,8 @@ export default function TemplatesMinter(props) {
         onClickRedirect={e => {
           //viewToken(t);
           console.log("TemplatesMinter ", t, urlOpener);
-          history.push(urlOpener + t.id); // "/team/"
+          //history.push(urlOpener + t.id); // "/team/"
+          history.push("/edittoken/" + contract.address + "/"+ t.id);
         }}
       />
     ); //<Card>{<h2>{t.name}</h2>}</Card>;

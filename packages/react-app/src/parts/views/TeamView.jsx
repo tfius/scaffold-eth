@@ -5,7 +5,7 @@ import { notification } from "antd";
 import { ethers } from "ethers";
 import * as helpers from "./../helpers";
 import { uploadJsonToBee } from "./../SwarmUpload/BeeService";
-import Upload from "../Upload";
+//import Upload from "../Upload";
 
 // function TokenVoteView(props) {
 //   const { index, token, onVote, canVote } = props;
@@ -250,9 +250,9 @@ export default function TeamView(props) {
             }
           }}
         />
-        <span style={{ borderRadius: "10px", margin: "auto" }} className="ant-card-body">
+        {/* <span style={{ borderRadius: "10px", margin: "auto" }} className="ant-card-body">
           <Upload onDataUpload={setLocationAddress} />
-        </span>
+        </span> */}
         <Button
           onClick={e => {
             addPostToToken();
