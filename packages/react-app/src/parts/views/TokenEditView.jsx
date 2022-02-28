@@ -23,6 +23,7 @@ export default function TokenEditView(props) {
   const [tokenData, setTokenData] = useState({ name: "", links: [], parents: [], uri: "", posts: [] });
   const [avatarToken, setAvatarToken] = useState({ name: "Unknown", links: [], parents: [], uri: "", posts: [] });
   const [postText, setPostText] = useState("");
+  const [fileMetadata, setFileMetadata] = useState(null);
   const [canVote, setCanVote] = useState();
 
   //const [posts, setPosts] = useState([]);
@@ -62,16 +63,12 @@ export default function TokenEditView(props) {
     getDMNFTToken();
   }, [seconds]);
 
-  useEffect(() => {
-    if (post != null) {
-      tokenData.posts.push(post);
-    }
-  }, [post]);
-
   useEffect(() => {}, [tokenData]);
-  //useEffect(() => {}, [posts]);
 
   useEffect(() => {
+    // if (post != null) {
+    //   tokenData.posts.push(post);
+    // }
     getDMNFTToken();
   }, [post]);
 
@@ -184,7 +181,8 @@ export default function TokenEditView(props) {
       var url = helpers.downloadGateway + data.m.substring(2) + "/";
       var json = await (await fetch(url)).json();
 
-      setPostText(json);
+      setFileMetadata(json);
+      // setPostText(json);
 
       console.log("post: ", json);
 
@@ -253,19 +251,17 @@ export default function TokenEditView(props) {
             <img
               src={dataUrl}
               style={{ width: "10rem", height: "10rem", top: 0 }}
-              onError={(e) => {
+              onError={e => {
                 e.currentTarget.onerror = null;
-                e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/1772/1772485.png";  
-                //e.currentTarget.src = "https://avatars.githubusercontent.com/u/45981195?s=200&v=4"
-                // "https://fairdatasociety.org/assets/assets/FDS_star…1b6a72362c79f7f8498b640da2486692bd51eaf81bd43.svg";
+                e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/1772/1772485.png";
               }}
-            ></img>            
-            {post && (
+            ></img>
+            {fileMetadata && (
               <>
                 <br />
                 <br />
                 <span>
-                  Name: {post.title} | Description: {post.text}
+                  Name: {fileMetadata.title} | Description: {fileMetadata.text}
                 </span>
                 <br />
               </>
@@ -277,6 +273,7 @@ export default function TokenEditView(props) {
           style={{ width: "80%" }}
           min={0}
           size="large"
+          value={postText}
           placeholder={"Add your thoughts to the token, " + avatarToken.name + " ... "}
           onChange={e => {
             try {

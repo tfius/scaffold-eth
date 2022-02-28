@@ -17,6 +17,7 @@ const reducerActions = (state = initialState, action) => {
         progressCb: action.progressCb,
         upload: true,
         hash: null,
+        appendDataToken: false,
       };
     case "APPEND_DATA_TOKEN":
       return {
@@ -72,6 +73,7 @@ const reducerActions = (state = initialState, action) => {
         error: false,
         file: action.file,
         upload: true,
+        appendDataToken: false,
       };
     case "UPLOAD_SUCCESS":
       return {
@@ -80,6 +82,7 @@ const reducerActions = (state = initialState, action) => {
         upload: false,
         hash: action.hash,
         error: false,
+        appendDataToken: false,
       };
     case "UPLOAD_FAIL":
       return {
@@ -112,6 +115,7 @@ const initialState = {
   error: false,
   errorMessage: null,
   hash: null,
+  appendDataToken: false,
 };
 
 const StoreProvider = ({ children }) => {
