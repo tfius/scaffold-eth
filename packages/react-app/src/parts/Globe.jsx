@@ -50,12 +50,12 @@ export default function Globe() {
   return (
     <div className="App">
       <h1>COBE</h1>
-      <p>
+      <div>
         A lightweight (5kB) WebGL globe lib:{" "}
         <a href="https://github.com/shuding/cobe" target="_blank">
           GitHub
         </a>
-      </p>
+      </div>
       <canvas ref={canvasRef} style={{ width: 300, height: 300 }} />
     </div>
   );

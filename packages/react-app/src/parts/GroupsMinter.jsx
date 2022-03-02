@@ -82,7 +82,7 @@ export default function GroupsMinter(props) {
         }}
       />  */}
 
-      <p>
+      <div>
         <FText>Requires a Team to join a Group.</FText>
         <FText>Only members can join groups.</FText>
         <FText>Anyone can create a Group.</FText>
@@ -91,7 +91,7 @@ export default function GroupsMinter(props) {
         <FText>
           You will NOT receive any <strong>&nbsp;DMT</strong>s.{" "}
         </FText>
-      </p>
+      </div>
     </div>
   );
 }

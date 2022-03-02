@@ -26,6 +26,8 @@ export default function TokenEditView(props) {
   const [fileMetadata, setFileMetadata] = useState(null);
   const [canVote, setCanVote] = useState();
 
+  const [ownerAvatarName, setOwnerAvatarName] = useState("");
+
   //const [posts, setPosts] = useState([]);
   const [links, setLinks] = useState([]);
   const [parentLinks, setParentLinks] = useState([]);
@@ -82,21 +84,30 @@ export default function TokenEditView(props) {
   }, []);
 
   async function getTokenOwnerAvatar(data) {
+    if (data.o.toString() == readContracts.ExchangeDM.address.toLowerCase()) {
+      setOwnerAvatarName("Market's");
+      return;
+    }
     //console.log("Avatar", readContracts.Avatar)
     const tokenOwnerAvatar = await readContracts.Avatar.balanceOf(data.o);
-    //console.log("tokenOwnerId", tokenOwnerAvatar);
+    // console.log("tokenOwnerId", tokenOwnerAvatar, data.o);
     //console.log("tokenInfo",tokenInfo)
+    // debugger;
     if (tokenOwnerAvatar.toNumber() > 0) {
       const avatarTokenId = await readContracts.Avatar.tokenOfOwnerByIndex(data.o, 0);
       const avatarToken = await readContracts.Avatar.getAvatarInfo(avatarTokenId);
       console.log("tokenOwnerAvatar", avatarToken);
+      setOwnerAvatarName(avatarToken.name + "'s");
       //setAvatarToken(avatarToken);
+    } else {
+      setOwnerAvatarName("Unknown's");
     }
   }
 
   function getDMCollectionContract(contractIndex) {
     if (dmCollections === undefined) return null;
     const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
+    if(contracts==undefined) return null;
     const teamsContract = new ethers.Contract(contractAddress, contracts.DMCollection.abi, userSigner);
     setContract(teamsContract);
   }
@@ -109,6 +120,9 @@ export default function TokenEditView(props) {
     if (avatarBalance.toNumber() > 0) {
       const avatarTokenId = await readContracts.Avatar.tokenOfOwnerByIndex(address, 0);
       const avatarToken = await readContracts.Avatar.getAvatarInfo(avatarTokenId);
+      if (avatarToken.name == "") {
+        setOwnerAvatarName(address + "'s");
+      } else setOwnerAvatarName(avatarToken.name + "'s");
       //console.log("avatarToken", avatarToken);
       setAvatarToken(avatarToken);
     }
@@ -233,10 +247,10 @@ export default function TokenEditView(props) {
           <>
             <h1
               onClick={() => {
-                helpers.speak(avatarToken.name + "'s" + tokenData.name);
+                helpers.speak(ownerAvatarName.name + "'s" + tokenData.name);
               }}
             >
-              {avatarToken.name}'s {tokenData.name}
+              {ownerAvatarName} {tokenData.name}
             </h1>
 
             <div style={{ position: "absolute", right: "5px", top: "1px" }}>
@@ -312,12 +326,13 @@ export default function TokenEditView(props) {
             className="ant-card-body"
             style={{ textAlign: "left", paddingLeft: "20px", paddingTop: "0px", paddingBottom: "0px" }}
           >
-            {d.postText}<br/>
+            {d.postText}
+            <br />
 
             {d.fileHash && (
-            <a href={helpers.downloadGateway + d.fileHash?.substring(2) + "/"} target="_blank">
-              View File
-            </a>
+              <a href={helpers.downloadGateway + d.fileHash?.substring(2) + "/"} target="_blank">
+                View File
+              </a>
             )}
           </div>
         </div>
@@ -331,7 +346,7 @@ export default function TokenEditView(props) {
           </p>;
         })} */}
 
-      <small>
+      {/* <small>
         Team Members: {tokenData.links.length} Parents: {tokenData.parents.length}
         {tokenData.links.map((p, i) => (
           <div
@@ -353,10 +368,12 @@ export default function TokenEditView(props) {
             avatar {p.tokenId.toString()}
           </div>
         ))}
-      </small>
+      </small> */}
 
-      <br/>      
-      <small><strong>Resistance</strong></small>
+      <br />
+      {/* <small>
+        <strong>Resistance</strong>
+      </small> */}
 
       {/* {tokens.map((token, index) => {
         return <TokenVoteView key={index} index={index + 1} token={token} onVote={voteForToken} canVote={canVote} />;

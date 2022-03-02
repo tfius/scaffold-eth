@@ -90,7 +90,7 @@ export function speak(text) {
       })[0];*/
       //msg.voice = speechSynthesis.getVoices()[2];
 
-      msg.volume = 0.1;
+      msg.volume = 0.3;
       msg.rate = 1.0;
       msg.pitch = 1.2;
       msg.lang = 'fr-FR';

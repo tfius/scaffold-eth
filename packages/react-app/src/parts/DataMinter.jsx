@@ -329,7 +329,7 @@ export default function DataMinter(props) {
      <>
          <br/> 
          <h2>No Resistance Avatar</h2>
-         <p>To create new tokens you need Avatar</p> 
+         <div>To create new tokens you need Avatar</div> 
      </>)
 
   return (

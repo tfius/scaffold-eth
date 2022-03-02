@@ -276,7 +276,7 @@ export default function Farm(props) {
           
         </List>
         <br/>
-        <p>0.05% Fees go to treasury</p>
+        <div>0.05% Fees go to treasury</div>
       </div>
 
       {/* <div style={{ maxWidth: 820, margin: "auto", marginTop: 16, paddingBottom: 16 }}>

@@ -70,13 +70,13 @@ export default function MembershipMinter(props) {
 
   return (
     <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5, lineHeight: 1.5 }}>
-      <p>
+      <div>
         <FText>Become a Member.</FText>
         <FText>0.05% of your Membership will go to treasury and rest you will receive <strong>&nbsp;DM</strong>s. </FText>
         <FText>In meantime your funds can be used as flash loans by other members. </FText>
         <FText>You can liquidate your <strong>&nbsp;DM</strong>s anytime and keep Membership.</FText>
         {/* <FText>Only members can join groups. </FText> */}
-      </p>
+      </div>
       {/* <List bordered>
             <List.Item key={"memb1"}>
               <Card bordered>

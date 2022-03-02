@@ -50,13 +50,13 @@ export default function SponsorshipMinter(props) {
 
   return (
       <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5, lineHeight: 1.5 }}>
-        <p>
+        <div>
           <FText>Become sponsor and donate. </FText>
           <FText>5% of your sponsorship will go to treasury and rest you will receive <strong>&nbsp;DMT</strong>s.</FText>
           <FText>In meantime your funds can be used as flash loans by other members. </FText>
           <FText>You can liquidate your <strong>&nbsp;DMT</strong>s</FText>
           <br />
-        </p>
+        </div>
       </div>
   );
 }
