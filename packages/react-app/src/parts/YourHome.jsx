@@ -665,7 +665,7 @@ export default function YourHome(props) {
     if (isActive) {
       interval = setInterval(() => {
         setSeconds(seconds => seconds + 1);
-      }, 30000);
+      }, 40000);
     } else if (!isActive && seconds !== 0) {
       clearInterval(interval);
     }

@@ -66,7 +66,7 @@ export default function TeamView(props) {
     if (isActive) {
       interval = setInterval(() => {
         setSeconds(seconds => seconds + 1);
-      }, 15000);
+      }, 55000);
     } else if (!isActive && seconds !== 0) {
       clearInterval(interval);
     }

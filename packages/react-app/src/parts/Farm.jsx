@@ -46,7 +46,7 @@ export default function Farm(props) {
     if (isActive) {
       interval = setInterval(() => {
         setSeconds(seconds => seconds + 1);
-      }, 5000);
+      }, 15000);
     } else if (!isActive && seconds !== 0) {
       clearInterval(interval);
     }

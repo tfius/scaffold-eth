@@ -54,7 +54,7 @@ export default function TokenEditView(props) {
     if (isActive) {
       interval = setInterval(() => {
         setSeconds(seconds => seconds + 1);
-      }, 15000);
+      }, 20000);
     } else if (!isActive && seconds !== 0) {
       clearInterval(interval);
     }

@@ -92,7 +92,7 @@ export default function ExchangeView(props) {
     if (isActive) {
       interval = setInterval(() => {
         setSeconds(seconds => seconds + 1);
-      }, 25000);
+      }, 55000);
     } else if (!isActive && seconds !== 0) {
       clearInterval(interval);
     }

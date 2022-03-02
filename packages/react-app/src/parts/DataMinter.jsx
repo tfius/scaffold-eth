@@ -71,7 +71,7 @@ export default function DataMinter(props) {
     if (isActive) {
       interval = setInterval(() => {
         setSeconds(seconds => seconds + 1);
-      }, 20000);
+      }, 30000);
     } else if (!isActive && seconds !== 0) {
       clearInterval(interval);
     }
