@@ -31,7 +31,7 @@ contract Voting is AccessControl {
     _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     goldinarToken=_goldinarToken;
     avatarToken=_avatarToken; 
-  }
+  } 
 
   // This function returns the total votes a candidate has received so far
   function totalVotesFor(address collection, uint256 tokenId) view public returns (uint256) {

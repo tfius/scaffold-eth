@@ -28,10 +28,10 @@ interface IAvatarRelatable {
     function upgrade(uint256 tokenId, uint256 data /*uint256 proficiency, uint256 encumbrance, uint256 constraint, uint256 obstruction, uint256 strain, uint256 pressure*/)  external; 
 }
 
-contract Avatar is ERC721Enumerable, Ownable {
+contract Avatar is ERC721Enumerable /*, Ownable*/ {
     using Strings for string;  
     address public minter;
-    address public reviewer;
+    //address public reviewer;
     //bytes32 public constant REVIEWER_ROLE = keccak256("REVIEWER_ROLE");
     struct Character { 
         uint256 skillId;  // skill id
@@ -76,29 +76,34 @@ contract Avatar is ERC721Enumerable, Ownable {
         avatarReputation=IAvatarReputation(_avatarReputation);
         avatarPlur=IAvatarPlur(_avatarPlur);
         avatarRelatable=IAvatarRelatable(_avatarRelatable);
+        minter=msg.sender;
+    }
+
+    function create(address to, bytes32 swarmLocation) public returns (uint256) {
+        //bytes32 rRandomness = keccak256(abi.encodePacked(to, swarmLocation, block.number));
+        require(msg.sender==minter/* || msg.sender==reviewer*/, "!r");
+        uint id = createAvatar(to, "", swarmLocation);  // create without a name
+        ownerToToken[to] = id;
+        return id; 
     }
 
     function setMinter(address newMinter) public {
        // does nothing as anyone can mint Avatar
-       if(minter==address(0))
+       /*if(minter==address(0))
           minter = newMinter;
-    } 
-    function setReviewer(address newReviewer) public {
-       if(reviewer==address(0))
-       {
-          reviewer = newReviewer;
-       }
        else 
        {
-        require(msg.sender==minter, "!r");
+            require(msg.sender==minter || msg.sender==reviewer, "!r");
+             minter = newMinter;
+       }*/
+    } 
+    /*function setReviewer(address newReviewer) public {
+        require(msg.sender==minter || msg.sender==reviewer, "!r");
         reviewer = newReviewer;
-       }
-    }
+    }*/
     function mint() public returns (uint256) {
-        // add xp to avatar
-        // token 
-        require(canMint, "disabled");
-        require(block.timestamp<lastBlock, "over");
+        // add xp to avatar token 
+        require(canMint && block.timestamp<lastBlock, "over");
         uint256 tokenId = ownerToToken[msg.sender];
         require(avatars[tokenId].mint!=lastMint, "minted");
 
@@ -123,11 +128,13 @@ contract Avatar is ERC721Enumerable, Ownable {
         avatars[tokenId].mint = lastMint;
         return tokenId; 
     }
+    function canUserMint(address _user) public view returns (bool) {
+        return canMint && avatars[ownerToToken[_user]].mint!=lastMint && block.timestamp>lastBlock;
+    }
 
     function prepareMint(bool _canMint, uint256 _xp, uint256 _skill, uint256 _reputation, uint256 _plur, uint256 _relatable) public {
-        require(msg.sender == minter || msg.sender== reviewer, "!mint!review");
-        // add xp to avatar
-        // token 
+        require(msg.sender==minter, "!r");
+        // add xp to avatar - token 
         canMint = _canMint;
         taskxp = (_xp % 5001);
         taskskill =_skill;
@@ -137,7 +144,6 @@ contract Avatar is ERC721Enumerable, Ownable {
 
         lastMint = block.timestamp;
         lastBlock = lastMint + 5400; // 90min is mint time max
-        
         return; 
     }
 
@@ -147,14 +153,8 @@ contract Avatar is ERC721Enumerable, Ownable {
         avatars[tokenId].name = name;
         return true; 
     }
-    function createNew(address to, bytes32 swarmLocation) public returns (uint256) {
-        //bytes32 rRandomness = keccak256(abi.encodePacked(to, swarmLocation, block.number));
-        uint id = createAvatar(to, "", swarmLocation);  // create without a name
 
-        ownerToToken[to] = id;
-        return id; 
-    }
-
+    /*
     function mintNewAvatar(string memory avatarName) public returns (uint256) {
         //bytes32 n = keccak256(abi.encodePacked(avatarName));
         //uint256 h = uint256(n);
@@ -163,7 +163,7 @@ contract Avatar is ERC721Enumerable, Ownable {
         //nameToTokenId[n] = id; // will start with tokenId+1 so 0 is invalid 
         //tokenIdToName[id] = h;
         return id; 
-    }
+    }*/ 
 
     /*
     function getTokenIdForName(string memory avatarName) public view returns (uint256 ) {
@@ -177,7 +177,8 @@ contract Avatar is ERC721Enumerable, Ownable {
     }*/ 
     
     string public gateway = "https://gateway.fairdatasociety.org/bzz/";
-    function setGateway(string memory newGateway) public virtual onlyOwner returns (string memory)  {
+    function setGateway(string memory newGateway) public virtual returns (string memory)  {
+        require(msg.sender==minter);
         gateway = newGateway;
         return gateway;
     }
@@ -187,8 +188,7 @@ contract Avatar is ERC721Enumerable, Ownable {
     }
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        require(_exists(tokenId), "!exist");
-
+        require(_exists(tokenId), "!e");
         return string(abi.encodePacked(_baseURI(), bytes32string(avatars[tokenId].swarmLocation),"/"));
     }
 
@@ -199,7 +199,8 @@ contract Avatar is ERC721Enumerable, Ownable {
         );
         _setTokenURI(tokenId, _tokenURI);
     }*/ 
-
+    // 0xd27ffA0e47Fca8D3E757B4d2C408169859B8c419
+    // 0x94e812c9e0a874a4d5e89ae0a6ae4818c5a69f2aa43bb7c8e0345bde244d16ee
     function createAvatar(address to, string memory _avatarName, bytes32 swarmLocation) internal returns (uint256)
     {
         uint256 newId = avatars.length;
@@ -238,19 +239,19 @@ contract Avatar is ERC721Enumerable, Ownable {
     }
 
     function setCostPerH(uint tokenId, uint256 amount) public {
-        require(msg.sender==ownerOf(tokenId),"!owner");
+        require(msg.sender==ownerOf(tokenId),"!o");
         avatars[tokenId].askCostPerH = amount;
     }
 
     function journeyStart(uint tokenId) public {
-        require(_isApprovedOrOwner(tokenId),"!appr!owner");
-        require(avatars[tokenId].journey<1,"on journey");
+        require(_isApprovedOrOwner(tokenId),"!a!o");
+        require(avatars[tokenId].journey<1,"j");
         avatars[tokenId].journey = block.timestamp;
-    }
+    } 
 
     function journeyFinish(uint tokenId) public {
-        require(_isApprovedOrOwner(tokenId));
-        require(avatars[tokenId].journey>0,"stalling");
+        require(_isApprovedOrOwner(tokenId)); 
+        require(avatars[tokenId].journey>0,"!j");
         //uint diff = (block.timestamp - avatars[tokenId].journey) / 60 / 60 / 24; // in days 
         avatars[tokenId].lastJourneyDuration = (block.timestamp - avatars[tokenId].journey);
         
@@ -274,7 +275,6 @@ contract Avatar is ERC721Enumerable, Ownable {
             s[i*2]   = char(hi);
             s[i*2+1] = char(lo);            
         } 
-
         out = string(s);
     }
     function char(bytes1 b) internal pure returns (bytes1 c) {

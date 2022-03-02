@@ -27,6 +27,8 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 // Select the network you want to deploy to here:
 //
 const defaultNetwork = "localhost";
+//const defaultNetwork = "mumbai";
+//const defaultNetwork = "polygon";
 
 const mainnetGwei = 21;
 
@@ -54,16 +56,24 @@ module.exports = {
   // Follow the directions, and uncomment the network you wish to deploy to.
 
   networks: {
+    // hardhat: {
+    //   chainId: 1337
+    // },    
     localhost: {
       url: "http://localhost:8545",
+      //chainId: 31337,
       //blockGasLimit: 0x1fffffffffffff,
       //allowUnlimitedContractSize: true,
       /*      
         notice no mnemonic here? it will just use account 0 of the hardhat node to deploy
         (you can put in a mnemonic here to set the deployer locally)
       
-      */
+        // accounts: {
+        //   mnemonic: mnemonic(),
+        // },
+      */  
     },
+
 
     // rinkeby: {
     //   url: `https://rinkeby.infura.io/v3/${process.env.RINKEBY_INFURA_KEY}`,
@@ -145,22 +155,26 @@ module.exports = {
       },
     },
     polygon: {
-      url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXx/polygon/mainnet",// <---- YOUR MORALIS ID! (not limited to infura)
-      gasPrice: 1000000000,
+      //url: "https://rpc-mainnet.maticvigil.com/v1/eeb6bdd6caa1f83d46dcddb4910f7b9392f6d168", 
+      url: "https://polygon-rpc.com/",
+      //url: "https://speedy-nodes-nyc.moralis.io/37b85b4e252fff92aab52777/polygon/mainnet",// <---- YOUR MORALIS ID! (not limited to infura)
+      gasPrice: 35132358962,
       accounts: {
         mnemonic: mnemonic(),
       },
     },     
-    polytest: {
-      url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXXXXX/polygon/mumbai",// <---- YOUR MORALIS ID! (not limited to infura)
-      gasPrice: 1000000000,
+    mumbai: {
+      //url: "https://rpc-mumbai.maticvigil.com/v1/eeb6bdd6caa1f83d46dcddb4910f7b9392f6d168", 
+      url: "https://speedy-nodes-nyc.moralis.io/37b85b4e252fff92aab52777/polygon/mumbai",// <---- YOUR MORALIS ID! (not limited to infura)
+      gasPrice: 3000000000,
       accounts: {
         mnemonic: mnemonic(),
       },
-    },    
+    }, 
 
     matic: {
-      url: "https://rpc-mainnet.maticvigil.com/",
+      //url: "https://rpc-mainnet.maticvigil.com/v1/eeb6bdd6caa1f83d46dcddb4910f7b9392f6d168", //"https://rpc-mainnet.maticvigil.com/",
+      url: "https://speedy-nodes-nyc.moralis.io/37b85b4e252fff92aab52777/polygon/mainnet",
       gasPrice: 1000000000,
       accounts: {
         mnemonic: mnemonic(),

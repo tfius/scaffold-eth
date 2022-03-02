@@ -40,7 +40,7 @@ export const makeCall = async (callName, contract, args, metadata = {}) => {
 
 // deep find
 export function findPropertyInObject(propertyName, object) {
-  if (object === undefined) return null;
+  if (object === undefined || object === null) return null;
   if (object.hasOwnProperty(propertyName)) return object[propertyName];
 
   for (var i = 0; i < Object.keys(object).length; i++) {

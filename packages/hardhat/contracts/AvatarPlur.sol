@@ -18,7 +18,7 @@ contract AvatarPlur is ERC721, Ownable {
         uint256 p5; //courage; 
         uint256 p6; //justice; 
         uint256 level;  
-        uint256 points;        
+        uint256 points;         
     }
     Property[] public properties;
     mapping(uint256 => uint256) avatarToThis;  
@@ -30,7 +30,8 @@ contract AvatarPlur is ERC721, Ownable {
     }
     function setAvatarCollection(address _avatarCollection) external
     {    
-        require(avatarCollection==address(0), "already set"); 
+        require(owner()==msg.sender,"!r");
+        //require(avatarCollection==address(0), "already set"); 
         avatarCollection = _avatarCollection; 
     }
     function create(uint256 avatarId, address to) public returns (uint256)

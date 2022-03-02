@@ -92,7 +92,7 @@ export default function ExchangeView(props) {
     if (isActive) {
       interval = setInterval(() => {
         setSeconds(seconds => seconds + 1);
-      }, 5000);
+      }, 25000);
     } else if (!isActive && seconds !== 0) {
       clearInterval(interval);
     }
@@ -103,10 +103,10 @@ export default function ExchangeView(props) {
     getNumOrders();
     getCategories();
     getYourOrdersCount();
+    getAllCategoryOrders();
   }, []);
 
   useEffect(() => {
-    getAllCategoryOrders();
     getNumOrders();
   }, [seconds]);
 

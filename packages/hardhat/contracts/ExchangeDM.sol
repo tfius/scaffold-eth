@@ -62,12 +62,13 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
   uint256 private marketFee = 50; // 0.05%
 
   function setTreasury(address newTreasury) public  {
-      if(contractTresury==address(0))
+      /*if(contractTresury==address(0))
       {
           contractTresury = payable(newTreasury);
-          return;
+          return; 
       }
-      require(msg.sender==contractTresury, "!o");
+      require(msg.sender==contractTresury, "!o");*/
+      require(hasRole(DEFAULT_ADMIN_ROLE,msg.sender),"!a");
       contractTresury = payable(newTreasury); 
   }
 
@@ -166,7 +167,7 @@ contract ExchangeDM is ReentrancyGuard, Ownable, AccessControl {
       Order memory order = orders[hashToOrder[_tokenHash]];
       require (order.seller == msg.sender || hasRole(REVIEWER_ROLE, msg.sender) || hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "Not authorized");
 
-      ERC721(order.nftCollection).safeTransferFrom(address(this), msg.sender, order.tokenId, "");  
+      ERC721(order.nftCollection).safeTransferFrom(address(this), order.seller, order.tokenId, "");  
       removeOrder(_tokenHash);
       
       emit OrderCanceled(_tokenHash, order.seller);

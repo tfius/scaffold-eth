@@ -38,6 +38,7 @@ export default function DataMinter(props) {
   const [collectionName, setCollectionName] = useState([]);
   const [collectionSymbol, setCollectionSymbol] = useState([]);
 
+  const [hasAvatar, setHasAvatar] = useState(false);
   const [yourTokenBalance, setYourTokenBalance] = useState([]);
   const [yourTokens, setYourTokens] = useState([]);
   const [mimeHash, setMimeHash] = useState();
@@ -70,7 +71,7 @@ export default function DataMinter(props) {
     if (isActive) {
       interval = setInterval(() => {
         setSeconds(seconds => seconds + 1);
-      }, 10000);
+      }, 20000);
     } else if (!isActive && seconds !== 0) {
       clearInterval(interval);
     }
@@ -95,6 +96,12 @@ export default function DataMinter(props) {
 
   const updateContract = useCallback(async () => {
     setMetadataAddress("0x0000000000000000000000000000000000000000000000000000000000000000");
+    try {
+      const a = await readContracts.Avatar.balanceOf(address);
+      if(a.toNumber()>0) setHasAvatar(true);
+    } catch (e) {
+
+    }
 
     if (dmCollections === undefined) return;
     const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
@@ -314,6 +321,16 @@ export default function DataMinter(props) {
       var res = await tx(writeContracts.Voting.voteFor(contract.address, token.id));
     }
   }*/
+  // const uniqueArray = a.filter(function(item, pos) {
+  //   return a.indexOf(item) == pos;
+  // })
+  //console.log(dmCollections)
+  if(!hasAvatar) return (
+     <>
+         <br/> 
+         <h2>No Resistance Avatar</h2>
+         <p>To create new tokens you need Avatar</p> 
+     </>)
 
   return (
     <div style={{ maxWidth: 1000, margin: "auto", marginTop: 16, paddingBottom: 16 }}>
@@ -348,7 +365,7 @@ export default function DataMinter(props) {
       {/* <div style={{ width: "80%", margin: "auto" }}>{yourTokenBalance > 0 ? <>{tokList} </> : null}</div> */}
 
 
-      {/* <div style={{ width: "80%", margin: "auto" }}>
+     {/* <div style={{ width: "80%", margin: "auto" }}>
         <Card>
           <Select
             showSearch
@@ -360,7 +377,7 @@ export default function DataMinter(props) {
           >
             {dmCollections
               ? dmCollections.map((collection, index) => (
-                  <Select.Option key={collection} value={index}>
+                  <Select.Option key={collection + "-" + index} value={index}>
                     {index}: {collection}
                   </Select.Option>
                 ))
@@ -401,7 +418,7 @@ export default function DataMinter(props) {
             Create
           </Button>
         </Card>
-      </div> */}
+      </div>   */}
 
 
       {/* <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5, lineHeight: 1.2 }}>

@@ -20,7 +20,7 @@ contract DMAddressable {
     }
     function dataLocationCount(uint256 tokenId) public view returns (uint256) {
         return dataLocations[tokenId].length; //
-    }
+    } 
     
     /*function addresables(uint256 tokenId) public view returns (bytes32[] memory) {
         return dataLocations[tokenId];

@@ -34,7 +34,7 @@ contract GoldinarFarm is ReentrancyGuard {
     string public   name = "Goldinar Farm";
     address public  owner;
     IERC20 public   dmToken;
-    Goldinar public goldinarToken;
+    Goldinar public goldinarToken; 
 
     uint256 public rate = 864000;    // cca 100% in a day 
     uint256 public totalStaked = 0;  // 

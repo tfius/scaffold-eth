@@ -18,7 +18,7 @@ contract AvatarAbility is ERC721, Ownable {
         uint256 p5; //wisdom; 
         uint256 p6; //charisma; 
         uint256 level;  
-        uint256 points;
+        uint256 points; 
     }
     Ability[] public abilities;
     mapping(uint256 => uint256) avatarToAbility; 
@@ -31,7 +31,8 @@ contract AvatarAbility is ERC721, Ownable {
     }
     function setAvatarCollection(address _avatarCollection) external
     {    
-        require(avatarCollection==address(0), "already set"); 
+        //require(avatarCollection==address(0), "already set"); 
+        require(owner()==msg.sender,"!r");
         avatarCollection = _avatarCollection; 
     }
     function create(uint256 avatarId, address to) public returns (uint256)

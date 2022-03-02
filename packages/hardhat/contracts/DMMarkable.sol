@@ -31,7 +31,7 @@ contract DMMarkable
     }  
     /* only owners of marker can remove themselfs*/
     function removeMarker(uint chainId, address nftCollection, uint256 tokenId, uint index) public returns (bool)
-    {
+    { 
        bytes32 tokenHash = getTokenHash(chainId,nftCollection,tokenId);
        require(markerOwners[tokenHash][index] == msg.sender,"!owner"); 
        remove(tokenHash, index); 

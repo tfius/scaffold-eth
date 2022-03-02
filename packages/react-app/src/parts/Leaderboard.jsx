@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Select, Button, Card, Col, Input, List, Menu, Row, Progress, Tooltip } from "antd";
+import { Select, Button, Card, Col, Input, List, Menu, Row, Progress, Tooltip, Spin } from "antd";
 import FText from "../components/FText";
 import { useContractReader } from "eth-hooks";
 import { notification } from "antd";
@@ -11,16 +11,18 @@ function TokenVoteView(props) {
     <Card size="large" hoverable>
       <div style={{ display: "block", alignItems: "right" }}>
         <div style={{ float: "left", textAlign: "center" }}>
-          <small>{index}.</small> &nbsp;<strong>{token.name}</strong>&nbsp;&nbsp;&nbsp;<strong>{token.xp}</strong><small> XP</small> 
+          <small>{index}.</small> &nbsp;<strong>{token.name}</strong>&nbsp;&nbsp;&nbsp;<strong>{token.xp}</strong>
+          <small> XP</small>
         </div>
 
         <div style={{ float: "right" }}>
-          <small>Votes: </small>{token.votes} 
+          <small>Votes: </small>
+          {token.votes}
           {canVote ? (
-              <Tooltip title="Click to vote.">
-            <span style={{ /*textDecoration: "underline",*/ cursor: "pointer" }} onClick={e => onVote(token)}>
-              ▲
-            </span>
+            <Tooltip title="Click to vote.">
+              <span style={{ /*textDecoration: "underline",*/ cursor: "pointer" }} onClick={e => onVote(token)}>
+                ▲
+              </span>
             </Tooltip>
           ) : null}
         </div>
@@ -35,6 +37,11 @@ export default function Leaderboard(props) {
 
   const [tokens, setTokens] = useState([]);
   const [canVote, setCanVote] = useState();
+  const [start, setStart] = useState(0);
+  const [end, setEnd] = useState(10);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [maxPages, setMaxPages] = useState();
 
   let { collectionId } = useParams();
 
@@ -56,7 +63,7 @@ export default function Leaderboard(props) {
     if (isActive) {
       interval = setInterval(() => {
         setSeconds(seconds => seconds + 1);
-      }, 15000);
+      }, 65000);
     } else if (!isActive && seconds !== 0) {
       clearInterval(interval);
     }
@@ -73,6 +80,28 @@ export default function Leaderboard(props) {
     getTokens();
   }, [collectionId]);
 
+  useEffect(() => {
+    //getTokens();
+  }, [tokens]);
+
+  const nextPage = () => {
+    if (page < maxPages - 1) {
+      setPage(page + 1);
+      //getOrders();
+    }
+  };
+  const prevPage = () => {
+    if (page > 0) {
+      setPage(page - 1);
+      //getOrders();
+    }
+  };
+
+  useEffect(() => {
+    setTokens([]);
+    getTokens();
+  }, [page]);
+
   const canUserVote = useCallback(async () => {
     if (readContracts === undefined || readContracts.Voting === undefined) return;
     const canUserVote = await readContracts.Voting.canVote(address);
@@ -85,14 +114,21 @@ export default function Leaderboard(props) {
     const allTokens = await readContracts.Avatar.totalSupply();
     const votes = await readContracts.Voting.votesLeft(address);
     const avatarAddress = readContracts.Avatar.address;
+    setMaxPages(Math.ceil(allTokens.toNumber() / pageSize));
     // await canUserVote();
     var readTokens = [];
-    for (let tokenIndex = 0; tokenIndex < allTokens; tokenIndex++) {
+    //for (let tokenIndex = 0; tokenIndex < allTokens && tokenIndex<15; tokenIndex++) {
+    for (let tokenIndex = page * pageSize; tokenIndex < (page + 1) * pageSize && tokenIndex < allTokens; tokenIndex++) {
       try {
         const token = await readContracts.Avatar.getAvatarInfo(tokenIndex);
         console.log("token", token);
         var numVotes = await readContracts.Voting.totalVotesFor(avatarAddress, tokenIndex);
-        readTokens.push({ id: tokenIndex, name: token.name, xp: token.experience.toNumber(), votes: numVotes.toNumber() });
+        readTokens.push({
+          id: tokenIndex,
+          name: token.name,
+          xp: token.experience.toNumber(),
+          votes: numVotes.toNumber(),
+        });
       } catch (e) {
         console.log(e);
       }
@@ -120,10 +156,24 @@ export default function Leaderboard(props) {
   return (
     <div style={{ maxWidth: 600, margin: "auto", marginTop: 5, paddingBottom: 25, lineHeight: 1.5 }}>
       <h1>Leaderboard</h1>
+      <div>
+        <span style={{ cursor: "pointer" }} onClick={() => prevPage()}>
+          ←
+        </span>
+        {page + 1}/{maxPages}
+        <span style={{ cursor: "pointer" }} onClick={() => nextPage()}>
+          →
+        </span>
+      </div>
+      <br/>
+
+      {tokens.length == 0 && <Spin />}
+
       {tokens.map((token, index) => {
-        return <TokenVoteView key={index} index={index+1} token={token} onVote={voteForToken} canVote={canVote} />;
+        return <TokenVoteView key={index} index={index + 1} token={token} onVote={voteForToken} canVote={canVote} />;
       })}
       {/* {collectionId} */}
+
     </div>
   );
 }

@@ -24,13 +24,14 @@ contract AvatarReputation is ERC721, Ownable {
     mapping(uint256 => uint256) avatarToThis; 
     constructor() public ERC721("FDS AvatarReputation", "Avatar Reputation")
     {    
-    } 
+    }  
 
     function setMinter(address newMinter) public {
     }
     function setAvatarCollection(address _avatarCollection) external
     {    
-        require(avatarCollection==address(0), "already set"); 
+        require(owner()==msg.sender,"!r");
+        //require(avatarCollection==address(0), "already set"); 
         avatarCollection = _avatarCollection; 
     }
     function create(uint256 avatarId, address to) public returns (uint256)

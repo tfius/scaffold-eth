@@ -26,7 +26,7 @@ contract DMHelpers {
             s[i*2]   = char(hi);
             s[i*2+1] = char(lo);            
         } 
-
+ 
         out = string(s);
     }
     function addressString(address x) public pure returns (string memory) {

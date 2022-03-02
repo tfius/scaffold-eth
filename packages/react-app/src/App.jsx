@@ -51,6 +51,7 @@ import * as helpers from "./parts/helpers";
 //const { ethers } = require("ethers");
 import { ethers } from "ethers";
 import AvatarTaskMint from "./parts/views/AvatarTaskMint";
+import AvatarDropMint from "./parts/views/AvatarDropMint";
 
 /*
     Welcome to 🏗 scaffold-eth !
@@ -72,7 +73,8 @@ import AvatarTaskMint from "./parts/views/AvatarTaskMint";
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.polygon; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+//const targetNetwork = NETWORKS.localhost;
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -194,7 +196,7 @@ function App(props) {
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
-  const [isRelease, setIsRelease] = useState(false);
+  const [isRelease, setIsRelease] = useState(true);
 
   const logoutOfWeb3Modal = async () => {
     await web3Modal.clearCachedProvider();
@@ -236,9 +238,12 @@ function App(props) {
   // Faucet Tx can be used to send funds from the faucet
   const faucetTx = Transactor(localProvider, gasPrice);
   // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
-  const yourLocalBalance = useBalance(localProvider, address);
+  //const yourLocalBalance = useBalance(localProvider, address);
+  const yourLocalBalance = 0;
   // Just plug in different 🛰 providers to get your balance on different chains:
-  const yourMainnetBalance = useBalance(mainnetProvider, address);
+  //const yourMainnetBalance = useBalance(mainnetProvider, address);
+  const yourMainnetBalance = 0;
+
   const contractConfig = useContractConfig();
   //console.log("contractConfig", contractConfig);
   // Load in your local 📝 contract and read a value from it:
@@ -248,11 +253,11 @@ function App(props) {
   // EXTERNAL CONTRACT EXAMPLE:
   //
   // If you want to bring in the mainnet DAI contract it would look like:
-  const mainnetContracts = useContractLoader(mainnetProvider, contractConfig);
+  //const mainnetContracts = useContractLoader(mainnetProvider, contractConfig);
 
   // If you want to call a function on a new block
   useOnBlock(localProvider, () => {
-    console.log(`⛓ A new rinkeby block is here: ${localProvider._lastBlockNumber}`);
+    // console.log(`⛓ A new rinkeby block is here: ${localProvider._lastBlockNumber}`);
     // updateLoogieTanks();
   });
 
@@ -269,6 +274,21 @@ function App(props) {
   const dmnftBalance = useContractReader(readContracts, "DMCollection", "balanceOf", [address]);
   //console.log("DMNFT balance:", dmnftBalance.toString());
   const dmCollections = useContractReader(readContracts, "DataMarket", "collectionGetAll", []);
+  /*  
+  ["0xc5b8145c1027131797859b41B467c736d71F083d",
+  "0x4FeAB54293536a77d15A6adbC8757F5a78b79171",
+  "0xaEa649bA522C5a501d8A4881172E6AB50A27a4e8",
+  "0x85Fe3eb1209F9DbFBdca7075E8057a2aCbbBFB00",
+  "0x1fE231c16d3297E1EEdEE002c5d9B7B3627318A7",
+  "0xED4bAe937caFA7A74Ca07261E4e471a2dd9DBBC2",
+  "0xED4bAe937caFA7A74Ca07261E4e471a2dd9DBBC2",
+  "0x6388855bc78e9A8C6676cd7B7eE79E73e7c13b28",
+  "0x8D06fbe56B78f70Df97A1d1012D792eC2438fc06",
+  "0x5a401b4Aa067f5fc383761EC946d810139769a08",
+  "0x055D6c21CAc978087B1DAc8e815CB9898e8a20EF",
+  "0xf00320fc4208F99b1610380B2Afe2b0f12443d7b"
+  ]
+  */
 
   // 🧠 This effect will update yourCollectibles by polling when your balance changes
   //const yourDmBalance = dmBalance && dmBalance.toNumber && dmBalance.toNumber();
@@ -410,12 +430,18 @@ function App(props) {
 
   useEffect(() => {
     const getDeployedContracts = async () => {
-      const contracts = helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
+      const network = helpers.findPropertyInObject(targetNetwork.chainId,contractConfig.deployedContracts)
+      const contracts = helpers.findPropertyInObject("contracts", network);
+      //debugger;
+      //const contracts = helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
       helpers.setDeployedContracts(contracts);
       console.log("🤗 getDeployedContracts", helpers.getDeployedContracts());
     };
     getDeployedContracts();
   }, [contractConfig]);
+
+
+
 
   useEffect(() => {
     const updateSelectedCollections = async () => {
@@ -487,10 +513,10 @@ function App(props) {
       console.log("🏠 localChainId", localChainId);
       console.log("👩‍💼 selected address:", address);
       console.log("🕵🏻‍♂️ selectedChainId:", selectedChainId);
-      console.log("💵 yourLocalBalance", yourLocalBalance ? ethers.utils.formatEther(yourLocalBalance) : "...");
-      console.log("💵 yourMainnetBalance", yourMainnetBalance ? ethers.utils.formatEther(yourMainnetBalance) : "...");
+      //console.log("💵 yourLocalBalance", yourLocalBalance ? ethers.utils.formatEther(yourLocalBalance) : "...");
+      //console.log("💵 yourMainnetBalance", yourMainnetBalance ? ethers.utils.formatEther(yourMainnetBalance) : "...");
       console.log("📝 readContracts", readContracts);
-      console.log("🌍 DAI contract on mainnet:", mainnetContracts);
+      //console.log("🌍 DAI contract on mainnet:", mainnetContracts);
       //console.log("💵 yourMainnetDAIBalance", myMainnetDAIBalance);
       console.log("🔐 writeContracts", writeContracts);
       loadSpeech();
@@ -503,7 +529,7 @@ function App(props) {
     yourMainnetBalance,
     readContracts,
     writeContracts,
-    mainnetContracts,
+    //mainnetContracts,
   ]);
 
   let networkDisplay = "";
@@ -815,6 +841,16 @@ function App(props) {
                     AvatarTask
                   </Link>
                 </Menu.Item>
+                <Menu.Item key="/avatardropmint">
+                  <Link
+                    onClick={() => {
+                      setRoute("/avatardropmint");
+                    }}
+                    to="/avatardropmint"
+                  >
+                    AvatarDrop
+                  </Link>
+                </Menu.Item>                
               </Menu>
             </>
           ) : null}
@@ -991,6 +1027,17 @@ function App(props) {
                 chainId={selectedChainId}
               />
             </Route>
+            <Route path="/avatarDropMint">
+              <AvatarDropMint
+                writeContracts={writeContracts}
+                readContracts={readContracts}
+                gasPrice={gasPrice}
+                tx={tx}
+                title="Drop Avatars"
+                address={address}
+                chainId={selectedChainId}
+              />
+            </Route>            
             <Route path="/exchange">
               <ExchangeView
                 dmCollections={dmCollections}

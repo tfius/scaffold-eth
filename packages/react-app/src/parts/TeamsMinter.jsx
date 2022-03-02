@@ -49,13 +49,13 @@ export default function TeamsMinter(props) {
   return (
     <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5, lineHeight: 1.5 }}>
       <div>
-        <TemplateMintCreatable
+        {/* <TemplateMintCreatable
           tx={tx}
           title={"Create Team"}
           address={address}
           selectedCollection={selectedCollection}
           onCreate={writeContracts.DataMarket.templatesMintCreatable}
-        />
+        /> */}
 
         <p style={{ textAlign: "left" }}>
           <FText>Requires Allegiance to join a Team.</FText>

@@ -314,7 +314,7 @@ contract DMCollection is Context, ERC165, IERC721, DMAddressable, DMLinkable {
     function _mint(address to, uint256 tokenId) internal virtual {
         require(to != address(0), "0x");
         require(!_exists(tokenId), "m"); // minted
-        
+         
         if(finiteCount>=1)
            require(_balances[to]<finiteCount, "2mch");  // limited how much address can have tokens from this collection
         

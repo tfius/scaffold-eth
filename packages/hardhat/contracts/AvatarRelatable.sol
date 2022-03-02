@@ -32,7 +32,7 @@ contract AvatarRelatable is ERC721, Ownable {
     }
     function setAvatarCollection(address _avatarCollection) external
     {    
-        require(avatarCollection==address(0), "already set"); 
+        require(owner()==msg.sender,"!r"); //require(avatarCollection==address(0), "already set"); 
         avatarCollection = _avatarCollection; 
     }
     function create(uint256 avatarId, address to) public returns (uint256)
@@ -80,7 +80,7 @@ contract AvatarRelatable is ERC721, Ownable {
     function upgrade(uint256 tokenId, uint256 data)  public 
     {
         require(_isApprovedOrOwner(tokenId),"!approved");  
-
+ 
         properties[tokenId].p1 += (data % 100) % 10;
         properties[tokenId].p2 += ((data % 10000) / 100) % 10;
         properties[tokenId].p3 += ((data % 1000000) / 10000) % 10;

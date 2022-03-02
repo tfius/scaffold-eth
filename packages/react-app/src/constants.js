@@ -75,6 +75,17 @@ export const NETWORKS = {
     faucet: "https://faucet.matic.network/",
     blockExplorer: "https://explorer-mainnet.maticvigil.com//",
   },
+  polygon: {
+    name: "polygon",
+    color: "#2bbdf7",
+    chainId: 137,
+    price: 1, //30032352962
+    gasPrice: 30042352962,
+    //rpcUrl: "https://rpc-mainnet.maticvigil.com",
+    faucet: "https://faucet.matic.network/",
+    blockExplorer: "https://explorer-mainnet.maticvigil.com//",
+    rpcUrl:"https://polygon-rpc.com/", //
+  }, 
   mumbai: {
     name: "mumbai",
     color: "#92D9FA",

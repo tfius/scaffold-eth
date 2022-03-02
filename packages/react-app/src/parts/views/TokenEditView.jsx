@@ -312,14 +312,14 @@ export default function TokenEditView(props) {
             className="ant-card-body"
             style={{ textAlign: "left", paddingLeft: "20px", paddingTop: "0px", paddingBottom: "0px" }}
           >
-            {d.postText}
-          </div>
-          <br />
-          {d.fileHash && (
+            {d.postText}<br/>
+
+            {d.fileHash && (
             <a href={helpers.downloadGateway + d.fileHash?.substring(2) + "/"} target="_blank">
-              File
+              View File
             </a>
-          )}
+            )}
+          </div>
         </div>
       ))}
 
@@ -355,7 +355,8 @@ export default function TokenEditView(props) {
         ))}
       </small>
 
-      <strong>TODO query names</strong>
+      <br/>      
+      <small><strong>Resistance</strong></small>
 
       {/* {tokens.map((token, index) => {
         return <TokenVoteView key={index} index={index + 1} token={token} onVote={voteForToken} canVote={canVote} />;

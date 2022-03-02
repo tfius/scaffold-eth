@@ -18,7 +18,7 @@ interface IDMCollection {
         uint256  tokenId; // what id
         bool     approved; // is it approved
     }
- 
+  
     function mintForUser(address creator, uint256 amount, address to, bytes32 metadataSwarmLocation, bytes32 tokenDataSwarmLocation) external;
     //function allTokensFrom(address _owner) external view returns (uint256[] memory);
     function tokenOfOwnerByIndex(address _owner, uint256 _index) external view returns (uint256);
@@ -393,18 +393,18 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
         contractGraphable = (graphableContract);
     }  
     /* set treasury receiver */
-    function setTreasury(address newTreasury) public  {
+    function setTreasury(address newTreasury) public  { 
         require(msg.sender==contractController, "!c");
         contractTresury = payable(newTreasury); 
-    }  
+    }    
     function setMinter(IDMMinter minter) public
     {
         require(msg.sender==contractController, "!c");
         dmMinter = minter;
     }
     function setController(address newController) public
-    {
-        require(msg.sender==contractController, "!c");
+    { 
+        require(msg.sender==contractController, "!c"); 
         contractController = payable(newController);
     }
     /* get treasury receiver */
@@ -487,7 +487,7 @@ contract DataMarket is Context, IERC20, IERC20Metadata {
     }*/ 
     function compareStrings(string memory a, string memory b) public pure returns (bool) {
         return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
-    } 
+    }  
 
     // https://twitter.com/recmo/status/1229171153597386752
     // "Anyone can be rich for an instant." -> https://github.com/Austin-Williams/flash-mintable-tokens

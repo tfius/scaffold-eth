@@ -28,7 +28,7 @@ contract DMGraphable
     struct Graph
     { 
         address creator;
-    }
+    } 
 
     Graph[] internal graphs;
     mapping (address => uint256[]) internal ownerGraphs; // what graphs owner has 

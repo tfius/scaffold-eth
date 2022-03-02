@@ -63,7 +63,6 @@ export default function DMTToken(props) {
       ) : (
         <>
           <div
-            hoverable
             onMouseEnter={e => {
               setDetails(true);
             }}

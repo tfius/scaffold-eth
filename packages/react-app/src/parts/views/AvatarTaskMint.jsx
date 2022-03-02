@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 
-import { Button, Input } from "antd";
+import { Button, Input, Checkbox } from "antd";
 import { calcPosFromAngles } from "@react-three/drei";
 
 const xp = 0;
@@ -177,11 +177,19 @@ export default function AvatarTaskMint(props) {
         <br/>
       </>
       <br />
+      <Checkbox
+            //checked={this.state.checked}
+            //disabled={this.state.disabled}
+            onChange={(e)=>{setCanMint(e.target.checked); console.log("can mint?", e.target.checked)}}
+          >
+            Users can mint experience ? 
+          </Checkbox>      
+      <br />
       <Button
         style={{ width: "20%" }}
         type={"primary"}
         onClick={() => {
-          tx(writeContracts.Avatar.prepareMint(true, xp, skill, reputation, plur, relatable));
+          tx(writeContracts.Avatar.prepareMint(canMint, xp, skill, reputation, plur, relatable));
         }}
       >
         Create Mint

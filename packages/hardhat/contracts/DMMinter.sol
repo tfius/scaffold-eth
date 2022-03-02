@@ -66,7 +66,7 @@ contract DMMinter {
         _userCreatableTemplates[collectionIndex] = _userCanCreataTemplate;
     }
     function checkCreateableTemplates(uint256 collectionIndex) public view returns (bool)
-    {
+    { 
         require(_userCreatableTemplates[collectionIndex]==true,"!creatable"); 
         return _userCreatableTemplates[collectionIndex];
     }

@@ -87,7 +87,9 @@ export default function TemplatesMinter(props) {
       setContractSymbol(symbol);
       // GET TEMPLATES
       var indices = await helpers.makeCall("getTemplateIndices", dmCollectionContract);
+      if (indices == undefined) return;
       var tokens = [];
+
       for (var i = 0; i < indices.length; i++) {
         var tokenInfo = await helpers.makeCall("tokenData", dmCollectionContract, [indices[i]]);
         var data = JSON.parse(tokenInfo);
@@ -115,7 +117,6 @@ export default function TemplatesMinter(props) {
       setIsNonTransferable(nonTrans);
       var finite = await helpers.makeCall("finiteCount", dmCollectionContract);
       setFiniteCount(finite.toNumber());
-
     }
 
     setLoading(false);
@@ -188,13 +189,19 @@ export default function TemplatesMinter(props) {
           //viewToken(t);
           console.log("TemplatesMinter ", t, urlOpener);
           //history.push(urlOpener + t.id); // "/team/"
-          history.push("/edittoken/" + contract.address + "/"+ t.id);
+          history.push("/edittoken/" + contract.address + "/" + t.id);
         }}
       />
     ); //<Card>{<h2>{t.name}</h2>}</Card>;
   });
 
-  if (loading === true) return <><h1>Please wait...</h1><Spin/></>;
+  if (loading === true)
+    return (
+      <>
+        <h1>Please wait...</h1>
+        <Spin />
+      </>
+    );
 
   return (
     <div style={{ maxWidth: 800, margin: "auto", marginTop: 5, paddingBottom: 25, lineHeight: 1.5 }}>

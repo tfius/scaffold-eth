@@ -104,7 +104,7 @@ export default function Transactor(providerOrSigner, gasPrice, etherscan) {
                 callback({ ...txResult, ...currentTransactionReceipt });
                 clearInterval(listeningInterval);
               }
-            }, 500);
+            }, 8500);
           }
         }
 

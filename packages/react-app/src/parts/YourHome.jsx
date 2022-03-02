@@ -25,9 +25,16 @@ function NameProgress(props) {
   const { name, value } = props;
   return (
     <div style={{ display: "block", margin: "auto" }}>
-      <small>{name}</small><br/>
-      <Tooltip title={<>{name} {value}</>}>
-        <div style={{textAlign:"center", fontWeight:"bold"}}>{value}</div>
+      <small>{name}</small>
+      <br />
+      <Tooltip
+        title={
+          <>
+            {name} {value}
+          </>
+        }
+      >
+        <div style={{ textAlign: "center", fontWeight: "bold" }}>{value}</div>
         {/* <Progress size="small" percent={value} status="active" showInfo={false} strokeColor={{ "0%": "#108ee9", "100%": "#87d068" }} /> */}
       </Tooltip>
     </div>
@@ -40,7 +47,7 @@ function ValueProgress(props) {
       <small>{name}</small>
       <br />
       {/* <small>{value}</small> */}
-      <div style={{textAlign:"center", fontWeight:"bold"}}>{value}</div>
+      <div style={{ textAlign: "center", fontWeight: "bold" }}>{value}</div>
     </div>
   );
 }
@@ -71,7 +78,7 @@ async function getPublicKey(signer) {
 }
 
 /*export default*/ function AbilityView(props) {
-const { ability } = props;
+  const { ability } = props;
   if (ability == undefined || ability.p1 == undefined) return null;
   return (
     <Card>
@@ -163,23 +170,63 @@ const { ability } = props;
 }
 /*export default*/ function SponsorshipView(props) {
   const { sponsorship } = props;
-  return <>{sponsorship.length == 0 ? null : <Card key="sm"  title={"Sponsorships"}>{sponsorship}</Card>}</>;
+  return (
+    <>
+      {sponsorship.length == 0 ? null : (
+        <Card key="sm" title={"Sponsorships"}>
+          {sponsorship}
+        </Card>
+      )}
+    </>
+  );
 }
 /*export default*/ function MembershipView(props) {
   const { membership } = props;
-  return <>{membership.length == 0 ? null : <Card key="mm" title={"Membership"}>{membership}</Card>}</>;
+  return (
+    <>
+      {membership.length == 0 ? null : (
+        <Card key="mm" title={"Membership"}>
+          {membership}
+        </Card>
+      )}
+    </>
+  );
 }
 /*export default*/ function TeamsView(props) {
   const { teams } = props;
-  return <>{teams.length == 0 ? null : <Card key="tm" title={"Teams"}>{teams}</Card>}</>;
+  return (
+    <>
+      {teams.length == 0 ? null : (
+        <Card key="tm" title={"Teams"}>
+          {teams}
+        </Card>
+      )}
+    </>
+  );
 }
 /*export default*/ function GroupsView(props) {
   const { groups } = props;
-  return <>{groups.length == 0 ? null : <Card key="gm" title={"Groups"}>{groups}</Card>}</>;
+  return (
+    <>
+      {groups.length == 0 ? null : (
+        <Card key="gm" title={"Groups"}>
+          {groups}
+        </Card>
+      )}
+    </>
+  );
 }
 /*export default*/ function AllegianceView(props) {
   const { allegiance } = props;
-  return <>{allegiance.length == 0 ? null : <Card key="am" title={"Allegiance"}>{allegiance}</Card>}</>;
+  return (
+    <>
+      {allegiance.length == 0 ? null : (
+        <Card key="am" title={"Allegiance"}>
+          {allegiance}
+        </Card>
+      )}
+    </>
+  );
 }
 
 /*export default*/ function MintAvatar(props) {
@@ -229,11 +276,11 @@ const { ability } = props;
 /*export default*/ function NameAvatar(props) {
   const [tokenName, setTokenName] = useState("");
   const { avatars, tx, writeContracts, avatarsLoaded } = props;
-  const [ triggered, setTriggered] = useState(false);
+  const [triggered, setTriggered] = useState(false);
   useEffect(() => {}, [tokenName]);
 
   if (avatars.length == 0 || triggered == true) return null;
-  if(avatars[0].name.length>0) return null;
+  if (avatars[0].name.length > 0) return null;
 
   return (
     <>
@@ -259,7 +306,7 @@ const { ability } = props;
           onClick={() => {
             if (tokenName.length > 2) {
               tx(writeContracts.Avatar.setName(tokenName));
-              helpers.speak(tokenName); 
+              helpers.speak(tokenName);
               setTriggered(true);
             } else {
               notification.error({
@@ -290,6 +337,7 @@ export default function YourHome(props) {
   const [teams, setTeams] = useState([]);
   const [groups, setGroups] = useState([]);
   const [avatarsLoaded, setAvatarsLoaded] = useState();
+  const [canMint, setCanMint] = useState();
 
   const {
     yourDmBalance,
@@ -320,10 +368,12 @@ export default function YourHome(props) {
   }
   function getAvatarContract(contractIndex) {
     if (dmCollections === undefined) return null;
+    //debugger;
     const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
     const contract = new ethers.Contract(dmCollections[contractIndex], contracts.Avatar.abi, localProvider);
     return contract;
   }
+ /*
   function getAvatarAbilityContract(contractIndex) {
     if (dmCollections === undefined) return null;
     const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
@@ -348,7 +398,7 @@ export default function YourHome(props) {
     const contract = new ethers.Contract(dmCollections[contractIndex], contracts.AvatarRelatable.abi, localProvider);
     return contract;
   }
-
+*/
   async function getTokens(contract, isAvatar) {
     var tokens = [];
     var balance = await helpers.makeCall("balanceOf", contract, [address]);
@@ -384,6 +434,10 @@ export default function YourHome(props) {
     try {
       var balance = await helpers.makeCall("balanceOf", contract, [address]);
       if (balance != undefined) balance = balance.toNumber();
+
+      var isMint = await readContracts.Avatar.canMint();
+      console.log("isMint", isMint);
+      setCanMint(isMint);
     } catch (e) {
       console.log(e);
     }
@@ -403,23 +457,24 @@ export default function YourHome(props) {
             token.avatar = avatarInfo;
             token.uri = tokenUri;
             // console.log("avatar uri", token.uri);
-
             // console.log("avatarInfo", avatarInfo);
+            //var abilityContract = getAvatarAbilityContract(6);
+            token.ability = await readContracts.AvatarAbility.getInfo(avatarInfo.skillId.toNumber()) 
+            //helpers.makeCall("getInfo", abilityContract, [avatarInfo.skillId.toNumber()]);
 
-            var abilityContract = getAvatarAbilityContract(6);
-            token.ability = await helpers.makeCall("getInfo", abilityContract, [avatarInfo.skillId.toNumber()]);
-
-            var reputationContract = getAvatarReputationContract(7);
-            token.reputation = await helpers.makeCall("getInfo", reputationContract, [
-              avatarInfo.reputationId.toNumber(),
-            ]);
+            //var reputationContract = getAvatarReputationContract(7);
+            token.reputation = await readContracts.AvatarReputation.getInfo(avatarInfo.reputationId.toNumber());
+            //  avatarInfo.reputationId.toNumber(), ]);
+            //token.reputation = await helpers.makeCall("getInfo", reputationContract, [avatarInfo.reputationId.toNumber(),]);
             //debugger;
-            var plurContract = getAvatarPlurContract(8);
-            token.plur = await helpers.makeCall("getInfo", plurContract, [avatarInfo.plurId.toNumber()]);
+            //var plurContract = getAvatarPlurContract(8);
+            //token.plur = await helpers.makeCall("getInfo", plurContract, [avatarInfo.plurId.toNumber()]);
+            token.plur = await readContracts.AvatarPlur.getInfo(avatarInfo.plurId.toNumber());
             //debugger;
 
-            var relatableContract = getAvatarRelatableContract(9);
-            token.relatable = await helpers.makeCall("getInfo", relatableContract, [avatarInfo.relatableId.toNumber()]);
+            //var relatableContract = getAvatarRelatableContract(9);
+            //token.relatable = await helpers.makeCall("getInfo", relatableContract, [avatarInfo.relatableId.toNumber()]);
+            token.relatable = await readContracts.AvatarRelatable.getInfo(avatarInfo.relatableId.toNumber());
 
             //var data = JSON.parse(tokenInfo);
             //data.id = tokenId.toString();
@@ -454,16 +509,37 @@ export default function YourHome(props) {
       return (
         <div key={"tok" + i}>
           {/* <Card onClick={e => viewToken(t)} className="posParent"> */}
-          <div style={{ fontSize: "5vmin", textAlign:"center" }}>
-            <div style={{background:"black"}}><img src={t.uri} style={{maxWidth:"30%"}} className="avatar" /></div>
-            <div><span style={{ fontSize: "5vmin", textAlign:"center" }}>{t.name}</span></div>
+          <div style={{ fontSize: "5vmin", textAlign: "center" }}>
+            <div style={{ background: "black" }}>
+              <img src={t.uri} style={{ maxWidth: "30%" }} className="avatar" />
+            </div>
+            <div>
+              <span style={{ fontSize: "5vmin", textAlign: "center" }}>{t.name}</span>
+            </div>
           </div>
           {/* </Card> */}
-          <AvatarView avatar={t.avatar} />
-          <AbilityView ability={t.ability} onClick={e => viewToken(t)} />
-          <ReputationView reputation={t.reputation} onClick={e => viewToken(t)} />
-          <PlurView plur={t.plur} onClick={e => viewToken(t)} />
-          <RelatableView relatable={t.relatable} onClick={e => viewToken(t)} />
+
+          <div>
+            {/* <div
+              style={{
+                position: "absolute",
+                zIndex: "-1",
+                top: "0px",
+                left: "0px",
+                right: "0px",
+                nottom: "0px",
+                opacity: "0.91"
+              }}
+            >
+              <img src={t.uri} style={{ maxWidth: "100%", maxHeight: "100%" }} />
+            </div> */}
+
+            <AvatarView avatar={t.avatar} />
+            <AbilityView ability={t.ability} onClick={e => viewToken(t)} />
+            <ReputationView reputation={t.reputation} onClick={e => viewToken(t)} />
+            <PlurView plur={t.plur} onClick={e => viewToken(t)} />
+            <RelatableView relatable={t.relatable} onClick={e => viewToken(t)} />
+          </div>
         </div>
       );
     });
@@ -472,10 +548,10 @@ export default function YourHome(props) {
 
   useEffect(() => {
     if (dmCollections === undefined) return;
-    fetch();
+    fetchAll();
   }, []);
 
-  const fetch = useCallback(async () => {
+  const fetchAll = useCallback(async () => {
     await fetchAvatar();
 
     let member = await tokensFromContract(0);
@@ -512,8 +588,8 @@ export default function YourHome(props) {
           onClickRedirect={e => {
             //viewToken(t);
             console.log("allegiance", t);
-            history.push("/edittoken/" + alliance.contract.address + "/"+ t.id);
-          }}          
+            history.push("/edittoken/" + alliance.contract.address + "/" + t.id);
+          }}
         />
       );
     });
@@ -536,8 +612,8 @@ export default function YourHome(props) {
             onClickRedirect={e => {
               //viewToken(t);
               console.log("team", t);
-              history.push("/edittoken/" + team.contract.address + "/"+ t.id);
-            }}            
+              history.push("/edittoken/" + team.contract.address + "/" + t.id);
+            }}
           />
         </div>
       );
@@ -580,12 +656,7 @@ export default function YourHome(props) {
     setSponsorship(sps); //getDMTs(sp, csp));
   }, []);
 
-  useEffect(() => {
-    if (dmCollections === undefined) return;
-    fetch();
-  }, []);
-
-  useEffect(() => {}, [membership, groups, teams, allegiance, sponsorship, avatars]);
+  useEffect(() => {}, [membership, groups, teams, allegiance, sponsorship, avatars, canMint]);
 
   const balance = yourDmBalance == undefined ? "0" : yourDmBalance;
 
@@ -594,7 +665,7 @@ export default function YourHome(props) {
     if (isActive) {
       interval = setInterval(() => {
         setSeconds(seconds => seconds + 1);
-      }, 15000);
+      }, 30000);
     } else if (!isActive && seconds !== 0) {
       clearInterval(interval);
     }
@@ -628,9 +699,29 @@ export default function YourHome(props) {
         tx={tx}
         writeContracts={writeContracts}
         userProviderAndSigner={userProviderAndSigner}
-      />      
-      {avatars} <br />
+      />
+      {avatars} 
+      <div style={{ textAlign: "center" }}>
+        {/* Claim your Experience points <br/> */}
+        <Button
+          type="primary"
+          disabled={!canMint}
+          onClick={e => {
+            setCanMint(false);
 
+            tx(writeContracts.Avatar.mint());
+            // helpers.speak("Claim experience");
+            /*notification.success({
+                    message: "Claim",
+                    description: "Claiming Experience",
+                    placement: "topLeft",
+                  });*/
+          }}
+        >
+          Claim Experience
+        </Button>
+        <br />
+      </div>
       {/* <MintAvatar
         avatars={avatars}
         avatarsLoaded={avatarsLoaded}
@@ -639,7 +730,6 @@ export default function YourHome(props) {
         writeContracts={writeContracts}
         userProviderAndSigner={userProviderAndSigner}
       /> */}
-
       <AllegianceView allegiance={allegiance} />
       <TeamsView teams={teams} />
       <GroupsView groups={groups} />
@@ -648,7 +738,6 @@ export default function YourHome(props) {
       {/* {sponsorship} */}
       {/* <SponsorshipView sponsorship={sponsorship} /> */}
       <br />
-      
       <AboutThisProject />
     </div>
   );

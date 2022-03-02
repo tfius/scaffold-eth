@@ -16,4 +16,4 @@ contract Goldinar is ERC20, AccessControl {
         require(hasRole(MINTER_ROLE, msg.sender), "Caller is not the minter");
         _mint(to, amount);
     } 
-} 
+}  

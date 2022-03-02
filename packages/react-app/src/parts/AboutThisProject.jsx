@@ -14,10 +14,10 @@ export default function AboutThisProject(props) {
 
   const chain = "Polygon";
   const symbol = "MATIC";
-  const RPC = "https://dai.poa.network";
-  const chainId = "100";
-  const blockExplorer = "https://goerli.etherscan.io/";
-  const faucet = "https://goerli-faucet.slock.it/";
+  const RPC = "https://rpc-mainnet.maticvigil.com";//https://dai.poa.network";
+  const chainId = "137"; // 100"
+  const blockExplorer = "https://polygonscan.com/"; //https://goerli.etherscan.io/";
+  const faucet = ""; //https://goerli-faucet.slock.it/";
 
   return (
     <div
@@ -30,31 +30,6 @@ export default function AboutThisProject(props) {
         textAlign: "left",
       }}
     >
-      <Card title="Terms and Conditions (March 2022)">
-        This website is a simple user interface that is available as free, public, open-source or source-available
-        software, and is only a possible way to display the decentralised Resistance NFT game, which can also be
-        displayed directly by accessing the Ethereum blockchain or by any other user interface. Resistance NFT is a set
-        of smart contracts deployed and running autonomously on the decentralized public Ethereum blockchain. Your
-        access and use of Resistance NFT is at your own risk. Before engaging with Resistance NFT, you should review the
-        relevant documentation to make sure you understand how Resistance NFT and the Swarm network works. Resistance
-        NFT does not have access to your private key and cannot initiate a transfer or otherwise access your tokens. We
-        are not your brokers, intermediaries, agents, advisors, or custodians, and we do not have a fiduciary
-        relationship or obligation to you regarding any other decisions or activities that you effect when using your
-        wallet or a Resistance NFT graphical user interface. Your engagement with the Resistance NFT involves various
-        risks, including, but not limited to, the entire loss of your BZZ or DAI/ETH due to errors or defects in the
-        code of the bonding curve or interruptions, attacks or disruptions of the bonding curve or the Swarm Network,
-        losses while tokens are being supplied to Resistance NFT and losses due to the fluctuation of prices of tokens
-        in a trading pair or liquidity pool. This website, its content and any items obtained through Resistance NFT are
-        provided on an “as is” and “as available” basis, without any warranties of any kind, either express or implied.
-        To the fullest extent permitted by applicable law, in no event will any developer, person or entity involved in
-        creating Resistance NFT will be liable for damages of any kind, under any legal theory, arising out of or in
-        connection with your use, or inability to use, the website, any other websites or app or dapps linked to it, any
-        apps or dapps available, any content on the website or such other websites or apps or dapps or items obtained
-        through the website or such other websites or apps or dapps, including any direct, indirect, special,
-        incidental, or consequential damages, including but not limited to, loss of revenue, loss of profits, loss of
-        business or anticipated savings, loss of use, loss of goodwill or loss of data, tokens, or anything else of
-        value, even if foreseeable.
-      </Card>
       <Card title="Disclaimer">
         Resistance is highly experimental beta software. It is not ready for production use. Use at your own risk. It is
         not endorsed by any organization. Contracts are not audited. We do not guarantee the security of the contracts
@@ -142,6 +117,31 @@ export default function AboutThisProject(props) {
           DM collection has been extended to support additional usages of NFTs. You will probably not see any data on
           third party marketplaces.
         </ul>
+      </Card>
+      <Card title="Terms and Conditions (March 2022)">
+        This website is a simple user interface that is available as free, public, open-source or source-available
+        software, and is only a possible way to display the decentralised Resistance NFT game, which can also be
+        displayed directly by accessing the Ethereum blockchain or by any other user interface. Resistance NFT is a set
+        of smart contracts deployed and running autonomously on the decentralized public Ethereum blockchain. Your
+        access and use of Resistance NFT is at your own risk. Before engaging with Resistance NFT, you should review the
+        relevant documentation to make sure you understand how Resistance NFT and the Swarm network works. Resistance
+        NFT does not have access to your private key and cannot initiate a transfer or otherwise access your tokens. We
+        are not your brokers, intermediaries, agents, advisors, or custodians, and we do not have a fiduciary
+        relationship or obligation to you regarding any other decisions or activities that you effect when using your
+        wallet or a Resistance NFT graphical user interface. Your engagement with the Resistance NFT involves various
+        risks, including, but not limited to, the entire loss of your BZZ or DAI/ETH due to errors or defects in the
+        code of the bonding curve or interruptions, attacks or disruptions of the bonding curve or the Swarm Network,
+        losses while tokens are being supplied to Resistance NFT and losses due to the fluctuation of prices of tokens
+        in a trading pair or liquidity pool. This website, its content and any items obtained through Resistance NFT are
+        provided on an “as is” and “as available” basis, without any warranties of any kind, either express or implied.
+        To the fullest extent permitted by applicable law, in no event will any developer, person or entity involved in
+        creating Resistance NFT will be liable for damages of any kind, under any legal theory, arising out of or in
+        connection with your use, or inability to use, the website, any other websites or app or dapps linked to it, any
+        apps or dapps available, any content on the website or such other websites or apps or dapps or items obtained
+        through the website or such other websites or apps or dapps, including any direct, indirect, special,
+        incidental, or consequential damages, including but not limited to, loss of revenue, loss of profits, loss of
+        business or anticipated savings, loss of use, loss of goodwill or loss of data, tokens, or anything else of
+        value, even if foreseeable.
       </Card>
     </div>
   );
