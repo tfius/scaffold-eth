@@ -4,7 +4,7 @@ import WalletLink from "walletlink";
 import { Alert, Button, Card, Col, Input, List, Menu, Row } from "antd";
 import "antd/dist/antd.css";
 import React, { useCallback, useEffect, useState } from "react";
-import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
+import { BrowserRouter, Link, Route, Switch, Redirect } from "react-router-dom";
 import Web3Modal from "web3modal";
 import "./App.css";
 import { Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch } from "./components";
@@ -196,7 +196,7 @@ function App(props) {
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
-  const [isRelease, setIsRelease] = useState(false);
+  const [isRelease, setIsRelease] = useState(true);
 
   const logoutOfWeb3Modal = async () => {
     await web3Modal.clearCachedProvider();
@@ -695,6 +695,8 @@ function App(props) {
   const [metadataAddresses, setMetadataAddresses] = useState({});
   const [locationAddresses, setLocationAddresses] = useState({});
 
+  // if(readContracts.length === 0 || writeContracts.length === 0) return (<div className="App"><h1>Loading...</h1></div>);
+
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
@@ -1077,6 +1079,10 @@ function App(props) {
             />  */}
             </Route>
             <Route exact path="/">
+               <Redirect to="/home" />
+            </Route> 
+
+            <Route exact path="/home">
               <YourHome
                 yourDmBalance={yourDmBalance}
                 yourDmNftBalance={yourDmNftBalance}
@@ -1091,7 +1097,7 @@ function App(props) {
                 tx={tx}
                 title="Home"
               />
-            </Route>
+            </Route>            
 
             <Route exact path="/bank">
               <Farm

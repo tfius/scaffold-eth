@@ -80,6 +80,8 @@ export default function Farm(props) {
     var yieldBalance = await readContracts.GoldinarFarm.calculateYieldTotal(address);
     setYieldBalance(yieldBalance);
     //console.log("yieldBalance", yieldBalance);
+
+    
   });
 
   const updateYieldBalance = useCallback(async () => {
@@ -98,6 +100,8 @@ export default function Farm(props) {
   useEffect(() => {
     updateYieldBalance();
   }, [seconds]);
+
+  const balanceShort = <BalanceShort address={address} provider={localProvider} price={price} onClickSet={setBuyAmount}/>;
 
   return (
     <div>
@@ -239,7 +243,7 @@ export default function Farm(props) {
             <h1>Buy</h1>
             <div style={{ textAlign: "right", paddingRight: "10%" }}> 
               <strong>
-                <BalanceShort address={address} provider={localProvider} price={price} onClickSet={setBuyAmount}/> 
+              Ξ {balanceShort} {/*  <BalanceShort address={address} provider={localProvider} price={price} onClickSet={setBuyAmount}/>   */}
               </strong>{" "} 
               <br />
             </div>

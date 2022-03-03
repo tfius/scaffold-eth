@@ -34,9 +34,7 @@ export default function BalanceShort(props) {
   // const [listening, setListening] = useState(false);
   const balance = useBalance(props.provider, props.address);
 
-  const {
-    onClickSet
-  } = props;
+  const { onClickSet } = props;
 
   let floatBalance = parseFloat("0.00");
 
@@ -64,12 +62,13 @@ export default function BalanceShort(props) {
   }
 
   return (
-    <span onClick={() => {
+    <span
+      onClick={() => {
         //setDollarMode(!dollarMode);
         onClickSet(balance);
       }}
     >
-     {displayBalance}
+      {displayBalance}
     </span>
   );
 }

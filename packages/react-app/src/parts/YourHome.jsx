@@ -400,6 +400,12 @@ export default function YourHome(props) {
   }
 */
   async function getTokens(contract, isAvatar) {
+    if(contract===null || address===undefined)
+    {
+      console.log("getTokens", contract, address);
+      return [];
+    }
+
     var tokens = [];
     var balance = await helpers.makeCall("balanceOf", contract, [address]);
     if (balance != undefined) balance = balance.toNumber();
@@ -429,14 +435,21 @@ export default function YourHome(props) {
   }
   async function getAvatars(contract, isAvatar) {
     var tokens = [];
+    
+    if(contract===null || address===undefined)
+    {
+      console.log("getAvatars", contract, address);
+      return;
+    }
 
     setAvatarsLoaded(false);
     try {
+      
       var balance = await helpers.makeCall("balanceOf", contract, [address]);
       if (balance != undefined) balance = balance.toNumber();
 
       var isMint = await readContracts.Avatar.canMint();
-      console.log("isMint", isMint);
+      //console.log("isMint", isMint);
       setCanMint(isMint);
     } catch (e) {
       console.log(e);
@@ -448,7 +461,6 @@ export default function YourHome(props) {
           var tokenId = await helpers.makeCall("tokenOfOwnerByIndex", contract, [address, tokenIndex]);
           var tokenInfo = await helpers.makeCall("tokenData", contract, [tokenId.toNumber()]);
           var tokenUri = await helpers.makeCall("tokenURI", contract, [tokenId.toNumber()]);
-          //debugger;
           var avatarInfo = await helpers.makeCall("getAvatarInfo", contract, [tokenId.toNumber()]);
           //console.log("avatar", tokenId.toNumber(), avatarInfo, tokenInfo);
           try {
@@ -458,24 +470,10 @@ export default function YourHome(props) {
             token.uri = tokenUri;
             // console.log("avatar uri", token.uri);
             // console.log("avatarInfo", avatarInfo);
-            //var abilityContract = getAvatarAbilityContract(6);
             token.ability = await readContracts.AvatarAbility.getInfo(avatarInfo.skillId.toNumber()) 
-            //helpers.makeCall("getInfo", abilityContract, [avatarInfo.skillId.toNumber()]);
-
-            //var reputationContract = getAvatarReputationContract(7);
             token.reputation = await readContracts.AvatarReputation.getInfo(avatarInfo.reputationId.toNumber());
-            //  avatarInfo.reputationId.toNumber(), ]);
-            //token.reputation = await helpers.makeCall("getInfo", reputationContract, [avatarInfo.reputationId.toNumber(),]);
-            //debugger;
-            //var plurContract = getAvatarPlurContract(8);
-            //token.plur = await helpers.makeCall("getInfo", plurContract, [avatarInfo.plurId.toNumber()]);
             token.plur = await readContracts.AvatarPlur.getInfo(avatarInfo.plurId.toNumber());
-            //debugger;
-
-            //var relatableContract = getAvatarRelatableContract(9);
-            //token.relatable = await helpers.makeCall("getInfo", relatableContract, [avatarInfo.relatableId.toNumber()]);
             token.relatable = await readContracts.AvatarRelatable.getInfo(avatarInfo.relatableId.toNumber());
-
             //var data = JSON.parse(tokenInfo);
             //data.id = tokenId.toString();
             //data.name = ethers.utils.toUtf8String(data.n).replace(/[^\x01-\x7F]/g, "");
@@ -492,9 +490,11 @@ export default function YourHome(props) {
       }
       //console.log("avatarTokens", tokens);
       setAvatarTokens(tokens);
+      setAvatarsLoaded(true);
+      return tokens;
     }
-    setAvatarsLoaded(true);
-    return tokens;
+    
+    return [];
   }
 
   async function tokensFromContract(contractIdx) {
@@ -505,6 +505,7 @@ export default function YourHome(props) {
   const fetchAvatar = useCallback(async () => {
     var avatarcontract = getAvatarContract(5);
     var avatartokens = await getAvatars(avatarcontract);
+    if(avatartokens===undefined) return; 
     const avs = avatartokens.map((t, i) => {
       return (
         <div key={"tok" + i}>
@@ -546,14 +547,10 @@ export default function YourHome(props) {
     setAvatars(avs); //getDMTs(av, cav));
   }, []);
 
-  useEffect(() => {
-    if (dmCollections === undefined) return;
-    fetchAll();
-  }, []);
-
   const fetchAll = useCallback(async () => {
     await fetchAvatar();
 
+    /*
     let member = await tokensFromContract(0);
     const mes = member.tokens.map((t, i) => {
       //return <span onClick={e => viewToken(t)}>{t.name}</span>;
@@ -571,7 +568,7 @@ export default function YourHome(props) {
       );
     });
     setMembership(mes);
-
+*/
     let alliance = await tokensFromContract(2);
     const als = alliance.tokens.map((t, i) => {
       //return <span onClick={e => viewToken(t)}>{t.name} </span>;
@@ -619,7 +616,7 @@ export default function YourHome(props) {
       );
     });
     setTeams(tes); //getDMTs(te, cte));
-
+/*
     let group = await tokensFromContract(4);
     const grs = group.tokens.map((t, i) => {
       //return <span onClick={e => viewToken(t)}>{t.name} </span>;
@@ -654,9 +651,10 @@ export default function YourHome(props) {
       );
     });
     setSponsorship(sps); //getDMTs(sp, csp));
+    */
   }, []);
 
-  useEffect(() => {}, [membership, groups, teams, allegiance, sponsorship, avatars, canMint]);
+  //useEffect(() => {}, [membership, groups, teams, allegiance, sponsorship, avatars, canMint]);
 
   const balance = yourDmBalance == undefined ? "0" : yourDmBalance;
 
@@ -665,7 +663,7 @@ export default function YourHome(props) {
     if (isActive) {
       interval = setInterval(() => {
         setSeconds(seconds => seconds + 1);
-      }, 40000);
+      }, 60000);
     } else if (!isActive && seconds !== 0) {
       clearInterval(interval);
     }
@@ -673,9 +671,23 @@ export default function YourHome(props) {
   }, [seconds]);
 
   useEffect(() => {
-    //console.log("Your Home Seconds");
-    fetchAvatar();
+    //console.log("Your Home Seconds", avatarsLoaded);
+    // if(readContracts!=undefined)
+    //   fetchAvatar();
+    if(!avatarsLoaded)
+        fetchAll();
+    else 
+        fetchAvatar();
+
   }, [seconds]);
+
+  useEffect(() => {
+    //console.log("Write Contracts", avatarsLoaded);
+    if(!avatarsLoaded && writeContracts!=undefined && readContracts!=undefined && address!=undefined) 
+        fetchAll();
+
+  }, [writeContracts]);
+
 
   function viewToken(token) {
     console.log("viewAvatars", token);
@@ -703,6 +715,7 @@ export default function YourHome(props) {
       {avatars} 
       <div style={{ textAlign: "center" }}>
         {/* Claim your Experience points <br/> */}
+        {avatarsLoaded && 
         <Button
           type="primary"
           disabled={!canMint}
@@ -720,6 +733,7 @@ export default function YourHome(props) {
         >
           Claim Experience
         </Button>
+  }
         <br />
       </div>
       {/* <MintAvatar
