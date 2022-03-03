@@ -111,6 +111,7 @@ export default function ExchangeView(props) {
   }, [seconds]);
 
   useEffect(() => {
+    setOrders([]);
     getOrders();
   }, [numOrders, page]);
 
