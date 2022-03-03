@@ -12,6 +12,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deployer } = await getNamedAccounts();
   const waitTime=1000;
 
+  //return;
+
   /*
   console.log("Multibox"); 
   const multibox = await deploy('Multibox', {
