@@ -10,7 +10,6 @@ yarn account (get address of deployer)
 ### polygon deployments:
 Deployer 0xd27ffA0e47Fca8D3E757B4d2C408169859B8c419
 
-Markable *********************************
 - "DMMarkable" at 0x719739C44f9c6DE441db4455E2D9BD81c80711C6
 - "DMGraphable" at 0x5D68cded166fDC10a4BE6131d0339B6b4b35a703
 - "DMHelpers" at 0xf0D5c3B4B4644Ff4d9DDEc4AfCf269E455522E89
