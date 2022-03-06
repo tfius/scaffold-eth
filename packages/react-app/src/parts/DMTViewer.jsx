@@ -144,7 +144,7 @@ export default function DMTViewer(props) {
       switch (json.type) {
         case "Audio":
           {
-            token.dataView = <div><AudioPlayer url={dataUrl} />
+            token.dataView = <div><AudioPlayer fontSize="20rem" url={dataUrl} />
                             </div>;
           }
           break;
