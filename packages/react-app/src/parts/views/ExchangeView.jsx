@@ -7,6 +7,7 @@ import { ethers } from "ethers";
 import * as helpers from "./../helpers";
 import { uploadJsonToBee } from "./../SwarmUpload/BeeService";
 import DMTToken from "./DMTToken";
+import AudioPlayer from "./../AudioPlayer";
 
 // function TokenVoteView(props) {
 //   const { index, token, onVote, canVote } = props;
@@ -237,7 +238,6 @@ export default function ExchangeView(props) {
         const orderNE = await readContracts.ExchangeDM.orders(i);
         var order = Object.assign([], orderNE);
         //console.log("order", order);
-
         ordersList.push(order);
       } catch (error) {
         console.error(error);
@@ -293,6 +293,8 @@ export default function ExchangeView(props) {
     //console.log("buy", order);
     metadata.value = order.askPrice;
     metadata.gasPrice = gasPrice;
+    console.log("buy", order.tokenHash, metadata);
+    //var buy = helpers.makeCall("buy", writeContracts.ExchangeDM,[order.tokenHash], metadata);
     tx(writeContracts.ExchangeDM.buy(order.tokenHash, metadata));
   });
 
@@ -322,6 +324,15 @@ export default function ExchangeView(props) {
       description: "You added a mark to token " + order.tokenId + " from " + order.nftCollection + " chain " + chainId,
       placement: "topRight",
     });
+  }
+
+  async function onGotPost(orderIdx, post) {
+    console.log("onGotPost", orderIdx, post);
+    try {
+      const orders1 = orders;
+      orders1[orderIdx].data = post;
+      setOrders(orders1);
+    } catch (e) {}
   }
 
   //console.log("exchange", tokenData.posts);
@@ -368,7 +379,7 @@ export default function ExchangeView(props) {
         ) : null}
       </Modal>
       <Modal
-        title={<h2>Details</h2>}
+        title={<h2>Details {currentOrder?.data?.post?.title}</h2>}
         visible={openDetails}
         onOk={() => {
           setOpenDetails(!openDetails);
@@ -377,14 +388,34 @@ export default function ExchangeView(props) {
           setOpenDetails(!openDetails);
         }}
       >
-        <a
-          onClick={e => {
-            console.log("view", currentOrder.nftCollection, currentOrder.tokenId);
-            history.push("/edittoken/" + currentOrder.nftCollection + "/" + currentOrder.tokenId);
-          }}
-        >
-          View details of this token
-        </a>
+        <>
+          <h4>{currentOrder?.data?.post?.text}</h4>
+
+          <div style={{ textAlign: "center" }}>{currentOrder?.data?.post?.tokenId?.toString()}
+              {currentOrder?.data?.post?.type === "Audio" && <><AudioPlayer url={currentOrder?.data?.uri} fontSize="5rem" /></>}
+              {currentOrder?.data?.post?.type === "Image" && <>
+              <img
+                  src={currentOrder?.data.uri}
+                  style={{ width: "20rem", height: "20rem", maxWidth: "100%", objectFit: "contain", top: 0 }}
+                  onError={e => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/1772/1772485.png";
+                  }}
+                ></img>              
+              </>}
+          </div>
+
+          <a
+            onClick={e => {
+              console.log("view", currentOrder.nftCollection, currentOrder.tokenId);
+              history.push("/edittoken/" + currentOrder.nftCollection + "/" + currentOrder.tokenId);
+            }}
+          >
+            View details 
+          </a>          
+
+          <h5>{currentOrder?.data?.post?.type} #{currentOrder?.tokenId?.toString()}</h5>
+        </>
       </Modal>
       <List
         style={{ verticalAlign: "top" }}
@@ -424,6 +455,8 @@ export default function ExchangeView(props) {
                     tokenId={order.tokenId}
                     deployedContracts={contractConfig.deployedContracts}
                     userSigner={userSigner}
+                    onGotPost={onGotPost}
+                    orderIdx={i}
                   />
                 </div>
 

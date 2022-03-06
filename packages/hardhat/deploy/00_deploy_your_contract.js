@@ -175,7 +175,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   })
 */
 
-/*
+
   console.log("Set Goldinar Minter *********************************"); 
   const gt = await ethers.getContract("Goldinar", deployer);
   const goldinarMinter = await gt.MINTER_ROLE();
@@ -331,7 +331,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
   console.log("Collection 0 added", nftCollection0.address); 
   await dm.collectionAdd(nftCollection1.address);
-*/  
+  
   /*
   await dm.collectionAdd(nftCollection2.address);
   console.log("Collection 2 added", nftCollection2.address); */

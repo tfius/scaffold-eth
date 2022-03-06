@@ -802,11 +802,33 @@ let tokenDrop = [
     {addr:"0xee6Ee982E4c5de2cCb6c3413f9Ad1B51f9fAD77C",	hash: "0x15c2a2079276c36bde0aaf9687df4d6a97be3a4067510c43c0b6428a0a34229d" },
 
 
+    {addr:"Batch 4",	hash:"" },
+    {addr:"0xeF67dB4aE50027Aa7E8e447eec766De1cdB42c3C"	, hash:"0x25b76935c82c465123970f1290ce47e1970f812933a6619c71bccabfe41d6ebd"},
+    {addr:"0xAB8d69E12Cccb7b566E88521729BDeCF3539359b"	, hash:"0xc755303bd823a15e680b8957d913f9a2cb886957597526a6d4214f368aad8d93"},
+    {addr:"0x7366026ecFd065D53D0fdb74cA05434F8F0abbF6"	, hash:"0xb7a57ee661a014eea4cbe6d38d33d277937ec0be640ab340ab331ab84fe50794"},
 
+    //{addr:"0xc30b6ca3afde0e3a6af58fccbb00e0a663536cda"	, hash:"0x7db32458277b41f488c4f7cfdfa49ab193cbddfa3d425bd9f08798c762462dc4"},
 
-
-
-
+    {addr:"Batch 5",	hash:"" },
+    {addr:"0xab8d69e12cccb7b566e88521729bdecf3539359b", 	hash:"0x7c28ca313b16627d67937081c109ab2ce1fec3ebdb0102f2c8692bbbeeaa80dc"},
+    {addr:"0xaa39d9f5a2f5507d8a6eac3af3b033176f37dafa", 	hash:"0x4be7ecacf604f6a3b117ca79d547434d24e9f9fd76f762e1c6fca6bcbd9c139c"},
+    {addr:"0x39f6befb0a0eda493507713061ee5983f55a49d6", 	hash:"0xc0d5b63712185ed5d524e624939d88daed32c5cd7d97c6415833b40bb2b94096"},
+    {addr:"0xb2174c3cb47bc9e417908905b7f8d65d06f4140c", 	hash:"0xfa09236a0da1340e07ee4c454312e5b3a8fb60d3c6a8f5597caaf82c554d6df0"},
+    {addr:"0xAE310FD4a39EB3732C8f089E80cD1f1EA158f530", 	hash:"0x6c01621ee82229daaa99cb6a0eb2799b382acae3fc4a44d9ba0b0dc083b09956"},
+    {addr:"0x5c0ef11dedb8b5fbce4e8964f2de42b05ad881de", 	hash:"0x4500c5822d24cf8890e66a1cf8e2d102f4c2cf83a942b3dea7b690d60f932a1f"},
+    {addr:"0x460635d1edaf3d25b419e3c4aace5c296e4ec02f", 	hash:"0x1cfa4eb1ae0ce7a2820529c9bdb9adc521e47807350ac171affe819b021a690c"},
+    {addr:"0xa99555e610d3c28c52a82995b7c6f6880f74452f", 	hash:"0x2590cfcd81a2de72aec9b292066f82b0d04dc006f3d9c79624c9f2e0f021b13b"},
+    {addr:"0xa3b08b3c41be2ab2ac6c4a987f26cbda07bdb4cc", 	hash:"0x68173136a6a3c81be5194f3d553c2b2b1ceb59ce935c38029d70041a2932f7b2"},
+    {addr:"0xcafe2ef59688187ee312c8aca10ceb798338f7e3", 	hash:"0x0a80ecad72245b7aa672940912438e9b16a8c5a57f4ff2bf8cf700bd3f6eb551"},
+    {addr:"0x7cfa6e0f18cbae5ad6c939c4a9da5ffc31927977", 	hash:"0x4d25fa4e538062518ce7eae4982c35e2300b1e14aa8d9dae7f9eabd282a752b6"},
+    {addr:"0x1d07ED363E758513c99851D43d6e80E7a06c0f01", 	hash:"0x1aa3ce660b4e93a046f1190338da55431d968d4527f11c224d61fc1b671c99e0"},
+    {addr:"0xf562b81738c44990d474429f7f0ac2ec36f62731", 	hash:"0xbe50d95d8cc5d646c3222c38e8abb4602337d294282fb9482eacc7f239e095f0"},
+    {addr:"0x47ce63bbead48b180cfea1a3e5fff60ddeebf116", 	hash:"0x357a15461026b1e46bc3e26197d3cb4b9004d992e8ea17e2c87fed446af690df"},
+    {addr:"0x6d42cf22f32456c29e8bd8b88a58264a3a9a6116", 	hash:"0x56c2bec724b4385cb6088af76d880396952a007246cdef1dfb61b0e19550d076"},
+    {addr:"0x9b42cb0a7d7f56b69846d4b8e959a38d6a6cd7c2", 	hash:"0xb00ef7355266a86a426ee307f1d3f114e859cd538e2303c9022b99d84c4c5338"},
+    {addr:"0x4f2eb1a47d110e5f83ba759875755aff583a1961", 	hash:"0x0e7fb4d8cd60756459d4280aa34451970cbfa9add687b25ac11ab525bd2a1cae"},
+    {addr:"0xc648200402ae94799b90c52620192af7dd797994", 	hash:"0x8016f625f49c92218f0d4b44d41f0ce0c09a71781dd6de922350cc481b1fb165"},
+    {addr:"0x4b3278f510e680cdd74cc875e436acd63fc96681", 	hash:"0x5c4a1264c25d8fa9c2149acae3879ea36f657b9f78ca97551eaa164bfd8e1e1c"}
 
   ];
 
@@ -818,15 +840,14 @@ export default function AvatarDropMint (props) {
   async function drop(r,i) {
     try {
       tokenDrop[i].state = "X";  
-      //tokenDrop[i].balance = (await readContracts.Avatar.balanceOf(tokenDrop[i].addr)).toString();
+      // tokenDrop[i].balance = (await readContracts.Avatar.balanceOf(tokenDrop[i].addr)).toString();
       //setReceivers(tokenDrop);
 
       //console.log(r.addr, r.hash);
       //const hasToken = await writeContracts.Avatar.ownerToToken(r.addr); 
       //console.log("has"+  r.addr, hasToken);
       //if(hasToken) { alert("hastoken"); return; }
-
-      /*  
+        
       tx(writeContracts.Avatar.create(r.addr, r.hash),
       update => {
             console.log("tx", update)
@@ -841,7 +862,7 @@ export default function AvatarDropMint (props) {
             }
          }, 
       );
-      */ 
+       
     
     } catch (e) {
         console.error(e);

@@ -98,10 +98,8 @@ export default function DataMinter(props) {
     setMetadataAddress("0x0000000000000000000000000000000000000000000000000000000000000000");
     try {
       const a = await readContracts.Avatar.balanceOf(address);
-      if(a.toNumber()>0) setHasAvatar(true);
-    } catch (e) {
-
-    }
+      if (a.toNumber() > 0) setHasAvatar(true);
+    } catch (e) {}
 
     if (dmCollections === undefined) return;
     const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
@@ -325,12 +323,15 @@ export default function DataMinter(props) {
   //   return a.indexOf(item) == pos;
   // })
   //console.log(dmCollections)
-  if(!hasAvatar) return (
-     <>
-         <br/> 
-         <h2>No Resistance Avatar</h2>
-         <div>To create new tokens you need Avatar</div> 
-     </>)
+
+  if (!hasAvatar)
+    return (
+      <>
+        <br />
+        <h2>No Resistance Avatar</h2>
+        <div>To create new tokens you need Avatar</div>
+      </>
+    );
 
   return (
     <div style={{ maxWidth: 1000, margin: "auto", marginTop: 16, paddingBottom: 16 }}>
@@ -356,16 +357,11 @@ export default function DataMinter(props) {
       ) : null}
       <div className="card-grid-container card-grid-container-fill">
         {yourTokenBalance > 0 ? <>{tokList} </> : null}
-
-
       </div>
-        <strong>{yourTokenBalance}</strong> Tokens in {collectionName} ({collectionSymbol})
-        {/* Balance: <strong> {ethers.utils.formatEther(balance)} DMTs</strong> <br /> */}
-
+      <strong>{yourTokenBalance}</strong> Tokens in {collectionName} ({collectionSymbol})
+      {/* Balance: <strong> {ethers.utils.formatEther(balance)} DMTs</strong> <br /> */}
       {/* <div style={{ width: "80%", margin: "auto" }}>{yourTokenBalance > 0 ? <>{tokList} </> : null}</div> */}
-
-
-     {/* <div style={{ width: "80%", margin: "auto" }}>
+      {/* <div style={{ width: "80%", margin: "auto" }}>
         <Card>
           <Select
             showSearch
@@ -419,8 +415,6 @@ export default function DataMinter(props) {
           </Button>
         </Card>
       </div>   */}
-
-
       {/* <div style={{ maxWidth: 820, margin: "auto", marginTop: 5, paddingBottom: 5, lineHeight: 1.2 }}>
         <Card>
           <h2>{collectionInformation.name}</h2>

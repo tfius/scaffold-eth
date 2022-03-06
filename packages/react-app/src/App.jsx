@@ -74,7 +74,7 @@ import AvatarDropMint from "./parts/views/AvatarDropMint";
 
 /// 📡 What chain are your contracts deployed to?
 const targetNetwork = NETWORKS.polygon; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
-//const targetNetwork = NETWORKS.localhost;
+// const targetNetwork = NETWORKS.localhost; 
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;

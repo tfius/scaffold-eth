@@ -7,28 +7,33 @@ const useAudio = url => {
   const toggle = () => setPlaying(!playing);
 
   useEffect(() => {
-      playing ? audio.play() : audio.pause();
-    },
-    [playing]
-  );
+    playing ? audio.play() : audio.pause();
+  }, [playing]);
 
   useEffect(() => {
-    audio.addEventListener('ended', () => setPlaying(false));
+    audio.addEventListener("ended", () => setPlaying(false));
     return () => {
-      audio.removeEventListener('ended', () => setPlaying(false));
+      audio.removeEventListener("ended", () => setPlaying(false));
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      audio.pause();
+      console.log("in cleanup");
     };
   }, []);
 
   return [playing, toggle];
 };
 
-const AudioPlayer = ({ url }) => {
+const AudioPlayer = ({ url, fontSize }) => {
   const [playing, toggle] = useAudio(url);
 
   return (
-    <div>
-      <span onClick={toggle} style={{fontSize:"20vmin"}}>{playing ? "⏸" : "▶"}</span>
-    </div>
+    <span onClick={toggle} style={{ fontSize: fontSize, cursor: "pointer" }}>
+      {playing ? "⏸" : "▶"}
+    </span>
   );
 };
 

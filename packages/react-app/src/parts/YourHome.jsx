@@ -448,7 +448,9 @@ export default function YourHome(props) {
       var balance = await helpers.makeCall("balanceOf", contract, [address]);
       if (balance != undefined) balance = balance.toNumber();
 
-      var isMint = await readContracts.Avatar.canMint();
+      //var isMint = await readContracts.Avatar.canMint();
+      var isMint = await readContracts.Avatar.canUserMint(address);
+      
       //console.log("isMint", isMint);
       setCanMint(isMint);
     } catch (e) {
