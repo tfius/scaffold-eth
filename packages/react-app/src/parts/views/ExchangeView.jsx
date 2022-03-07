@@ -391,18 +391,30 @@ export default function ExchangeView(props) {
         <>
           <h4>{currentOrder?.data?.post?.text}</h4>
 
-          <div style={{ textAlign: "center" }}>{currentOrder?.data?.post?.tokenId?.toString()}
-              {currentOrder?.data?.post?.type === "Audio" && <><AudioPlayer url={currentOrder?.data?.uri} fontSize="5rem" /></>}
-              {currentOrder?.data?.post?.type === "Image" && <>
-              <img
+          <div style={{ textAlign: "center" }}>
+            {currentOrder?.data?.post?.tokenId?.toString()}
+            {currentOrder?.data?.post?.type === "Audio" && (
+              <>
+                <AudioPlayer url={currentOrder?.data?.uri} fontSize="5rem" />
+              </>
+            )}
+            {currentOrder?.data?.post?.type === "Image" && (
+              <>
+                <img
                   src={currentOrder?.data.uri}
                   style={{ width: "20rem", height: "20rem", maxWidth: "100%", objectFit: "contain", top: 0 }}
                   onError={e => {
                     e.currentTarget.onerror = null;
                     e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/1772/1772485.png";
                   }}
-                ></img>              
-              </>}
+                ></img>
+              </>
+            )}
+            {currentOrder?.data?.post?.type === "Video" && (
+              <>
+                <video controls src={currentOrder?.data?.uri} style={{ width: "100%" }} />
+              </>
+            )}
           </div>
 
           <a
@@ -411,10 +423,12 @@ export default function ExchangeView(props) {
               history.push("/edittoken/" + currentOrder.nftCollection + "/" + currentOrder.tokenId);
             }}
           >
-            View details 
-          </a>          
+            View details
+          </a>
 
-          <h5>{currentOrder?.data?.post?.type} #{currentOrder?.tokenId?.toString()}</h5>
+          <h5>
+            {currentOrder?.data?.post?.type} #{currentOrder?.tokenId?.toString()}
+          </h5>
         </>
       </Modal>
       <List

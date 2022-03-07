@@ -828,8 +828,15 @@ let tokenDrop = [
     {addr:"0x9b42cb0a7d7f56b69846d4b8e959a38d6a6cd7c2", 	hash:"0xb00ef7355266a86a426ee307f1d3f114e859cd538e2303c9022b99d84c4c5338"},
     {addr:"0x4f2eb1a47d110e5f83ba759875755aff583a1961", 	hash:"0x0e7fb4d8cd60756459d4280aa34451970cbfa9add687b25ac11ab525bd2a1cae"},
     {addr:"0xc648200402ae94799b90c52620192af7dd797994", 	hash:"0x8016f625f49c92218f0d4b44d41f0ce0c09a71781dd6de922350cc481b1fb165"},
-    {addr:"0x4b3278f510e680cdd74cc875e436acd63fc96681", 	hash:"0x5c4a1264c25d8fa9c2149acae3879ea36f657b9f78ca97551eaa164bfd8e1e1c"}
+    {addr:"0x4b3278f510e680cdd74cc875e436acd63fc96681", 	hash:"0x5c4a1264c25d8fa9c2149acae3879ea36f657b9f78ca97551eaa164bfd8e1e1c"},
 
+    {addr:"Batch 6",	hash:"" },
+    {addr:"0x01B5E1FEFD8305c29E1c73555b29b18c5C8bAc84",	hash: "0x872ca22d41519b2de23985b849b1d5e934a9d42b912448b814991d2f8a852aa5" },
+    {addr:"0x041a57c9ccc721c8fb34fda982894f05aa99ef17",	hash: "0xfb492c5c4ad320345101e59e154e2bb596be39285abb052d353edaef9f6b8787" },
+    {addr:"0x0690adc3dea3dd819064c60f9eecc22e60991f2c",	hash: "0xcbef5b51b5a00e466f99eb326c9578c3ff0b663b06c4e4e3baa9f759efef7ff1" },
+    {addr:"0x087b3b59f6278355097fcd4efe5bdc455714b7c9",	hash: "0x80c02da8a682bbf54beb78da3289ceccbb84719bf44328f7faff7af85116c480" },
+    {addr:"0x0bc9325c14b55f0665485ab9c89f67673981641d",	hash: "0x561dc5447f90446f3f1bea26499cc6309c359f4b732382a80914b58d9cc8c4f3" },
+    {addr:"0x0fFA29f1dC5eBf54d7F034BD92DfdB6487187eF0",	hash: "0x670e221e97cd89dfd067f1b1dc4a4d588aa6073ae32cc0980f5f26dc17b445d9" },
   ];
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
@@ -848,6 +855,7 @@ export default function AvatarDropMint (props) {
       //console.log("has"+  r.addr, hasToken);
       //if(hasToken) { alert("hastoken"); return; }
         
+      return;
       tx(writeContracts.Avatar.create(r.addr, r.hash),
       update => {
             console.log("tx", update)
