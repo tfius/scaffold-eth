@@ -196,7 +196,7 @@ function App(props) {
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
-  const [isRelease, setIsRelease] = useState(true);
+  const [isRelease, setIsRelease] = useState(false);
 
   const logoutOfWeb3Modal = async () => {
     await web3Modal.clearCachedProvider();
@@ -706,7 +706,7 @@ function App(props) {
         <BrowserRouter>
           {!isRelease ? (
             <>
-              <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
+              {/* <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
                 <Menu.Item key="/loogies">
                   <Link
                     onClick={() => {
@@ -747,7 +747,7 @@ function App(props) {
                     Mint Loogie Tank
                   </Link>
                 </Menu.Item>
-              </Menu>
+              </Menu> */}
 
               <Menu style={{ textAlign: "center", fontSize: "1.3vmin" }} selectedKeys={[route]} mode="horizontal">
                 <Menu.Item key="/markable">

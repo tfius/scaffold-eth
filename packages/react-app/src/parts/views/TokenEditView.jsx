@@ -54,7 +54,7 @@ export default function TokenEditView(props) {
     if (isActive) {
       interval = setInterval(() => {
         setSeconds(seconds => seconds + 1);
-      }, 20000);
+      }, 30000);
     } else if (!isActive && seconds !== 0) {
       clearInterval(interval);
     }
@@ -67,9 +67,10 @@ export default function TokenEditView(props) {
 
   useEffect(() => {}, [tokenData]);
 
+  /*
   useEffect(() => {
     getDMNFTToken();
-  }, [post]);
+  }, [post]);*/
 
   useEffect(() => {
     dispatch({ type: "RESET" });
@@ -80,7 +81,7 @@ export default function TokenEditView(props) {
   }, [contract, id]);
 
   useEffect(() => {
-    getDMCollectionContract(3);
+    getDMCollectionContract();
   }, []);
 
   async function getTokenOwnerAvatar(data) {
@@ -107,7 +108,7 @@ export default function TokenEditView(props) {
   function getDMCollectionContract(contractIndex) {
     if (dmCollections === undefined) return null;
     const contracts = helpers.getDeployedContracts(); //helpers.findPropertyInObject("contracts", contractConfig.deployedContracts);
-    if(contracts==undefined) return null;
+    if (contracts == undefined) return null;
     const teamsContract = new ethers.Contract(contractAddress, contracts.DMCollection.abi, userSigner);
     setContract(teamsContract);
   }
@@ -146,7 +147,12 @@ export default function TokenEditView(props) {
     var tokenUri = await helpers.makeCall("tokenURI", contract, [id]);
     var dataLocationCount = await helpers.makeCall("dataLocationCount", contract, [id]);
 
-    var numVotes = await readContracts.Voting.totalVotesFor(contract.address, id);
+    var numVotes = 0; 
+    try 
+    {
+       numVotes = await readContracts.Voting.totalVotesFor(contract.address, id);
+       numVotes = numVotes.toNumber();
+    } catch(e) {}
 
     //console.log("dataLocationCount", dataLocationCount);
     var locations = [];
@@ -158,7 +164,7 @@ export default function TokenEditView(props) {
         count--;
         if (count == -1) break;
         try {
-          console.log("dataLocationCount", start, i);
+          //console.log("dataLocationCount", start, i);
           var dataLocation = await helpers.makeCall("dataLocations", contract, [id, i]);
           if (dataLocation === "0x0000000000000000000000000000000000000000000000000000000000000000") {
             continue;
@@ -169,7 +175,6 @@ export default function TokenEditView(props) {
           var json = await (await fetch(url)).json();
           posts.push(json);
           //posts = json;
-          console.log("posts", posts);
           //console.log("data", i, url, json);
         } catch (e) {
           console.log("error", e);
@@ -177,19 +182,21 @@ export default function TokenEditView(props) {
       }
     }
 
+    //console.log("posts", posts);
+
     //var tokenAddressables = await helpers.makeCall("tokenAddressables", contract, [id]);
     try {
       var data = JSON.parse(tokenInfo);
       data.id = id.toString();
       data.tokenUri = tokenUri;
       data.name = ethers.utils.toUtf8String(data.n).replace(/[^\x01-\x7F]/g, "");
-      data.uri = tokenUri;
+      //data.uri = tokenUri;
       data.links = links;
       data.parents = parentLinks;
       data.locations = locations;
       data.posts = posts;
-      data.numVotes = numVotes.toNumber();
-      console.log("tokenData", data);
+      data.numVotes = numVotes; //.toNumber();
+      //console.log("tokenData", data);
 
       setDataUrl(helpers.downloadGateway + data.d.substring(2) + "/");
 
@@ -198,10 +205,14 @@ export default function TokenEditView(props) {
 
       setFileMetadata(json);
       // setPostText(json);
-
-      console.log("post: ", json);
+      /*try {
+        data.meta = json;
+      } catch (e) {
+        console.log("error adding meta", e, json);
+      }*/
 
       setTokenData(data);
+      console.log("tokenData", data);
 
       try {
         await getTokenOwnerAvatar(data);
@@ -315,24 +326,33 @@ export default function TokenEditView(props) {
         </div>
       </Card>
 
-      {tokenData.posts.map((d, i) => (
-        <div className="">
-          <div style={{ textAlign: "left" }}>
-            <small>{d.avatarName}</small>
-          </div>
+      {tokenData.posts.map((p, i) => (
+        <div className="" key={"post_"+i}>
+          {/* <div style={{ textAlign: "right" }}>
+            <small>{p.avatarName}</small>
+          </div> */}
 
-          <div style={{ textAlign: "center" }}>{d.title}</div>
-          <div
-            className="ant-card-body"
-            style={{ textAlign: "left", paddingLeft: "20px", paddingTop: "0px", paddingBottom: "0px" }}
-          >
-            {d.postText}
+          <h3 style={{ textAlign: "left"}}>{p.title}</h3>
+          
+              
+          
+          
+          <div className="ant-card-body" style={{ textAlign: "left", paddingLeft: "20px", paddingTop: "5px", paddingBottom: "5px" }} >
+            <Tooltip title={"by "+ p.avatarName} placement="topLeft">
+              {p.postText}
+            </Tooltip>
             <br />
 
-            {d.fileHash && (
-              <a href={helpers.downloadGateway + d.fileHash?.substring(2) + "/"} target="_blank">
-                View File
-              </a>
+            {p.fileHash && (
+              <>
+                <a href={helpers.downloadGateway + p.fileHash?.substring(2) + "/"} target="_blank">
+                  View File
+                </a>
+
+                {p.fileType === "Audio" && (
+                  <AudioPlayer url={helpers.downloadGateway + p.fileHash?.substring(2) + "/"} fontSize="1rem" />
+                )}
+              </>
             )}
           </div>
         </div>

@@ -140,7 +140,7 @@ export default function DMTViewer(props) {
 
       //var newBalance = await helpers.makeCall("balanceOf", contract, [address]);
       //if (newBalance != undefined) setYourTokenBalance(newBalance.toNumber());
-      console.log("DMTViewer", token, json);
+      // console.log("DMTViewer", token, json);
       switch (json.type) {
         case "Audio":
           {
