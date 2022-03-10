@@ -295,10 +295,32 @@ const StoreProvider = ({ children }) => {
     }
   };
 
-  const appendDataToken = async ({ title, postText, text, address, avatarToken, tokenData, contract, id }, hash) => {
+  const appendDataToken = async (
+    {
+      title,
+      postText,
+      text,
+      address,
+      avatarToken,
+      tokenData,
+      contract,
+      id,
+      filename,
+      filesize,
+      mimeType,
+      mimeHash,
+      selectedType,
+    },
+    hash,
+  ) => {
     console.log("appendDataToken", { title, postText, text, address, avatarToken, tokenData, contract, id }, hash);
     console.log("avatarToken", avatarToken);
     var post = {
+      filename,
+      filesize,
+      mimeType,
+      mimeHash,
+      fileType: selectedType,
       title,
       postText: postText ? postText : text,
       address: address,
@@ -308,12 +330,12 @@ const StoreProvider = ({ children }) => {
       id: tokenData.id,
       uri: tokenData.uri,
       contract: contract.address,
-      type: "post",
+      type: "file",
     };
     if (hash) {
       post.fileHash = hash;
     }
-    console.log("post text", post);
+    console.log("file post:", post);
     const swarmHash = await uploadJsonToBee(post, "post.json");
     console.log("swarmHash", swarmHash);
     const result = await helpers.makeCall("addDataLocation", contract, [id, "0x" + swarmHash]); // make tx
