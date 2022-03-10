@@ -3,6 +3,90 @@ import { uploadFileToBee, uploadJsonToBee } from "../parts/SwarmUpload/BeeServic
 import { ethers } from "ethers";
 import * as helpers from "../parts/helpers";
 
+/*
+
+State machine
+-------------
+
+Illustrated with file upload to Swarm
+
+1) FileUpload.jsx - receive file from user - dispatch action to state machine with the file
+....
+dispatch({ type: "UPLOAD_TO_SWARM", payload: file });
+...
+
+2) state/index.js - process file and add result to state
+a) reducerActions - states for handing file upload: UPLOAD_TO_SWARM, PREVIEW_UPLOAD, UPLOAD_SUCCESS, UPLOAD_FAIL  
+...
+case "UPLOAD_TO_SWARM":
+    payload,
+    upload: true
+...
+
+b) StoreProvider useEffect - triggers when the action updates the upload boolean flag
+...
+useEffect(() => {
+  if (state.upload) {
+    uploadToSwarm(state.payload);
+  }
+}, [state.upload]);
+...
+
+c) uploadToSwarm - upload file and calls dispatch with file hash
+
+const uploadToSwarm = async file => {
+  dispatch({ type: "LOADING" }); // turn on loaders etc on the front end
+
+  let payload = buildPayload(file);
+  dispatch({ type: "PREVIEW_UPLOAD", file: payload }); // provider the blob url while user waits for upload to finish
+
+  try {
+    const hash = await uploadFileToBee(file);
+    dispatch({ type: "UPLOAD_SUCCESS", hash: "0x" + hash }); // upload complete, dispatch action with hash
+  } catch (error) {
+    console.log("error", error);
+    dispatch({ // upload failed, show user the error message why upload failed
+      type: "UPLOAD_FAIL",
+      error: true,
+      errorMessage: error.message,
+    });
+  }
+};
+
+d) reducerActions - states for handling file upload responses: UPLOAD_SUCCESS, UPLOAD_FAIL  
+...
+case "UPLOAD_SUCCESS":
+      return {
+        ...state,
+        loading: false,
+        upload: false,
+        hash: action.hash,
+        error: false,
+        appendDataToken: false,
+      };
+case "UPLOAD_FAIL":
+  return {
+    ...state,
+    upload: false,
+    error: true,
+    errorMessage: action.errorMessage,
+  };
+...
+
+e) FileUpload.jsx or any other consumer - access state objects and paint ui
+
+// get the states
+const {
+  state: { file, hash, loading, error, errorMessage }
+} = useStore();
+
+...
+{file?.mimeType.includes("image") && (<img src={file?.previewUrl} />)}
+...
+
+
+*/
+
 const reducerActions = (state = initialState, action) => {
   const { type, payload } = action;
   console.log("action: ", type);
@@ -18,6 +102,31 @@ const reducerActions = (state = initialState, action) => {
         upload: true,
         hash: null,
         appendDataToken: false,
+      };
+    case "PREVIEW_UPLOAD":
+      return {
+        ...state,
+        loading: true,
+        error: false,
+        file: action.file,
+        upload: true,
+        appendDataToken: false,
+      };
+    case "UPLOAD_SUCCESS":
+      return {
+        ...state,
+        loading: false,
+        upload: false,
+        hash: action.hash,
+        error: false,
+        appendDataToken: false,
+      };
+    case "UPLOAD_FAIL":
+      return {
+        ...state,
+        upload: false,
+        error: true,
+        errorMessage: action.errorMessage,
       };
     case "APPEND_DATA_TOKEN":
       return {
@@ -66,31 +175,6 @@ const reducerActions = (state = initialState, action) => {
         hash: null,
         error: true,
         errorMessage: payload,
-      };
-    case "PREVIEW_UPLOAD":
-      return {
-        ...state,
-        loading: true,
-        error: false,
-        file: action.file,
-        upload: true,
-        appendDataToken: false,
-      };
-    case "UPLOAD_SUCCESS":
-      return {
-        ...state,
-        loading: false,
-        upload: false,
-        hash: action.hash,
-        error: false,
-        appendDataToken: false,
-      };
-    case "UPLOAD_FAIL":
-      return {
-        ...state,
-        upload: false,
-        error: true,
-        errorMessage: action.errorMessage,
       };
     case "RESET":
       return initialState;
@@ -211,10 +295,32 @@ const StoreProvider = ({ children }) => {
     }
   };
 
-  const appendDataToken = async ({ title, postText, text, address, avatarToken, tokenData, contract, id }, hash) => {
+  const appendDataToken = async (
+    {
+      title,
+      postText,
+      text,
+      address,
+      avatarToken,
+      tokenData,
+      contract,
+      id,
+      filename,
+      filesize,
+      mimeType,
+      mimeHash,
+      selectedType,
+    },
+    hash,
+  ) => {
     console.log("appendDataToken", { title, postText, text, address, avatarToken, tokenData, contract, id }, hash);
     console.log("avatarToken", avatarToken);
     var post = {
+      filename,
+      filesize,
+      mimeType,
+      mimeHash,
+      fileType: selectedType,
       title,
       postText: postText ? postText : text,
       address: address,
@@ -224,12 +330,12 @@ const StoreProvider = ({ children }) => {
       id: tokenData.id,
       uri: tokenData.uri,
       contract: contract.address,
-      type: "post",
+      type: "file",
     };
     if (hash) {
       post.fileHash = hash;
     }
-    console.log("post text", post);
+    console.log("file post:", post);
     const swarmHash = await uploadJsonToBee(post, "post.json");
     console.log("swarmHash", swarmHash);
     const result = await helpers.makeCall("addDataLocation", contract, [id, "0x" + swarmHash]); // make tx

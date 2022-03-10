@@ -66,6 +66,12 @@ const FileUpload = props => {
     multiple: false,
   });
 
+  const filename = file ? file.filename : "";
+  const filesize = file ? file.filesize : "";
+  const mimeType = file ? file.mimeType : "";
+  const mimeHash = file ? file.mimeHash : "";
+  const selectedType = file ? file.selectedType : "";
+
   return (
     <>
       <span style={{ color: "red" }}> {errorMessage} </span>
@@ -155,6 +161,11 @@ const FileUpload = props => {
                     dispatch({
                       type: "APPEND_DATA_TOKEN",
                       payload: {
+                        filename,
+                        filesize,
+                        mimeType,
+                        mimeHash,
+                        selectedType,
                         address,
                         title,
                         text,
