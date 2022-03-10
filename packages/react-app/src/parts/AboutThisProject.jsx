@@ -14,7 +14,7 @@ export default function AboutThisProject(props) {
 
   const chain = "Polygon";
   const symbol = "MATIC";
-  const RPC = "https://rpc-mainnet.maticvigil.com";//https://dai.poa.network";
+  const RPC = "https://polygon-rpc.com/"; // "https://rpc-mainnet.maticvigil.com";//https://dai.poa.network";
   const chainId = "137"; // 100"
   const blockExplorer = "https://polygonscan.com/"; //https://goerli.etherscan.io/";
   const faucet = ""; //https://goerli-faucet.slock.it/";
@@ -102,7 +102,7 @@ export default function AboutThisProject(props) {
           Once the NFT drop goes live, you will have forty-eight hours to mint your NFT. Any FDS Resistance genesis NFTs
           that are not minted addresses during the forty-eight-hour mint window will be available to mint after a public
           launch.
-          <li>What happens if I lose access to my Ethereum wallet/address?</li>
+          <li>What happens if I lose access to my {chain} wallet/address?</li>
           The best way to prevent a lost wallet or wallet address is to make numerous physical copies of your seed
           phrase (“Secret Recovery Phrase”) and to store these copies in places you know and trust. Unfortunately, not a
           lot can be done if you’ve lost every copy of your wallet seed phrase, so please ensure to keep it safe. Never
@@ -121,8 +121,8 @@ export default function AboutThisProject(props) {
       <Card title="Terms and Conditions (March 2022)">
         This website is a simple user interface that is available as free, public, open-source or source-available
         software, and is only a possible way to display the decentralised Resistance NFT game, which can also be
-        displayed directly by accessing the Ethereum blockchain or by any other user interface. Resistance NFT is a set
-        of smart contracts deployed and running autonomously on the decentralized public Ethereum blockchain. Your
+        displayed directly by accessing the {chain} blockchain or by any other user interface. Resistance NFT is a set
+        of smart contracts deployed and running autonomously on the decentralized public {chain} blockchain. Your
         access and use of Resistance NFT is at your own risk. Before engaging with Resistance NFT, you should review the
         relevant documentation to make sure you understand how Resistance NFT and the Swarm network works. Resistance
         NFT does not have access to your private key and cannot initiate a transfer or otherwise access your tokens. We
