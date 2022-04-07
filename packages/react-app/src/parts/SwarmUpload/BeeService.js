@@ -11,7 +11,7 @@ const META_FILE_NAME = ".swarmgatewaymeta.json";
 export const uploadFileToBee = async file => {
   const lastModified = file.lastModified;
   const bee = new Bee(helpers.uploadGateway);
-  console.log("bee", bee);
+  //console.log("bee", bee);
 
   const metadata = {
     name: file.name,
@@ -19,7 +19,7 @@ export const uploadFileToBee = async file => {
     size: file.size,
   };
 
-  console.log("metadata", metadata);
+  //console.log("metadata", metadata);
 
   const metafile = new File([JSON.stringify(metadata)], META_FILE_NAME, {
     type: "application/json",

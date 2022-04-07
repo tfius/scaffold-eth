@@ -52,6 +52,10 @@ import * as helpers from "./parts/helpers";
 import { ethers } from "ethers";
 import AvatarTaskMint from "./parts/views/AvatarTaskMint";
 import AvatarDropMint from "./parts/views/AvatarDropMint";
+import AvatarNftMint from "./parts/views/AvatarNftMint";
+
+import ViewNftAvatar from "./parts/views/ViewNftAvatar.jsx";
+
 
 /*
     Welcome to 🏗 scaffold-eth !
@@ -853,6 +857,16 @@ function App(props) {
                     AvatarDrop
                   </Link>
                 </Menu.Item>                
+                <Menu.Item key="/avatarnftmint">
+                  <Link
+                    onClick={() => {
+                      setRoute("/avatarnftmint");
+                    }}
+                    to="/avatarnftmint"
+                  >
+                    AvatarNFT
+                  </Link>
+                </Menu.Item>                
               </Menu>
             </>
           ) : null}
@@ -1014,6 +1028,16 @@ function App(props) {
               />
             </Route>
 
+            <Route path="/viewNftAvatar/:ownerAddress/:tokenId">
+              <ViewNftAvatar
+                readContracts={readContracts}
+                localProvider={localProvider}
+                userSigner={userSigner}
+                tx={tx}
+                address={address}
+              />
+            </Route>
+
             <Route path="/avatarTaskMint">
               <AvatarTaskMint
                 dmCollections={dmCollections}
@@ -1040,6 +1064,18 @@ function App(props) {
                 chainId={selectedChainId}
               />
             </Route>            
+            
+            <Route path="/avatarnftmint">
+              <AvatarNftMint
+                writeContracts={writeContracts}
+                readContracts={readContracts}
+                gasPrice={gasPrice}
+                tx={tx}
+                title="Drop Avatars"
+                address={address}
+                chainId={selectedChainId}
+              />
+            </Route>              
             <Route path="/exchange">
               <ExchangeView
                 dmCollections={dmCollections}

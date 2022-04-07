@@ -2,6 +2,22 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import * as helpers from "./../helpers";
 
+/*
+ Construct json like: 
+   nftData = {
+     description: "",
+     "external_url": "",
+     "image": "",
+     "name": "",
+     "attributes": [
+       { 
+         "trait_type": "BackgroundColor", 
+         "value": "Some color" 
+        },
+     ]
+   }
+ */
+
 let tokenDrop = [ 
 
     {addr:"Batch 1"	, hash:""},
@@ -837,6 +853,25 @@ let tokenDrop = [
     {addr:"0x087b3b59f6278355097fcd4efe5bdc455714b7c9",	hash: "0x80c02da8a682bbf54beb78da3289ceccbb84719bf44328f7faff7af85116c480" },
     {addr:"0x0bc9325c14b55f0665485ab9c89f67673981641d",	hash: "0x561dc5447f90446f3f1bea26499cc6309c359f4b732382a80914b58d9cc8c4f3" },
     {addr:"0x0fFA29f1dC5eBf54d7F034BD92DfdB6487187eF0",	hash: "0x670e221e97cd89dfd067f1b1dc4a4d588aa6073ae32cc0980f5f26dc17b445d9" },
+
+    {addr:"Batch 7",	hash:"" },
+    {addr:"0x210036e24248Cf7380A1d1ab150961A5b41630Ed",	hash: "0x2e662cd683a4aff479c46446f6ebb332a0d89cff948a126c32731bbd4ccbdd34" },
+    {addr:"0x41b2E6a54eFb75B2bB95f8a2c5e9ce65fe8B5498",	hash: "0xe62933b4827afadfa995f9ce68c3b480c982991d011393bd11b3067d094ce253" },
+    {addr:"0xfB067cBEE50cd212Ea0Bec199cfFe43F73B91fC1",	hash: "0x25b76935c82c465123970f1290ce47e1970f812933a6619c71bccabfe41d6ebd" },
+
+    {addr:"Batch 8",	hash:"" },
+    {addr:"0xE27F2E8321Fb4c32525a4ED86d2902dbA63491E4",	hash: "0xb7f13e3c3c849a5a271ad96fda212dd8119d92729db746905e47818095402a92" },
+    {addr:"0x22eC5afF23203E3F21BF2660B1eC245c858B7766",	hash: "0x8222bd66001267b12cd34b2b98f0b3e9c7d5f3432bef084496a498aebe3fa284" },
+
+    {addr:"Batch 9",	hash:"" },
+    {addr:"0xa91AE5dB6e876Bc898c732f311925F2C4E82AA8A",	hash: "0x5a60daf2fc2ed52d0a2162af4e5bb1f801ecf161b1557c3ebe7927617df50a17" },
+
+    {addr:"Batch 10",	hash:"" },
+    {addr:"0x7447382bAFf5EfBFD620d6034294C9a17D5475D9",	hash: "0x3c207bdeb295272dd7c8776ee8a1e5a33da913989a587058af7e10994be4759d" },
+
+    {addr:"Batch 11",	hash:"" },
+    {addr:"0xd71fAC9368aC952f8B4cC0C090351d723b453Dfd",	hash: "0x357a15461026b1e46bc3e26197d3cb4b9004d992e8ea17e2c87fed446af690df" },
+    
   ];
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
@@ -855,7 +890,7 @@ export default function AvatarDropMint (props) {
       //console.log("has"+  r.addr, hasToken);
       //if(hasToken) { alert("hastoken"); return; }
         
-      return;
+      //return;
       tx(writeContracts.Avatar.create(r.addr, r.hash),
       update => {
             console.log("tx", update)
