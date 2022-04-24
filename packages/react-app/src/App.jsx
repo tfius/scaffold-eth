@@ -201,7 +201,7 @@ function App(props) {
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
-  const [isRelease, setIsRelease] = useState(false);
+  const [isRelease, setIsRelease] = useState(true);
 
   const logoutOfWeb3Modal = async () => {
     await web3Modal.clearCachedProvider();
