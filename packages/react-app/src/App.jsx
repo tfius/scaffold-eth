@@ -79,6 +79,7 @@ import ViewNftAvatar from "./parts/views/ViewNftAvatar.jsx";
 /// 📡 What chain are your contracts deployed to?
 const targetNetwork = NETWORKS.polygon; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 // const targetNetwork = NETWORKS.localhost; 
+//const targetNetwork = NETWORKS.mumbai; 
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -837,6 +838,17 @@ function App(props) {
                     Avatar
                   </Link>
                 </Menu.Item>
+                
+                <Menu.Item key="/wamspring2022">
+                  <Link
+                    onClick={() => {
+                      setRoute("/wamspring2022");
+                    }}
+                    to="/wamspring2022"
+                  >
+                    WAMS2022
+                  </Link>
+                </Menu.Item>                
                 <Menu.Item key="/avatartaskmint">
                   <Link
                     onClick={() => {
@@ -1247,6 +1259,18 @@ function App(props) {
               <Contract
                 name="Goldinar Farm"
                 customContract={writeContracts && writeContracts.GoldinarFarm}
+                signer={userSigner}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+                contractConfig={contractConfig}
+              />
+            </Route>
+
+            <Route exact path="/wamspring2022">
+              <Contract
+                name="WAMSpring2022"
+                customContract={writeContracts && writeContracts.WAMSpring2022}
                 signer={userSigner}
                 provider={localProvider}
                 address={address}

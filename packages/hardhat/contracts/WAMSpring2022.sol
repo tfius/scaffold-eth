@@ -10,83 +10,70 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 contract WAMSpring2022 is ERC721Enumerable {
     using Strings for string;  
     address public minter;
-    struct Character { 
-        uint256 experience;  // non zero when on journey, else starting time of journey
-        uint256 ability;  // non zero when on journey, else starting time of journey
-        uint256 reputation;   // last journey time in s
-        uint256 plur;   // total time on journeys (/60 /60 to get hours)
+    struct Avatar { 
+        uint256 level;  // 
+        uint256 duePayment;  // 
+        uint256 totalEarned;  // 
+        uint256 journey;  // non zero when on journey, else starting time of journey
+        uint256 lastJourneyDuration;   // last journey time in s
+        uint256 totalTime;   // total time on journeys (/60 /60 to get hours)
         uint256 askCostPerH; // what is avatars cost per h (used for agreements)
+        address agreedWith; // address of contract who agreed with this avatar
         uint256 mint;
         bytes32 swarmLocation; // what is avatars cost per h (used for agreements)
         string  name;
     }
  
-    Character[] public avatars;
-    mapping(address => uint256) public ownerToToken;
+    Avatar[] public avatars;
 
-    bool    public canMint;
-    uint256 public taskxp;
-    uint256 public taskskill; 
-    uint256 public taskreputation;
-    uint256 public taskplur; 
-    uint256 public taskrelatable;    
-    uint256 public lastBlock;    
+    uint256 public taskLevel;
     uint256 public lastMint;
-    
 
-    constructor() ERC721("WAM Spring 2022 Hackathon", "WAM Spring 22")
+    constructor() ERC721("WeAreMillions Spring 2022 Hackathon", "WAM Spring 22")
     {   
         minter=msg.sender;
+    } 
+
+    function setMinter(address _minter) public {
+        require(msg.sender == minter);
+        minter=_minter;
     }
 
     function create(address to, bytes32 swarmLocation) public returns (uint256) {
-        require(msg.sender==minter, "!r");
+        require(msg.sender==minter, "!minter");
         uint id = createAvatar(to, "", swarmLocation);  // create without a name
-        ownerToToken[to] = id;
         return id; 
     }
 
-    function mint() public returns (uint256) {
-        // add xp to avatar token 
-        require(canMint && block.timestamp<lastBlock, "over");
-        uint256 tokenId = ownerToToken[msg.sender];
-        require(avatars[tokenId].mint!=lastMint, "minted");
-
-        if(taskxp!=0)
-        {
-            avatars[tokenId].experience += taskxp;
-        }
-
-        avatars[tokenId].mint = lastMint;
-        return tokenId; 
-    }
-    function canUserMint(address _user) public view returns (bool) {
-        return canMint && avatars[ownerToToken[_user]].mint!=lastMint && block.timestamp>lastBlock;
+    function canMintXP(uint256 tokenId) public view returns (bool) {
+        return avatars[tokenId].mint<lastMint; 
     }
 
-    function prepareMint(bool _canMint, uint256 _xp, uint256 _skill, uint256 _reputation, uint256 _plur, uint256 _relatable) public {
-        require(msg.sender==minter, "!r");
+    function prepareMint(uint256 _points) public {
+        require(msg.sender==minter, "no rights");
 
-        // add xp to avatar - token 
-        canMint = _canMint;
-        taskxp = (_xp % 5001);
-        taskskill =_skill;
-        taskreputation = _reputation;
-        taskplur = _plur;
-        taskrelatable = _relatable; 
-
+        taskLevel = (_points % 10001); // cant get more than 10k XP
         lastMint = block.timestamp;
-        lastBlock = lastMint + 5400; // 90min is mint time max
         return; 
     }
 
-    function setName(string memory name) public returns (bool) {
-        //require(ownerOf(tokenId) == msg.sender, "not owner");
-        uint256 tokenId = ownerToToken[msg.sender];
+    function mint(uint256 tokenId) public returns (uint256) {
+        require(_exists(tokenId), "!exists");
+        require(avatars[tokenId].mint<lastMint, "minted round"); // was already minted
+
+        avatars[tokenId].level += taskLevel;
+        avatars[tokenId].mint = lastMint;
+        return tokenId; 
+    }    
+
+    function setName(uint256 tokenId, string memory name) public returns (bool) {
+        require(
+            _isApprovedOrOwner(_msgSender(), tokenId), 
+            "ERC721: caller is not owner nor approved"
+        );
         avatars[tokenId].name = name;
         return true; 
     }
-
     
     string public gateway = "https://gateway.fairdatasociety.org/bzz/";
     function setGateway(string memory newGateway) public virtual returns (string memory)  {
@@ -104,36 +91,41 @@ contract WAMSpring2022 is ERC721Enumerable {
         return string(abi.encodePacked(_baseURI(), bytes32string(avatars[tokenId].swarmLocation),"/"));
     }
 
-    function setTokenURI(uint256 tokenId, string memory _tokenURI) public {
+    function contractURI() public pure returns (string memory) {
+        return "https://resistance.fairdatasociety.org/wam-s22-metadata.json";
+    }
+
+    function setTokenURI(uint256 tokenId, bytes32 _tokenURI) public {
         require(
             _isApprovedOrOwner(_msgSender(), tokenId), 
             "ERC721: transfer caller is not owner nor approved"
         );
-        _setTokenURI(tokenId, _tokenURI);
+        avatars[tokenId].swarmLocation = _tokenURI;
     }
 
-    // 0xd27ffA0e47Fca8D3E757B4d2C408169859B8c419
-    // 0x94e812c9e0a874a4d5e89ae0a6ae4818c5a69f2aa43bb7c8e0345bde244d16ee
     function createAvatar(address to, string memory _avatarName, bytes32 swarmLocation) internal returns (uint256)
     {
         uint256 newId = avatars.length;
 
         avatars.push(
-            Character(
-                0, // experience
+            Avatar(
+                0, // level
+                0, // duePayment
+                0, // total earned
                 0, // journey
                 0, // journeyLastDuration
                 0, // totalH
                 0, // askCostPerH
+                address(0),  // agreedWith
                 block.timestamp, // mint
                 swarmLocation, // swarmLocation
                 _avatarName
             )
         );
         _safeMint(to, newId);
-        return newId;
+        return newId; 
     }
-    function getAvatarInfo(uint256 tokenId) public view returns (Character memory)
+    function getAvatarInfo(uint256 tokenId) public view returns (Avatar memory)
     {
         return avatars[tokenId];
     } 
@@ -143,28 +135,52 @@ contract WAMSpring2022 is ERC721Enumerable {
     }
 
     function setCostPerH(uint tokenId, uint256 amount) public {
-        require(msg.sender==ownerOf(tokenId),"!o");
+        require(msg.sender==ownerOf(tokenId),"!owner");
+        require(avatars[tokenId].journey<1,"can't set while on journey");
         avatars[tokenId].askCostPerH = amount;
     }
 
+    function getCostPerH(uint256 tokenId) public view returns (uint256) {
+        return avatars[tokenId].askCostPerH;
+    }
+
     function journeyStart(uint tokenId) public {
-        require(_isApprovedOrOwner(tokenId),"!a!o");
-        require(avatars[tokenId].journey<1,"j");
+        require(_isApprovedOrOwner(tokenId), "not approved");
+        require(avatars[tokenId].journey<1,"already on journey");
         avatars[tokenId].journey = block.timestamp;
+        avatars[tokenId].agreedWith = _msgSender(); 
     } 
 
     function journeyFinish(uint tokenId) public {
-        require(_isApprovedOrOwner(tokenId)); 
-        require(avatars[tokenId].journey>0,"!j");
+        require(_isApprovedOrOwner(tokenId), "not approved"); 
+        require(avatars[tokenId].journey>0, "not on journey");
 
         avatars[tokenId].lastJourneyDuration = (block.timestamp - avatars[tokenId].journey);
         avatars[tokenId].totalTime += avatars[tokenId].lastJourneyDuration;
         avatars[tokenId].journey = 0; // not on journey anymore
 
-        // upgrade AvatarAbility  
         uint timeInHours = (avatars[tokenId].lastJourneyDuration) / 60 / 60; // in hours 
-        avatars[tokenId].experience = timeInHours * xp_per_h; // each journey gets you experience per hour 
+        avatars[tokenId].duePayment += timeInHours * avatars[tokenId].askCostPerH; // amount earned
     }
+
+    /// @dev call to get amount due
+    /// @param tokenId totalEarned
+    /// @return Documents the return variables of a contract’s function state variable
+    function paymentDue(uint256 tokenId) public view returns (uint256) {
+        return avatars[tokenId].duePayment;
+    }
+
+    function paymentProcessed(uint256 tokenId) public returns (uint256) {
+        require(
+            _isApprovedOrOwner(_msgSender(), tokenId), 
+            "ERC721: caller is not owner nor approved"
+        );
+        require(avatars[tokenId].agreedWith ==_msgSender(),"not agreed with sender");
+        avatars[tokenId].totalEarned += avatars[tokenId].duePayment; // amount earned
+        avatars[tokenId].duePayment = 0;
+
+        return tokenId; 
+    } 
 
     function bytes32string(bytes32 b32) public pure returns (string memory out) {
         bytes memory s = new bytes(64);

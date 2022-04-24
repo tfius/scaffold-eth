@@ -24,7 +24,22 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
   console.log("Deployer", deployer);
 
-  
+  console.log("Avatar WAMSpring2022 *********************************"); 
+  const avatarWAMSpring2022 = await deploy('WAMSpring2022', {
+    from: deployer,
+    //args: [goldinarToken.address],
+    log: true,
+  })  
+  //0xd27ffA0e47Fca8D3E757B4d2C408169859B8c419
+
+
+  // console.log("Avatar Minter *********************************"); 
+  // const aw = await ethers.getContract("WAMSpring2022", deployer);
+  // const tx = await aw.setMinter("0xe41AeaeA0121Cf689D46702e350Cc07E0002eB2B"); 
+  // console.log("Avatar Minter", tx);
+ 
+
+  /*
   console.log("Markable *********************************"); 
   const dmMarkable = await deploy('DMMarkable', {
     from: deployer,
@@ -113,12 +128,13 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
    }) 
 
   console.log("NFTCollection *********************************"); 
-  /*const nftCollection2 = await deploy('DMCollection', {
+  //const nftCollection2 = await deploy('DMCollection', {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
-    from: deployer,
-    args: ["DMTNFT3", "DM-C-2", dmHelpers.address],
-    log: true,
-  })*/
+  //  from: deployer,
+  //  args: ["DMTNFT3", "DM-C-2", dmHelpers.address],
+  //  log: true,
+  //}) 
+
   const nftCollection1 = await deploy('DMCollection1', {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
@@ -165,15 +181,15 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   })
 
 
-/*
-  console.log("SafeRangePool *********************************"); 
-  const safeRangePool = await deploy('SafeRangePool', {
-    // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
-    from: deployer,
-    //args: ["DMNFT", "DM-C-0"],
-    log: true,
-  })
-*/
+
+//  console.log("SafeRangePool *********************************"); 
+//  const safeRangePool = await deploy('SafeRangePool', {
+//    // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
+//    from: deployer,
+//    //args: ["DMNFT", "DM-C-0"],
+//    log: true,
+//  })
+
 
 
   console.log("Set Goldinar Minter *********************************"); 
@@ -331,16 +347,18 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
   console.log("Collection 0 added", nftCollection0.address); 
   await dm.collectionAdd(nftCollection1.address);
+*/
+
   
-  /*
-  await dm.collectionAdd(nftCollection2.address);
-  console.log("Collection 2 added", nftCollection2.address); */
-/*  
-  console.log("Graphable set"); 
-  await dm.setGraphable(graphable.address); 
+  
+  //await dm.collectionAdd(nftCollection2.address);
+  //console.log("Collection 2 added", nftCollection2.address); */
+  
+  //console.log("Graphable set"); 
+  //await dm.setGraphable(graphable.address); 
 
   console.log("Thats all"); 
-*/
+
 
 /*
   // this is old exchange
