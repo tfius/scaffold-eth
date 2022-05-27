@@ -1,0 +1,62 @@
+name: push to swarm
+
+### run this action when something is pushed to master branch
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true  # Fetch Hugo themes (true OR recursive)
+          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: 'latest'
+          # extended: true
+
+      - name: Build
+        run: hugo
+
+### upload the content of public folder to swarm
+      - name: Upload
+        id: swarm-upload
+        uses: ethersphere/swarm-actions/upload-dir@latest
+        with:
+          # Fairdatasociety provides a free endpoint for uploading content to swarm
+          # use .dev. for testnet uploads
+          # or remove .dev. for mainnet uploads
+          # or use your own private endpoint
+          bee-url: https://gateway.dev.fairdatasociety.org/proxy/
+          dir: ./public
+          index-document: index.html
+
+      - name: update feed
+        id: swarm-feed
+        uses: ethersphere/swarm-actions/write-feed@latest
+        with:
+          # Same as above regarding bee-url
+          bee-url: https://gateway.dev.fairdatasociety.org/proxy/
+          # takes the reference from the uploaded dir
+          reference: ${{ steps.swarm-upload.outputs.reference }}
+          # make up some topic name
+          # for example: # openssl rand -hex 16
+          topic: a022076ed9689fb041476a4f60ab715a
+          # signer you will want to put into your projects secrets
+          # again use some random hex 32 length generation
+          # for example: openssl rand -hex 32   and put the output into gihub secrets named "SIGNER"
+          # https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository
+          signer: ${{ secrets.SIGNER }}
+
+# print some references of what we just uploaded to swarm
+      - name: print references
+        run: |
+          echo "upload ref: " ${{ steps.swarm-upload.outputs.reference }}  # you can use this to access the content directly https://gateway.dev.fairdatasociety.org/bzz/<refrence>
+          echo "CID: " ${{ steps.swarm-cid.outputs.cid }} # same but in cid format
+          echo "Feed Manifest: " ${{ steps.swarm-feed.outputs.manifest }}  # note this reference, you will need this in next step to create a persistant reference to it using ENS
