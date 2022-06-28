@@ -1,5 +1,6 @@
 import { Alert, Button } from "antd";
 import React from "react";
+
 import { NETWORK } from "../constants";
 
 function NetworkDisplay({
@@ -32,7 +33,6 @@ function NetworkDisplay({
         </div>
       );
     } else {
-      const showLogout = networkSelected && networkSelected.name !== "localhost";
       networkDisplay = (
         <div style={{ zIndex: 2, position: "absolute", right: 0, top: 60, padding: 16 }}>
           <Alert
@@ -90,7 +90,7 @@ function NetworkDisplay({
     }
   } else {
     networkDisplay = USE_NETWORK_SELECTOR ? null : (
-      <div style={{ zIndex: -1, position: "absolute", right: 154, top: 28, padding: 16, color: targetNetwork.color }}>
+      <div style={{ zIndex: -1, position: "absolute", right: 150, top: 25, padding: 16, color: targetNetwork.color }}>
         {targetNetwork.name}
       </div>
     );
