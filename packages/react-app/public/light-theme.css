@@ -1903,7 +1903,7 @@ mark {
   font-feature-settings: "tnum";
   position: relative;
   display: inline-block;
-  color: unset;
+  /* color: unset; */
   line-height: 1;
 }
 .ant-badge-count {
@@ -1917,9 +1917,10 @@ mark {
   line-height: 20px;
   white-space: nowrap;
   text-align: center;
-  background: #ff4d4f;
-  border-radius: 10px;
-  box-shadow: 0 0 0 1px #fff;
+  /*background: #ff4d4f;*/
+  background: #ff000033;  
+  border-radius: 1px;
+  box-shadow: 0 0 0 0px #fff;
 }
 .ant-badge-count a,
 .ant-badge-count a:hover {
@@ -3963,7 +3964,7 @@ a.ant-btn-sm {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  color: rgba(0, 0, 0, 0.85);
+  /*color: rgba(0, 0, 0, 0.85);*/
   font-size: 14px;
   font-variant: tabular-nums;
   line-height: 1.5715;
@@ -3993,8 +3994,8 @@ a.ant-btn-sm {
   padding: 0 24px;
   color: rgba(0, 0, 0, 0.85);
   font-weight: 500;
-  font-size: 16px;
-  background: 0 0;
+  font-size: 1.3rem;
+  /* background: 0 0; */
   border-bottom: 1px solid #f0f0f0;
   border-radius: 4px 4px 0 0;
 }
@@ -13185,42 +13186,43 @@ tr.ant-table-expanded-row .ant-descriptions-view table {
   width: 100%;
   min-width: 0;
   padding: 4px 11px;
-  color: rgba(0, 0, 0, 0.85);
+  color: rgba(0, 0, 0, 0.95); 
   font-size: 14px;
-  line-height: 1.5715;
+  line-height: 1.5715; 
   background-color: #fff;
   background-image: none;
   border: 1px solid #d9d9d9;
-  border-radius: 4px;
+  border-radius: 5px;
   transition: all 0.3s;
+  background: rgba(255, 255, 255, 0.5); 
 }
 .ant-input::-webkit-input-placeholder {
-  color: #bfbfbf;
+  color: rgba(0, 0, 0, 0.65);
 }
 .ant-input:-ms-input-placeholder {
-  color: #bfbfbf;
-  text-overflow: ellipsis;
+  color: rgba(0, 0, 0, 0.65);
+  text-overflow: ellipsis; 
 }
 .ant-input::placeholder {
-  color: #bfbfbf;
+  color: rgba(0, 0, 0, 0.65);
 }
 .ant-input:placeholder-shown {
   text-overflow: ellipsis;
 }
 .ant-input:hover {
-  border-color: #40a9ff;
+  border-color: rgba(100, 255, 255, 0.935);
   border-right-width: 1px !important;
 }
 .ant-input-rtl .ant-input:hover {
-  border-right-width: 0;
+  border-right-width: 0; 
   border-left-width: 1px !important;
 }
 .ant-input-focused,
 .ant-input:focus {
-  border-color: #40a9ff;
+  border-color: rgba(55, 155, 155, 0.5);
   border-right-width: 1px !important;
   outline: 0;
-  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  box-shadow: 0 0 0 1px  rgba(100, 255, 255, 0.35);
 }
 .ant-input-rtl .ant-input-focused,
 .ant-input-rtl .ant-input:focus {

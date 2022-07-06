@@ -5,12 +5,8 @@ import React from "react";
 
 export default function Header() {
   return (
-    <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank" rel="noopener noreferrer">
-      <PageHeader
-        title="🏗 scaffold-eth"
-        subTitle="forkable Ethereum dev stack focused on fast product iteration"
-        style={{ cursor: "pointer" }}
-      />
+    <a href="https://coo2.org" target="_blank" rel="noopener noreferrer">
+      <PageHeader title="COO2" subTitle="Voluntary Carbon Offset DAO" style={{ cursor: "pointer" }} />
     </a>
   );
 }

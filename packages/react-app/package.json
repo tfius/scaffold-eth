@@ -18,6 +18,7 @@
     "@ant-design/icons": "^4.2.2",
     "@apollo/client": "^3.3.21",
     "@apollo/react-hooks": "^4.0.0",
+    "@ethersphere/bee-js": "^4.1.1",
     "@portis/web3": "^4.0.5",
     "@ramp-network/ramp-instant-sdk": "^2.2.0",
     "@testing-library/jest-dom": "^5.11.4",
@@ -48,11 +49,17 @@
     "react-blockies": "^1.4.1",
     "react-css-theme-switcher": "^0.2.2",
     "react-dom": "^17.0.2",
+    "react-dropzone": "^14.2.1",
+    "react-markdown": "^7.1.2",
     "react-qr-reader": "^2.2.1",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.0",
+    "react-scripts": "4.0.3",
     "walletlink": "^2.1.5",
     "web3modal": "^1.9.1"
+  },
+  "resolutions": {
+    "//": "See https://github.com/facebook/create-react-app/issues/11773",
+    "react-error-overlay": "6.0.9"
   },
   "devDependencies": {
     "@apollo/client": "^3.3.21",
@@ -77,6 +84,7 @@
     "ipfs-http-client": "^45.0.0",
     "less-plugin-npm-import": "^2.1.0",
     "prettier": "^2.0.5",
+    "react-error-overlay": "6.0.9",
     "s3-folder-upload": "^2.3.1",
     "surge": "^0.21.5"
   },

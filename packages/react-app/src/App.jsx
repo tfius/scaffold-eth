@@ -29,7 +29,7 @@ import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
-import { Home, ExampleUI, Hints, Subgraph } from "./views";
+import { Home, ExampleUI, Hints, Subgraph, Requests, RequestsReview, Registry, Validators, Pool } from "./views";
 import { useStaticJsonRPC } from "./hooks";
 
 const { ethers } = require("ethers");
@@ -63,7 +63,7 @@ const web3Modal = Web3ModalSetup();
 
 // 🛰 providers
 const providers = [
-  "https://eth-mainnet.gateway.pokt.network/v1/lb/611156b4a585a20035148406",
+  /*"https://eth-mainnet.gateway.pokt.network/v1/lb/611156b4a585a20035148406",*/
   `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`,
   "https://rpc.scaffoldeth.io:48544",
 ];
@@ -93,7 +93,7 @@ function App(props) {
   if (DEBUG) console.log(`Using ${selectedNetwork} network`);
 
   // 🛰 providers
-  if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
+  //if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 
   const logoutOfWeb3Modal = async () => {
     await web3Modal.clearCachedProvider();
@@ -134,12 +134,13 @@ function App(props) {
   // The transactor wraps transactions and provides notificiations
   const tx = Transactor(userSigner, gasPrice);
 
+  /*
   // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
   const yourLocalBalance = useBalance(localProvider, address);
 
   // Just plug in different 🛰 providers to get your balance on different chains:
   const yourMainnetBalance = useBalance(mainnetProvider, address);
-
+*/
   // const contractConfig = useContractConfig();
 
   const contractConfig = { deployedContracts: deployedContracts || {}, externalContracts: externalContracts || {} };
@@ -150,6 +151,7 @@ function App(props) {
   // If you want to make 🔐 write transactions to your contracts, use the userSigner:
   const writeContracts = useContractLoader(userSigner, contractConfig, localChainId);
 
+  /*
   // EXTERNAL CONTRACT EXAMPLE:
   //
   // If you want to bring in the mainnet DAI contract it would look like:
@@ -160,6 +162,7 @@ function App(props) {
     console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`);
   });
 
+
   // Then read your DAI balance like:
   const myMainnetDAIBalance = useContractReader(mainnetContracts, "DAI", "balanceOf", [
     "0x34aA3F359A9D614239015126635CE7732c18fDF3",
@@ -167,6 +170,7 @@ function App(props) {
 
   // keep track of a variable from the contract in the local React state:
   const purpose = useContractReader(readContracts, "Carbon", "purpose");
+*/
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -182,33 +186,33 @@ function App(props) {
       mainnetProvider &&
       address &&
       selectedChainId &&
-      yourLocalBalance &&
-      yourMainnetBalance &&
+      //      yourLocalBalance &&
+      //      yourMainnetBalance &&
       readContracts &&
-      writeContracts &&
-      mainnetContracts
+      //      mainnetContracts &&
+      writeContracts
     ) {
       console.log("_____________________________________ 🏗 scaffold-eth _____________________________________");
       console.log("🌎 mainnetProvider", mainnetProvider);
       console.log("🏠 localChainId", localChainId);
       console.log("👩‍💼 selected address:", address);
       console.log("🕵🏻‍♂️ selectedChainId:", selectedChainId);
-      console.log("💵 yourLocalBalance", yourLocalBalance ? ethers.utils.formatEther(yourLocalBalance) : "...");
-      console.log("💵 yourMainnetBalance", yourMainnetBalance ? ethers.utils.formatEther(yourMainnetBalance) : "...");
+      //      console.log("💵 yourLocalBalance", yourLocalBalance ? ethers.utils.formatEther(yourLocalBalance) : "...");
+      //      console.log("💵 yourMainnetBalance", yourMainnetBalance ? ethers.utils.formatEther(yourMainnetBalance) : "...");
       console.log("📝 readContracts", readContracts);
-      console.log("🌍 DAI contract on mainnet:", mainnetContracts);
-      console.log("💵 yourMainnetDAIBalance", myMainnetDAIBalance);
+      //      console.log("🌍 DAI contract on mainnet:", mainnetContracts);
+      //      console.log("💵 yourMainnetDAIBalance", myMainnetDAIBalance);
       console.log("🔐 writeContracts", writeContracts);
     }
   }, [
     mainnetProvider,
     address,
     selectedChainId,
-    yourLocalBalance,
-    yourMainnetBalance,
+    //yourLocalBalance,
+    //yourMainnetBalance,
     readContracts,
     writeContracts,
-    mainnetContracts,
+    //mainnetContracts,
   ]);
 
   const loadWeb3Modal = useCallback(async () => {
@@ -240,6 +244,8 @@ function App(props) {
 
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
 
+  // if(true) return <div></div>
+
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
@@ -252,12 +258,19 @@ function App(props) {
       />
       <Menu style={{ textAlign: "center" }} selectedKeys={[location.pathname]} mode="horizontal">
         <Menu.Item key="/">
-          <Link to="/">App Home</Link>
+          <Link to="/">Home</Link>
         </Menu.Item>
-        <Menu.Item key="/debug">
-          <Link to="/debug">Debug Contracts</Link>
+        <Menu.Item key="/debugreviewregistry">
+          <Link to="/debugreviewregistry">Registry</Link>
         </Menu.Item>
-        <Menu.Item key="/hints">
+        <Menu.Item key="/debugissuer">
+          <Link to="/debugissuer">Issuer</Link>
+        </Menu.Item>
+        <Menu.Item key="/debugcop">
+          <Link to="/debugcop">COP</Link>
+        </Menu.Item>
+
+        {/* <Menu.Item key="/hints">
           <Link to="/hints">Hints</Link>
         </Menu.Item>
         <Menu.Item key="/exampleui">
@@ -265,7 +278,7 @@ function App(props) {
         </Menu.Item>
         <Menu.Item key="/mainnetdai">
           <Link to="/mainnetdai">Mainnet DAI</Link>
-        </Menu.Item>
+        </Menu.Item> */}
         <Menu.Item key="/subgraph">
           <Link to="/subgraph">Subgraph</Link>
         </Menu.Item>
@@ -274,15 +287,56 @@ function App(props) {
       <Switch>
         <Route exact path="/">
           {/* pass in any web3 props to this Home component. For example, yourLocalBalance */}
-          <Home yourLocalBalance={yourLocalBalance} readContracts={readContracts} />
+          <Home readContracts={readContracts} />
         </Route>
-        <Route exact path="/debug">
-          {/*
-                🎛 this scaffolding is full of commonly used components
-                this <Contract/> component will automatically parse your ABI
-                and give you a form to interact with it locally
-            */}
 
+        <Route exact path="/requests">
+          <Requests
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            address={address}
+            tx={tx}
+            localProvider={localProvider}
+          />
+        </Route>
+        <Route exact path="/requestsreview">
+          <RequestsReview
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            address={address}
+            tx={tx}
+            localProvider={localProvider}
+          />
+        </Route>
+        <Route exact path="/registry">
+          <Registry
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            address={address}
+            tx={tx}
+            localProvider={localProvider}
+          />
+        </Route>
+        <Route exact path="/validators">
+          <Validators
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            address={address}
+            tx={tx}
+            localProvider={localProvider}
+          />
+        </Route>
+        <Route exact path="/pool">
+          <Pool
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            address={address}
+            tx={tx}
+            localProvider={localProvider}
+          />
+        </Route>
+
+        <Route exact path="/debugcop">
           <Contract
             name="CarbonOffsetProtocol"
             price={price}
@@ -293,7 +347,30 @@ function App(props) {
             contractConfig={contractConfig}
           />
         </Route>
-        <Route path="/hints">
+        <Route exact path="/debugissuer">
+          <Contract
+            name="COPIssuer"
+            price={price}
+            signer={userSigner}
+            provider={localProvider}
+            address={address}
+            blockExplorer={blockExplorer}
+            contractConfig={contractConfig}
+          />
+        </Route>
+        <Route exact path="/debugreviewregistry">
+          <Contract
+            name="COPRequestReviewRegistry"
+            price={price}
+            signer={userSigner}
+            provider={localProvider}
+            address={address}
+            blockExplorer={blockExplorer}
+            contractConfig={contractConfig}
+          />
+        </Route>
+
+        {/* <Route path="/hints">
           <Hints
             address={address}
             yourLocalBalance={yourLocalBalance}
@@ -325,18 +402,10 @@ function App(props) {
             blockExplorer="https://etherscan.io/"
             contractConfig={contractConfig}
             chainId={1}
-          />
-          {/*
-            <Contract
-              name="UNI"
-              customContract={mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.UNI}
-              signer={userSigner}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer="https://etherscan.io/"
-            />
-            */}
-        </Route>
+          /> 
+
+        </Route> */}
+
         <Route path="/subgraph">
           <Subgraph
             subgraphUri={props.subgraphUri}

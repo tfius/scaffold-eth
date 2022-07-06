@@ -9,7 +9,10 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const { deployer } = await getNamedAccounts()
   const chainId = await getChainId() 
 
-  console.log('DateTime')
+  console.log("ChainId", chainId);
+  console.log("deployer", deployer);
+
+  console.log('DateTime helper contract')
   const dateTime = await deploy('DateTime', {
     from: deployer,
     // args: [dataMarket.address, "DM-C-0"],
@@ -17,7 +20,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   })
 
   console.log('COP Requests Registry')
-  const COPRequestReviewRegistry = await deploy('COPRequestReviewRegistry', {
+  const copRequest = await deploy('COPRequestReviewRegistry', {
     from: deployer,
     // args: [dataMarket.address, "DM-C-0"],
     log: true,
@@ -33,7 +36,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   console.log('COP Issuer')
   const copIssuer = await deploy('COPIssuer', {
     from: deployer,
-    args: [dateTime.address, copToken.address, COPRequestReviewRegistry.address],
+    args: [dateTime.address, copToken.address, copRequest.address],
     log: true,
   })
 
@@ -43,6 +46,54 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   console.log('Setting COP Minter Role')
   await cop.grantRole(copMinter, copIssuer.address)
+
+  console.log('Setting ROLES')
+  
+  const adminAddress = "0xFCb3cEb13d9399257Fc43708A7DAb778fa62E57D";
+  
+
+  console.log('Setting Issuer Roles')
+  const issuer = await ethers.getContract('COPIssuer', deployer)
+  console.log("issuer", issuer.address)
+
+  const addValidator = await issuer.ROLE_ADDVALIDATOR()
+  const addInvestor = await issuer.ROLE_INVEST_VALIDATOR()
+  const addManufacturer = await issuer.ROLE_MANUFACTURER_VALIDATOR()
+  const addProduction = await issuer.ROLE_PRODUCTION_VALIDATOR()
+
+  console.log("grant validator", adminAddress)
+  await issuer.grantRole(addValidator, adminAddress)
+
+  console.log("grant investor role", adminAddress)
+  await issuer.grantRole(addInvestor, adminAddress)
+
+  console.log("grant manufacturer  role", adminAddress)
+  await issuer.grantRole(addManufacturer, adminAddress)
+
+  console.log("grant production role", adminAddress)
+  await issuer.grantRole(addProduction, adminAddress)
+
+  const registry = await ethers.getContract('COPRequestReviewRegistry', deployer)
+  console.log("registry", registry.address)
+  
+  const addReviewer = await registry.ROLE_REVIEWER()
+  const addFinalizer = await registry.ROLE_FINALIZER()
+
+  console.log("grant reviewer role", adminAddress)
+  await registry.grantRole(addReviewer, adminAddress)
+  console.log("grant finalizer role", adminAddress)
+  await registry.grantRole(addFinalizer, adminAddress)
+  
+
+
+  /*
+      ROLE_ADDVALIDATOR
+      ROLE_KYC_VALIDATOR
+      ROLE_INVEST_VALIDATOR
+      ROLE_MANUFACTURER_VALIDATOR
+      ROLE_PRODUCTION_VALIDATOR  
+   */
+
 
   /*
   await deploy("YourContract", {

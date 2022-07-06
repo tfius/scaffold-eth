@@ -7,16 +7,22 @@ import "./CarbonOffsetProtocol.sol";
 import "./IDateTime.sol";
 
 interface ICOPRequestsRegistry  {
+
     struct ReviewRequest { 
         address candidate;
         address requestor; // who triggered review request 
         bytes32 requestorDataHash;
+        uint    startTime;
         address reviewer;
         bytes32 reviewerDataHash;
-        uint    startTime;
+        uint    reviewedTime;
+        address finalizer;
+        bytes32 finalizerDataHash;
         uint    endTime;
+        uint    state; // 0 request, 1 approved, 2 finalized, 3 approver rejected, 4 finalization rejected
         uint    listPointer;
     }
+
     function isAddressReviewed(address _receiver) external view returns (bool);
     function getReview(address _receiver) external view returns (ReviewRequest memory);
 }
@@ -27,16 +33,16 @@ interface ICOPRequestsRegistry  {
 //          COP tokens have expiry,
 /// @dev 
 ///      
-contract COPIssuer is ReentrancyGuard, AccessControl { 
-    bytes32 public constant ADDVALIDATOR_ROLE = keccak256("ADDVALIDATOR_ROLE");
-    bytes32 public constant KYC_VALIDATOR_ROLE = keccak256("KYC_VALIDATOR_ROLE");
-    bytes32 public constant INVEST_VALIDATOR_ROLE = keccak256("INVEST_VALIDATOR_ROLE");
-    bytes32 public constant MANUFACTURER_VALIDATOR_ROLE = keccak256("MANUFACTURER_VALIDATOR_ROLE");
-    bytes32 public constant PRODUCTION_VALIDATOR_ROLE = keccak256("PRODUCTION_VALIDATOR_ROLE");
+contract COPIssuer is ReentrancyGuard, AccessControl {  
+    bytes32 public constant ROLE_ADDVALIDATOR = keccak256("ROLE_ADDVALIDATOR");
+    bytes32 public constant ROLE_KYC_VALIDATOR = keccak256("ROLE_KYC_VALIDATOR");
+    bytes32 public constant ROLE_INVEST_VALIDATOR = keccak256("ROLE_INVEST_VALIDATOR");
+    bytes32 public constant ROLE_MANUFACTURER_VALIDATOR = keccak256("ROLE_MANUFACTURER_VALIDATOR");
+    bytes32 public constant ROLE_PRODUCTION_VALIDATOR = keccak256("ROLE_PRODUCTION_VALIDATOR");
 
     string public constant NOTREVIEWED = "Address not reviewed";
     string public constant NOTVALIDATOR = "Not Validator";
-    string public constant CANTADDVALIDATOR = "Can't add Validator";
+    string public constant CANTADDVALIDATOR = "Can't add Validator"; 
     string public constant NOTKYC = "Not KYC";
     string public constant NOTINVESTOR = "Not investor";
     string public constant NOTMANUFACTURER = "Not manufacturer";
@@ -126,6 +132,7 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
 
         emit Minted(msg.sender, _to, amount);
     }
+    
     function checkValidationProcedure(address _to) public view returns (bool)
     {
         require(validationProcedures[_to].kyc==true, NOTKYC);
@@ -138,7 +145,7 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
 
     function approveValidator(address _to, bytes32 _role) nonReentrant public {
         require(validators[msg.sender] == true, NOTVALIDATOR); 
-        require(hasRole(ADDVALIDATOR_ROLE, msg.sender), CANTADDVALIDATOR);
+        require(hasRole(ROLE_ADDVALIDATOR, msg.sender), CANTADDVALIDATOR);
 
         if(validators[_to]==false) // add validator to all validators
         {
@@ -152,20 +159,20 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
     function removeValidator(address _to) nonReentrant public {
         require(validators[_to] = true, NOTVALIDATOR); 
 
-        if (hasRole(ADDVALIDATOR_ROLE, _to)) 
-            revokeRole(ADDVALIDATOR_ROLE, _to);
+        if (hasRole(ROLE_ADDVALIDATOR, _to)) 
+            revokeRole(ROLE_ADDVALIDATOR, _to);
 
-        if (hasRole(KYC_VALIDATOR_ROLE, _to)) 
-            revokeRole(INVEST_VALIDATOR_ROLE, _to);
+        if (hasRole(ROLE_KYC_VALIDATOR, _to)) 
+            revokeRole(ROLE_KYC_VALIDATOR, _to);
 
-        if (hasRole(INVEST_VALIDATOR_ROLE, _to))     
-            revokeRole(INVEST_VALIDATOR_ROLE, _to);
+        if (hasRole(ROLE_INVEST_VALIDATOR, _to))     
+            revokeRole(ROLE_INVEST_VALIDATOR, _to);
 
-        if (hasRole(MANUFACTURER_VALIDATOR_ROLE, _to))     
-            revokeRole(MANUFACTURER_VALIDATOR_ROLE, _to);
+        if (hasRole(ROLE_MANUFACTURER_VALIDATOR, _to))     
+            revokeRole(ROLE_MANUFACTURER_VALIDATOR, _to);
 
-        if (hasRole(PRODUCTION_VALIDATOR_ROLE, _to))     
-            revokeRole(PRODUCTION_VALIDATOR_ROLE, _to);
+        if (hasRole(ROLE_PRODUCTION_VALIDATOR, _to))      
+            revokeRole(ROLE_PRODUCTION_VALIDATOR, _to);
 
         validators[_to] = false;
         emit RemoveValidator(msg.sender, _to);
@@ -175,25 +182,25 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
         require(validators[msg.sender] = true, NOTVALIDATOR); 
         require(requestReviewRegistry.isAddressReviewed(_to), NOTREVIEWED);
 
-        if(hasRole(KYC_VALIDATOR_ROLE, msg.sender))
+        if(hasRole(ROLE_KYC_VALIDATOR, msg.sender))
         {
             validationProcedures[_to].kyc = _isVerified; 
             validationSignatures[_to].kyc = _messageHash; 
             emit VerifiedKYC(msg.sender, _to, _isVerified);  
         }
-        if(hasRole(INVEST_VALIDATOR_ROLE, msg.sender))
+        if(hasRole(ROLE_INVEST_VALIDATOR, msg.sender))
         {
             validationProcedures[_to].investor = _isVerified; 
             validationSignatures[_to].investor = _messageHash; 
             emit VerifiedInvestor(msg.sender, _to, _isVerified);  
         }
-        if(hasRole(MANUFACTURER_VALIDATOR_ROLE, msg.sender))
+        if(hasRole(ROLE_MANUFACTURER_VALIDATOR, msg.sender))
         {
             validationProcedures[_to].manufacturer = _isVerified;     
             validationSignatures[_to].manufacturer = _messageHash; 
             emit VerifiedManufacture(msg.sender, _to, _isVerified);  
         }
-        if(hasRole(PRODUCTION_VALIDATOR_ROLE, msg.sender))
+        if(hasRole(ROLE_PRODUCTION_VALIDATOR, msg.sender))
         {
             validationProcedures[_to].production = _isVerified; 
             validationSignatures[_to].production = _messageHash; 
@@ -208,7 +215,7 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
         checkValidationProcedure(_to);
         //bytes32 messageHash = getMessageHash(_to, _messageHash, _nonce);
 
-        if(hasRole(PRODUCTION_VALIDATOR_ROLE, msg.sender))
+        if(hasRole(ROLE_PRODUCTION_VALIDATOR, msg.sender))
            validationProcedures[_to].amount = _amount; 
     }
 

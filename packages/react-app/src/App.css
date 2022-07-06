@@ -1,3 +1,70 @@
 .App {
-  text-align: center;
+  text-align: left;
+}
+:root {
+   --color1: #77DD76;
+   --color2: #A6eca8;
+   --color3: #d2fdbb;
+   --color4: #fbfde1;
+   --color5: #fdfd97;
+}
+
+body {
+	/*background: linear-gradient(-45deg, #fdfd9711, #fdfd9711, #fdfd9722, #fdfd9711);*/
+	background-size: 400% 400%;
+	animation: appGradient 105s ease infinite;
+	height: 100vh;
+  animation: fadeInFromNone 0.5s linear;
+  -moz-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
+  -webkit-transition: all 0.3s ease-in-out;
+  -ms-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0px 2px 10px rgb(0 0 0 / 30%);  
+}
+@keyframes appGradient {
+	0% {
+		background-position: 0% 0%;
+	}
+	50% {
+		background-position: 100% 100%;
+	}
+	100% {
+		background-position: 0% 0%;
+	}
+}
+
+@keyframes fadeInFromNone {
+  0% {
+      opacity: 0;
+  }
+
+  100% {
+      opacity: 1;
+  }
+}
+
+.ant-card-head {
+  background: linear-gradient(-90deg, #fdfd97aa, #d2fdbbaa, #d2fdbbaa, #fdfd97aa);
+	background-size: 500% 500%;
+  animation-name: fadeInFromNone, appGradient;
+  animation-duration: 0.5s, 21s;
+  animation-iteration-count: 1, infinite;
+  animation-delay: 0s, 0.5s; /* add this */
+  animation-timing-function: ease-in, ease-in-out;
+}
+
+.ant-card-body {
+  background: linear-gradient(-45deg, #90cc8a88, #90cc8a88, #90cc8a88, #90cc8a88);
+	background-size: 400% 400%;
+  opacity: 1;
+  animation-name: fadeInFromNone, appGradient;
+  animation-duration: 1s, 42s;
+  animation-iteration-count: 1, infinite;
+  animation-delay: 0s, 1s; /* add this */
+  animation-timing-function: ease-in, ease-in-out;  
+}
+
+iframe {
+  visibility: hidden;
 }
