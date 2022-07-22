@@ -88,6 +88,7 @@ contract COPRequestReviewRegistry is ReentrancyGuard, AccessControl {
     mapping(address => bool) public addressReviewed; //reviewedAddresses;
     //mapping(address => ReviewRequest) public completedReviews; // array of all completed reviews by address
     address[] public   approvedRequests; // those that are reviewed and finalized
+    mapping(address => uint256) public addressToApprovedRequest; //reviewedAddresses;
 
     mapping(address => bytes32[]) public rejectionReasonsDataHash; // array of all completed reviews by address
 

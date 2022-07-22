@@ -1,5 +1,6 @@
 .App {
   text-align: left;
+  font-size: 1rem;
 }
 :root {
    --color1: #77DD76;

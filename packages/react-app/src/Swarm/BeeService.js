@@ -76,7 +76,6 @@ export const uploadJsonToBee = async (object, filename) => {
   return uploadFileToBee(file);
 };
 
-
 export const downloadDataFromBee = async (contentHash) => {
   /*const bee = new Bee(downloadGateway);
   const data = await bee.downloadData(contentHash).then(data => {

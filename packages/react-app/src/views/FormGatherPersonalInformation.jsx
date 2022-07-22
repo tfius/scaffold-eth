@@ -2,21 +2,7 @@ import React from "react";
 import { uploadJsonToBee } from "./../Swarm/BeeService";
 import { Button, Card, Input, Form } from "antd";
 const { Meta } = Card;
-
-const layout = {
-  labelCol: {
-    span: 5,
-  },
-  wrapperCol: {
-    span: 15,
-  },
-};
-const tailLayout = {
-  wrapperCol: {
-    offset: 5,
-    span: 20,
-  },
-};
+import * as layouts from "./layouts.js";
 
 // https://codesandbox.io/s/5okyk?file=/index.js:191-351
 export class FormGatherPersonalInformation extends React.Component {
@@ -67,7 +53,7 @@ export class FormGatherPersonalInformation extends React.Component {
     return (
       <Card title="Personal Information" description="Please provide required information">
         <Form
-          {...layout}
+          {...layouts.layout}
           ref={this.formRef}
           // name="control-ref"
           onFinish={this.onFinish}
@@ -113,7 +99,7 @@ export class FormGatherPersonalInformation extends React.Component {
             <Input value={this.props.address} />
           </Form.Item>
 
-          <Form.Item {...tailLayout}>
+          <Form.Item {...layouts.tailLayout}>
             <Button type="primary" htmlType="submit">
               Submit
             </Button>

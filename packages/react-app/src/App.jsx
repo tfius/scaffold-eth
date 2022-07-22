@@ -31,6 +31,7 @@ import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
 import { Home, ExampleUI, Hints, Subgraph, Requests, RequestsReview, Registry, Validators, Pool } from "./views";
 import { useStaticJsonRPC } from "./hooks";
+import RegistryOfApprovedAndFinalized from "./views/RegistryOfApprovedAndFinalized";
 
 const { ethers } = require("ethers");
 /*
@@ -308,6 +309,15 @@ function App(props) {
             localProvider={localProvider}
           />
         </Route>
+        <Route exact path="/registryofapprovedandfinalized">
+          <RegistryOfApprovedAndFinalized
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            address={address}
+            tx={tx}
+            localProvider={localProvider}
+          />
+        </Route>
         <Route exact path="/registry">
           <Registry
             readContracts={readContracts}
@@ -415,6 +425,16 @@ function App(props) {
           />
         </Route>
       </Switch>
+
+      <div className="footer" style={{ margin: "auto", width: "90vw" }}>
+        <br />
+        Foooter COO2 is independent decentralized autonomous organization with sole task to issue Voluntary Carbon
+        Offset Coupons.
+        <br />
+        <br />
+        <br />
+        <br />
+      </div>
 
       <ThemeSwitch />
 

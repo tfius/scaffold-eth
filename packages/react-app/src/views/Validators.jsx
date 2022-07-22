@@ -25,9 +25,9 @@ function Validators({ writeContracts, readContracts }) {
   //const purpose = useContractReader(readContracts, "YourContract", "purpose");
 
   return (
-    <div style={{ margin: "auto", width: "70vw" }}>
+    <div style={{ margin: "auto", width: "90vw" }}>
       {/* <List grid={{ gutter: 100, row: 10, column: 10 }}  style={{ verticalAlign: "top", display: "inline-block" }} > */}
-      <Row gutter={16} style={{ height: "22px" }} type="flex">
+      <Row gutter={16} type="flex">
         <Col span={24}>
           <Card hoverable title="Validators">
             <h2>Title</h2>

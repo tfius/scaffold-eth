@@ -1,41 +1,34 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Button, Card, Tooltip, Typography, Modal, Input, Form } from "antd";
+import { Button, Card, Tooltip, Typography, Modal, Input, Form, Spin } from "antd";
 import * as Consts from "./consts";
-import { downloadDataFromBee } from "./../Swarm/BeeService";
+import { uploadJsonToBee, downloadDataFromBee } from "./../Swarm/BeeService";
+import * as layouts from "./layouts.js";
+import ViewReviewRequestChainDetails from "./ViewReviewRequestChainDetails";
+import ViewReviewRequestSwarmDetails from "./ViewReviewRequestSwarmDetails";
 
 const { Meta } = Card;
 const { Text } = Typography;
-
-const layout = {
-  labelCol: {
-    span: 5,
-  },
-  wrapperCol: {
-    span: 15,
-  },
-};
-
 export class FormGatherApprovalInformation extends React.Component {
   formRef = React.createRef();
 
   onFinish = async values => {
     console.log("onFinish", values);
-    // const swarmHash = await uploadJsonToBee(values, "post.json");
-    // console.log("swarmHash", swarmHash);
-    // this.props.onSubmit(swarmHash);
+    this.props.loading(true);
+    const swarmHash = await uploadJsonToBee(values, "post.json");
+    console.log("swarmHash", swarmHash);
+    this.props.onDataSubmitedToBee(swarmHash);
+    this.props.loading(null);
   };
 
+  //console.log(onSubmit, address);
   render() {
     const required = [{ required: true }];
-    console.log(this.props);
-
     if (this.props.address == undefined) return <h3>Connecting...</h3>;
 
     return (
       <>
-        <hr />
         <Form
-          {...layout}
+          {...layouts.layout}
           ref={this.formRef}
           // name="control-ref"
           onFinish={this.onFinish}
@@ -53,6 +46,12 @@ export class FormGatherApprovalInformation extends React.Component {
           <Form.Item name="comments" label="Comments" rules={required}>
             <Input />
           </Form.Item>
+
+          <Form.Item {...layouts.tailLayout}>
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </Form.Item>
         </Form>
       </>
     );
@@ -60,9 +59,11 @@ export class FormGatherApprovalInformation extends React.Component {
 }
 
 function RequestsReviewList({ items, onApprove, onReject, address }) {
+  const [loading, setLoading] = useState(null);
   const [modal, _setModal] = useState(null);
-  const [modalData, setModalData] = useState(null);
+  const [modalRequestDataSwarm, setModalRequestDataSwarm] = useState(null);
   const [requestData, setRequestData] = useState(null);
+  const [reviewSubmittedHash, setReviewSubmittedHash] = useState(null);
 
   const setModal = async (modal, index) => {
     if (modal == null) {
@@ -72,7 +73,7 @@ function RequestsReviewList({ items, onApprove, onReject, address }) {
 
     var data = await downloadDataFromBee(modal.requestorDataHash);
     data.itemIndex = index;
-    setModalData(data);
+    setModalRequestDataSwarm(data);
     console.log("setModalData", modal.requestorDataHash, data);
     _setModal(modal);
   };
@@ -84,15 +85,24 @@ function RequestsReviewList({ items, onApprove, onReject, address }) {
     [items],
   );
 
-  console.log("items", items);
+  const onApproveSubmitDataToBee = async approvedSwarmHash => {
+    setLoading(true);
+    var data = modalRequestDataSwarm;
+    data.reviewerDataHash = approvedSwarmHash;
+    setModalRequestDataSwarm(data);
+    setLoading(null);
+    setReviewSubmittedHash(approvedSwarmHash);
+  };
+
+  console.log("items to be approved", items);
 
   return (
     <>
+      {loading && <Spin />}
       {items.map((item, i) => (
         <Card hoverable style={{ marginBottom: "5px", marginTop: "3px", width: "100%" }} key={"revreq_" + i}>
           <small>{Consts.RequestReviewDescriptions[item.state.toNumber()].text}</small>
           <br />
-
           {item.reviewedTime.toNumber() == 0 ? (
             <Text>
               Waiting for review
@@ -105,9 +115,7 @@ function RequestsReviewList({ items, onApprove, onReject, address }) {
           <Tooltip placement="topLeft" title={item.candidate} arrowPointAtCenter>
             <Text strong>Candidate #{i + 1}</Text>
           </Tooltip>
-
           <br />
-
           {/* {item.endTime.toNumber() != 0 ? (
              <>new Date(item.endTime.toNumber()).toUTCString()}</>
           ) : (
@@ -115,7 +123,6 @@ function RequestsReviewList({ items, onApprove, onReject, address }) {
           )} */}
 
           {/* user needs to update this request review   */}
-
           {item.state.toNumber() == 3 ? (
             <>
               Approver Rejected <br />{" "}
@@ -148,7 +155,6 @@ function RequestsReviewList({ items, onApprove, onReject, address }) {
               />
             </>
           ) : null}
-
           <br />
           {item.state.toNumber() == 0 ? (
             <>
@@ -158,28 +164,6 @@ function RequestsReviewList({ items, onApprove, onReject, address }) {
                 </Text>
                 <br />
               </Tooltip>
-              {/* <br />
-              <Card.Meta
-                description={
-                  <>
-                    <Button
-                      onClick={e => {
-                        onApprove(item, i);
-                      }}
-                    >
-                      Approve
-                    </Button>
-
-                    <Button
-                      onClick={e => {
-                        onReject(item, i);
-                      }}
-                    >
-                      Reject
-                    </Button>
-                  </>
-                }
-              /> */}
             </>
           ) : (
             <>
@@ -203,90 +187,77 @@ function RequestsReviewList({ items, onApprove, onReject, address }) {
         </Card>
       ))}
 
-      <Modal
-        title={<h2>View Application</h2>}
-        visible={modal != null}
-        footer={null}
-        onOk={() => {
-          //setModal(null);
-        }}
-        onCancel={() => {
-          //setModal(null);
-        }}
-      >
-        {modalData != null ? (
-          <>
+      <div>
+        <Modal
+          title={<h2>View Request Review Application</h2>}
+          visible={modal != null}
+          footer={null}
+          onOk={() => {
+            //setModal(null);
+          }}
+          onCancel={() => {
+            //setModal(null);
+          }}
+        >
+          {modalRequestDataSwarm != null && (
             <>
-              <strong>Name:</strong> {modalData.first} {modalData.last} <br />
-              <strong>Organization:</strong> {modalData.organization} <br />
-              <strong>Address 1:</strong> {modalData.address1} <br />
-              <strong>Address 1:</strong> {modalData.address2} <br />
-              <strong>City:</strong> {modalData.city} <br />
-              <strong>Country:</strong> {modalData.country} <br />
-              <strong>Post Code:</strong>
-              {modalData.postcode} <br />
-              <strong>Phone:</strong> {modalData.phone} <br />
-              <strong>Email:</strong> {modalData.email} <br />
-              <strong>Eth Address:</strong> {modalData.ethaddress} <br />
+              <ViewReviewRequestSwarmDetails reviewRequestSwarmData={modalRequestDataSwarm} />
+              {items != undefined && items.length > 0 ? (
+                <ViewReviewRequestChainDetails reviewRequest={items[0]} />
+              ) : null}
+              <FormGatherApprovalInformation
+                // onFinish={onApprove}
+                modal={modal}
+                index={modalRequestDataSwarm.itemIndex}
+                address={address}
+                onDataSubmitedToBee={onApproveSubmitDataToBee}
+                loading={setLoading}
+              />
             </>
-            <br />
-            {items != undefined && items.length > 0 ? (
-              <div>
-                {items[0].candidate}
-                {items[0].startTime.toNumber()}
-                {items[0].requestor}
-                {items[0].requestorDataHash}
-                {items[0].reviewer}
-                {items[0].reviewerDataHash}
-                {items[0].reviewedTime.toNumber()}
-                {items[0].finalizer}
-                {items[0].finalizerDataHash}
-                {items[0].endTime.toNumber()}
-              </div>
-            ) : null}
-            <FormGatherApprovalInformation
-              // onFinish={onApprove}
-              modal={modal}
-              index={modalData.itemIndex}
-              address={address}
-            />
-          </>
-        ) : null}
+          )}
 
-        <Card.Meta
-          description={
-            <div>
-              <br />
-              <Button
-                onClick={e => {
-                  onApprove(modal, modalData.itemIndex);
-                  setModal(null, 0);
-                }}
-              >
-                Approve
-              </Button>
-              <Button
-                onClick={e => {
-                  onReject(modal, modalData.itemIndex);
-                  setModal(null, 0);
-                }}
-              >
-                Reject
-              </Button>
+          <Card.Meta
+            description={
+              <>
+                {reviewSubmittedHash != null && (
+                  <>
+                    <small>
+                      Your review was stored at {reviewSubmittedHash} <br />{" "}
+                    </small>
+                    <Button
+                      onClick={e => {
+                        onApprove(modal, modalRequestDataSwarm.itemIndex, reviewSubmittedHash);
+                        setModal(null, 0);
+                      }}
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      onClick={e => {
+                        onReject(modal, modalRequestDataSwarm.itemIndex, reviewSubmittedHash);
+                        setModal(null, 0);
+                      }}
+                    >
+                      Reject
+                    </Button>
+                  </>
+                )}
 
-              <Button
-                style={{ float: "right" }}
-                className="ant-btn-primary"
-                onClick={e => {
-                  setModal(null, 0);
-                }}
-              >
-                Close
-              </Button>
-            </div>
-          }
-        />
-      </Modal>
+                <Button
+                  style={{ float: "right" }}
+                  className="ant-btn-primary"
+                  onClick={e => {
+                    setModal(null, 0);
+                    setReviewSubmittedHash(null);
+                  }}
+                >
+                  Close
+                </Button>
+              </>
+            }
+          />
+        </Modal>
+      </div>
     </>
   );
 }

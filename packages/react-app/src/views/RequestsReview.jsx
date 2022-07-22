@@ -279,7 +279,7 @@ function RequestsReview({ writeContracts, readContracts, address, tx, localProvi
         <RequestsReviewFinalizeList
           items={finalizationList}
           onApprove={onFinalize}
-          onReject={onRejectFinalize}
+          onRejectFinalize={onRejectFinalize}
           address={address}
         />
       ),
@@ -288,7 +288,7 @@ function RequestsReview({ writeContracts, readContracts, address, tx, localProvi
     });
   };
 
-  const onApprove = async (item, i) => {
+  const onApprove = async (item, i, hash) => {
     console.log("Sending approve", item.candidate);
 
     var rr = reviewsRequestList;
@@ -298,37 +298,37 @@ function RequestsReview({ writeContracts, readContracts, address, tx, localProvi
     await tx(
       writeContracts.COPRequestReviewRegistry.approveReview(
         item.candidate,
-        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x" + hash, //"0x0000000000000000000000000000000000000000000000000000000000000000",
       ),
     );
   };
-  const onReject = async (item, i) => {
+  const onReject = async (item, i, hash) => {
     console.log("Sending reject", item.candidate);
 
     await tx(
       writeContracts.COPRequestReviewRegistry.rejectReview(
         item.candidate,
-        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x" + hash, //"0x0000000000000000000000000000000000000000000000000000000000000000",
       ),
     );
   };
-  const onFinalize = async (item, i) => {
+  const onFinalize = async (item, i, hash) => {
     console.log("Sending complete", item.candidate);
 
     await tx(
       writeContracts.COPRequestReviewRegistry.finalizeReview(
         item.candidate,
-        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x" + hash, //"0x0000000000000000000000000000000000000000000000000000000000000000",
       ),
     );
   };
-  const onRejectFinalize = async (item, i) => {
+  const onRejectFinalize = async (item, i, hash) => {
     console.log("Sending reject", item.candidate);
 
     await tx(
       writeContracts.COPRequestReviewRegistry.rejectFinalization(
         item.candidate,
-        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x" + hash, //"0x0000000000000000000000000000000000000000000000000000000000000000",
       ),
     );
   };
@@ -342,7 +342,7 @@ function RequestsReview({ writeContracts, readContracts, address, tx, localProvi
   };*/
 
   return (
-    <div style={{ margin: "auto", width: "70vw" }}>
+    <div style={{ margin: "auto", width: "90vw" }}>
       <Row gutter={16} type="flex">
         <Col span={24}>{viewRoles}</Col>
 
@@ -368,7 +368,7 @@ function RequestsReview({ writeContracts, readContracts, address, tx, localProvi
             <RequestsReviewFinalizeList
               items={finalizationList}
               onFinalize={onFinalize}
-              onReject={onRejectFinalize}
+              onRejectFinalize={onRejectFinalize}
               address={address}
             />
           ) : null}

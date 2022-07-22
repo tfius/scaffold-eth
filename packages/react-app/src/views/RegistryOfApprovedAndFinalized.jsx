@@ -4,35 +4,22 @@ import { downloadDataFromBee } from "./../Swarm/BeeService";
 import { Link } from "react-router-dom";
 import { useContractReader } from "eth-hooks";
 import { ethers } from "ethers";
-import {
-  Button,
-  List,
-  Card,
-  Descriptions,
-  Divider,
-  Drawer,
-  InputNumber,
-  Modal,
-  notification,
-  Row,
-  Col,
-  Select,
-  Space,
-  Tooltip,
-  Typography,
-  Input,
-} from "antd";
+import ViewReviewRequestChainDetails from "./ViewReviewRequestChainDetails";
+import ViewReviewRequestSwarmDetails from "./ViewReviewRequestSwarmDetails";
+import ViewApprovedRequestSwarmDetails from "./ViewApprovedRequestSwarmDetails";
+import ViewFinalizedRequestSwarmDetails from "./ViewFinalizedRequestSwarmDetails";
+
+import { Card, Tooltip } from "antd";
 const { Meta } = Card;
 
 const contractName = "COPRequestReviewRegistry";
 
-function Registry({ writeContracts, readContracts, address, tx, localProvider }) {
+function RegistryOfApprovedAndFinalized({ writeContracts, readContracts, address, tx, localProvider }) {
   const [approvedAndFinalizedList, setApprovedAndFinalizedList] = useState([]);
-
   //const purpose = useContractReader(readContracts, "YourContract", "purpose");
   const approvedRequestsCount = useContractReader(readContracts, contractName, "getApprovedRequestCount");
-  const approvedRequests = useContractReader(readContracts, contractName, "getApprovedRequests");
-  console.log("approvedRequests", approvedRequests);
+  //const approvedRequests = useContractReader(readContracts, contractName, "getApprovedRequests");
+  //console.log("approvedRequests", approvedRequests);
 
   const updateApprovedAndFinalizedRequests = useCallback(async () => {
     if (approvedRequestsCount == undefined) return;
@@ -72,7 +59,7 @@ function Registry({ writeContracts, readContracts, address, tx, localProvider })
       list.push(data); //console.log("ReviewRequest", i, d);
     }
     setApprovedAndFinalizedList(list);
-    console.log("updateApprovedAndFinalizedRequests List", data);
+    console.log("updateApprovedAndFinalizedRequests List", list);
   });
 
   useEffect(() => {
@@ -83,30 +70,48 @@ function Registry({ writeContracts, readContracts, address, tx, localProvider })
 
   return (
     <div style={{ margin: "auto", width: "90vw" }}>
-      {/* <List grid={{ gutter: 100, row: 10, column: 10 }}  style={{ verticalAlign: "top", display: "inline-block" }} > */}
-      <Row gutter={16} type="flex">
-        <Col span={24}>
-          <Card hoverable title="Registry of Approved And Finalized Review Requests">
-            {/* {approvedRequests} */}
-            <Card.Meta
-              title={"There are " + approvedRequestsCount.toNumber() + " reviewed requests"}
-              description="Public registry of review requests"
-            />
-          </Card>
-        </Col>
-        <Col span={24}>
-          {approvedAndFinalizedList.map((finalizedRequest, i) => (
-            <Card hoverable>
+      <Card hoverable title="Registry of Approved And Finalized Review Requests">
+        {/* {approvedRequests} */}
+        <Card.Meta
+          title={"There are " + approvedRequestsCount.toNumber() + " reviewed requests"}
+          description="Public registry of review requests"
+        />
+      </Card>
+      {approvedAndFinalizedList.map((finalizedRequest, i) => (
+        <Card hoverable key={"cc" + i}>
+          <h3>
+            Candidate
+            <small>
               {finalizedRequest.requestorData.first} {finalizedRequest.requestorData.last}
-            </Card>
-          ))}
-        </Col>
-      </Row>
+            </small>{" "}
+            {finalizedRequest.requestorData.organization}
+          </h3>
+
+          <ViewReviewRequestSwarmDetails reviewRequestSwarmData={finalizedRequest.requestorData} />
+          <ViewApprovedRequestSwarmDetails reviewData={finalizedRequest.reviewerData} />
+          <ViewFinalizedRequestSwarmDetails finalizerData={finalizedRequest.finalizerData} />
+
+          <ViewReviewRequestChainDetails reviewRequest={finalizedRequest.reviewRequest} />
+
+          {/* <small>
+            <Tooltip placemnet="topLeft" title={"Reviewed by: " + finalizedRequest.reviewerData.ethaddress}>
+              {finalizedRequest.reviewerData.comments} <br />
+              <i>{new Date(finalizedRequest.reviewRequest.reviewedTime.toNumber() * 1000).toString()}</i>
+            </Tooltip>
+            <br />
+            <Tooltip placemnet="topLeft" title={"Finalized by: " + finalizedRequest.finalizerData.ethaddress}>
+              {finalizedRequest.finalizerData.comments} <br />
+              <i>{new Date(finalizedRequest.reviewRequest.endTime.toNumber() * 1000).toString()}</i>
+            </Tooltip>
+            <br />
+          </small> */}
+        </Card>
+      ))}
     </div>
   );
 }
 
-export default Registry;
+export default RegistryOfApprovedAndFinalized;
 
 /*
 <Input

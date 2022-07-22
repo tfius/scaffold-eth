@@ -37,12 +37,12 @@ function Home({ yourLocalBalance, readContracts }) {
   //const purpose = useContractReader(readContracts, "YourContract", "purpose");
 
   return (
-    <div style={{ margin: "auto", width: "70vw" }}>
+    <div style={{ margin: "auto", width: "90vw" }}>
       {/* <List grid={{ gutter: 100, row: 10, column: 10 }}  style={{ verticalAlign: "top", display: "inline-block" }} > */}
-      <Row gutter={16} style={{ height: "22px" }} type="flex">
+      <Row gutter={16} type="flex">
         <Col span={12}>
           <Link to="/requests">
-            <Card hoverable title="Requests">
+            <Card hoverable title="Submit Review Request">
               <h2>Eligible projects</h2>
               Owners of green energy production devices
               <ul>
@@ -51,6 +51,20 @@ function Home({ yourLocalBalance, readContracts }) {
                 <li>Hydrogen electrolysers</li>
               </ul>
               <Card.Meta title="Request a project review" description="Have a project that could get COP Tokens ?" />
+            </Card>
+          </Link>
+        </Col>
+        <Col span={12}>
+          <Link to="/registryofapprovedandfinalized">
+            <Card hoverable title="Registry of Requests Reviewed">
+              <h2>Registry of reviewed and finalized requests</h2>
+              Projects, information, procedures
+              <ul>
+                <li>Review procedure completed</li>
+                <li>Finalization procedure completed</li>
+                <li>Review Approval And Finalization Validators</li>
+              </ul>
+              <Card.Meta title="View Registry of Requests" description="Public registry of all reviewed requests" />
             </Card>
           </Link>
         </Col>
@@ -106,57 +120,6 @@ function Home({ yourLocalBalance, readContracts }) {
           </Link>
         </Col>
       </Row>
-
-      {/* <Row>
-          <ReactMarkdown>*React-Markdown* is **Awesome**</ReactMarkdown>
-      </Row> */}
-
-      {/* </List> */}
-
-      {/*       
-      <div style={{ margin: 32 }}>
-        <span style={{ marginRight: 8 }}>📝</span>
-        This Is Your App Home. You can start editing it in{" "}
-        <span
-          className="highlight"
-          style={{ marginLeft: 4,  padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-        >
-          packages/react-app/views/Home.jsx
-        </span>
-      </div>
-      <div style={{ margin: 32 }}>
-        <span style={{ marginRight: 8 }}>🤓</span>
-        The "purpose" variable from our contract is{" "}
-        <span
-          className="highlight"
-          style={{ marginLeft: 4,  padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-        >
-          {purpose}
-        </span>
-      </div>
-      <div style={{ margin: 32 }}>
-        <span style={{ marginRight: 8 }}>🤖</span>
-        An example prop of your balance{" "}
-        <span style={{ fontWeight: "bold", color: "green" }}>({ethers.utils.formatEther(yourLocalBalance)})</span> was
-        passed into the
-        <span
-          className="highlight"
-          style={{ marginLeft: 4,  padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-        >
-          Home.jsx
-        </span>{" "}
-        component from
-        <span
-          className="highlight"
-          style={{ marginLeft: 4,  padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-        >
-          App.jsx
-        </span>
-      </div>
-      <div style={{ margin: 32 }}>
-        <span style={{ marginRight: 8 }}>💭</span>
-        Check out the <Link to="/hints">"Hints"</Link> tab for more tips.
-      </div> */}
     </div>
   );
 }
