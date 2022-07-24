@@ -79,13 +79,13 @@ function RegistryOfApprovedAndFinalized({ writeContracts, readContracts, address
       </Card>
       {approvedAndFinalizedList.map((finalizedRequest, i) => (
         <Card hoverable key={"cc" + i}>
-          <h3>
+          <h4>
             Candidate
+            <strong> {finalizedRequest.requestorData.organization} </strong>
             <small>
               {finalizedRequest.requestorData.first} {finalizedRequest.requestorData.last}
             </small>{" "}
-            {finalizedRequest.requestorData.organization}
-          </h3>
+          </h4>
 
           <ViewReviewRequestSwarmDetails reviewRequestSwarmData={finalizedRequest.requestorData} />
           <ViewApprovedRequestSwarmDetails reviewData={finalizedRequest.reviewerData} />

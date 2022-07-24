@@ -132,7 +132,9 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
 
         emit Minted(msg.sender, _to, amount);
     }
-    
+    function getValidationProcedure(address _to) public view returns (ValidationProcedure memory) {
+        return validationProcedures[_to];
+    }
     function checkValidationProcedure(address _to) public view returns (bool)
     {
         require(validationProcedures[_to].kyc==true, NOTKYC);
@@ -182,29 +184,33 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
         require(validators[msg.sender] = true, NOTVALIDATOR); 
         require(requestReviewRegistry.isAddressReviewed(_to), NOTREVIEWED);
 
-        if(hasRole(ROLE_KYC_VALIDATOR, msg.sender))
+        if(hasRole(ROLE_KYC_VALIDATOR, msg.sender) && validationProcedures[_to].kyc==false)
         {
             validationProcedures[_to].kyc = _isVerified; 
             validationSignatures[_to].kyc = _messageHash; 
             emit VerifiedKYC(msg.sender, _to, _isVerified);  
+            return;
         }
-        if(hasRole(ROLE_INVEST_VALIDATOR, msg.sender))
+        if(hasRole(ROLE_INVEST_VALIDATOR, msg.sender) && validationProcedures[_to].investor==false)
         {
             validationProcedures[_to].investor = _isVerified; 
             validationSignatures[_to].investor = _messageHash; 
             emit VerifiedInvestor(msg.sender, _to, _isVerified);  
+            return;
         }
-        if(hasRole(ROLE_MANUFACTURER_VALIDATOR, msg.sender))
+        if(hasRole(ROLE_MANUFACTURER_VALIDATOR, msg.sender) && validationProcedures[_to].manufacturer==false)
         {
             validationProcedures[_to].manufacturer = _isVerified;     
             validationSignatures[_to].manufacturer = _messageHash; 
             emit VerifiedManufacture(msg.sender, _to, _isVerified);  
+            return;
         }
-        if(hasRole(ROLE_PRODUCTION_VALIDATOR, msg.sender))
+        if(hasRole(ROLE_PRODUCTION_VALIDATOR, msg.sender) && validationProcedures[_to].production==false)
         {
             validationProcedures[_to].production = _isVerified; 
             validationSignatures[_to].production = _messageHash; 
             emit VerifiedProduction(msg.sender, _to, _isVerified);  
+            return;
         }
     }
 

@@ -56,13 +56,21 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const issuer = await ethers.getContract('COPIssuer', deployer)
   console.log("issuer", issuer.address)
 
+  const adminRole = await issuer.DEFAULT_ADMIN_ROLE()
   const addValidator = await issuer.ROLE_ADDVALIDATOR()
+  const addKYC = await issuer.ROLE_KYC_VALIDATOR()
   const addInvestor = await issuer.ROLE_INVEST_VALIDATOR()
   const addManufacturer = await issuer.ROLE_MANUFACTURER_VALIDATOR()
   const addProduction = await issuer.ROLE_PRODUCTION_VALIDATOR()
 
+  console.log("grant admin", adminAddress)
+  await issuer.grantRole(adminRole, adminAddress)
+
   console.log("grant validator", adminAddress)
   await issuer.grantRole(addValidator, adminAddress)
+
+  console.log("grant kyc role", adminAddress)
+  await issuer.grantRole(addKYC, adminAddress)
 
   console.log("grant investor role", adminAddress)
   await issuer.grantRole(addInvestor, adminAddress)
