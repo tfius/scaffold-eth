@@ -26,8 +26,8 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     log: true,
   })
 
-  console.log('Carbon Offset Protocol')
-  const copToken = await deploy('CarbonOffsetProtocol', {
+  console.log('Carbon Offset Protocol Token')
+  const copToken = await deploy('COPToken', {
     from: deployer,
     // args: [dataMarket.address, "DM-C-0"],
     log: true,
@@ -41,7 +41,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   })
 
   console.log('COP Issuer Is Minter');
-  const cop = await ethers.getContract('CarbonOffsetProtocol', deployer)
+  const cop = await ethers.getContract('COPToken', deployer)
   const copMinter = await cop.MINTER_ROLE()
 
   console.log('Setting COP Minter Role')

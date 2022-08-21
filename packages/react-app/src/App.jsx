@@ -1,4 +1,4 @@
-import { Alert, Button, Col, Menu, Row } from "antd";
+import { Alert, Button, Col, Menu, Row, Modal, Spin } from "antd";
 import "antd/dist/antd.css";
 import {
   useBalance,
@@ -69,6 +69,8 @@ const providers = [
   "https://rpc.scaffoldeth.io:48544",
 ];
 
+window.setIsLoading = null;
+window.isLoading = false;
 function App(props) {
   // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
   // reference './constants.js' for other networks
@@ -77,6 +79,7 @@ function App(props) {
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
+  const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
 
   /// 📡 What chain are your contracts deployed to?
@@ -182,6 +185,7 @@ function App(props) {
   // 🧫 DEBUG 👨🏻‍🔬
   //
   useEffect(() => {
+    window.setIsLoading = setIsLoading;
     if (
       DEBUG &&
       mainnetProvider &&
@@ -268,7 +272,7 @@ function App(props) {
           <Link to="/debugissuer">Issuer</Link>
         </Menu.Item>
         <Menu.Item key="/debugcop">
-          <Link to="/debugcop">COP</Link>
+          <Link to="/debugcop">COPToken</Link>
         </Menu.Item>
 
         {/* <Menu.Item key="/hints">
@@ -348,7 +352,7 @@ function App(props) {
 
         <Route exact path="/debugcop">
           <Contract
-            name="CarbonOffsetProtocol"
+            name="COPToken"
             price={price}
             signer={userSigner}
             provider={localProvider}
@@ -434,6 +438,11 @@ function App(props) {
         <br />
         <br />
         <br />
+      </div>
+      <div style={{ position: "fixed", left: "50%", top: "2%" }}>
+        {/* <Modal visible={isLoading} footer={null}> */}
+        <Spin size="64" />
+        {/* </Modal> */}
       </div>
 
       <ThemeSwitch />

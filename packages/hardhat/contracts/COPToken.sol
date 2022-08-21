@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 
 */
  
-contract CarbonOffsetProtocol is ERC20, AccessControl {
+contract COPToken is ERC20, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     constructor() ERC20("Carbon Offset Protocol Token Proxy", "COP") {

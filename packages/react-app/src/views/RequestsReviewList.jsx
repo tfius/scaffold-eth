@@ -196,7 +196,7 @@ function RequestsReviewList({ items, onApprove, onReject, address }) {
             //setModal(null);
           }}
           onCancel={() => {
-            //setModal(null);
+            setModal(null, 0);
           }}
         >
           {modalRequestDataSwarm != null && (

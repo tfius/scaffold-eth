@@ -4,7 +4,7 @@ pragma solidity >=0.8.0 <0.9.0;
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "./CarbonOffsetProtocol.sol";
+import "./COPToken.sol";
 import "./COPIssuer.sol";
 
 /// @title  COP Request Review Registry
@@ -37,7 +37,7 @@ contract COPRequestReviewRegistry is ReentrancyGuard, AccessControl {
 
     string public constant ALREADYACCEPTED = "Already accepted for verification";
     
-    CarbonOffsetProtocol public copToken;
+    COPToken public copToken;
 
     string public   name = "Carbon Offset Protocol Request Registry";
     address public  owner;

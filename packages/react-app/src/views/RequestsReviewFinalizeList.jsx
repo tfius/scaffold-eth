@@ -157,7 +157,7 @@ function RequestsReviewFinalizeList({ items, onFinalize, onRejectFinalize, addre
             //setModal(null);
           }}
           onCancel={() => {
-            //setModal(null);
+            setModal(null, 0);
           }}
         >
           {modalRequestDataSwarm != null && (

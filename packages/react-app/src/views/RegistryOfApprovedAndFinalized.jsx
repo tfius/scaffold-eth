@@ -90,7 +90,6 @@ function RegistryOfApprovedAndFinalized({ writeContracts, readContracts, address
           <ViewReviewRequestSwarmDetails reviewRequestSwarmData={finalizedRequest.requestorData} />
           <ViewApprovedRequestSwarmDetails reviewData={finalizedRequest.reviewerData} />
           <ViewFinalizedRequestSwarmDetails finalizerData={finalizedRequest.finalizerData} />
-
           <ViewReviewRequestChainDetails reviewRequest={finalizedRequest.reviewRequest} />
 
           {/* <small>

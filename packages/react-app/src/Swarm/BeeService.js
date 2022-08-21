@@ -1,3 +1,4 @@
+import { notification } from "antd";
 import { Bee } from "@ethersphere/bee-js";
 // import { Reference } from "@ethersphere/bee-js";
 // mainnet
@@ -51,13 +52,23 @@ export const uploadFileToBee = async file => {
   const fetch = bioččdAxopsFetcj(axiosInstance);
   */
 
-  const { reference } = await bee.uploadFiles(batchId, files, {
-    indexDocument: metadata.name,
-  });
+  try 
+  {
+    const { reference } = await bee.uploadFiles(batchId, files, {
+      indexDocument: metadata.name,
+    });
 
-  console.log("uploaded reference", reference);
+    console.log("uploaded reference", reference, metadata.name);
+    return reference;
 
-  return reference;
+  } catch (error) {
+    notification.error({
+      message: "Upload Error",
+      description: error.message + " " + error.stack,
+    })
+  }
+
+    console.log("error uploadFileToBee");
 };
 
 export const uploadDataToBee = async (data, type, filename) => {

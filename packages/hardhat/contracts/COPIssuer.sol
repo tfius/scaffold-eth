@@ -3,7 +3,7 @@ pragma solidity >=0.8.0 <0.9.0;
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "./CarbonOffsetProtocol.sol";
+import "./COPToken.sol";
 import "./IDateTime.sol";
 
 interface ICOPRequestsRegistry  {
@@ -42,6 +42,7 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
 
     string public constant NOTREVIEWED = "Address not reviewed";
     string public constant NOTVALIDATOR = "Not Validator";
+    string public constant NORIGHTS = "No rights";
     string public constant CANTADDVALIDATOR = "Can't add Validator"; 
     string public constant NOTKYC = "Not KYC";
     string public constant NOTINVESTOR = "Not investor";
@@ -51,21 +52,22 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
     string public constant INVALIDAMOUNT = "Invalid Amount";
     string public constant ALREADYISSUEDYEAR = "Already Issued Tokens For Year";
 
-    CarbonOffsetProtocol public copToken;
+    COPToken public copToken;
     IDateTime            public dateTimeContract;
     ICOPRequestsRegistry public requestReviewRegistry;
 
     string public   name = "Carbon Offset Protocol Issuer";
     address public  owner;
-    mapping(address => bool) public validators;
-    address[] public allValidators; 
+    //mapping(address => bool) public validators;
+    //address[] public allValidators; 
 
     struct ValidationProcedure { 
         bool kyc;
         bool investor;
         bool manufacturer;
         bool production;
-        uint amount;
+        uint amountIssued;
+        uint amountApproved;
     }
     struct ValidationSignatures { 
         bytes32 kyc;
@@ -95,7 +97,7 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
     event VerifiedManufacture(address issuer, address to, bool verified);
     event VerifiedProduction(address issuer, address to, bool verified);
 
-    constructor(IDateTime _dateTimeContract, CarbonOffsetProtocol _copToken, ICOPRequestsRegistry _requestReviewRegistry) 
+    constructor(IDateTime _dateTimeContract, COPToken _copToken, ICOPRequestsRegistry _requestReviewRegistry) 
     {
         owner = msg.sender;
         dateTimeContract = _dateTimeContract;
@@ -105,14 +107,13 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
     }
 
     function mint(address _to) nonReentrant public {
-        // require(validators[msg.sender] = true, NOTVALIDATOR);  // not needed any one call mint for address as it will fail if not approved
-        checkValidationProcedure(_to); // address must be approved by all 
         require(requestReviewRegistry.isAddressReviewed(_to), NOTREVIEWED);
+        checkValidationProcedure(_to); // address must be approved with all validation steps
 
         uint16 year = dateTimeContract.getYear(block.timestamp);
         //require(perYearIssuedTokensToAddress[year][to] == 0, ALREADYISSUEDYEAR); // can be issued many times a year if production amount is verified (added after issuance)
 
-        uint256 amount = validationProcedures[_to].amount;
+        uint256 amount = validationProcedures[_to].amountApproved;
         require(amount!=0, INVALIDAMOUNT); 
 
         issuedEvents[_to].push(
@@ -125,13 +126,21 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
         
         totalIssued += amount;
         issuedPerYear[year] += amount;  
+        // check if this address had tokens issued this year 
+        
+        perYearIssuedTokensToAddress[year][_to] += amount;
+        validationProcedures[_to].amountIssued += amount;
+        validationProcedures[_to].amountApproved = 0; // cant issue any more until production validator validates new amount, then it can be minted next year 
 
         copToken.mint(_to, amount); // mint tokens for address 
-        perYearIssuedTokensToAddress[year][_to] += amount;
-        validationProcedures[_to].amount = 0; // cant issue any more until production validator validates new amount, then it can be minted next year 
-
         emit Minted(msg.sender, _to, amount);
     }
+
+    /* get issued tokens per year for address */
+    function getIssuedPerYear(uint16 year, address _address) public view returns (uint) {
+        return perYearIssuedTokensToAddress[year][_address];
+    }
+    /* CHECK VALIDATION PROCEDURE STATUS */
     function getValidationProcedure(address _to) public view returns (ValidationProcedure memory) {
         return validationProcedures[_to];
     }
@@ -144,22 +153,34 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
 
         return true;
     }
-
-    function approveValidator(address _to, bytes32 _role) nonReentrant public {
-        require(validators[msg.sender] == true, NOTVALIDATOR); 
-        require(hasRole(ROLE_ADDVALIDATOR, msg.sender), CANTADDVALIDATOR);
-
-        if(validators[_to]==false) // add validator to all validators
-        {
-           allValidators.push(_to); 
-           validators[_to] = true;
-           emit AddValidator(msg.sender, _to, _role);
-        }
-        grantRole(_role, _to);  // validator now has role 
+    /* ISSUANCE EVENTS */
+    function getIssuanceEvents(address _to) public view returns (IssuanceEvent[] memory) {
+        return issuedEvents[_to];
     }
-
+    function getIssuanceEventsCount(address _to) public view returns (uint256) {
+        return issuedEvents[_to].length;
+    }
+    function getIssuanceEvent(address _to, uint256 eventIndex) public view returns (IssuanceEvent memory) {
+        return issuedEvents[_to][eventIndex];
+    }
+    /* VALIDATOR MANAGEMENT */
+    function isValidator(address _address) public view returns (bool) {
+        return hasRole(ROLE_KYC_VALIDATOR, _address) || 
+               hasRole(ROLE_INVEST_VALIDATOR, _address) || 
+               hasRole(ROLE_MANUFACTURER_VALIDATOR, _address) || 
+               hasRole(ROLE_PRODUCTION_VALIDATOR, _address) || 
+               hasRole(DEFAULT_ADMIN_ROLE, _address);
+    }
+    function approveValidator(address _to, bytes32 _role) nonReentrant public {
+        require(hasRole(ROLE_ADDVALIDATOR, msg.sender), CANTADDVALIDATOR);
+        
+        grantRole(_role, _to);  // validator now has role 
+        emit AddValidator(msg.sender, _to, _role);
+    }
     function removeValidator(address _to) nonReentrant public {
-        require(validators[_to] = true, NOTVALIDATOR); 
+        require(isValidator(_to) == true, NOTVALIDATOR); 
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender) || 
+                hasRole(ROLE_ADDVALIDATOR, msg.sender), NORIGHTS);
 
         if (hasRole(ROLE_ADDVALIDATOR, _to)) 
             revokeRole(ROLE_ADDVALIDATOR, _to);
@@ -176,13 +197,17 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
         if (hasRole(ROLE_PRODUCTION_VALIDATOR, _to))      
             revokeRole(ROLE_PRODUCTION_VALIDATOR, _to);
 
-        validators[_to] = false;
         emit RemoveValidator(msg.sender, _to);
     }
 
+    /* VERIFY ADDRESS FOR VALIDATION STEPS */ 
     function verify(address _to, bytes32 _messageHash, bool _isVerified) nonReentrant public {
-        require(validators[msg.sender] = true, NOTVALIDATOR); 
+        //require(validators[msg.sender] = true, NOTVALIDATOR); 
         require(requestReviewRegistry.isAddressReviewed(_to), NOTREVIEWED);
+        require(hasRole(ROLE_KYC_VALIDATOR, msg.sender) || 
+                hasRole(ROLE_INVEST_VALIDATOR, msg.sender) || 
+                hasRole(ROLE_MANUFACTURER_VALIDATOR, msg.sender) || 
+                hasRole(ROLE_PRODUCTION_VALIDATOR, msg.sender), NOTVALIDATOR);
 
         if(hasRole(ROLE_KYC_VALIDATOR, msg.sender) && validationProcedures[_to].kyc==false)
         {
@@ -214,15 +239,14 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
         }
     }
 
+    /* APPROVE AMOUNT */
     function approveAmount(address _to, uint _amount) nonReentrant public {
-        require(validators[msg.sender] = true, NOTVALIDATOR); 
         require(requestReviewRegistry.isAddressReviewed(_to), NOTREVIEWED);
 
         checkValidationProcedure(_to);
-        //bytes32 messageHash = getMessageHash(_to, _messageHash, _nonce);
 
         if(hasRole(ROLE_PRODUCTION_VALIDATOR, msg.sender))
-           validationProcedures[_to].amount = _amount; 
+           validationProcedures[_to].amountApproved = _amount; 
     }
 
     /****************************************************************************************/

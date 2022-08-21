@@ -49,6 +49,9 @@ function Home({ yourLocalBalance, readContracts }) {
                 <li>Photovoltaic power station</li>
                 <li>Wind power generation</li>
                 <li>Hydrogen electrolysers</li>
+                <li>Forests</li>
+                <li>Food Chain</li>
+                <li>Real Estate</li>
               </ul>
               <Card.Meta title="Request a project review" description="Have a project that could get COP Tokens ?" />
             </Card>
