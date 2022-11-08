@@ -114,6 +114,21 @@ function Home({ yourLocalBalance, readContracts }) {
             </Card>
           </Link>
         </Col>
+        <Col span={12}>
+          <Link to="offsetretire">
+            <Card hoverable title="Offset">
+              <h2>Retire Carbon</h2>
+              <ul>
+                <li>
+                  Go carbon neutral by retiring COP tokens and claiming the underlying environmental benefit of the
+                  carbon offset.{" "}
+                </li>
+                <li>Learn more about COP tokens in our docs.</li>
+              </ul>
+              <Card.Meta title="" description="" />
+            </Card>
+          </Link>
+        </Col>
         <Col span={24}>
           <Link to="pool">
             <Card hoverable title="Pool">

@@ -1,30 +1,16 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { downloadDataFromBee } from "./../Swarm/BeeService";
 import * as layouts from "./layouts.js";
-import { Link } from "react-router-dom";
 import { useContractReader } from "eth-hooks";
 import { ethers } from "ethers";
 import EtherInput from "../components/EtherInput";
-import {
-  Button,
-  List,
-  Card,
-  Descriptions,
-  Divider,
-  Drawer,
-  InputNumber,
-  Modal,
-  notification,
-  Row,
-  Col,
-  Select,
-  Space,
-  Tooltip,
-  Typography,
-  Input,
-  Form,
-} from "antd";
+import { Button, Card, Modal, Row, Col, Input, Form } from "antd";
 const { Meta } = Card;
+
+import FormGatherKYC from "./FormGatherKYC";
+import FormGatherInvestor from "./FormGatherInvestor";
+import FormGatherManufacturer from "./FormGatherManufacturer";
+import FormGatherProduction from "./FormGatherProduction";
 
 const contractName = "COPRequestReviewRegistry";
 const ModalTypes = {
@@ -36,55 +22,7 @@ const ModalTypes = {
   IssueApproved: 5,
 };
 
-export class FormGatherKYC extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { amount: 0 };
-  }
-
-  formRef = React.createRef();
-
-  onFinish = async values => {
-    console.log("onFinish", values);
-    //await this.props.onApproveAmount(this.props.request.reviewRequest.candidate, definedAmount);
-    this.props.onClose(null);
-  };
-  render() {
-    const required = [{ required: true }];
-    if (this.props.request == undefined) return <h3>Connecting...</h3>;
-
-    return (
-      <>
-        <Form
-          {...layouts.layout}
-          ref={this.formRef}
-          // name="control-ref"
-          onFinish={this.onFinish}
-          name="gatherApproveAmount"
-          fields={[
-            {
-              name: ["ethaddress"],
-              value: this.props.address,
-            },
-          ]}
-        >
-          {/* <Form.Item name="ethaddress" label="Validator">
-            <Input value={this.props.address} disabled />
-          </Form.Item>
-          <Form.Item name="amount" label="Amount" rules={required}>
-            <Input /> 
-          </Form.Item> }
-        */}
-          <Form.Item {...layouts.tailLayout}>
-            <Button type="" htmlType="submit">
-              Approve KYC
-            </Button>
-          </Form.Item>
-        </Form>
-      </>
-    );
-  }
-}
+/*
 export class FromGatherInvestment extends React.Component {
   constructor(props) {
     super(props);
@@ -117,13 +55,6 @@ export class FromGatherInvestment extends React.Component {
             },
           ]}
         >
-          {/* <Form.Item name="ethaddress" label="Validator">
-            <Input value={this.props.address} disabled />
-          </Form.Item>
-          <Form.Item name="amount" label="Amount" rules={required}>
-            <Input /> 
-          </Form.Item> }
-        */}
           <Form.Item {...layouts.tailLayout}>
             <Button type="" htmlType="submit">
               Approve Investment Data
@@ -166,13 +97,7 @@ export class FromGatherManufacturer extends React.Component {
             },
           ]}
         >
-          {/* <Form.Item name="ethaddress" label="Validator">
-            <Input value={this.props.address} disabled />
-          </Form.Item>
-          <Form.Item name="amount" label="Amount" rules={required}>
-            <Input /> 
-          </Form.Item> }
-        */}
+         
           <Form.Item {...layouts.tailLayout}>
             <Button type="" htmlType="submit">
               Approve Manufacturer Data
@@ -215,13 +140,6 @@ export class FromGatherProduction extends React.Component {
             },
           ]}
         >
-          {/* <Form.Item name="ethaddress" label="Validator">
-            <Input value={this.props.address} disabled />
-          </Form.Item>
-          <Form.Item name="amount" label="Amount" rules={required}>
-            <Input /> 
-          </Form.Item> }
-        */}
           <Form.Item {...layouts.tailLayout}>
             <Button type="" htmlType="submit">
               Approve Production Data
@@ -231,7 +149,7 @@ export class FromGatherProduction extends React.Component {
       </>
     );
   }
-}
+}*/
 export class FormGatherApproveAmount extends React.Component {
   constructor(props) {
     super(props);
@@ -311,6 +229,7 @@ export class FormIssueTokens extends React.Component {
 
   onFinish = async values => {
     console.log("onFinish", values);
+    await this.props.onIssueTokens(this.props.request.reviewRequest.candidate);
     //await this.props.onApproveAmount(this.props.request.reviewRequest.candidate, definedAmount);
     this.props.onClose(null);
   };
@@ -436,15 +355,20 @@ function Registry({ writeContracts, readContracts, address, tx, localProvider })
       //console.log("request", request);
       var checkValidationProcedure = await readContracts.COPIssuer.getValidationProcedure(requestorAddress);
 
+      var checkRequestorData = await readContracts.COPIssuer.getRequestorData(requestorAddress);
+      //console.log("RequestAddRequestorData", checkRequestorData);
+
       var data = {};
       data.isValidationProcedureOK =
         checkValidationProcedure.kyc === true &&
         checkValidationProcedure.investor === true &&
         checkValidationProcedure.manufacturer === true &&
         checkValidationProcedure.production === true;
+
       data.checkValidationProcedure = checkValidationProcedure;
       data.sender = address;
       data.reviewRequest = request;
+      data.requestorFileData = checkRequestorData;
 
       try {
         var requestorData = await downloadDataFromBee(request.requestorDataHash);
@@ -474,59 +398,65 @@ function Registry({ writeContracts, readContracts, address, tx, localProvider })
   const emptyHash = "0000000000000000000000000000000000000000000000000000000000000000";
   const defaultAmount = "1000000000000000000";
 
-  const onVerifyKYC = async (toaddress, hash) => {
+  const onVerifyKYC = async (toaddress, hash, isVerified) => {
     setLoading(true);
     await tx(
-      writeContracts.COPIssuer.verify(
+      writeContracts.COPIssuer.verifyKYC(
         toaddress,
         "0x" + hash, //"0x0000000000000000000000000000000000000000000000000000000000000000",
-        true, // true
+        isVerified, // true
       ),
     );
     setLoading(false);
+    setModalTitle(null);
   };
-  const onVerifyInvestor = async (toaddress, hash) => {
+  const onVerifyInvestor = async (toaddress, hash, isVerified) => {
     setLoading(true);
     await tx(
-      writeContracts.COPIssuer.verify(
+      writeContracts.COPIssuer.verifyInvestor(
         toaddress,
         "0x" + hash, //"0x0000000000000000000000000000000000000000000000000000000000000000",
-        true, // true,
+        isVerified, // true,
       ),
     );
     setLoading(false);
+    setModalTitle(null);
   };
-  const onVerifyManufacturer = async (toaddress, hash) => {
+  const onVerifyManufacturer = async (toaddress, hash, isVerified) => {
     setLoading(true);
     await tx(
-      writeContracts.COPIssuer.verify(
+      writeContracts.COPIssuer.verifyManufacture(
         toaddress,
         "0x" + hash, //"0x0000000000000000000000000000000000000000000000000000000000000000",
-        true, // true,
+        isVerified, // true,
       ),
     );
     setLoading(false);
+    setModalTitle(null);
   };
-  const onVerifyProduction = async (toaddress, hash) => {
+  const onVerifyProduction = async (toaddress, hash, isVerified) => {
     setLoading(true);
     await tx(
-      writeContracts.COPIssuer.verify(
+      writeContracts.COPIssuer.verifyProduction(
         toaddress,
         "0x" + hash, //"0x0000000000000000000000000000000000000000000000000000000000000000",
-        true, // true,
+        isVerified, // true,
       ),
     );
     setLoading(false);
+    setModalTitle(null);
   };
   const onApproveAmount = async (toaddress, amount) => {
     setLoading(true);
     await tx(writeContracts.COPIssuer.approveAmount(toaddress, amount));
     setLoading(false);
+    setModalTitle(null);
   };
   const onIssueTokens = async toaddress => {
     setLoading(true);
     await tx(writeContracts.COPIssuer.mint(toaddress));
     setLoading(false);
+    setModalTitle(null);
   };
 
   const onGatherApproveAmount = async request => {
@@ -674,7 +604,7 @@ function Registry({ writeContracts, readContracts, address, tx, localProvider })
             <FormGatherKYC request={modalRequest} address={address} onVerifyKYC={onVerifyKYC} onClose={setModalTitle} />
           )}
           {modalType === ModalTypes.Investor && (
-            <FromGatherInvestment
+            <FormGatherInvestor
               request={modalRequest}
               address={address}
               onVerifyInvestor={onVerifyInvestor}
@@ -682,7 +612,7 @@ function Registry({ writeContracts, readContracts, address, tx, localProvider })
             />
           )}
           {modalType === ModalTypes.Manufacturer && (
-            <FromGatherManufacturer
+            <FormGatherManufacturer
               request={modalRequest}
               address={address}
               onVerifyManufacturer={onVerifyManufacturer}
@@ -690,7 +620,7 @@ function Registry({ writeContracts, readContracts, address, tx, localProvider })
             />
           )}
           {modalType === ModalTypes.Production && (
-            <FromGatherProduction
+            <FormGatherProduction
               request={modalRequest}
               address={address}
               onVerifyProduction={onVerifyProduction}

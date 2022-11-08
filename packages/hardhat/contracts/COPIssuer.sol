@@ -75,6 +75,12 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
         bytes32 manufacturer;
         bytes32 production;
     }
+    struct RequestorData { 
+        bytes32 kycData;
+        bytes32 investorData;
+        bytes32 manufacturerData;
+        bytes32 productionData;
+    }
     struct IssuanceEvent { 
         uint time;
         uint amount;
@@ -84,6 +90,8 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
     mapping(address => ValidationProcedure)  public validationProcedures; // validation procedure status per address
     mapping(address => ValidationSignatures) public validationSignatures; // validation procedure status per address
     mapping(address => IssuanceEvent[])      public issuedEvents; // all issuance events per address
+
+    mapping(address => RequestorData) public requestorData; // requestorSuppliedData per address
 
     uint256 public  totalIssued = 0; // all issued tokens
     mapping(uint16 => uint) public issuedPerYear; // how much was issued per year
@@ -144,6 +152,13 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
     function getValidationProcedure(address _to) public view returns (ValidationProcedure memory) {
         return validationProcedures[_to];
     }
+    function getValidationSignatures(address _to) public view returns (ValidationSignatures memory) {
+        return validationSignatures[_to];
+    }
+    function getRequestorData(address _to) public view returns (RequestorData memory) {
+        return requestorData[_to];
+    }
+    
     function checkValidationProcedure(address _to) public view returns (bool)
     {
         require(validationProcedures[_to].kyc==true, NOTKYC);
@@ -201,7 +216,7 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
     }
 
     /* VERIFY ADDRESS FOR VALIDATION STEPS */ 
-    function verify(address _to, bytes32 _messageHash, bool _isVerified) nonReentrant public {
+    /*function verify(address _to, bytes32 _messageHash, bool _isVerified) nonReentrant public {
         //require(validators[msg.sender] = true, NOTVALIDATOR); 
         require(requestReviewRegistry.isAddressReviewed(_to), NOTREVIEWED);
         require(hasRole(ROLE_KYC_VALIDATOR, msg.sender) || 
@@ -236,6 +251,71 @@ contract COPIssuer is ReentrancyGuard, AccessControl {
             validationSignatures[_to].production = _messageHash; 
             emit VerifiedProduction(msg.sender, _to, _isVerified);  
             return;
+        }
+    }*/
+    
+    function addRequestorData(address _to, bytes32 _kyc, bytes32 _investor, bytes32 _manufacturer, bytes32 _production) nonReentrant public {
+        require(msg.sender==_to, NORIGHTS);
+
+        if(validationProcedures[_to].kyc==false)
+           requestorData[_to].kycData = _kyc;
+
+        if(validationProcedures[_to].investor==false)
+           requestorData[_to].investorData = _investor;
+
+        if(validationProcedures[_to].manufacturer==false)
+            requestorData[_to].manufacturerData = _manufacturer;
+
+        if(validationProcedures[_to].production==false)
+            requestorData[_to].productionData = _production;
+    }
+
+    function verifyKYC(address _to, bytes32 _messageHash, bool _isVerified) nonReentrant public {
+        //require(validators[msg.sender] = true, NOTVALIDATOR); 
+        require(requestReviewRegistry.isAddressReviewed(_to), NOTREVIEWED);
+        require(hasRole(ROLE_KYC_VALIDATOR, msg.sender), NOTVALIDATOR);
+
+        if(hasRole(ROLE_KYC_VALIDATOR, msg.sender))
+        {
+            validationProcedures[_to].kyc = _isVerified; 
+            validationSignatures[_to].kyc = _messageHash; 
+            emit VerifiedKYC(msg.sender, _to, _isVerified);  
+        }
+    }
+    function verifyInvestor(address _to, bytes32 _messageHash, bool _isVerified) nonReentrant public  {
+        //require(validators[msg.sender] = true, NOTVALIDATOR); 
+        require(requestReviewRegistry.isAddressReviewed(_to), NOTREVIEWED);
+        require(hasRole(ROLE_INVEST_VALIDATOR, msg.sender), NOTVALIDATOR);
+
+        if(hasRole(ROLE_INVEST_VALIDATOR, msg.sender))
+        {
+            validationProcedures[_to].investor = _isVerified; 
+            validationSignatures[_to].investor = _messageHash; 
+            emit VerifiedInvestor(msg.sender, _to, _isVerified);  
+        }
+    }
+    function verifyManufacture(address _to, bytes32 _messageHash, bool _isVerified) nonReentrant public {
+        //require(validators[msg.sender] = true, NOTVALIDATOR); 
+        require(requestReviewRegistry.isAddressReviewed(_to), NOTREVIEWED);
+        require(hasRole(ROLE_MANUFACTURER_VALIDATOR, msg.sender), NOTVALIDATOR);
+
+        if(hasRole(ROLE_MANUFACTURER_VALIDATOR, msg.sender))
+        {
+            validationProcedures[_to].manufacturer = _isVerified;     
+            validationSignatures[_to].manufacturer = _messageHash; 
+            emit VerifiedManufacture(msg.sender, _to, _isVerified);  
+        }
+    }
+    function verifyProduction(address _to, bytes32 _messageHash, bool _isVerified) nonReentrant public {
+        //require(validators[msg.sender] = true, NOTVALIDATOR); 
+        require(requestReviewRegistry.isAddressReviewed(_to), NOTREVIEWED);
+        require(hasRole(ROLE_PRODUCTION_VALIDATOR, msg.sender), NOTVALIDATOR);
+
+        if(hasRole(ROLE_PRODUCTION_VALIDATOR, msg.sender))
+        {
+            validationProcedures[_to].production = _isVerified; 
+            validationSignatures[_to].production = _messageHash; 
+            emit VerifiedProduction(msg.sender, _to, _isVerified);  
         }
     }
 

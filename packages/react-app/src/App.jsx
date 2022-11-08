@@ -432,8 +432,8 @@ function App(props) {
 
       <div className="footer" style={{ margin: "auto", width: "90vw" }}>
         <br />
-        Foooter COO2 is independent decentralized autonomous organization with sole task to issue Voluntary Carbon
-        Offset Coupons.
+        COO2 is independent decentralized autonomous organization with sole task to issue Voluntary Carbon Offset
+        Coupons.
         <br />
         <br />
         <br />
@@ -441,7 +441,7 @@ function App(props) {
       </div>
       <div style={{ position: "fixed", left: "50%", top: "2%" }}>
         {/* <Modal visible={isLoading} footer={null}> */}
-        <Spin size="64" />
+        {isLoading && <Spin size="64" />}
         {/* </Modal> */}
       </div>
 

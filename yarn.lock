@@ -1792,6 +1792,20 @@
     "@ethersproject/properties" "^5.5.0"
     "@ethersproject/strings" "^5.5.0"
 
+"@fairdatasociety/beeson@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@fairdatasociety/beeson/-/beeson-0.1.1.tgz#adbe79e0683251203c7458bb8328650ff35ffe67"
+  integrity sha512-YoVJEQeU6CBEUwtjOUl2bAsB4CONpFDLFyi1teCyzOC+wNUuUo4MkepBn9o4JV2ZgkxxI5/QDb7XShUeN/LaNQ==
+  dependencies:
+    "@ethersphere/swarm-cid" "^0.1.0"
+    "@fairdatasociety/bmt-js" "^2.0.1"
+    js-sha3 "^0.8.0"
+
+"@fairdatasociety/bmt-js@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@fairdatasociety/bmt-js/-/bmt-js-2.0.1.tgz#8efcc8d6e86dca9b5e94651a5c518a62869e8464"
+  integrity sha512-GyUy+BgJH8cbxbTWcKXDsvBJRNXjFdek9q+4HiMgMP5Fz/1fFxYn9xRdz8tu+evzAVNT57o8BeOVD3zPUoLMfw==
+
 "@gar/promisify@^1.0.1":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@gar/promisify/-/promisify-1.1.2.tgz#30aa825f11d438671d585bd44e7fd564535fc210"

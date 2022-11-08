@@ -68,7 +68,7 @@ export const uploadFileToBee = async file => {
     })
   }
 
-    console.log("error uploadFileToBee");
+  console.log("error uploadFileToBee");
 };
 
 export const uploadDataToBee = async (data, type, filename) => {
@@ -100,4 +100,18 @@ export const downloadDataFromBee = async (contentHash) => {
 
   //console.log("got json", json)
   return json;
+}
+
+export const downloadFileFromBee = async (contentHash) => {
+  const bee = new Bee(downloadGateway.slice(0,-5)); //downloadReadableFile
+  const file = await bee.downloadFile(contentHash).then(data => {
+    console.log("downloaded file", data);
+    var f = new Blob([data.data], {type: data.contentType});
+    debugger;
+    const writeFile = window.URL.createObjectURL(f);
+
+
+    return data;
+  });
+  return null;
 }

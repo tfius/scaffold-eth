@@ -3,6 +3,8 @@ import { uploadJsonToBee } from "./../Swarm/BeeService";
 import { Button, Card, Input, Form } from "antd";
 const { Meta } = Card;
 import * as layouts from "./layouts.js";
+import { BeeSon, TypeManager } from "@fairdatasociety/beeson";
+import { Utils, makeChunkedFile } from "@fairdatasociety/bmt-js";
 
 // https://codesandbox.io/s/5okyk?file=/index.js:191-351
 export class FormGatherPersonalInformation extends React.Component {
@@ -39,9 +41,25 @@ export class FormGatherPersonalInformation extends React.Component {
   };
   onFinish = async values => {
     console.log("onFinish", values);
-    const swarmHash = await uploadJsonToBee(values, "post.json");
+    let json = values;
+
+    // create beeson
+    const beeson = new BeeSon({ json });
+    console.log("beeson", beeson);
+
+    // create file data
+    const fileData = { ...values, beeson: beeson }; //
+
+    // create chunked file
+    var jsonBytes = Buffer.from(JSON.stringify(fileData));
+    const chunkedFile = makeChunkedFile(jsonBytes);
+    const chunkedFileAddress = chunkedFile.address();
+
+    console.log("fileData", fileData);
+    const swarmHash = await uploadJsonToBee(fileData, "post.json");
     console.log("swarmHash", swarmHash);
-    this.props.onSubmit(swarmHash);
+    console.log("chunkedFileHash", Utils.bytesToHex(chunkedFileAddress, 64));
+    //this.props.onSubmit(swarmHash); // call and make TX
   };
 
   render() {
@@ -112,10 +130,7 @@ export class FormGatherPersonalInformation extends React.Component {
           </Form.Item>
         </Form>
 
-        <Card.Meta
-          title="We Care"
-          description="Your information is kept private. Only KYC validators will see your personal information."
-        />
+        <Card.Meta title="BE WARE" description="Your information is not private and will become public." />
       </Card>
     );
   }

@@ -1,17 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
 import { useContractReader } from "eth-hooks";
-import { useEventListener } from "eth-hooks/events/useEventListener";
-import { ethers } from "ethers";
 
-import { useDropzone } from "react-dropzone";
 import { FormGatherPersonalInformation } from "./FormGatherPersonalInformation";
 import { downloadDataFromBee } from "./../Swarm/BeeService";
 
-import { Button, Card, Row, Col, Spin, Tooltip } from "antd";
+import { Button, Card, Spin, Tooltip } from "antd";
 const { Meta } = Card;
 
 import * as Consts from "./consts";
+import ViewIssuanceProcedureStatusForAddress from "./ViewIssuanceProcedureStatusForAddress";
+import RequestAddRequestorData from "./RequestAddRequestorData";
 
 function InReview({ reviewCount }) {
   return (
@@ -101,7 +99,7 @@ function Requests({ writeContracts, readContracts, address, tx, localProvider })
   };
 
   const updateRejectionReasons = useCallback(async () => {
-    //if (rejectionsHashes == undefined) return;
+    if (rejectionsHashes == undefined) return;
     var list = [];
     setLoading(true);
 
@@ -154,8 +152,18 @@ function Requests({ writeContracts, readContracts, address, tx, localProvider })
               <Card.Meta title={requestState} description={requestInfo} />
               <br />
 
+              {reviewed && <ViewIssuanceProcedureStatusForAddress address={address} readContracts={readContracts} />}
+
+              <RequestAddRequestorData
+                address={address}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                tx={tx}
+              />
+
               {reviewed ? (
                 <>
+                  <br />
                   <Card.Meta
                     title="Revoke Your Request"
                     description={
@@ -176,22 +184,24 @@ function Requests({ writeContracts, readContracts, address, tx, localProvider })
             </Card>
           </>
         ) : null}
-        <Card title="Rejections">
-          {rejectionDataList.map((rejectionItem, index) => (
-            <Card.Meta
-              key={index}
-              description={
-                <>
-                  <Tooltip title={"Reviewed by: " + rejectionItem.ethaddress}>
-                    <>
-                      {index}: {rejectionItem.comments}
-                    </>
-                  </Tooltip>
-                </>
-              }
-            ></Card.Meta>
-          ))}
-        </Card>
+        {rejectionDataList.length > 0 && (
+          <Card title="Rejections">
+            {rejectionDataList.map((rejectionItem, index) => (
+              <Card.Meta
+                key={index}
+                description={
+                  <>
+                    <Tooltip title={"Reviewed by: " + rejectionItem.ethaddress}>
+                      <>
+                        {index}: {rejectionItem.comments}
+                      </>
+                    </Tooltip>
+                  </>
+                }
+              ></Card.Meta>
+            ))}
+          </Card>
+        )}
         {/* <Card.Meta title={"Reviews in queue:" + reviewCount} description="" /> */}
 
         {/*
