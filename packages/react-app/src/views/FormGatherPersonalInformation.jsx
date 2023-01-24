@@ -59,7 +59,7 @@ export class FormGatherPersonalInformation extends React.Component {
     const swarmHash = await uploadJsonToBee(fileData, "post.json");
     console.log("swarmHash", swarmHash);
     console.log("chunkedFileHash", Utils.bytesToHex(chunkedFileAddress, 64));
-    //this.props.onSubmit(swarmHash); // call and make TX
+    this.props.onSubmit(swarmHash); // call and make TX
   };
 
   render() {
