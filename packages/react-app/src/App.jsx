@@ -35,6 +35,8 @@ import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
 import { useStaticJsonRPC } from "./hooks";
 import { Footer } from "antd/lib/layout/layout";
+
+import { Home } from "./views/Home";
 import { ComposeNewMessage } from "./views/ComposeNewMessage";
 
 const { ethers } = require("ethers");
@@ -305,7 +307,13 @@ function App(props) {
             </h5>
             <Switch>
               <Route exact path="/">
-                {/* <Home readContracts={readContracts} /> */}
+                <Home
+                  readContracts={readContracts}
+                  writeContracts={writeContracts}
+                  userSigner={userSigner}
+                  tx={tx}
+                  address={address}
+                />
               </Route>
 
               <Route exact path="/swarmmail">

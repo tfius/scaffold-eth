@@ -49,11 +49,10 @@ class ComposeNewMessageForm extends React.Component {
       var encAttachment = await encryptMessage(attachment, recepient);
     }
 
-    this.setState({ progress: 0, progresStatus: "Encrypting" });
-    // encrypt message with recepient public key
+    this.setState({ progress: 0, progresStatus: "Encrypting" }); // encrypt message with recepient public key
     const encryptedMessage = await encryptMessage(message, recepient);
     this.setState({ progress: 0, progresStatus: "Sending" });
-  };
+  };;
 
   onRecepientChange = async name => {
     this.setState({ recepient: name });

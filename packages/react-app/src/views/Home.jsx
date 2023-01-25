@@ -1,8 +1,6 @@
-import React from "react";
-import { Link } from "react-router-dom";
-// import ReactMarkdown from 'react-markdown';
-
+import React, { useState, useEffect, useCallback } from "react";
 import { useContractReader } from "eth-hooks";
+import { useContractWriter } from "eth-hooks";
 import { ethers } from "ethers";
 import {
   Button,
@@ -20,10 +18,17 @@ import {
   Space,
   Tooltip,
   Typography,
+  Avatar,
 } from "antd";
+import { useResolveEnsName } from "eth-hooks/dapps/ens";
+import { emptyHash } from "./consts";
+import Blockies from "react-blockies";
 const { Meta } = Card;
 
 // before finger today south flavor gossip loyal domain badge supply silent shallow
+
+export const PUBLIC_KEY_LENGTH = 132;
+export const PUBLIC_KEY_PART_LENGTH = (PUBLIC_KEY_LENGTH - 4) / 2 + 2;
 
 /**
  * web3 props can be passed from '../App.jsx' into your local view component for use
@@ -31,113 +36,125 @@ const { Meta } = Card;
  * @param {*} readContracts contracts from current chain already pre-loaded using ethers contract module. More here https://docs.ethers.io/v5/api/contract/contract/
  * @returns react component
  */
-function Home({ yourLocalBalance, readContracts }) {
-  // you can also use hooks locally in your component of choice
-  // in this case, let's keep track of 'purpose' variable from our contract
-  //const purpose = useContractReader(readContracts, "YourContract", "purpose");
+export function Home({ readContracts, writeContracts, tx, userSigner, address }) {
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [key, setKey] = useState(emptyHash);
+  const [publicKey, setPublicKey] = useState({ x: emptyHash, y: emptyHash });
+  const [mails, setMails] = useState([]);
+
+  async function splitPublicKey(pk) {
+    const x = "0x" + pk.substring(4, PUBLIC_KEY_PART_LENGTH + 2);
+    const y = "0x" + pk.substring(PUBLIC_KEY_PART_LENGTH + 2, PUBLIC_KEY_LENGTH + 2);
+    return { x, y };
+  }
+
+  function joinPublicKey(x, y) {
+    return "0x04" + x.substring(2) + y.substring(2);
+  }
+  async function getPublicKey(signer) {
+    const ethAddress = await signer.getAddress();
+    const message = "Sign this transaction to enable data transfer. Hash: " + ethers.utils.hashMessage(address);
+    const sig = await signer.signMessage(message);
+    const msgHash = ethers.utils.hashMessage(message);
+    const msgHashBytes = ethers.utils.arrayify(msgHash);
+    // Now you have the digest,
+    const pk = ethers.utils.recoverPublicKey(msgHashBytes, sig);
+    const pubKey = await splitPublicKey(pk);
+    const addr = ethers.utils.recoverAddress(msgHashBytes, sig);
+    // console.log("Got PK", pk, addr);
+    const recoveredAddress = ethers.utils.computeAddress(ethers.utils.arrayify(pk));
+    // Throwing here
+    if (recoveredAddress != ethAddress) {
+      throw Error(`Address recovered do not match, original ${ethAddress} versus computed ${recoveredAddress}`);
+      console.log("error", recoveredAddress, ethAddress);
+    }
+    return { pk, pubKey };
+  }
+
+  const updateRegistration = useCallback(async () => {
+    // todo get pub key from ENS
+    const data = await readContracts.SwarmMail.getPublicKeys(address); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
+    setIsRegistered(data.registered);
+    setKey(data.key);
+    setPublicKey({ x: data.x, y: data.y });
+    console.log("updateRegistration", data);
+  });
+
+  const updateMails = useCallback(async () => {
+    const mails = await readContracts.SwarmMail.getInboxEmails(); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
+    setMails(mails);
+    console.log("updateMails", mails);
+  });
+
+  // console.log(readContracts.SwarmMail);
+  useEffect(() => {
+    updateRegistration();
+    updateMails();
+  }, [readContracts]);
+
+  // useEffect(() => {
+  //   updateRegistration();
+  // }, [key]);
+
+  const registerAccount = async () => {
+    const data = await getPublicKey(userSigner);
+    console.log("Got Pk", data);
+    //const publicKey = resPubKey.substr(2, resPubKey.length - 1);
+    //Buffer.from(publicKey, "hex").toString("base64");
+    const tx = await onRegister(ethers.utils.keccak256(data.pk), data.pubKey.x, data.pubKey.y);
+  };
+
+  const onRegister = async (pubKey, x, y) => {
+    console.log("Registering", address, pubKey, x, y);
+    let newTx = await tx(writeContracts.SwarmMail.register(pubKey, x, y));
+
+    await newTx.wait();
+    console.log("Registered", address, pubKey, x, y);
+
+    updateRegistration();
+    //setPublicKey({ x: x, y: y });
+    //setKey(pubKey);
+  };
 
   return (
-    <div style={{ margin: "auto", width: "90vw" }}>
-      {/* <List grid={{ gutter: 100, row: 10, column: 10 }}  style={{ verticalAlign: "top", display: "inline-block" }} > */}
-      <Row gutter={16} type="flex">
-        <Col span={12}>
-          <Link to="/requests">
-            <Card hoverable title="Submit Review Request">
-              <h2>Eligible projects</h2>
-              Owners of green energy production devices
-              <ul>
-                <li>Photovoltaic power station</li>
-                <li>Wind power generation</li>
-                <li>Hydrogen electrolysers</li>
-                <li>Forests</li>
-                <li>Food Chain</li>
-                <li>Real Estate</li>
-              </ul>
-              <Card.Meta title="Request a project review" description="Have a project that could get COP Tokens ?" />
-            </Card>
-          </Link>
-        </Col>
-        <Col span={12}>
-          <Link to="/registryofapprovedandfinalized">
-            <Card hoverable title="Registry of Requests Reviewed">
-              <h2>Registry of reviewed and finalized requests</h2>
-              Projects, information, procedures
-              <ul>
-                <li>Review procedure completed</li>
-                <li>Finalization procedure completed</li>
-                <li>Review Approval And Finalization Validators</li>
-              </ul>
-              <Card.Meta title="View Registry of Requests" description="Public registry of all reviewed requests" />
-            </Card>
-          </Link>
-        </Col>
-        <Col span={12}>
-          <Link to="/registry">
-            <Card hoverable title="Registry">
-              <h2>Registry of projects</h2>
-              Projects, information, procedures
-              <ul>
-                <li>Review procedure</li>
-                <li>Review Amounts</li>
-                <li>Challenge validators</li>
-              </ul>
-              <Card.Meta title="View Registry of projects" description="Public registry of all projects" />
-            </Card>
-          </Link>
-        </Col>
-        <Col span={12}>
-          <Link to="requestsreview">
-            <Card hoverable title="Reviewers">
-              <h2>Application reviewer</h2>
+    <div style={{ margin: "auto", width: "100%" }}>
+      <>
+        {!isRegistered && (
+          <Card title={<div>Not Registred</div>}>
+            <Typography>
+              It appears your account is not registred yet. Please register your public key to receive encrypted data
+            </Typography>
+            <Button onClick={() => registerAccount(address)}>REGISTER NOW</Button>
+          </Card>
+        )}
+      </>
+      <>
+        {isRegistered && (
+          <>
+            <span>Refresh 🗘</span>
+          </>
+        )}
+      </>
 
-              <ul>
-                <li>Validate project data</li>
-                <li>Review Projects</li>
-                <li>Approve acceptance</li>
-                <li>Reject or Finalize Application</li>
-              </ul>
-              <Card.Meta title="For reviewers" description="View requests for projects" />
-            </Card>
-          </Link>
-        </Col>
-        <Col span={12}>
-          <Link to="validators">
-            <Card hoverable title="Validators">
-              <h2>Apply to become a validator</h2>
-              <ul>
-                <li>KYC Validators</li>
-                <li>Investment Validators</li>
-                <li>Manufacturer Validators</li>
-                <li>Production Validators</li>
-              </ul>
-              <Card.Meta title="For validators" description="View tasks for validators" />
-            </Card>
-          </Link>
-        </Col>
-        <Col span={12}>
-          <Link to="offsetretire">
-            <Card hoverable title="Offset">
-              <h2>Retire Carbon</h2>
-              <ul>
-                <li>
-                  Go carbon neutral by retiring COP tokens and claiming the underlying environmental benefit of the
-                  carbon offset.{" "}
-                </li>
-                <li>Learn more about COP tokens in our docs.</li>
-              </ul>
-              <Card.Meta title="" description="" />
-            </Card>
-          </Link>
-        </Col>
-        <Col span={24}>
-          <Link to="pool">
-            <Card hoverable title="Pool">
-              {/* <h2>Where are tokens</h2> */}
-              <Card.Meta title="Allocation" description="View where are tokens allocated" />
-            </Card>
-          </Link>
-        </Col>
-      </Row>
+      <>
+        <List
+          itemLayout="horizontal"
+          dataSource={mails}
+          renderItem={item => (
+            <List.Item>
+              <List.Item.Meta
+                // avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
+                avatar={<Blockies seed={item.from} />}
+                title={<a href="https://ant.design">{item.title}</a>}
+                description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+              />
+            </List.Item>
+          )}
+        />
+        {mails.map((mail, index) => {
+          <>tralala</>;
+        })}
+      </>
     </div>
   );
 }

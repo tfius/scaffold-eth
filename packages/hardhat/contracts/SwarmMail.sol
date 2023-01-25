@@ -8,15 +8,28 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 contract SwarmMail {
     using Strings for uint256;
 
-    modifier isRegistered() {
-        require(userInfos[msg.sender].publicKey != bytes32(0), "Email is not register");
+    struct PublicKey {
+        bytes32 x;
+        bytes32 y;
+    }
+ 
+    modifier isRegistered() { 
+        require(userInfos[msg.sender].key != bytes32(0), "Email is not register");
         _;
     }
+
 
     struct File {
         uint256 time;
         bytes uuid;
         bytes name;
+    }
+
+    function getPublicKeys(address addr) public view returns (bool registered, bytes32 key, bytes32 x, bytes32 y) {
+        registered = userInfos[addr].key != bytes32(0) ;
+        key = userInfos[addr].key;
+        x = userInfos[addr].pubkey.x;
+        y = userInfos[addr].pubkey.y;  
     }
 
     struct Email {
@@ -31,7 +44,8 @@ contract SwarmMail {
     }
 
     struct User {
-        bytes32 publicKey;
+        bytes32 key;
+        PublicKey pubkey;
         // address fdContract;
 
         Email[] sentEmails;
@@ -48,16 +62,17 @@ contract SwarmMail {
 
     constructor() {
         User storage user = userInfos[address(this)];
-        user.publicKey = keccak256('official');
+        user.key = keccak256('official');
     }
 
     receive() external payable {}
 
-    function register(bytes32 publicKey) public {
+    function register(bytes32 key, bytes32 x, bytes32 y) public {
         User storage user = userInfos[msg.sender];
-        require(user.publicKey == bytes32(0), "Address is registered");
+        require(user.key == bytes32(0), "Address is registered");
 
-        user.publicKey = publicKey;
+        user.key = key;
+        user.pubkey = PublicKey(x, y);
         // FlatDirectory fileContract = new FlatDirectory(0);
         // user.fdContract = address(fileContract);
 
@@ -84,7 +99,7 @@ contract SwarmMail {
         isRegistered
     {
         User storage toInfo = userInfos[toAddress];
-        require(!isEncryption || toInfo.publicKey != bytes32(0), "Unregistered users can only send unencrypted emails");
+        require(!isEncryption || toInfo.key != bytes32(0), "Unregistered users can only send unencrypted emails");
         User storage fromInfo = userInfos[msg.sender];
         // create email
         Email memory email;
@@ -105,18 +120,16 @@ contract SwarmMail {
         // fileContract.writeChunk{value: msg.value}(getNewName(uuid, 'message'), 0, encryptData);
     }
 
-    function writeChunk(bytes memory uuid, bytes memory name, uint256 chunkId, bytes calldata data) public payable {
-        /*
-        User storage user = userInfos[msg.sender];
-        if (user.files[uuid].time == 0) {
-            // first add file
-            user.files[uuid] = File(block.timestamp, uuid, name);
-        }
+    // function writeChunk(bytes memory uuid, bytes memory name, uint256 chunkId, bytes calldata data) public payable {
+    //     User storage user = userInfos[msg.sender];
+    //     if (user.files[uuid].time == 0) {
+    //         // first add file
+    //         user.files[uuid] = File(block.timestamp, uuid, name);
+    //     }
 
-        FlatDirectory fileContract = FlatDirectory(user.fdContract);
-        fileContract.writeChunk{value: msg.value}(getNewName('file', uuid), chunkId, data);
-        */
-    }
+    //     FlatDirectory fileContract = FlatDirectory(user.fdContract);
+    //     fileContract.writeChunk{value: msg.value}(getNewName('file', uuid), chunkId, data);
+    // }
 
     function removeContent(address from, bytes32 swarmLocation) private {
         /*
@@ -265,9 +278,9 @@ contract SwarmMail {
         return fileContract.countChunks(getNewName('file', uuid));
     }*/
 
-    function getPublicKey(address userAddress) public view returns(bytes32 publicKey) {
-        return userInfos[userAddress].publicKey;
-    }
+    // function getPublicKey(address userAddress) public view returns(bytes32 publicKey) {
+    //     return userInfos[userAddress].publicKey;
+    // }
 
     /*
     function getFlatDirectory(address userAddress) internal view returns(address) {

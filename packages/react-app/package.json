@@ -42,6 +42,7 @@
     "eth-hooks": "2.3.14",
     "ethers": "^5.4.1",
     "fortmatic": "^2.2.1",
+    "futoin-hkdf": "^1.5.1",
     "graphiql": "^1.4.7",
     "graphql": "^15.3.0",
     "isomorphic-fetch": "^3.0.0",
