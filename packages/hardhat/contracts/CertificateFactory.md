@@ -1,2 +1,0 @@
-CertificateFactory
-  ↖ Ownable

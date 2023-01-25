@@ -3,6 +3,12 @@ import React from "react";
 import { ThemeSwitcherProvider } from "react-css-theme-switcher";
 import { BrowserRouter } from "react-router-dom";
 import ReactDOM from "react-dom";
+
+import "./fonts/WorkSans-Bold.ttf";
+import "./fonts/WorkSans-Medium.ttf";
+import "./fonts/WorkSans-Light.ttf";
+import "./fonts/WorkSans-Regular.ttf";
+
 import App from "./App";
 import "./index.css";
 

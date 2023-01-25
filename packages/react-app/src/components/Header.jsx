@@ -5,8 +5,8 @@ import React from "react";
 
 export default function Header() {
   return (
-    <a href="https://coo2.org" target="_blank" rel="noopener noreferrer">
-      <PageHeader title="COO2" subTitle="Voluntary Carbon Offset DAO" style={{ cursor: "pointer" }} />
+    <a href="https://mail.fairdatasociety.org" target="_blank" rel="noopener noreferrer">
+      <PageHeader title="SwarmMail" subTitle="" style={{ cursor: "pointer" }} />
     </a>
   );
 }

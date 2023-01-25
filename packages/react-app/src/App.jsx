@@ -1,4 +1,6 @@
-import { Alert, Button, Col, Menu, Row, Modal, Spin } from "antd";
+import { Alert, Button, Col, Menu, Row, Modal, Spin, Breadcrumb, Layout, MenuProps } from "antd";
+const { Header, Content, Sider } = Layout;
+
 import "antd/dist/antd.css";
 import {
   useBalance,
@@ -11,13 +13,15 @@ import {
 import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
+
 import "./App.css";
+
 import {
   Account,
   Contract,
   Faucet,
   GasGauge,
-  Header,
+  Header as AppHeader,
   Ramp,
   ThemeSwitch,
   NetworkDisplay,
@@ -32,6 +36,7 @@ import { Transactor, Web3ModalSetup } from "./helpers";
 import { Home, ExampleUI, Hints, Subgraph, Requests, RequestsReview, Registry, Validators, Pool } from "./views";
 import { useStaticJsonRPC } from "./hooks";
 import RegistryOfApprovedAndFinalized from "./views/RegistryOfApprovedAndFinalized";
+import { Footer } from "antd/lib/layout/layout";
 
 const { ethers } = require("ethers");
 /*
@@ -253,8 +258,65 @@ function App(props) {
 
   return (
     <div className="App">
+      <Layout style={{ minHeight: "100vh" }}>
+        <Sider>
+          <AppHeader />
+          {/* collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)} */}
+          {/* <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }}/> */}
+          <Menu
+            mode="inline"
+            style={{ textAlign: "left", height: "100%", borderRight: 0 }}
+            selectedKeys={[location.pathname]}
+          >
+            <Menu.Item key="/">
+              <Link to="/">Inbox</Link>
+            </Menu.Item>
+            <Menu.Item key="/sent">
+              <Link to="/sent">Sent</Link>
+            </Menu.Item>
+            <Menu.Item key="/contacts">
+              <Link to="/contacts">Contacts</Link>
+            </Menu.Item>
+
+            <Menu.Item key="/swarmmail">
+              <Link to="/swarmmail">Contract</Link>
+            </Menu.Item>
+          </Menu>
+        </Sider>
+        <Layout style={{ padding: "0px 0px 0px 0px" }}>
+          <Content
+            style={{
+              padding: 24,
+              margin: 0,
+              minHeight: 280,
+              width: "100%",
+              // background: "#000000",
+            }}
+          >
+            <h5>Content</h5>
+            <Switch>
+              <Route exact path="/">
+                {/* <Home readContracts={readContracts} /> */}
+              </Route>
+
+              <Route exact path="/swarmmail">
+                <Contract
+                  name="SwarmMail"
+                  price={price}
+                  signer={userSigner}
+                  provider={localProvider}
+                  address={address}
+                  blockExplorer={blockExplorer}
+                  contractConfig={contractConfig}
+                />
+              </Route>
+            </Switch>
+          </Content>
+        </Layout>
+      </Layout>
+
       {/* ✏️ Edit the header and change the title to your project name */}
-      <Header />
+      {/* <AppHeader />
       <NetworkDisplay
         NETWORKCHECK={NETWORKCHECK}
         localChainId={localChainId}
@@ -265,185 +327,14 @@ function App(props) {
         <Menu.Item key="/">
           <Link to="/">Home</Link>
         </Menu.Item>
-        <Menu.Item key="/debugreviewregistry">
-          <Link to="/debugreviewregistry">Registry</Link>
+        <Menu.Item key="/swarmmail">
+          <Link to="/swarmmail">SwarmMail</Link>
         </Menu.Item>
-        <Menu.Item key="/debugissuer">
-          <Link to="/debugissuer">Issuer</Link>
-        </Menu.Item>
-        <Menu.Item key="/debugcop">
-          <Link to="/debugcop">COPToken</Link>
-        </Menu.Item>
+      </Menu> */}
 
-        {/* <Menu.Item key="/hints">
-          <Link to="/hints">Hints</Link>
-        </Menu.Item>
-        <Menu.Item key="/exampleui">
-          <Link to="/exampleui">ExampleUI</Link>
-        </Menu.Item>
-        <Menu.Item key="/mainnetdai">
-          <Link to="/mainnetdai">Mainnet DAI</Link>
-        </Menu.Item> */}
-        <Menu.Item key="/subgraph">
-          <Link to="/subgraph">Subgraph</Link>
-        </Menu.Item>
-      </Menu>
+      {/* <Footer>Footer</Footer> */}
 
-      <Switch>
-        <Route exact path="/">
-          {/* pass in any web3 props to this Home component. For example, yourLocalBalance */}
-          <Home readContracts={readContracts} />
-        </Route>
-
-        <Route exact path="/requests">
-          <Requests
-            readContracts={readContracts}
-            writeContracts={writeContracts}
-            address={address}
-            tx={tx}
-            localProvider={localProvider}
-          />
-        </Route>
-        <Route exact path="/requestsreview">
-          <RequestsReview
-            readContracts={readContracts}
-            writeContracts={writeContracts}
-            address={address}
-            tx={tx}
-            localProvider={localProvider}
-          />
-        </Route>
-        <Route exact path="/registryofapprovedandfinalized">
-          <RegistryOfApprovedAndFinalized
-            readContracts={readContracts}
-            writeContracts={writeContracts}
-            address={address}
-            tx={tx}
-            localProvider={localProvider}
-          />
-        </Route>
-        <Route exact path="/registry">
-          <Registry
-            readContracts={readContracts}
-            writeContracts={writeContracts}
-            address={address}
-            tx={tx}
-            localProvider={localProvider}
-          />
-        </Route>
-        <Route exact path="/validators">
-          <Validators
-            readContracts={readContracts}
-            writeContracts={writeContracts}
-            address={address}
-            tx={tx}
-            localProvider={localProvider}
-          />
-        </Route>
-        <Route exact path="/pool">
-          <Pool
-            readContracts={readContracts}
-            writeContracts={writeContracts}
-            address={address}
-            tx={tx}
-            localProvider={localProvider}
-          />
-        </Route>
-
-        <Route exact path="/debugcop">
-          <Contract
-            name="COPToken"
-            price={price}
-            signer={userSigner}
-            provider={localProvider}
-            address={address}
-            blockExplorer={blockExplorer}
-            contractConfig={contractConfig}
-          />
-        </Route>
-        <Route exact path="/debugissuer">
-          <Contract
-            name="COPIssuer"
-            price={price}
-            signer={userSigner}
-            provider={localProvider}
-            address={address}
-            blockExplorer={blockExplorer}
-            contractConfig={contractConfig}
-          />
-        </Route>
-        <Route exact path="/debugreviewregistry">
-          <Contract
-            name="COPRequestReviewRegistry"
-            price={price}
-            signer={userSigner}
-            provider={localProvider}
-            address={address}
-            blockExplorer={blockExplorer}
-            contractConfig={contractConfig}
-          />
-        </Route>
-
-        {/* <Route path="/hints">
-          <Hints
-            address={address}
-            yourLocalBalance={yourLocalBalance}
-            mainnetProvider={mainnetProvider}
-            price={price}
-          />
-        </Route>
-        <Route path="/exampleui">
-          <ExampleUI
-            address={address}
-            userSigner={userSigner}
-            mainnetProvider={mainnetProvider}
-            localProvider={localProvider}
-            yourLocalBalance={yourLocalBalance}
-            price={price}
-            tx={tx}
-            writeContracts={writeContracts}
-            readContracts={readContracts}
-            purpose={purpose}
-          />
-        </Route>
-        <Route path="/mainnetdai">
-          <Contract
-            name="DAI"
-            customContract={mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.DAI}
-            signer={userSigner}
-            provider={mainnetProvider}
-            address={address}
-            blockExplorer="https://etherscan.io/"
-            contractConfig={contractConfig}
-            chainId={1}
-          /> 
-
-        </Route> */}
-
-        <Route path="/subgraph">
-          <Subgraph
-            subgraphUri={props.subgraphUri}
-            tx={tx}
-            writeContracts={writeContracts}
-            mainnetProvider={mainnetProvider}
-          />
-        </Route>
-      </Switch>
-
-      <div className="footer" style={{ margin: "auto", width: "90vw" }}>
-        <br />
-        COO2 is independent decentralized autonomous organization with sole task to issue Voluntary Carbon Offset
-        Coupons.
-        <br />
-        <br />
-        <br />
-        <br />
-      </div>
-      <div style={{ position: "fixed", left: "50%", top: "2%" }}>
-        {/* <Modal visible={isLoading} footer={null}> */}
-        {isLoading && <Spin size="64" />}
-        {/* </Modal> */}
-      </div>
+      <div style={{ position: "fixed", left: "50%", top: "2%" }}>{isLoading && <Spin size="64" />}</div>
 
       <ThemeSwitch />
 

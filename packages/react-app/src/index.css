@@ -1,7 +1,27 @@
+@font-face {
+  font-family: "Light";   /*Can be any text*/
+  src: local("WorkSans-Light"),
+    url("./fonts/WorkSans-Light.ttf") format("truetype");
+
+  font-family: "Medium";   /*Can be any text*/
+  src: local("WorkSans-Medium"),
+    url("./fonts/WorkSans-Medium.ttf") format("truetype");
+
+  font-family: "Bold";   /*Can be any text*/
+  src: local("WorkSans-Bold"),
+    url("./fonts/WorkSans-Bold.ttf") format("truetype");
+
+  font-family: "Regular";   /*Can be any text*/
+  src: local("WorkSans-Regular"),
+    url("./fonts/WorkSans-Regular.ttf") format("truetype");  
+}
+
 body {
   margin: 0;
+  font-family: "Work Sans";
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+  /* font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace; */
+  /* font-family: source-code-pro, Menlo, Monaco, Consolas, "Work Sans", monospace; */
 }
