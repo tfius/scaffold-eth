@@ -11,15 +11,15 @@
   src: local("WorkSans-Bold"),
     url("./fonts/WorkSans-Bold.ttf") format("truetype");
 
-  font-family: "Regular";   /*Can be any text*/
+  font-family: "Work Sans";   /*Can be any text*/
   src: local("WorkSans-Regular"),
     url("./fonts/WorkSans-Regular.ttf") format("truetype");  
 }
 
 body {
   margin: 0;
-  /* font-family: "Work Sans";
-} */
+  font-family: "Work Sans";
+} 
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace; 

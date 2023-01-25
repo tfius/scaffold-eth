@@ -33,10 +33,9 @@ import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
-import { Home, ExampleUI, Hints, Subgraph, Requests, RequestsReview, Registry, Validators, Pool } from "./views";
 import { useStaticJsonRPC } from "./hooks";
-import RegistryOfApprovedAndFinalized from "./views/RegistryOfApprovedAndFinalized";
 import { Footer } from "antd/lib/layout/layout";
+import { ComposeNewMessage } from "./views/ComposeNewMessage";
 
 const { ethers } = require("ethers");
 /*
@@ -86,6 +85,12 @@ function App(props) {
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
+
+  const [isModalVisible, _setIsModalVisible] = useState(false);
+  const setIsModalVisible = visible => {
+    console.log(visible);
+    _setIsModalVisible(visible);
+  };
 
   /// 📡 What chain are your contracts deployed to?
   const targetNetwork = NETWORKS[selectedNetwork]; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
@@ -254,6 +259,8 @@ function App(props) {
 
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
 
+  const openComposeMailWindow = () => {};
+
   // if(true) return <div></div>
 
   return (
@@ -293,7 +300,9 @@ function App(props) {
               // background: "#000000",
             }}
           >
-            <h5>Content</h5>
+            <h5>
+              <Button onClick={() => setIsModalVisible(!isModalVisible)}>Compose</Button>
+            </h5>
             <Switch>
               <Route exact path="/">
                 {/* <Home readContracts={readContracts} /> */}
@@ -314,6 +323,22 @@ function App(props) {
           </Content>
         </Layout>
       </Layout>
+
+      {isModalVisible && (
+        <Modal
+          title={<h2>New Message</h2>}
+          visible={isModalVisible}
+          footer={null}
+          onOk={() => {
+            setIsModalVisible(false);
+          }}
+          onCancel={() => {
+            setIsModalVisible(false);
+          }}
+        >
+          <ComposeNewMessage writeContracts={writeContracts} address={address} modalControl={setIsModalVisible} />
+        </Modal>
+      )}
 
       {/* ✏️ Edit the header and change the title to your project name */}
       {/* <AppHeader />

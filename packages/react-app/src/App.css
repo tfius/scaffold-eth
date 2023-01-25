@@ -1,7 +1,6 @@
 .App {
   text-align: left;
-  /* font-family: "Work Sans"; */
-  /* font-size: 1rem; */
+  font-size: 2rem;
 }
 :root {
    --color1: #77DD76;

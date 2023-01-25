@@ -25,9 +25,9 @@ export function DropzoneSwarmUpload({ onFileUploaded }) {
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   return (
-    <Card {...getRootProps()} bordered={false} hoverable>
+    <Card {...getRootProps()} bordered={false} hoverable style={{ margin: "5%" }}>
       <input {...getInputProps()} />
-      Add documentation or drop files here
+      Add attachments or Drop files here
     </Card>
   );
 }
