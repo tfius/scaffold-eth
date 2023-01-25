@@ -52,20 +52,18 @@ export const uploadFileToBee = async file => {
   const fetch = bioččdAxopsFetcj(axiosInstance);
   */
 
-  try 
-  {
+  try {
     const { reference } = await bee.uploadFiles(batchId, files, {
       indexDocument: metadata.name,
     });
 
     console.log("uploaded reference", reference, metadata.name);
     return reference;
-
   } catch (error) {
     notification.error({
       message: "Upload Error",
       description: error.message + " " + error.stack,
-    })
+    });
   }
 
   console.log("error uploadFileToBee");
@@ -87,7 +85,7 @@ export const uploadJsonToBee = async (object, filename) => {
   return uploadFileToBee(file);
 };
 
-export const downloadDataFromBee = async (contentHash) => {
+export const downloadDataFromBee = async contentHash => {
   /*const bee = new Bee(downloadGateway);
   const data = await bee.downloadData(contentHash).then(data => {
     return data;
@@ -100,18 +98,17 @@ export const downloadDataFromBee = async (contentHash) => {
 
   //console.log("got json", json)
   return json;
-}
+};
 
-export const downloadFileFromBee = async (contentHash) => {
-  const bee = new Bee(downloadGateway.slice(0,-5)); //downloadReadableFile
+export const downloadFileFromBee = async contentHash => {
+  const bee = new Bee(downloadGateway.slice(0, -5)); //downloadReadableFile
   const file = await bee.downloadFile(contentHash).then(data => {
     console.log("downloaded file", data);
-    var f = new Blob([data.data], {type: data.contentType});
+    var f = new Blob([data.data], { type: data.contentType });
     debugger;
     const writeFile = window.URL.createObjectURL(f);
-
 
     return data;
   });
   return null;
-}
+};

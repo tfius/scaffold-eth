@@ -18,10 +18,9 @@
 
 body {
   margin: 0;
-  font-family: "Work Sans";
-}
+  /* font-family: "Work Sans";
+} */
 
 code {
-  /* font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace; */
-  /* font-family: source-code-pro, Menlo, Monaco, Consolas, "Work Sans", monospace; */
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace; 
 }
