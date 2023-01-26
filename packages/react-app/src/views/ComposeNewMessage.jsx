@@ -3,9 +3,12 @@ import { Button, Card, Tooltip, Typography, Modal, Input, Form, Spin, Progress }
 import * as Consts from "./consts";
 import { uploadJsonToBee, downloadDataFromBee } from "./../Swarm/BeeService";
 import * as layouts from "./layouts.js";
+
+import { ethers } from "ethers";
 import { downloadGateway } from "./../Swarm/BeeService";
 import { DropzoneSwarmUpload } from "./../Swarm/DropzoneSwarmUpload";
 import { DropzoneReadFileContents } from "./../Swarm/DropzoneReadFileContents";
+import { deriveDriveKey, deriveFileKey, fileDecrypt, fileEncrypt } from "./../utils/w3crypto";
 
 const { Meta } = Card;
 const { Text } = Typography;
@@ -26,16 +29,15 @@ class ComposeNewMessageForm extends React.Component {
     };
     //console.log("ComposeNewMessageFormFile", props);
   }
-  onSend = async values => {
-    console.log("onFinish", values);
-    var message = values;
-    message.attachments = this.state.attachments;
-    console.log("message", message);
+  onSend = async message => {
+    console.log("onFinish", message);
+    //var message = values;
+    //message.attachments = this.state.attachments;
+    //console.log("message", message);
     this.props.loading(true);
 
-    // const swarmHash = await uploadJsonToBee(values, "post.json");
-    // console.log("swarmHash", swarmHash);
-    // this.props.onDataSubmitedToBee(swarmHash);
+    await this.props.onSendMessage(this.state.address, message.recipient, message, this.state.attachments);
+
     this.props.loading(null);
     this.setState({ isInProgress: false });
   };
@@ -52,10 +54,11 @@ class ComposeNewMessageForm extends React.Component {
     this.setState({ progress: 0, progresStatus: "Encrypting" }); // encrypt message with recepient public key
     const encryptedMessage = await encryptMessage(message, recepient);
     this.setState({ progress: 0, progresStatus: "Sending" });
-  };;
+  };
 
   onRecepientChange = async name => {
     this.setState({ recepient: name });
+    this.props.onRetrieveRecipientPubKey(name, false);
   };
 
   onFileUploaded = async (hash, file) => {
@@ -64,7 +67,7 @@ class ComposeNewMessageForm extends React.Component {
     this.setState({ file: file });
   };
 
-  onAddFile = async (file, binaryData) => {
+  addAttachment = async (file, binaryData) => {
     var newFile = { file, binaryData: binaryData, hash: Consts.emptyHash };
     this.setState({ attachments: [...this.state.attachments, newFile] });
   };
@@ -75,11 +78,7 @@ class ComposeNewMessageForm extends React.Component {
   render() {
     var total = this.state.attachments.reduce((a, b) => a + b.file.size, 0);
     var percent = (total / (5 * 1024 * 1024)) * 100;
-    //console.log("ComposeNewMessageForm", this.props, this.state.attachments);
-    //console.log("ComposeNewMessageForm", this.state.attachments);
     const required = [{ required: true }];
-    // debugger;
-    // if (this.props.address == undefined) return <h3>Connecting...</h3>;
 
     return (
       <>
@@ -120,7 +119,7 @@ class ComposeNewMessageForm extends React.Component {
               <Form.Item name="contents" label="Content">
                 <Input.TextArea maxLength={4096} rows={10} autosize={{ minRows: "10", maxRows: "20" }} />
               </Form.Item>
-              <DropzoneReadFileContents onAddFile={this.onAddFile} refObj={this} />
+              <DropzoneReadFileContents onAddFile={this.addAttachment} refObj={this} />
               <Button
                 type="primary"
                 htmlType="submit"
@@ -164,48 +163,10 @@ class ComposeNewMessageForm extends React.Component {
   }
 }
 
-export function ComposeNewMessage({ writeContracts, address, modalControl }) {
+export function ComposeNewMessage({ readContracts, writeContracts, address, modalControl }) {
   const [loading, setLoading] = useState(false);
-  //   const [modalRequestDataSwarm, setModalRequestDataSwarm] = useState(null);
-  //   const [modal, _setModal] = useState(null);
-  //   const [requestData, setRequestData] = useState(null);
-  //   const [reviewSubmittedHash, setReviewSubmittedHash] = useState(null);
-
-  const onSend = async (item, i, hash) => {
-    // console.log("Sending approve", item.candidate);
-    // var rr = reviewsRequestList;
-    // rr = rr.slice(i, 1);
-    // setReviewsRequestList(rr);
-    // await tx(
-    //   writeContracts.COPRequestReviewRegistry.approveReview(
-    //     item.candidate,
-    //     "0x" + hash, //"0x0000000000000000000000000000000000000000000000000000000000000000",
-    //   ),
-    // );
-  };
-  const onReject = async (item, i, hash) => {
-    // console.log("Sending reject", item.candidate);
-    // await tx(
-    //   writeContracts.COPRequestReviewRegistry.rejectReview(
-    //     item.candidate,
-    //     "0x" + hash, //"0x0000000000000000000000000000000000000000000000000000000000000000",
-    //   ),
-    // );
-  };
-
-  //   const setModal = async (modal, index) => {
-  //     if (modal == null) {
-  //       _setModal(null);
-  //       return;
-  //     }
-
-  //     // var data = await downloadDataFromBee(modal.requestorDataHash);
-  //     // data.itemIndex = index;
-  //     // setModalRequestDataSwarm(data);
-  //     // console.log("setModalData", modal.requestorDataHash, data);
-  //     // _setModal(modal);
-  //   };
-
+  const [senderPubKey, setSenderPubKey] = useState(false);
+  const [receiverPubKey, setReceiverPubKey] = useState(false);
   const onSendSubmitDataToBee = async approvedSwarmHash => {
     setLoading(true);
     //var data = modalRequestDataSwarm;
@@ -213,6 +174,43 @@ export function ComposeNewMessage({ writeContracts, address, modalControl }) {
     //setModalRequestDataSwarm(data);
     setLoading(null);
     //setReviewSubmittedHash(approvedSwarmHash);
+  };
+
+  const retrievePubKey = async (forAddress, isSender = false) => {
+    try {
+      const data = await readContracts.SwarmMail.getPublicKeys(address); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
+      if (isSender) setSenderPubKey({ x: data.x, y: data.y });
+      else setReceiverPubKey({ x: data.x, y: data.y });
+
+      console.log(isSender ? "sender" : "receiver", isSender, data);
+      return data;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  };
+
+  const onSendMessage = async (senderAddress, recipientAddress, message, attachements) => {
+    let senderPubKey = await retrievePubKey(senderAddress, true); // get sender public key
+    let receiverPubKey = await retrievePubKey(recipientAddress, false); // get receiver public key
+
+    debugger;
+    let emailUuid = uuidv4();
+    console.log("emailUuid", emailUuid);
+
+    const emailKey = await deriveFileKey(driveKey, emailUuid);
+    // encrypt email key by receive user public key
+    const encryptSendKey = encryptEmailKey(senderPublicKey, Buffer.from(emailKey, "base64"));
+    const encryptReceiveKey = encryptEmailKey(receiverPubKey, Buffer.from(emailKey, "base64"));
+
+    for (var i = 0; i < message.attachments.length; i++) {
+      var attachment = message.attachments[i];
+      var encAttachment = await encryptMessage(attachment, recepient);
+    }
+
+    // const swarmHash = await uploadJsonToBee(values, "post.json");
+    // console.log("swarmHash", swarmHash);
+    // this.props.onDataSubmitedToBee(swarmHash);
   };
 
   return (
@@ -238,6 +236,8 @@ export function ComposeNewMessage({ writeContracts, address, modalControl }) {
           address={address}
           onDataSubmitedToBee={onSendSubmitDataToBee}
           loading={setLoading}
+          onRetrieveRecipientPubKey={retrievePubKey}
+          onSendMessage={onSendMessage}
         />
       </Modal>
     </>

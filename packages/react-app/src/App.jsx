@@ -344,7 +344,12 @@ function App(props) {
             setIsModalVisible(false);
           }}
         >
-          <ComposeNewMessage writeContracts={writeContracts} address={address} modalControl={setIsModalVisible} />
+          <ComposeNewMessage
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            address={address}
+            modalControl={setIsModalVisible}
+          />
         </Modal>
       )}
 

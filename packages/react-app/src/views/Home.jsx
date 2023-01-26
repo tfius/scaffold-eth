@@ -21,37 +21,27 @@ import {
   Avatar,
 } from "antd";
 import { useResolveEnsName } from "eth-hooks/dapps/ens";
-import { emptyHash } from "./consts";
+import * as consts from "./consts";
 import Blockies from "react-blockies";
 const { Meta } = Card;
 
-// before finger today south flavor gossip loyal domain badge supply silent shallow
-
-export const PUBLIC_KEY_LENGTH = 132;
-export const PUBLIC_KEY_PART_LENGTH = (PUBLIC_KEY_LENGTH - 4) / 2 + 2;
-
-/**
- * web3 props can be passed from '../App.jsx' into your local view component for use
- * @param {*} yourLocalBalance balance on current network
- * @param {*} readContracts contracts from current chain already pre-loaded using ethers contract module. More here https://docs.ethers.io/v5/api/contract/contract/
- * @returns react component
- */
 export function Home({ readContracts, writeContracts, tx, userSigner, address }) {
   const [isRegistered, setIsRegistered] = useState(false);
-  const [key, setKey] = useState(emptyHash);
-  const [publicKey, setPublicKey] = useState({ x: emptyHash, y: emptyHash });
+  const [key, setKey] = useState(consts.emptyHash);
+  const [publicKey, setPublicKey] = useState({ x: consts.emptyHash, y: consts.emptyHash });
   const [mails, setMails] = useState([]);
 
   async function splitPublicKey(pk) {
-    const x = "0x" + pk.substring(4, PUBLIC_KEY_PART_LENGTH + 2);
-    const y = "0x" + pk.substring(PUBLIC_KEY_PART_LENGTH + 2, PUBLIC_KEY_LENGTH + 2);
+    const x = "0x" + pk.substring(4, consts.PUBLIC_KEY_PART_LENGTH + 2);
+    const y = "0x" + pk.substring(consts.PUBLIC_KEY_PART_LENGTH + 2, consts.PUBLIC_KEY_LENGTH + 2);
     return { x, y };
   }
 
   function joinPublicKey(x, y) {
     return "0x04" + x.substring(2) + y.substring(2);
   }
-  async function getPublicKey(signer) {
+  // get publick key from signer
+  async function getPublicKeyFromSignature(signer) {
     const ethAddress = await signer.getAddress();
     const message = "Sign this transaction to enable data transfer. Hash: " + ethers.utils.hashMessage(address);
     const sig = await signer.signMessage(message);
@@ -97,7 +87,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
   // }, [key]);
 
   const registerAccount = async () => {
-    const data = await getPublicKey(userSigner);
+    const data = await getPublicKeyFromSignature(userSigner);
     console.log("Got Pk", data);
     //const publicKey = resPubKey.substr(2, resPubKey.length - 1);
     //Buffer.from(publicKey, "hex").toString("base64");
@@ -122,7 +112,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
         {!isRegistered && (
           <Card title={<div>Not Registred</div>}>
             <Typography>
-              It appears your account is not registred yet. Please register your public key to receive encrypted data
+              It appears your account is not registred yet. Please register to receive encrypted data.
             </Typography>
             <Button onClick={() => registerAccount(address)}>REGISTER NOW</Button>
           </Card>
@@ -131,7 +121,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
       <>
         {isRegistered && (
           <>
-            <span>Refresh 🗘</span>
+            <span>🗘 Refresh</span>
           </>
         )}
       </>
