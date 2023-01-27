@@ -27,6 +27,7 @@ import {
   NetworkDisplay,
   FaucetHint,
   NetworkSwitch,
+  Address,
 } from "./components";
 import { NETWORKS, ALCHEMY_KEY } from "./constants";
 import externalContracts from "./contracts/external_contracts";
@@ -37,6 +38,7 @@ import { useStaticJsonRPC } from "./hooks";
 import { Footer } from "antd/lib/layout/layout";
 
 import { Home } from "./views/Home";
+import { Inbox } from "./views/Inbox";
 import { ComposeNewMessage } from "./views/ComposeNewMessage";
 
 const { ethers } = require("ethers");
@@ -275,14 +277,16 @@ function App(props) {
           <Button style={{ marginLeft: "24px" }} onClick={() => setIsModalVisible(!isModalVisible)}>
             Compose
           </Button>
-
           <Menu
             mode="inline"
             style={{ textAlign: "left", height: "100%", borderRight: 0 }}
             selectedKeys={[location.pathname]}
           >
             <Menu.Item key="/">
-              <Link to="/">Inbox</Link>
+              <Link to="/">Home</Link>
+            </Menu.Item>
+            <Menu.Item key="/inbox">
+              <Link to="/inbox">Inbox</Link>
             </Menu.Item>
             <Menu.Item key="/sent">
               <Link to="/sent">Sent</Link>
@@ -295,6 +299,14 @@ function App(props) {
               <Link to="/swarmmail">Contract</Link>
             </Menu.Item>
           </Menu>
+          <div>text s</div>
+          <div>text s</div>
+          {address ? (
+            <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} />
+          ) : (
+            "Connecting..."
+          )}
+          {/* <Balance address={address} provider={localProvider} price={price} /> */}
         </Sider>
         <Layout style={{ padding: "0px 0px 0px 0px" }}>
           <Content
@@ -309,6 +321,15 @@ function App(props) {
             <Switch>
               <Route exact path="/">
                 <Home
+                  readContracts={readContracts}
+                  writeContracts={writeContracts}
+                  userSigner={userSigner}
+                  tx={tx}
+                  address={address}
+                />
+              </Route>
+              <Route exact path="/inbox">
+                <Inbox
                   readContracts={readContracts}
                   writeContracts={writeContracts}
                   userSigner={userSigner}

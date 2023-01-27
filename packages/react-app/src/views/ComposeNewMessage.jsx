@@ -230,7 +230,7 @@ export function ComposeNewMessage({ readContracts, writeContracts, address, moda
         //var encAttachment = await encryptMessage(attachment, recepient);
         var hash = await uploadDataToBee(a.binaryData, a.file.type, a.file.name);
         locations.push({ file: a.file, digest: hash });
-        setProgress(attachments.length > 0 ? 5 + (i / attachments.length) * 80 : 80);
+        setProgress(Math.round(attachments.length > 0 ? 5 + (i / attachments.length) * 80 : 80));
       }
 
       var completeMessage = message;
