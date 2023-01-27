@@ -272,6 +272,10 @@ function App(props) {
           <AppHeader />
           {/* collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)} */}
           {/* <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }}/> */}
+          <Button style={{ marginLeft: "24px" }} onClick={() => setIsModalVisible(!isModalVisible)}>
+            Compose
+          </Button>
+
           <Menu
             mode="inline"
             style={{ textAlign: "left", height: "100%", borderRight: 0 }}
@@ -302,9 +306,6 @@ function App(props) {
               // background: "#000000",
             }}
           >
-            <h5>
-              <Button onClick={() => setIsModalVisible(!isModalVisible)}>Compose</Button>
-            </h5>
             <Switch>
               <Route exact path="/">
                 <Home

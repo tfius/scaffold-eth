@@ -85,7 +85,7 @@ export const uploadJsonToBee = async (object, filename) => {
   return uploadFileToBee(file);
 };
 
-export const downloadDataFromBee = async contentHash => {
+export const downloadJsonFromBee = async contentHash => {
   /*const bee = new Bee(downloadGateway);
   const data = await bee.downloadData(contentHash).then(data => {
     return data;
@@ -93,11 +93,17 @@ export const downloadDataFromBee = async contentHash => {
   return null;*/
 
   var url = downloadGateway + contentHash.substring(2) + "/";
-  //console.log("downloading from", url);
   var json = await (await fetch(url)).json();
-
   //console.log("got json", json)
   return json;
+};
+/// returns buffer
+export const downloadDataFromBee = async contentHash => {
+  var url = downloadGateway + contentHash.substring(2) + "/";
+  //console.log("downloading from", url);
+  var data = await (await fetch(url)).arrayBuffer();
+  //console.log("got json", json)
+  return data;
 };
 
 export const downloadFileFromBee = async contentHash => {

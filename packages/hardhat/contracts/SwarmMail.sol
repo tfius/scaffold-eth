@@ -16,11 +16,11 @@ contract SwarmMail {
     }
 
 
-    struct File {
-        uint256 time;
-        bytes uuid;
-        bytes name;
-    }
+    // struct File {
+    //     uint256 time;
+    //     bytes uuid;
+    //     bytes name;
+    // }
 
     function getPublicKeys(address addr) public view returns (bool registered, bytes32 key/*, bytes32 x, bytes32 y*/) {
         registered = users[addr].key != bytes32(0) ;
@@ -35,7 +35,8 @@ contract SwarmMail {
         address from;
         address to;
         bytes32 swarmLocation;
-        //bytes uuid;
+        bool    signed;
+               //bytes uuid;
     }
 
     struct User {
@@ -81,6 +82,13 @@ contract SwarmMail {
         return users[addr].sentEmails[index];
     }
 
+    function signEmail(bytes32 swarmLocation) public {
+        User storage u = users[msg.sender];
+        require(u.inboxEmailIds[swarmLocation] != 0, "Email does not exist");
+        Email storage email = u.inboxEmails[u.inboxEmailIds[swarmLocation] - 1];
+        require(msg.sender == email.to, "Only receiver can sign email");
+        email.signed = true;
+    }
     function sendEmail( address toAddress, bool isEncryption, bytes32 swarmLocation ) public payable
     {
         User storage receiver = users[toAddress];

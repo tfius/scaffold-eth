@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useContractReader } from "eth-hooks";
 import { useContractWriter } from "eth-hooks";
+
 import { ethers } from "ethers";
 import {
   Button,
@@ -18,10 +19,14 @@ import {
   Space,
   Tooltip,
   Typography,
+  IconText,
   Spin,
   Checkbox,
   Avatar,
 } from "antd";
+import { EnterOutlined, EditOutlined } from "@ant-design/icons";
+
+import VirtualList from "rc-virtual-list";
 
 import { uploadJsonToBee, downloadDataFromBee, uploadDataToBee } from "./../Swarm/BeeService";
 import { useResolveEnsName } from "eth-hooks/dapps/ens";
@@ -131,6 +136,27 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
     processSMails(mails);
     console.log("got smails", mails);
   });
+
+  const deleteMails = useCallback(async () => {
+    //if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
+    //const mails = await readContracts.SwarmMail.getInbox(address);
+    //processSMails(mails);
+    if (checked.length === 0) {
+      notification.error({
+        message: "No mails selected",
+        description: "Please select mails to delete",
+      });
+      return;
+    }
+    console.log("got smails", checked);
+    var newTx = await tx(writeContracts.SwarmMail.removeEmails(1, checked));
+    await newTx.wait();
+    // remove mails with same location
+    for (var i = 0; i < checked.length; i++) {
+      setMails(mails.filter(m => m.location !== checked[i]));
+    }
+  });
+
   useEffect(() => {
     updateRegistration();
     updateMails();
@@ -181,12 +207,12 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
     for (let i = 0; i < sMails.length; i++) {
       try {
         const smail = sMails[i];
-        const data = await downloadDataFromBee(sMails[i].swarmLocation);
+        const data = await downloadDataFromBee(sMails[i].swarmLocation); // returns buffer
         var mail = {};
         if (smail.isEncrytion) {
           // do decryption
         } else {
-          mail = data;
+          mail = mail = JSON.parse(new TextDecoder().decode(data)); //Buffer.from(data).toJSON(); // JSON.parse(data.toString());
         }
         mail.time = smail.time;
         mail.checked = false;
@@ -194,18 +220,40 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
         mail.sender = smail.from;
         // only add if not existing
         existingMails.findIndex(m => m.sendTime == mail.sendTime) == -1 ? setMails(mails => [mail, ...mails]) : null;
+        console.log(mail);
       } catch (e) {
         console.error("processSMails", e);
       }
     }
     setIsLoading(false);
-    console.log("processedMails", mails);
-  };
+    //console.log("processedMails", mails);
+  };;
 
   const onCheckAllChange = e => {
-    setChecked(e.target.checked ? mails.map(mail => mail.time) : []);
+    setChecked(e.target.checked ? mails.map(mail => mail.location) : []);
     setCheckAll(e.target.checked);
   };
+  const appendData = () => {
+    /*fetch(fakeDataUrl)
+      .then((res) => res.json())
+      .then((body) => {
+        setData(data.concat(body.results));
+        message.success(`${body.results.length} more items loaded!`);
+      });*/
+  };
+  const onScroll = e => {
+    if (e.currentTarget.scrollHeight - e.currentTarget.scrollTop === ContainerHeight) {
+      appendData();
+    }
+  };
+  const IconText = ({ icon, tooltip, text }: { icon: React.FC, text: string }) => (
+    <Tooltip title={tooltip}>
+      <Space>
+        {React.createElement(icon)}
+        {text}
+      </Space>
+    </Tooltip>
+  );
 
   return (
     <div style={{ margin: "auto", width: "100%" }}>
@@ -224,6 +272,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
           <>
             <Checkbox indeterminate={indeterminate} onChange={onCheckAllChange} checked={checkAll} /> &nbsp;
             <Button onClick={() => updateMails()}>🗘</Button>
+            <Button onClick={() => deleteMails()}>🗑</Button>&nbsp;
             {isLoading && <Spin />}
           </>
         )}
@@ -237,20 +286,80 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
             setChecked(checkedValues);
           }}
         >
+          {/* // TODO https://ant.design/components/list */}
           <List
             itemLayout="horizontal"
             dataSource={mails}
             renderItem={mail => (
-              <List.Item>
+              <List.Item
+                style={{ marginBottom: "5px", marginTop: "0px", padding: "0px" }}
+                actions={[
+                  // <IconText icon={EnterOutlined} tooltip="Reply" key="list-vertical-star-o" />,
+                  <IconText icon={EditOutlined} tooltip="Sign" key="list-vertical-like-o" />,
+                  // text="156"
+                ]}
+              >
                 <List.Item.Meta
+                  style={{
+                    background: !mail.isEncryption ? "#1890ff05" : "#00000011",
+                    borderRadius: "5px",
+                    paddingBottom: "5px",
+                    paddingTop: "5px",
+                    paddingRight: "5px",
+                  }}
                   avatar={
                     <>
-                      <Checkbox value={mail.time} style={{ margin: "0rem 1rem 0rem 0rem" }} />
-                      <Blockies seed={mail.sender} style={{ padding: "1rem" }} />
+                      <Checkbox value={mail.location} style={{ margin: "0rem 1rem 0rem 0rem" }} />
+                      <Tooltip title={mail.sender}>
+                        <span>
+                          <Blockies
+                            className="mailIdenticon"
+                            seed={mail.sender}
+                            style={{ marginTop: "1rem", position: "relative" }}
+                          />
+                        </span>
+                      </Tooltip>
+                      {/* <IconText icon={EditOutlined} tooltip="Sign" key="list-vertical-like-o" />, */}
                     </>
                   }
-                  title={<>{mail.subject}</>}
-                  description={<div style={{ height: "2.5rem", overflow: "hidden" }}>{mail.contents}</div>}
+                  title={<div style={{ marginTop: "5px" }}>{mail.subject}</div>}
+                  description={
+                    <>
+                      <div style={{ maxHeight: "2.7rem", overflow: "hidden" }}>{mail.contents}</div>
+                      <div>
+                        {mail.attachments.length > 0 && (
+                          <>
+                            {mail.attachments.map((a, i) => (
+                              <>
+                                <Tooltip title={a.file.path}>
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      border: "1px solid #00000055",
+                                      borderRadius: "5px",
+                                      paddingLeft: "0.2rem",
+                                      width: "100px",
+                                      overflow: "hidden",
+                                      textAlign: "center",
+                                      textOverflow: "ellipsis",
+                                      overflowWrap: "anywhere",
+                                      fontSize: "0.7rem",
+                                      marginRight: "20px",
+                                      marginTop: "3px",
+                                      maxHeight: "1.1rem",
+                                      background: "#88888888",
+                                    }}
+                                  >
+                                    {a.file.path}
+                                  </span>
+                                </Tooltip>
+                              </>
+                            ))}
+                          </>
+                        )}
+                      </div>
+                    </>
+                  }
                 />
               </List.Item>
             )}
@@ -258,7 +367,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
         </Checkbox.Group>
 
         <div style={{ marginTop: 20 }}>
-          <b>Selecting:</b> {checked.join(", ")}
+          <small>Selecting: {checked.join(", ")} </small>
         </div>
       </>
     </div>

@@ -69,3 +69,8 @@ body {
 iframe {
   visibility: hidden;
 }
+
+.mailIdenticon {
+  top: 0.7rem;
+  position: relative;
+}
