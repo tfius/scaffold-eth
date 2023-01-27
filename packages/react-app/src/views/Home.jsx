@@ -162,13 +162,6 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
     updateMails();
   }, [readContracts]);
 
-  const registerAccount = async () => {
-    //const data = await getPublicKeyFromSignature(userSigner);
-    const key = await getPublicKey(/*userSigner*/ window.ethereum, address);
-    // key pk in hex( 0x ) 0x form as required in SmarmMail contract
-    const pk = "0x" + Buffer.from(key, "base64").toString("hex");
-    const tx = await onRegister(pk); // await testMetamaskEncryption(key, address, "text to encrypt");
-  };
   const testMetamaskEncryption = async (receiverPubKey, receiverAddress, messageString) => {
     /*
     const key = await getPublicKey(window.ethereum, address);
@@ -191,6 +184,14 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
     console.log("Decrypted:", d);
   };
 
+  const registerAccount = async () => {
+    //const data = await getPublicKeyFromSignature(userSigner);
+    const key = await getPublicKey(/*userSigner*/ window.ethereum, address);
+    // key pk in hex( 0x ) 0x form as required in SmarmMail contract
+    const pk = "0x" + Buffer.from(key, "base64").toString("hex");
+    const tx = await onRegister(pk); // await testMetamaskEncryption(key, address, "text to encrypt");
+  };
+
   const onRegister = async (pubKey /*, x, y*/) => {
     console.log("Registering", address, pubKey /*, x, y*/);
     let newTx = await tx(writeContracts.SwarmMail.register(pubKey /*, x, y*/));
@@ -200,6 +201,16 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
       description: `Your key: ${pubKey}`,
     });
     await updateRegistration();
+  };
+
+  const onSignMail = async location => {
+    debugger;
+    let newTx = await tx(writeContracts.SwarmMail.storage(location));
+    await newTx.wait();
+    notification.open({
+      message: "You signed " + location,
+      description: `Your key: ${pubKey}`,
+    });
   };
   const processSMails = async sMails => {
     setIsLoading(true);
@@ -227,7 +238,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
     }
     setIsLoading(false);
     //console.log("processedMails", mails);
-  };;
+  };
 
   const onCheckAllChange = e => {
     setChecked(e.target.checked ? mails.map(mail => mail.location) : []);
@@ -248,10 +259,8 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
   };
   const IconText = ({ icon, tooltip, text }: { icon: React.FC, text: string }) => (
     <Tooltip title={tooltip}>
-      <Space>
-        {React.createElement(icon)}
-        {text}
-      </Space>
+      {React.createElement(icon)}
+      {text}
     </Tooltip>
   );
 
@@ -295,7 +304,12 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
                 style={{ marginBottom: "5px", marginTop: "0px", padding: "0px" }}
                 actions={[
                   // <IconText icon={EnterOutlined} tooltip="Reply" key="list-vertical-star-o" />,
-                  <IconText icon={EditOutlined} tooltip="Sign" key="list-vertical-like-o" />,
+                  <IconText
+                    icon={EditOutlined}
+                    tooltip="Sign"
+                    key="list-vertical-like-o"
+                    onClick={() => signEmail(mail.location)}
+                  />,
                   // text="156"
                 ]}
               >
@@ -330,30 +344,36 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
                         {mail.attachments.length > 0 && (
                           <>
                             {mail.attachments.map((a, i) => (
-                              <>
-                                <Tooltip title={a.file.path}>
-                                  <span
-                                    style={{
-                                      display: "inline-block",
-                                      border: "1px solid #00000055",
-                                      borderRadius: "5px",
-                                      paddingLeft: "0.2rem",
-                                      width: "100px",
-                                      overflow: "hidden",
-                                      textAlign: "center",
-                                      textOverflow: "ellipsis",
-                                      overflowWrap: "anywhere",
-                                      fontSize: "0.7rem",
-                                      marginRight: "20px",
-                                      marginTop: "3px",
-                                      maxHeight: "1.1rem",
-                                      background: "#88888888",
-                                    }}
-                                  >
-                                    {a.file.path}
-                                  </span>
-                                </Tooltip>
-                              </>
+                              <Tooltip
+                                title={
+                                  <>
+                                    {a.file.path} <br /> <small>{a.file.type}</small>
+                                  </>
+                                }
+                                key={a.digest}
+                              >
+                                <span
+                                  style={{
+                                    cursor: "pointer",
+                                    display: "inline-block",
+                                    border: "1px solid #00000055",
+                                    borderRadius: "5px",
+                                    paddingLeft: "0.2rem",
+                                    width: "100px",
+                                    overflow: "hidden",
+                                    textAlign: "center",
+                                    textOverflow: "ellipsis",
+                                    overflowWrap: "anywhere",
+                                    fontSize: "0.7rem",
+                                    marginRight: "20px",
+                                    marginTop: "3px",
+                                    maxHeight: "1.1rem",
+                                    background: "#88888888",
+                                  }}
+                                >
+                                  {a.file.path}
+                                </span>
+                              </Tooltip>
                             ))}
                           </>
                         )}
