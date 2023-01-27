@@ -24,38 +24,15 @@ class ComposeNewMessageForm extends React.Component {
       file: null,
       attachments: [],
       recepient: "",
-      //isInProgress: false,
-      //progress: 0,
-      //progresStatus: "Encrypting",
     };
-    //console.log("ComposeNewMessageFormFile", props);
   }
   onSend = async message => {
     console.log("onFinish", message);
-    //var message = values;
-    //message.attachments = this.state.attachments;
-    //console.log("message", message);
     this.props.loading(true);
-
     await this.props.onSendMessage(this.props.address, message.recipient, message, this.state.attachments);
-
     this.props.loading(null);
     this.setState({ isInProgress: false });
   };
-
-  // sendMessage = async (sender, recepient, message) => {
-  //   this.setState({ isInProgress: true });
-  //   this.setState({ progress: 0, progresStatus: "Packing" });
-  //   // encrypt attachments with recepient public key
-  //   for (var i = 0; i < message.attachments.length; i++) {
-  //     var attachment = message.attachments[i];
-  //     var encAttachment = await encryptMessage(attachment, recepient);
-  //   }
-
-  //   this.setState({ progress: 0, progresStatus: "Encrypting" }); // encrypt message with recepient public key
-  //   const encryptedMessage = await encryptMessage(message, recepient);
-  //   this.setState({ progress: 0, progresStatus: "Sending" });
-  // };
 
   onRecepientChange = async name => {
     this.setState({ recepient: name });
@@ -83,74 +60,72 @@ class ComposeNewMessageForm extends React.Component {
 
     return (
       <>
-        <>
-          <Form
-            {...layouts.layout}
-            ref={this.formRef}
-            // name="control-ref"
-            onFinish={this.onSend}
-            name="composeNewMessage"
-            fields={[
-              {
-                name: ["sender"],
-                value: this.props.address,
-              },
-            ]}
+        <Form
+          {...layouts.layout}
+          ref={this.formRef}
+          // name="control-ref"
+          onFinish={this.onSend}
+          name="composeNewMessage"
+          fields={[
+            {
+              name: ["sender"],
+              value: this.props.address,
+            },
+          ]}
+        >
+          <Form.Item name="sender" label="Sender">
+            <Input disabled />
+          </Form.Item>
+          <Form.Item name="recipient" label="Recipient" rules={required}>
+            <Input
+              placeholder="0x or ENS"
+              value={this.state.recepient}
+              onChange={e => this.onRecepientChange(e.target.value)}
+            />
+          </Form.Item>
+          <Form.Item name="subject" label="Subject" rules={required}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="contents" label="Content">
+            <Input.TextArea maxLength={4096} rows={10} autosize={{ minRows: "10", maxRows: "20" }} />
+          </Form.Item>
+          <DropzoneReadFileContents refObj={this} onAdd={this.addAttachment} />
+          <Button
+            type="primary"
+            htmlType="submit"
+            style={{ width: "80%", borderRadius: "25px", alignItems: "center", left: "10%" }}
           >
-            <Form.Item name="sender" label="Sender">
-              <Input disabled />
-            </Form.Item>
-            <Form.Item name="recipient" label="Recipient" rules={required}>
-              <Input
-                placeholder="0x or ENS"
-                value={this.state.recepient}
-                onChange={e => this.onRecepientChange(e.target.value)}
-              />
-            </Form.Item>
-            <Form.Item name="subject" label="Subject" rules={required}>
-              <Input />
-            </Form.Item>
-            <Form.Item name="contents" label="Content">
-              <Input.TextArea maxLength={4096} rows={10} autosize={{ minRows: "10", maxRows: "20" }} />
-            </Form.Item>
-            <DropzoneReadFileContents refObj={this} onAdd={this.addAttachment} />
-            <Button
-              type="primary"
-              htmlType="submit"
-              style={{ width: "80%", borderRadius: "25px", alignItems: "center", left: "10%" }}
-            >
-              Send
-            </Button>
-          </Form>
-          <div>
-            <br />
-            {this.state.attachments.length > 0 ? (
-              <div style={{ textAlign: "center", width: "100%" }}>
-                Usage: <strong>{Math.round(percent)}%</strong>&nbsp;Total size:&nbsp;
-                <strong>{layouts.bytesToSize(total)}</strong>&nbsp;Attachments:&nbsp;
-                <strong>{this.state.attachments.length}</strong> <br /> <br />
-              </div>
-            ) : (
-              <div style={{ textAlign: "center", width: "100%" }}>No attachments</div>
-            )}
+            Send
+          </Button>
+        </Form>
+        <div>
+          <br />
+          {this.state.attachments.length > 0 ? (
+            <div style={{ textAlign: "center", width: "100%" }}>
+              Usage: <strong>{Math.round(percent)}%</strong>&nbsp;Total size:&nbsp;
+              <strong>{layouts.bytesToSize(total)}</strong>&nbsp;Attachments:&nbsp;
+              <strong>{this.state.attachments.length}</strong> <br /> <br />
+            </div>
+          ) : (
+            <div style={{ textAlign: "center", width: "100%" }}>No attachments</div>
+          )}
 
-            {this.state.attachments.map((attachment, i) => {
-              return (
-                <span key={attachment.file.name + "_ff_" + i}>
-                  <span style={{ cursor: "pointer" }} onClick={() => this.removeAttachment(attachment)}>
-                    ×
-                  </span>
-                  &nbsp;
-                  <span>
-                    {attachment.file.name} {layouts.bytesToSize(attachment.file.size)}
-                  </span>{" "}
-                  <br />
+          {this.state.attachments.map((attachment, i) => {
+            return (
+              <span key={attachment.file.name + "_ff_" + i}>
+                <span style={{ cursor: "pointer" }} onClick={() => this.removeAttachment(attachment)}>
+                  ×
                 </span>
-              );
-            })}
-            <br />
-          </div>
-        </>
+                &nbsp;
+                <span>
+                  {attachment.file.name} {layouts.bytesToSize(attachment.file.size)}
+                </span>{" "}
+                <br />
+              </span>
+            );
+          })}
+          <br />
+        </div>
       </>
     );
   }
