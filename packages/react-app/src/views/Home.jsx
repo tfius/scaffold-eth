@@ -18,8 +18,12 @@ import {
   Space,
   Tooltip,
   Typography,
+  Spin,
+  Checkbox,
   Avatar,
 } from "antd";
+
+import { uploadJsonToBee, downloadDataFromBee, uploadDataToBee } from "./../Swarm/BeeService";
 import { useResolveEnsName } from "eth-hooks/dapps/ens";
 import * as consts from "./consts";
 import Blockies from "react-blockies";
@@ -88,6 +92,11 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
   const [publicKey, setPublicKey] = useState({ x: consts.emptyHash, y: consts.emptyHash });
   const [mails, setMails] = useState([]);
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [checked, setChecked] = useState([]);
+  const [indeterminate, setIndeterminate] = useState(false);
+  const [checkAll, setCheckAll] = useState(false);
+
   // get publick key from signer
   async function getPublicKeyFromSignature(signer) {
     const ethAddress = await signer.getAddress();
@@ -110,40 +119,29 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
   }
 
   const updateRegistration = useCallback(async () => {
-    if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
-    // todo get pub key from ENS
-    const data = await readContracts.SwarmMail.getPublicKeys(address); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
+    if (readContracts === undefined || readContracts.SwarmMail === undefined) return; // todo get pub key from ENS
+    const data = await readContracts.SwarmMail.getPublicKeys(address);
     setIsRegistered(data.registered);
     setKey(data.key);
-    setPublicKey({ x: data.x, y: data.y });
-    console.log("updateRegistration", data);
   });
 
   const updateMails = useCallback(async () => {
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
-    const mails = await readContracts.SwarmMail.getInbox(address); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
-    setMails(mails);
-    console.log("updateMails", mails);
-  };);
-
-  // console.log(readContracts.SwarmMail);
+    const mails = await readContracts.SwarmMail.getInbox(address);
+    processSMails(mails);
+    console.log("got smails", mails);
+  });
   useEffect(() => {
     updateRegistration();
     updateMails();
   }, [readContracts]);
 
-  // useEffect(() => {
-  //   updateRegistration();
-  // }, [key]);
-
   const registerAccount = async () => {
     //const data = await getPublicKeyFromSignature(userSigner);
     const key = await getPublicKey(/*userSigner*/ window.ethereum, address);
-    // key pk in hex( 0x ) 0x form
+    // key pk in hex( 0x ) 0x form as required in SmarmMail contract
     const pk = "0x" + Buffer.from(key, "base64").toString("hex");
-    // await testMetamaskEncryption(key, address, "text to encrypt");
-    // const tx = await onRegister(pk, data.pubKey.x, data.pubKey.y);
-    const tx = await onRegister(pk);
+    const tx = await onRegister(pk); // await testMetamaskEncryption(key, address, "text to encrypt");
   };
   const testMetamaskEncryption = async (receiverPubKey, receiverAddress, messageString) => {
     /*
@@ -171,10 +169,42 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
     console.log("Registering", address, pubKey /*, x, y*/);
     let newTx = await tx(writeContracts.SwarmMail.register(pubKey /*, x, y*/));
     await newTx.wait();
-    console.log("Registered", address, pubKey /*, x, y*/);
+    notification.open({
+      message: "Registered " + address,
+      description: `Your key: ${pubKey}`,
+    });
     await updateRegistration();
-    //setPublicKey({ x: x, y: y });
-    //setKey(pubKey);
+  };
+  const processSMails = async sMails => {
+    setIsLoading(true);
+    var existingMails = mails;
+    for (let i = 0; i < sMails.length; i++) {
+      try {
+        const smail = sMails[i];
+        const data = await downloadDataFromBee(sMails[i].swarmLocation);
+        var mail = {};
+        if (smail.isEncrytion) {
+          // do decryption
+        } else {
+          mail = data;
+        }
+        mail.time = smail.time;
+        mail.checked = false;
+        mail.location = smail.swarmLocation;
+        mail.sender = smail.from;
+        // only add if not existing
+        existingMails.findIndex(m => m.sendTime == mail.sendTime) == -1 ? setMails(mails => [mail, ...mails]) : null;
+      } catch (e) {
+        console.error("processSMails", e);
+      }
+    }
+    setIsLoading(false);
+    console.log("processedMails", mails);
+  };
+
+  const onCheckAllChange = e => {
+    setChecked(e.target.checked ? mails.map(mail => mail.time) : []);
+    setCheckAll(e.target.checked);
   };
 
   return (
@@ -192,29 +222,44 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
       <>
         {isRegistered && (
           <>
-            <span>🗘 Refresh</span>
+            <Checkbox indeterminate={indeterminate} onChange={onCheckAllChange} checked={checkAll} /> &nbsp;
+            <Button onClick={() => updateMails()}>🗘</Button>
+            {isLoading && <Spin />}
           </>
         )}
       </>
 
       <>
-        <List
-          itemLayout="horizontal"
-          dataSource={mails}
-          renderItem={item => (
-            <List.Item>
-              <List.Item.Meta
-                // avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
-                avatar={<Blockies seed={item.from} />}
-                title={<a href="https://ant.design">{item.title}</a>}
-                description="Ant Design, a design language for background applications, is refined by Ant UED Team"
-              />
-            </List.Item>
-          )}
-        />
-        {mails.map((mail, index) => {
-          <>tralala</>;
-        })}
+        <Checkbox.Group
+          style={{ width: "100%" }}
+          value={checked}
+          onChange={checkedValues => {
+            setChecked(checkedValues);
+          }}
+        >
+          <List
+            itemLayout="horizontal"
+            dataSource={mails}
+            renderItem={mail => (
+              <List.Item>
+                <List.Item.Meta
+                  avatar={
+                    <>
+                      <Checkbox value={mail.time} style={{ margin: "0rem 1rem 0rem 0rem" }} />
+                      <Blockies seed={mail.sender} style={{ padding: "1rem" }} />
+                    </>
+                  }
+                  title={<>{mail.subject}</>}
+                  description={<div style={{ height: "2.5rem", overflow: "hidden" }}>{mail.contents}</div>}
+                />
+              </List.Item>
+            )}
+          />
+        </Checkbox.Group>
+
+        <div style={{ marginTop: 20 }}>
+          <b>Selecting:</b> {checked.join(", ")}
+        </div>
       </>
     </div>
   );
