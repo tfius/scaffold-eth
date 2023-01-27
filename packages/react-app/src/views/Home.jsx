@@ -25,21 +25,69 @@ import * as consts from "./consts";
 import Blockies from "react-blockies";
 const { Meta } = Card;
 
+const ethUtil = require("ethereumjs-util");
+const sigUtil = require("@metamask/eth-sig-util");
+export async function getPublicKey(signer, account) {
+  try {
+    // signer = window.ethereum
+    return await signer.request({
+      method: "eth_getEncryptionPublicKey",
+      params: [account],
+    });
+  } catch (e) {
+    return undefined;
+  }
+}
+export async function getECDN(signer, account, ephemeralKey) {
+  try {
+    // signer = window.ethereum
+    return await signer.request({
+      method: "eth_performECDH",
+      params: [account],
+    });
+  } catch (e) {
+    return undefined;
+  }
+}
+export async function decryptMessage(signer, accountToDecrypt, encryptedMessage) {
+  try {
+    // debugger;
+    // signer ?
+    return await signer.request({
+      method: "eth_decrypt",
+      params: [encryptedMessage, accountToDecrypt],
+    });
+  } catch (e) {
+    console.error("decryptMessage", e);
+    return undefined;
+  }
+}
+export async function encryptMessage(encryptionPublicKey /* receiver pubKey */, messageToEncrypt) {
+  try {
+    return ethUtil.bufferToHex(
+      Buffer.from(
+        JSON.stringify(
+          sigUtil.encrypt({
+            publicKey: encryptionPublicKey,
+            data: messageToEncrypt,
+            version: "x25519-xsalsa20-poly1305",
+          }),
+        ),
+        "utf8",
+      ),
+    );
+  } catch (e) {
+    console.error("encryptMessage", e);
+    return undefined;
+  }
+}
+
 export function Home({ readContracts, writeContracts, tx, userSigner, address }) {
   const [isRegistered, setIsRegistered] = useState(false);
   const [key, setKey] = useState(consts.emptyHash);
   const [publicKey, setPublicKey] = useState({ x: consts.emptyHash, y: consts.emptyHash });
   const [mails, setMails] = useState([]);
 
-  async function splitPublicKey(pk) {
-    const x = "0x" + pk.substring(4, consts.PUBLIC_KEY_PART_LENGTH + 2);
-    const y = "0x" + pk.substring(consts.PUBLIC_KEY_PART_LENGTH + 2, consts.PUBLIC_KEY_LENGTH + 2);
-    return { x, y };
-  }
-
-  function joinPublicKey(x, y) {
-    return "0x04" + x.substring(2) + y.substring(2);
-  }
   // get publick key from signer
   async function getPublicKeyFromSignature(signer) {
     const ethAddress = await signer.getAddress();
@@ -49,7 +97,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
     const msgHashBytes = ethers.utils.arrayify(msgHash);
     // Now you have the digest,
     const pk = ethers.utils.recoverPublicKey(msgHashBytes, sig);
-    const pubKey = await splitPublicKey(pk);
+    const pubKey = await consts.splitPublicKey(pk);
     const addr = ethers.utils.recoverAddress(msgHashBytes, sig);
     // console.log("Got PK", pk, addr);
     const recoveredAddress = ethers.utils.computeAddress(ethers.utils.arrayify(pk));
@@ -62,6 +110,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
   }
 
   const updateRegistration = useCallback(async () => {
+    if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
     // todo get pub key from ENS
     const data = await readContracts.SwarmMail.getPublicKeys(address); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
     setIsRegistered(data.registered);
@@ -71,10 +120,11 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
   });
 
   const updateMails = useCallback(async () => {
-    const mails = await readContracts.SwarmMail.getInboxEmails(); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
+    if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
+    const mails = await readContracts.SwarmMail.getInbox(address); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
     setMails(mails);
     console.log("updateMails", mails);
-  });
+  };);
 
   // console.log(readContracts.SwarmMail);
   useEffect(() => {
@@ -87,21 +137,42 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address })
   // }, [key]);
 
   const registerAccount = async () => {
-    const data = await getPublicKeyFromSignature(userSigner);
-    console.log("Got Pk", data);
-    //const publicKey = resPubKey.substr(2, resPubKey.length - 1);
-    //Buffer.from(publicKey, "hex").toString("base64");
-    const tx = await onRegister(ethers.utils.keccak256(data.pk), data.pubKey.x, data.pubKey.y);
+    //const data = await getPublicKeyFromSignature(userSigner);
+    const key = await getPublicKey(/*userSigner*/ window.ethereum, address);
+    // key pk in hex( 0x ) 0x form
+    const pk = "0x" + Buffer.from(key, "base64").toString("hex");
+    // await testMetamaskEncryption(key, address, "text to encrypt");
+    // const tx = await onRegister(pk, data.pubKey.x, data.pubKey.y);
+    const tx = await onRegister(pk);
+  };
+  const testMetamaskEncryption = async (receiverPubKey, receiverAddress, messageString) => {
+    /*
+    const key = await getPublicKey(window.ethereum, address);
+    // key pk in hex( 0x ) 0x form
+    const pk = "0x" + Buffer.from(key, "base64").toString("hex");
+
+    // get key from hex(0x)
+    const rkey = pk.substr(2, pk.length - 1);
+    const bkey = Buffer.from(rkey, "hex").toString("base64");
+    console.log("Got key", key, pk, "Reverse", rkey, bkey); 
+
+    const e = await encryptMessage(bkey, "test");
+    console.log("Encrypted:", e);
+    const d = await decryptMessage(window.ethereum, address, e);
+    console.log("Decrypted:", d);  */
+
+    const e = await encryptMessage(receiverPubKey, messageString);
+    console.log("Encrypted:", e);
+    const d = await decryptMessage(window.ethereum, receiverAddress, e);
+    console.log("Decrypted:", d);
   };
 
-  const onRegister = async (pubKey, x, y) => {
-    console.log("Registering", address, pubKey, x, y);
-    let newTx = await tx(writeContracts.SwarmMail.register(pubKey, x, y));
-
+  const onRegister = async (pubKey /*, x, y*/) => {
+    console.log("Registering", address, pubKey /*, x, y*/);
+    let newTx = await tx(writeContracts.SwarmMail.register(pubKey /*, x, y*/));
     await newTx.wait();
-    console.log("Registered", address, pubKey, x, y);
-
-    updateRegistration();
+    console.log("Registered", address, pubKey /*, x, y*/);
+    await updateRegistration();
     //setPublicKey({ x: x, y: y });
     //setKey(pubKey);
   };

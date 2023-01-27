@@ -349,6 +349,7 @@ function App(props) {
             writeContracts={writeContracts}
             address={address}
             modalControl={setIsModalVisible}
+            tx={tx}
           />
         </Modal>
       )}

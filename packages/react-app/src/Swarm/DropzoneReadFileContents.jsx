@@ -3,8 +3,9 @@ import { Card } from "antd";
 import { uploadFileToBee } from "./../Swarm/BeeService";
 import { useDropzone } from "react-dropzone";
 
-export function DropzoneReadFileContents({ onAddFile, refObj }) {
+export function DropzoneReadFileContents({ refObj, onAdd }) {
   const onDrop = useCallback(async acceptedFiles => {
+    //console.log(refObj, onAdd, acceptedFiles);
     //acceptedFiles.forEach(file => {
     for (const file of acceptedFiles) {
       //const hash = await uploadFileToBee(file);
@@ -16,7 +17,7 @@ export function DropzoneReadFileContents({ onAddFile, refObj }) {
       reader.onload = () => {
         const binaryStr = reader.result; // Do whatever you want with the file contents
         // console.log("Dropzone FormGather got data", file, binaryStr);
-        refObj.onAddFile(file, binaryStr);
+        refObj.addAttachment(file, binaryStr);
       };
       reader.readAsArrayBuffer(file);
     }
