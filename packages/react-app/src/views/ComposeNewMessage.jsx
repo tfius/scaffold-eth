@@ -167,7 +167,7 @@ function encryptEmailKey(publicKey, data) {
   return buf;
 }
 
-export function ComposeNewMessage({ readContracts, writeContracts, address, modalControl, tx }) {
+export function ComposeNewMessage({ readContracts, writeContracts, address, modalControl, tx, onMessageSent }) {
   const [loading, setLoading] = useState(false);
   const [sendingInProgress, setSendingInProgress] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -263,6 +263,8 @@ export function ComposeNewMessage({ readContracts, writeContracts, address, moda
       console.log("mail sent", newTx);
       setProgress(100);
       modalControl(false); // turn off modal
+
+      onMessageSent();
     } catch (e) {
       console.error(e);
     }

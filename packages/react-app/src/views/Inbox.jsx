@@ -91,7 +91,7 @@ export async function encryptMessage(encryptionPublicKey /* receiver pubKey */, 
   }
 }
 
-export function Inbox({ readContracts, writeContracts, tx, userSigner, address }) {
+export function Inbox({ readContracts, writeContracts, tx, userSigner, address, messageCount }) {
   const [isRegistered, setIsRegistered] = useState(false);
   const [key, setKey] = useState(consts.emptyHash);
   const [publicKey, setPublicKey] = useState({ x: consts.emptyHash, y: consts.emptyHash });
@@ -101,6 +101,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address }
   const [checked, setChecked] = useState([]);
   const [indeterminate, setIndeterminate] = useState(false);
   const [checkAll, setCheckAll] = useState(false);
+  const [messageCountTrigger, setMessageCountTrigger] = useState(0);
 
   // get publick key from signer
   async function getPublicKeyFromSignature(signer) {
@@ -130,12 +131,15 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address }
     setKey(data.key);
     if (isRegistered === false && data.registered) updateMails();
   });
-
+  var updatingMails = false;
   const updateMails = useCallback(async () => {
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
+    if (updatingMails) return;
+    updatingMails = true;
     const mails = await readContracts.SwarmMail.getInbox(address);
     processSMails(mails);
     console.log("got smails", mails);
+    updatingMails = false;
   });
 
   const deleteMails = useCallback(async () => {
@@ -157,6 +161,13 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address }
   useEffect(() => {
     updateRegistration();
   }, [address]);
+
+  useEffect(() => {
+    console.log("messageCount", messageCount, messageCountTrigger);
+    if (messageCount > messageCountTrigger && !updatingMails) updateMails();
+
+    setMessageCountTrigger(messageCount);
+  }, [messageCount]);
 
   const testMetamaskEncryption = async (receiverPubKey, receiverAddress, messageString) => {
     /*
@@ -199,9 +210,8 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address }
     await updateRegistration();
   };
 
-  const onSignMail = async location => {
-    debugger;
-    let newTx = await tx(writeContracts.SwarmMail.storage(location));
+  const onSignMail = async mail => {
+    let newTx = await tx(writeContracts.SwarmMail.signEmail(mail.location));
     await newTx.wait();
     notification.open({
       message: "You signed " + location,
@@ -225,6 +235,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address }
         mail.checked = false;
         mail.location = smail.swarmLocation;
         mail.sender = smail.from;
+        mail.signed = smail.signed;
         // only add if not existing
         existingMails.findIndex(m => m.sendTime == mail.sendTime) == -1 ? setMails(mails => [mail, ...mails]) : null;
         console.log(mail);
@@ -307,16 +318,15 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address }
               renderItem={mail => (
                 <List.Item
                   style={{ marginBottom: "5px", marginTop: "0px", padding: "0px" }}
-                  actions={[
-                    // <IconText icon={EnterOutlined} tooltip="Reply" key="list-vertical-star-o" />,
-                    <IconText
-                      icon={EditOutlined}
-                      tooltip="Sign"
-                      key="list-vertical-like-o"
-                      onClick={() => signEmail(mail.location)}
-                    />,
-                    // text="156"
-                  ]}
+                  //   actions={
+                  //     [
+                  //       // <IconText icon={EnterOutlined} tooltip="Reply" key="list-vertical-star-o" />,
+                  //       // <span onClick={e => onSignMail(mail)}>
+                  //       //   <IconText icon={EditOutlined} tooltip="Sign" key="list-vertical-like-o" />
+                  //       // </span>,
+                  //       // text="156"
+                  //     ]
+                  //   }
                 >
                   <List.Item.Meta
                     style={{
@@ -341,7 +351,40 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address }
                         {/* <IconText icon={EditOutlined} tooltip="Sign" key="list-vertical-like-o" />, */}
                       </>
                     }
-                    title={<div style={{ marginTop: "5px" }}>{mail.subject}</div>}
+                    title={
+                      <div
+                        style={{
+                          marginTop: "5px",
+                          maxHeight: "1.1rem",
+                          width: "98%",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          overflowWrap: "anywhere",
+                        }}
+                      >
+                        <strong>{mail.subject}</strong>
+                        {mail.signed === true ? (
+                          <span style={{ float: "right", right: "0px" }}>
+                            <IconText
+                              icon={EditOutlined}
+                              tooltip="You signed statement of acknowledgment for this message"
+                              key="list-vertical-like-o"
+                            />
+                          </span>
+                        ) : (
+                          <span
+                            onClick={e => onSignMail(mail)}
+                            style={{ float: "right", right: "0px", top: "0px", cursor: "pointer" }}
+                          >
+                            <IconText
+                              icon={EnterOutlined}
+                              tooltip="Sign statement of acknowledgment"
+                              key="list-vertical-like-o"
+                            />
+                          </span>
+                        )}
+                      </div>
+                    }
                     description={
                       <>
                         <div style={{ maxHeight: "2.7rem", overflow: "hidden" }}>{mail.contents}</div>

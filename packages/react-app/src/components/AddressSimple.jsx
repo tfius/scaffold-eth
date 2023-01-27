@@ -33,7 +33,7 @@ const { Text } = Typography;
 
 const blockExplorerLink = (address, blockExplorer) => blockExplorer || `https://etherscan.io/address/${address}`;
 
-export default function Address(props) {
+export default function AddressSimple(props) {
   const { currentTheme } = useThemeSwitcher();
   const address = props.value || props.address;
   const ens = useLookupAddress(props.ensProvider, address);
@@ -75,40 +75,14 @@ export default function Address(props) {
 
   return (
     <span>
-      <span style={{ verticalAlign: "middle" }}>
-        <Blockies seed={address.toLowerCase()} size={8} scale={props.fontSize ? props.fontSize / 7 : 2} />
-      </span>
       <span
         style={{
           verticalAlign: "middle",
-          paddingLeft: 5,
+          paddingLeft: 0,
           fontSize: props.fontSize ? props.fontSize : 14,
-          marginBottom: 5,
         }}
       >
-        {props.onChange ? (
-          <Text editable={{ onChange: props.onChange }} copyable={{ text: address }}>
-            <a
-              style={{ color: currentTheme === "light" ? "#222222" : "#ddd" }}
-              target="_blank"
-              href={etherscanLink}
-              rel="noopener noreferrer"
-            >
-              {displayAddress}
-            </a>
-          </Text>
-        ) : (
-          <Text copyable={{ text: address }}>
-            <a
-              style={{ color: currentTheme === "light" ? "#222222" : "#ddd" }}
-              target="_blank"
-              href={etherscanLink}
-              rel="noopener noreferrer"
-            >
-              {displayAddress}
-            </a>
-          </Text>
-        )}
+        <Text copyable={{ text: address }}>{displayAddress}</Text>
       </span>
     </span>
   );
