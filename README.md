@@ -33,11 +33,9 @@ subject: "test"
 time:BigNumber {_hex: '0x63d3d99a', _isBigNumber: true}
 ```
 
-## Built with 🏗 Scaffold-ETH
+### This was built with 🏗 Scaffold-ETH
 
-### 🏄‍♂️ Quick Start
-
-### Manual setup
+#### 🏄‍♂️ Quick Start &&Manual setup
 
 Prerequisites: [Node](https://nodejs.org/en/download/) plus [Yarn](https://classic.yarnpkg.com/en/docs/install/) and [Git](https://git-scm.com/downloads)
 

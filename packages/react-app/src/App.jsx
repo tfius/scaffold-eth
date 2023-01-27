@@ -13,6 +13,7 @@ import {
 import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
+import { useThemeSwitcher } from "react-css-theme-switcher";
 
 import "./App.css";
 
@@ -85,6 +86,7 @@ function App(props) {
   // reference './constants.js' for other networks
   const networkOptions = ["localhost", "mainnet", "rinkeby"];
 
+  const { currentTheme } = useThemeSwitcher();
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
@@ -274,7 +276,7 @@ function App(props) {
   return (
     <div className="App">
       <Layout style={{ minHeight: "100vh" }}>
-        <Sider>
+        <Sider theme={currentTheme}>
           <AppHeader />
           {/* collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)} */}
           {/* <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }}/> */}
