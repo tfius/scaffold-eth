@@ -22,11 +22,10 @@ contract SwarmMail {
     //     bytes name;
     // }
 
-    function getPublicKeys(address addr) public view returns (bool registered, bytes32 key/*, bytes32 x, bytes32 y*/) {
+    function getPublicKeys(address addr) public view returns (bool registered, bytes32 key, bytes32 smail) {
         registered = users[addr].key != bytes32(0) ;
         key = users[addr].key;
-        // x = userInfos[addr].pubkey.x;
-        // y = userInfos[addr].pubkey.y;  
+        smail = users[addr].smail;
     } 
 
     struct Email {
@@ -41,6 +40,7 @@ contract SwarmMail {
 
     struct User {
         bytes32 key;
+        bytes32 smail;
         // PublicKey pubkey;
         Email[] sentEmails;
         mapping(bytes32 => uint256) sentEmailIds;
@@ -53,10 +53,11 @@ contract SwarmMail {
 
     receive() external payable {}
 
-    function register(bytes32 key/*, bytes32 x, bytes32 y*/) public {
+    function register(bytes32 key, bytes32 smail) public {
         User storage user = users[msg.sender];
         require(user.key == bytes32(0), "Address is registered");
         user.key = key;
+        user.smail = smail;
     }
 
     /*

@@ -216,7 +216,6 @@ export function ComposeNewMessage({ readContracts, writeContracts, address, moda
 
       const emailKey = await deriveDriveKey(driveKey, emailUuid); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       setProgress(3);
-
       const encryptSendKey = encryptEmailKey(senderPubKey, Buffer.from(emailKey, "base64"));
       setProgress(4);
       const encryptReceiveKey = encryptEmailKey(receiverPubKey, Buffer.from(emailKey, "base64"));
@@ -227,6 +226,7 @@ export function ComposeNewMessage({ readContracts, writeContracts, address, moda
       var locations = [];
       for (var i = 0; i < attachments.length; i++) {
         var a = attachments[i];
+        // encrypt attachment
         //var encAttachment = await encryptMessage(attachment, recepient);
         var hash = await uploadDataToBee(a.binaryData, a.file.type, a.file.name);
         locations.push({ file: a.file, digest: hash });
@@ -241,16 +241,18 @@ export function ComposeNewMessage({ readContracts, writeContracts, address, moda
       completeMessage.sendTime = endTime;
       var smail = JSON.stringify(completeMessage);
 
+      // encrypt smail
+
       //const mailDigest = await uploadJsonToBee(values, date.getTime() + "_mail.json"); // ms-mail.json
       setProgressStatus("Uploading email...");
       setProgress(90);
       const mailDigest = await uploadDataToBee(smail, "application/octet-stream", startTime + ".smail"); // ms-mail.json
       console.log("mailDigest", mailDigest);
 
-      /// this.props.onDataSubmitedToBee(swarmHash);
-
+      var cost = Math.floor((fileSize + 326) / 1024 / 24);
       var cost = "0.001";
 
+      /// this.props.onDataSubmitedToBee(swarmHash);
       setProgressStatus("Waiting for user to sign transaction ...");
       let newTx = await tx(
         writeContracts.SwarmMail.sendEmail(recipientAddress, false, "0x" + mailDigest, {

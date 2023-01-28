@@ -92,6 +92,8 @@ function App(props) {
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
   const [isLoading, setIsLoading] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
+
+  const [smailMail, setSmailMail] = useState(null);
   const location = useLocation();
 
   const [isModalVisible, _setIsModalVisible] = useState(false);
@@ -307,6 +309,9 @@ function App(props) {
             <Menu.Item key="/add" disabled>
               {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
             </Menu.Item>
+            <Menu.Item key="/smailmail" disabled>
+              {smailMail}
+            </Menu.Item>
           </Menu>
           {/* <Balance address={address} provider={localProvider} price={price} /> */}
         </Sider>
@@ -329,6 +334,9 @@ function App(props) {
                   tx={tx}
                   address={address}
                   messageCount={messageCount}
+                  provider={localProvider}
+                  smailMail={smailMail}
+                  setSmailMail={setSmailMail}
                 />
               </Route>
               <Route exact path="/inbox">
@@ -339,6 +347,7 @@ function App(props) {
                   tx={tx}
                   address={address}
                   messageCount={messageCount}
+                  smailMail={smailMail}
                 />
               </Route>
 
@@ -378,6 +387,7 @@ function App(props) {
             modalControl={setIsModalVisible}
             tx={tx}
             onMessageSent={onMessageSent}
+            smailMail={smailMail}
           />
         </Modal>
       )}

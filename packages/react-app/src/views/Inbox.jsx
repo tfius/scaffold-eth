@@ -169,27 +169,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     setMessageCountTrigger(messageCount);
   }, [messageCount]);
 
-  const testMetamaskEncryption = async (receiverPubKey, receiverAddress, messageString) => {
-    /*
-    const key = await getPublicKey(window.ethereum, address);
-    // key pk in hex( 0x ) 0x form
-    const pk = "0x" + Buffer.from(key, "base64").toString("hex");
 
-    // get key from hex(0x)
-    const rkey = pk.substr(2, pk.length - 1);
-    const bkey = Buffer.from(rkey, "hex").toString("base64");
-    console.log("Got key", key, pk, "Reverse", rkey, bkey); 
-
-    const e = await encryptMessage(bkey, "test");
-    console.log("Encrypted:", e);
-    const d = await decryptMessage(window.ethereum, address, e);
-    console.log("Decrypted:", d);  */
-
-    const e = await encryptMessage(receiverPubKey, messageString);
-    console.log("Encrypted:", e);
-    const d = await decryptMessage(window.ethereum, receiverAddress, e);
-    console.log("Decrypted:", d);
-  };
 
   const registerAccount = async () => {
     //const data = await getPublicKeyFromSignature(userSigner);
@@ -341,11 +321,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                         <Checkbox value={mail.location} style={{ margin: "0rem 1rem 0rem 0rem" }} />
                         <Tooltip title={mail.sender}>
                           <span>
-                            <Blockies
-                              className="mailIdenticon"
-                              seed={mail.sender}
-                              style={{ marginTop: "1rem", position: "relative" }}
-                            />
+                            <Blockies className="mailIdenticon" seed={mail.sender} />
                           </span>
                         </Tooltip>
                         {/* <IconText icon={EditOutlined} tooltip="Sign" key="list-vertical-like-o" />, */}
@@ -354,8 +330,8 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                     title={
                       <div
                         style={{
-                          marginTop: "5px",
-                          maxHeight: "1.1rem",
+                          marginTop: "1px",
+                          maxHeight: "1.3rem",
                           width: "98%",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
@@ -445,3 +421,26 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
 }
 
 export default Inbox;
+
+
+// const testMetamaskEncryption = async (receiverPubKey, receiverAddress, messageString) => {
+    
+//     // const key = await getPublicKey(window.ethereum, address);
+//     // // key pk in hex( 0x ) 0x form
+//     // const pk = "0x" + Buffer.from(key, "base64").toString("hex");
+
+//     // // get key from hex(0x)
+//     // const rkey = pk.substr(2, pk.length - 1);
+//     // const bkey = Buffer.from(rkey, "hex").toString("base64");
+//     // console.log("Got key", key, pk, "Reverse", rkey, bkey); 
+
+//     // const e = await encryptMessage(bkey, "test");
+//     // console.log("Encrypted:", e);
+//     // const d = await decryptMessage(window.ethereum, address, e);
+//     // console.log("Decrypted:", d);  
+
+//     const e = await encryptMessage(receiverPubKey, messageString);
+//     console.log("Encrypted:", e);
+//     const d = await decryptMessage(window.ethereum, receiverAddress, e);
+//     console.log("Decrypted:", d);
+//   };
