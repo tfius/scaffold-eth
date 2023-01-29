@@ -92,7 +92,7 @@ export async function encryptMessage(encryptionPublicKey /* receiver pubKey */, 
   }
 }
 
-export function Inbox({ readContracts, writeContracts, tx, userSigner, address, messageCount, smail }) {
+export function Inbox({ readContracts, writeContracts, tx, userSigner, address, messageCount, smailMail }) {
   const [isRegistered, setIsRegistered] = useState(false);
   const [key, setKey] = useState(consts.emptyHash);
   const [publicKey, setPublicKey] = useState({ x: consts.emptyHash, y: consts.emptyHash });
@@ -182,29 +182,38 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     setIsLoading(true);
     var existingMails = mails;
     for (let i = 0; i < sMails.length; i++) {
+      var s = sMails[i];
+      var mail = { attachments: [] };
+      const data = await downloadDataFromBee(s.swarmLocation); // returns buffer
+
       // see if mail is encrypted
-      // no ?
-      // do this for non encrypted mails
-      try {
-        const smail = sMails[i];
-        const data = await downloadDataFromBee(sMails[i].swarmLocation); // returns buffer
-        var mail = {};
-        if (smail.isEncrytion) {
-          // do decryption
-        } else {
-          mail = mail = JSON.parse(new TextDecoder().decode(data)); //Buffer.from(data).toJSON(); // JSON.parse(data.toString());
+      if (s.isEncryption === true) {
+        console.log("data", data, smailMail);
+        try {
+          var d = JSON.parse(new TextDecoder().decode(data));
+          console.log("d", d);
+          var decRes = EncDec.nacl_decrypt(d, smailMail.smail.substr(2, smailMail.smail.length));
+          mail = JSON.parse(decRes);
+          console.log("decRes", decRes);
+        } catch (e) {
+          console.error("decrypt", e);
         }
-        mail.time = smail.time;
-        mail.checked = false;
-        mail.location = smail.swarmLocation;
-        mail.sender = smail.from;
-        mail.signed = smail.signed;
-        // only add if not existing
-        existingMails.findIndex(m => m.sendTime == mail.sendTime) == -1 ? setMails(mails => [mail, ...mails]) : null;
-        console.log(mail);
-      } catch (e) {
-        console.error("processSMails", e);
+      } else {
+        // do this for non encrypted mails
+        try {
+          mail = JSON.parse(new TextDecoder().decode(data)); //Buffer.from(data).toJSON(); // JSON.parse(data.toString());
+        } catch (e) {
+          console.error("processSMails", e);
+        }
       }
+      mail.time = s.time;
+      mail.checked = false;
+      mail.location = s.swarmLocation;
+      mail.sender = s.from;
+      mail.signed = s.signed;
+      // only add if not existing
+      existingMails.findIndex(m => m.sendTime == mail.sendTime) == -1 ? setMails(mails => [mail, ...mails]) : null;
+      console.log(mail);
     }
     setIsLoading(false);
     //console.log("processedMails", mails);
