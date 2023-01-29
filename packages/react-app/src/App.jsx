@@ -94,12 +94,22 @@ function App(props) {
   const [messageCount, setMessageCount] = useState(0);
 
   const [smailMail, setSmailMail] = useState({ key: "", smail: "" });
+  const [replyTo, _setReplyTo] = useState("");
+  const setReplyTo = replyTo => {
+    _setReplyTo(replyTo);
+    setIsModalVisible(true);
+  };
+
   const location = useLocation();
 
   const [isModalVisible, _setIsModalVisible] = useState(false);
   const setIsModalVisible = visible => {
     console.log(visible);
     _setIsModalVisible(visible);
+  };
+  const composeNewMail = () => {
+    console.log("compose");
+    setReplyTo("");
   };
 
   /// 📡 What chain are your contracts deployed to?
@@ -282,7 +292,7 @@ function App(props) {
           <AppHeader />
           {/* collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)} */}
           {/* <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }}/> */}
-          <Button style={{ marginLeft: "24px" }} onClick={() => setIsModalVisible(!isModalVisible)}>
+          <Button style={{ marginLeft: "24px" }} onClick={() => composeNewMail(!isModalVisible)}>
             Compose
           </Button>
           <Menu
@@ -351,6 +361,7 @@ function App(props) {
                   address={address}
                   messageCount={messageCount}
                   smailMail={smailMail}
+                  setReplyTo={setReplyTo}
                 />
               </Route>
 
@@ -391,6 +402,7 @@ function App(props) {
             tx={tx}
             onMessageSent={onMessageSent}
             smailMail={smailMail}
+            recipient={replyTo}
           />
         </Modal>
       )}

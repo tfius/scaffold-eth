@@ -224,7 +224,6 @@ export function nacl_encrypt(message, receiverPublicKey) {
 
 export function nacl_decrypt(encryptedData, receiverPrivateKey) {
   try {
-    debugger;
     var recieverPrivateKeyUint8Array = nacl_decodeHex(receiverPrivateKey);
     var recieverEncryptionPrivateKey = nacl.box.keyPair.fromSecretKey(recieverPrivateKeyUint8Array).secretKey;
     // assemble decryption parameters

@@ -19,12 +19,14 @@ class ComposeNewMessageForm extends React.Component {
 
   constructor(props) {
     super(props);
+    console.log("ComposeNewMessageForm", props);
+
     this.state = {
       amount: 0,
       hash: null,
       file: null,
       attachments: [],
-      recepient: "",
+      recepient: this.props.recipient,
       recipientKey: null,
       isRecipientRegistered: false,
     };
@@ -49,13 +51,11 @@ class ComposeNewMessageForm extends React.Component {
     this.setState({ recipientKey: pk });
     this.setState({ isRecipientRegistered: registered });
   };
-
   onFileUploaded = async (hash, file) => {
     console.log("file uploaded", hash, file);
     this.setState({ hash: hash });
     this.setState({ file: file });
   };
-
   addAttachment = async (file, binaryData) => {
     var newFile = { file, binaryData: binaryData, hash: consts.emptyHash };
     this.setState({ attachments: [...this.state.attachments, newFile] });
@@ -89,7 +89,8 @@ class ComposeNewMessageForm extends React.Component {
           </Form.Item>
           <Form.Item name="recipient" label="Recipient" rules={required}>
             <Input
-              placeholder="0x or ENS"
+              defaultValue={this.props.recipient}
+              placeholder="0x address or ENS"
               value={this.state.recepient}
               onChange={e => this.onRecepientChange(e.target.value)}
             />
@@ -149,7 +150,16 @@ const { v4: uuidv4 } = require("uuid");
 const ascii85 = require("ascii85");
 import { encrypt } from "@metamask/eth-sig-util";
 
-export function ComposeNewMessage({ readContracts, writeContracts, address, modalControl, tx, onMessageSent, smail }) {
+export function ComposeNewMessage({
+  readContracts,
+  writeContracts,
+  address,
+  modalControl,
+  tx,
+  onMessageSent,
+  smail,
+  recipient,
+}) {
   const [loading, setLoading] = useState(false);
   const [sendingInProgress, setSendingInProgress] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -310,6 +320,7 @@ export function ComposeNewMessage({ readContracts, writeContracts, address, moda
             loading={setLoading}
             onRetrieveRecipientPubKey={retrievePubKey}
             onSendMessage={onSendMessage}
+            recipient={recipient}
           />
         )}
       </Modal>

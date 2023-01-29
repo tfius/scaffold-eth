@@ -24,7 +24,7 @@ import {
   Checkbox,
   Avatar,
 } from "antd";
-import { EnterOutlined, EditOutlined } from "@ant-design/icons";
+import { EnterOutlined, EditOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 
 import VirtualList from "rc-virtual-list";
 
@@ -92,7 +92,7 @@ export async function encryptMessage(encryptionPublicKey /* receiver pubKey */, 
   }
 }
 
-export function Inbox({ readContracts, writeContracts, tx, userSigner, address, messageCount, smailMail }) {
+export function Inbox({ readContracts, writeContracts, tx, userSigner, address, messageCount, smailMail, setReplyTo }) {
   const [isRegistered, setIsRegistered] = useState(false);
   const [key, setKey] = useState(consts.emptyHash);
   const [publicKey, setPublicKey] = useState({ x: consts.emptyHash, y: consts.emptyHash });
@@ -191,12 +191,13 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
         console.log("data", data, smailMail);
         try {
           var d = JSON.parse(new TextDecoder().decode(data));
-          console.log("d", d);
+          //console.log("d", d);
           var decRes = EncDec.nacl_decrypt(d, smailMail.smail.substr(2, smailMail.smail.length));
           mail = JSON.parse(decRes);
-          console.log("decRes", decRes);
+          //console.log("decRes", decRes);
         } catch (e) {
           console.error("decrypt", e);
+          continue;
         }
       } else {
         // do this for non encrypted mails
@@ -287,18 +288,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
               itemLayout="horizontal"
               dataSource={mails}
               renderItem={mail => (
-                <List.Item
-                  style={{ marginBottom: "5px", marginTop: "0px", padding: "0px" }}
-                  //   actions={
-                  //     [
-                  //       // <IconText icon={EnterOutlined} tooltip="Reply" key="list-vertical-star-o" />,
-                  //       // <span onClick={e => onSignMail(mail)}>
-                  //       //   <IconText icon={EditOutlined} tooltip="Sign" key="list-vertical-like-o" />
-                  //       // </span>,
-                  //       // text="156"
-                  //     ]
-                  //   }
-                >
+                <List.Item style={{ marginBottom: "5px", marginTop: "0px", padding: "0px" }}>
                   <List.Item.Meta
                     style={{
                       background: !mail.isEncryption ? "#1890ff05" : "#00000011",
@@ -330,12 +320,15 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                         }}
                       >
                         <strong>{mail.subject}</strong>
+                        <span style={{ margin: "15px", cursor: "pointer" }} onClick={() => setReplyTo(mail.sender)}>
+                          <IconText icon={ArrowLeftOutlined} tooltip="Reply" key="list-vertical-reply-o" />
+                        </span>
                         {mail.signed === true ? (
                           <span style={{ float: "right", right: "0px" }}>
                             <IconText
                               icon={EditOutlined}
                               tooltip="You signed statement of acknowledgment for this message"
-                              key="list-vertical-like-o"
+                              key="list-vertical-signed-o"
                             />
                           </span>
                         ) : (
@@ -346,7 +339,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                             <IconText
                               icon={EnterOutlined}
                               tooltip="Sign statement of acknowledgment"
-                              key="list-vertical-like-o"
+                              key="list-vertical-sign-o"
                             />
                           </span>
                         )}
