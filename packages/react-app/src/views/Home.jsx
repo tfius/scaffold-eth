@@ -188,20 +188,21 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
     <div style={{ margin: "auto", width: "100%" }}>
       <>
         <Card>
-          {!isRegistered && (
-            <>
-              <h1>Not Registered</h1>
-              <Typography>
-                It appears your account is not listed in registry yet. To receive data you must add you account and
-                public key to catalogue. Please register to be able to send and receive data.
-              </Typography>
+          {!isRegistered ||
+            (smailMail.key != null && (
+              <>
+                <h1>Not Registered</h1>
+                <Typography>
+                  It appears your account is not listed in registry yet. To receive data you must add you account and
+                  public key to catalogue. Please register to be able to send and receive data.
+                </Typography>
 
-              <br />
-              <Button onClick={() => registerAccount(address)}>REGISTER NOW</Button>
-              <br />
-              <br />
-            </>
-          )}
+                <br />
+                <Button onClick={() => registerAccount(address)}>REGISTER NOW</Button>
+                <br />
+                <br />
+              </>
+            ))}
           <div>
             How registration works:
             <ul>

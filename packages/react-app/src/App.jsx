@@ -309,23 +309,17 @@ function App(props) {
                 {/* /////////////////////////////////////////////////
                 /////////////////////////////////////////////////
                 // all debug */}
-                <Menu.Item key="/sent">
+                {/* <Menu.Item key="/sent">
                   <Link to="/sent">Sent</Link>
                 </Menu.Item>
                 <Menu.Item key="/contacts">
                   <Link to="/contacts">Contacts</Link>
-                </Menu.Item>
+                </Menu.Item> */}
                 <Menu.Item key="/swarmmail">
                   <Link to="/swarmmail">Contract</Link>
                 </Menu.Item>
                 <Menu.Item key="/add" disabled>
                   {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
-                </Menu.Item>
-                <Menu.Item key="/smailmailkey" disabled>
-                  {smailMail.key}
-                </Menu.Item>
-                <Menu.Item key="/smailmailpk" disabled>
-                  {smailMail.smail}
                 </Menu.Item>
               </>
             ) : (
@@ -333,6 +327,10 @@ function App(props) {
                 <Link to="/">Connect</Link>
               </Menu.Item>
             )}
+            <Menu.Item key="/smailmailkey" disabled>
+              {smailMail.key ? "system" : "connection"} &nbsp;
+              {smailMail.smail ? "active" : "absent"}
+            </Menu.Item>
           </Menu>
           {/* <Balance address={address} provider={localProvider} price={price} /> */}
         </Sider>
