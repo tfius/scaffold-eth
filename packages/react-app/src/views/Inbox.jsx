@@ -33,6 +33,8 @@ import { useResolveEnsName } from "eth-hooks/dapps/ens";
 import * as consts from "./consts";
 import * as EncDec from "./../utils/EncDec.js";
 import Blockies from "react-blockies";
+import MarkdownPreview from "@uiw/react-markdown-preview";
+
 const { Meta } = Card;
 
 const ethUtil = require("ethereumjs-util");
@@ -103,6 +105,11 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
   const [indeterminate, setIndeterminate] = useState(false);
   const [checkAll, setCheckAll] = useState(false);
   const [messageCountTrigger, setMessageCountTrigger] = useState(0);
+  const [viewMail, _setViewMail] = useState(null);
+  const setViewMail = async mail => {
+    console.log("onViewMessage", mail);
+    _setViewMail(mail);
+  };
 
   // get publick key from signer
   async function getPublicKeyFromSignature(signer) {
@@ -212,12 +219,46 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       mail.location = s.swarmLocation;
       mail.sender = s.from;
       mail.signed = s.signed;
+      mail.isEncryption = s.isEncryption;
       // only add if not existing
       existingMails.findIndex(m => m.sendTime == mail.sendTime) == -1 ? setMails(mails => [mail, ...mails]) : null;
       console.log(mail);
     }
     setIsLoading(false);
     //console.log("processedMails", mails);
+  };
+  const onDownloadFile = async (mail, index, attachment) => {
+    setIsLoading(true);
+    //console.log("onDownloadFile", mail, attachment);
+    const data = await downloadDataFromBee("0x" + attachment.digest); // returns buffer
+    if (mail.isEncryption === true) {
+      try {
+        var uint8View = new Uint8Array(data);
+        var decoded = new TextDecoder().decode(uint8View);
+        var d = JSON.parse(decoded);
+        var decRes = EncDec.nacl_decrypt(d, smailMail.smail.substr(2, smailMail.smail.length));
+        var object = JSON.parse(decRes);
+        var blob = new Blob([new Uint8Array(object.binaryData)], { type: attachment.file.type });
+        saveFileAs(blob, attachment.file.path);
+      } catch (e) {
+        console.error("decrypt", e);
+      }
+    } else {
+    }
+    setIsLoading(false);
+  };
+
+  const saveFileAs = (blob, filename) => {
+    if (window.navigator.msSaveOrOpenBlob) {
+      window.navigator.msSaveBlob(blob, filename);
+    } else {
+      var elem = window.document.createElement("a");
+      elem.href = window.URL.createObjectURL(blob);
+      elem.download = filename;
+      document.body.appendChild(elem);
+      elem.click();
+      document.body.removeChild(elem);
+    }
   };
 
   const onCheckAllChange = e => {
@@ -319,7 +360,9 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                           overflowWrap: "anywhere",
                         }}
                       >
-                        <strong>{mail.subject}</strong>
+                        <strong style={{ cursor: "pointer" }} onClick={() => setViewMail(mail)}>
+                          {mail.subject}
+                        </strong>
                         <span style={{ margin: "15px", cursor: "pointer" }} onClick={() => setReplyTo(mail.sender)}>
                           <IconText icon={ArrowLeftOutlined} tooltip="Reply" key="list-vertical-reply-o" />
                         </span>
@@ -367,7 +410,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                                       border: "1px solid #00000055",
                                       borderRadius: "5px",
                                       paddingLeft: "0.2rem",
-                                      width: "100px",
+                                      width: "150px",
                                       overflow: "hidden",
                                       textAlign: "center",
                                       textOverflow: "ellipsis",
@@ -378,6 +421,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                                       maxHeight: "1.1rem",
                                       background: "#88888888",
                                     }}
+                                    onClick={() => onDownloadFile(mail, i, a)}
                                   >
                                     {a.file.path}
                                   </span>
@@ -397,9 +441,36 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       </>
       <>
         <div style={{ marginTop: 20 }}>
-          <small>Selecting: {checked.join(", ")} </small>
+          <small style={{ fontSize: 4 }}>Selection: {checked.join(", ")} </small>
         </div>
       </>
+      {viewMail && (
+        <Modal
+          style={{ width: "100%", resize: "auto", borderRadious: "20px" }}
+          title={
+            <>
+              <h3>{viewMail.subject}</h3> <Blockies className="mailIdenticon" seed={viewMail.sender} />{" "}
+              <small> {viewMail.sender}</small>
+              <span style={{ margin: "15px", cursor: "pointer" }} onClick={() => setReplyTo(viewMail.sender)}>
+                <IconText icon={ArrowLeftOutlined} tooltip="Reply" key="list-vertical-reply-o" />
+              </span>
+            </>
+          }
+          footer={null}
+          visible={true}
+          //   maskClosable={false}
+          onOk={() => {
+            //setModal(null);
+          }}
+          onCancel={() => {
+            setViewMail(null);
+          }}
+        >
+          <>
+            <>{viewMail.contents}</>
+          </>
+        </Modal>
+      )}
     </div>
   );
 }
