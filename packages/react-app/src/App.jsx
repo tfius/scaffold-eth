@@ -138,7 +138,7 @@ function App(props) {
   };
 
   /* 💵 This hook will get the price of ETH from 🦄 Uniswap: */
-  const price = useExchangeEthPrice(targetNetwork, mainnetProvider);
+  const price = useExchangeEthPrice(targetNetwork, mainnetProvider, 100);
 
   /* 🔥 This hook will get the price of Gas from ⛽️ EtherGasStation */
   const gasPrice = useGasPrice(targetNetwork, "fast");
@@ -298,11 +298,12 @@ function App(props) {
             style={{ textAlign: "left", height: "100%", borderRight: 0 }}
             selectedKeys={[location.pathname]}
           >
-            {smailMail && smailMail.key && smailMail.smail ? (
+            <Menu.Item key="/">
+              <Link to="/">Home</Link>
+            </Menu.Item>
+
+            {smailMail.key && smailMail.smail ? (
               <>
-                <Menu.Item key="/">
-                  <Link to="/">Home</Link>
-                </Menu.Item>
                 <Menu.Item key="/inbox">
                   <Link to="/inbox">Inbox</Link>
                 </Menu.Item>
@@ -315,21 +316,21 @@ function App(props) {
                 <Menu.Item key="/contacts">
                   <Link to="/contacts">Contacts</Link>
                 </Menu.Item> */}
-                <Menu.Item key="/swarmmail">
-                  <Link to="/swarmmail">Contract</Link>
-                </Menu.Item>
                 <Menu.Item key="/add" disabled>
                   {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
                 </Menu.Item>
               </>
             ) : (
-              <Menu.Item key="/">
+              <Menu.Item key="/connect">
                 <Link to="/">Connect</Link>
               </Menu.Item>
             )}
             <Menu.Item key="/smailmailkey" disabled>
               {smailMail.key ? "system" : "connection"} &nbsp;
               {smailMail.smail ? "active" : "absent"}
+            </Menu.Item>
+            <Menu.Item key="/swarmmail">
+              <Link to="/swarmmail">Contract</Link>
             </Menu.Item>
           </Menu>
           {/* <Balance address={address} provider={localProvider} price={price} /> */}

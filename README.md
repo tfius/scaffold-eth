@@ -1,3 +1,5 @@
+How is it done ? https://github.com/dchest/tweetnacl-js/blob/master/README.md 
+
 ### Encrypt
 ```
 export const encryptData = async (key, data) => {

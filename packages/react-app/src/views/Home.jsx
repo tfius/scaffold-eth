@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { useContractReader } from "eth-hooks";
 import { useContractWriter } from "eth-hooks";
 
@@ -40,36 +41,52 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
   const [isLoading, setIsLoading] = useState(false);
   const [key, setKey] = useState(consts.emptyHash);
   const [smail, setSmail] = useState(consts.emptyHash);
+  const [notifyUserToDecryptSmailKey, setNotifyUserToDecryptSmailKey] = useState(false);
 
-  const updateRegistration = useCallback(async () => {
-    if (readContracts === undefined || readContracts.SwarmMail === undefined) {
+  const verifyRegistration = useCallback(async () => {
+    /*if (readContracts === undefined || readContracts.SwarmMail === undefined) {
       setIsLoading(true);
       return; // todo get pub key from ENS
+    }*/
+    var data = {};
+    try {
+      data = await readContracts.SwarmMail.getPublicKeys(address);
+      console.log("got data", data);
+      if (
+        data.key === "0x0000000000000000000000000000000000000000000000000000000000000000" ||
+        data.smail === "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ) {
+        throw new Error("not registered");
+      }
+      setIsRegistered(data.registered);
+      setKey(data.key);
+    } catch (e) {
+      setIsLoading(false);
+      setIsRegistered(false);
+      setSmailMail({ key: null, smail: null });
+      return;
     }
-    const data = await readContracts.SwarmMail.getPublicKeys(address);
-    //setSmailMail(data.smail);
-
     if (smailMail.key === null) {
-      var encryptedSmailKey = await downloadSmailKeyData(data.smail); // download encrypted key
-
       try {
+        var encryptedSmailKey = await downloadSmailKeyData(data.smail); // download encrypted key
+        setNotifyUserToDecryptSmailKey(true);
         var decryptedSmailKey = await decryptSmailKey(address, encryptedSmailKey); // decrypt key from metamas
         if (decryptedSmailKey !== undefined) {
-          setIsRegistered(data.registered);
-          setKey(data.key);
           setSmailMail({ key: data.key, smail: decryptedSmailKey });
-          console.log(key, decryptedSmailKey);
+          //console.log(key, decryptedSmailKey);
         }
       } catch (err) {
         console.log("err", err);
+        setSmailMail({ key: null, smail: null });
       }
     }
 
+    setNotifyUserToDecryptSmailKey(false);
     setIsLoading(false);
   });
 
   useEffect(() => {
-    updateRegistration();
+    verifyRegistration();
   }, [address]); // readContracts, writeContracts,
 
   const registerAccount = async () => {
@@ -173,7 +190,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
       message: "Registered " + address,
       description: `Your key: ${pubKey}`,
     });
-    await updateRegistration();
+    await verifyRegistration();
   };
 
   if (isLoading) {
@@ -187,22 +204,30 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
   return (
     <div style={{ margin: "auto", width: "100%" }}>
       <>
-        <Card>
-          {!isRegistered ||
-            (smailMail.key != null && (
-              <>
-                <h1>Not Registered</h1>
-                <Typography>
-                  It appears your account is not listed in registry yet. To receive data you must add you account and
-                  public key to catalogue. Please register to be able to send and receive data.
-                </Typography>
+        {/* {notifyUserToDecryptSmailKey && <Card>Confirm decryption of Smail Mail in your Wallet</Card>} */}
+        <Card title={notifyUserToDecryptSmailKey ? <>Confirm decryption of Smail Mail in your Wallet</> : null}>
+          {isRegistered == true && smailMail.key === null && (
+            <>
+              <Button onClick={() => verifyRegistration()}>DECRYPT SMAIL WALLET</Button>
+              <br />
+              Opens MetaMask and prompts you with decrypt request. Decryption of Smail Wallet requires this step.
+              <hr />
+            </>
+          )}
+          {isRegistered == false && (
+            <>
+              <h1>Not Registered</h1>
+              <Typography>
+                It appears your account is not listed in registry yet. To receive data you must add you account and
+                public key to catalogue. Please register to be able to send and receive data.
+              </Typography>
 
-                <br />
-                <Button onClick={() => registerAccount(address)}>REGISTER NOW</Button>
-                <br />
-                <br />
-              </>
-            ))}
+              <br />
+              <Button onClick={() => registerAccount(address)}>REGISTER NOW</Button>
+              <br />
+              <br />
+            </>
+          )}
           <div>
             How registration works:
             <ul>
@@ -223,7 +248,6 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
             </ul>
             You will be asked to decrypt your Smail Wallet every time you visit this page.
             <hr />
-            <br />
             <strong>BEWARE AND BEHOLD</strong>
             <br />
             Always check that you are on correct domain and that you are using correct MetaMask account. Even though
@@ -232,13 +256,29 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
           </div>
         </Card>
       </>
+
       <>
-        {isRegistered && (
-          <Card>
-            <h1>Welcome</h1>
-            <Typography>It appears your account is properly registred. You can send and receive data.</Typography>
-          </Card>
+        {isRegistered == true && smailMail.key !== null && (
+          <>
+            <Card>
+              <h1>Welcome</h1>
+              <Typography>It appears your account is properly registred. You can send and receive data.</Typography>
+            </Card>
+          </>
         )}
+
+        <Card>
+          Sending unencrypted data is supported.
+          <ul>
+            <li>if either sender or receiver is not a Smail registered user</li>
+            <li>a Smail Wallet can not be retrievet for sender</li>
+            <li>receiver key can not be retrieved</li>
+            <li>a transaction is sent to register Smail public key and Swarm Wallet</li>
+            All data and attachements can be retrieved by anyone with the link.
+          </ul>
+          If you want to store unencrypted data you can use Swarm directly, or use FairOS or FDP protocol.
+          <Link to="https://fairdatasociety.org/" target="_blank" rel="noopener noreferrer" />
+        </Card>
       </>
     </div>
   );

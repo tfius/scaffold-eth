@@ -19,7 +19,7 @@ class ComposeNewMessageForm extends React.Component {
 
   constructor(props) {
     super(props);
-    console.log("ComposeNewMessageForm", props);
+    //console.log("ComposeNewMessageForm", props);
 
     this.state = {
       amount: 0,
@@ -32,7 +32,7 @@ class ComposeNewMessageForm extends React.Component {
     };
   }
   onSend = async message => {
-    console.log("onFinish", message);
+    //console.log("onFinish", message);
     this.props.loading(true);
     await this.props.onSendMessage(
       this.props.address,
@@ -52,7 +52,7 @@ class ComposeNewMessageForm extends React.Component {
     this.setState({ isRecipientRegistered: registered });
   };
   onFileUploaded = async (hash, file) => {
-    console.log("file uploaded", hash, file);
+    //console.log("file uploaded", hash, file);
     this.setState({ hash: hash });
     this.setState({ file: file });
   };
@@ -66,7 +66,7 @@ class ComposeNewMessageForm extends React.Component {
 
   render() {
     var total = this.state.attachments.reduce((a, b) => a + b.file.size, 0);
-    var percent = (total / (5 * 1024 * 1024)) * 100;
+    var percent = Math.round((total / (5 * 1024 * 1024)) * 100);
     const required = [{ required: true }];
 
     return (
@@ -185,7 +185,7 @@ export function ComposeNewMessage({
       if (isSender) setSenderPubKey(pk);
       else setReceiverPubKey(pk);
 
-      console.log(isSender ? "sender" : "receiver", data);
+      //console.log(isSender ? "sender" : "receiver", data);
 
       if (data.key === "0x0000000000000000000000000000000000000000000000000000000000000000") pk = null;
       return { pk: pk, registered: data.registered };
@@ -216,7 +216,7 @@ export function ComposeNewMessage({
       */
       var isEncrypted = recipientKey !== null;
       var fileSize = 0; // bytes
-      console.log("isEncrypted", isEncrypted);
+      //console.log("isEncrypted", isEncrypted);
 
       setProgressStatus("Uploading attachments...");
       var startTime = Date.now();
@@ -227,12 +227,13 @@ export function ComposeNewMessage({
         //var encAttachment = await encryptMessage(attachment, recepient);
         var hash = consts.emptyHash;
         if (isEncrypted) {
-          console.log(a, JSON.stringify(a));
+          //console.log(a, JSON.stringify(a));
           var binaryData = Array.from(new Uint8Array(a.binaryData));
           var fileObject = { binaryData: binaryData, file: a.file };
-          var encAttachment = EncDec.nacl_encrypt(JSON.stringify(fileObject), recipientKey);
+          var asString = JSON.stringify(fileObject);
+          var encAttachment = JSON.stringify(EncDec.nacl_encrypt(asString, recipientKey));
           hash = await uploadDataToBee(encAttachment, "application/octet-stream", "sm" + i);
-          var size = JSON.stringify(encAttachment).length;
+          var size = encAttachment.length;
           fileSize += size;
         } else {
           hash = await uploadDataToBee(a.binaryData, a.file.type, a.file.name);
@@ -241,6 +242,7 @@ export function ComposeNewMessage({
         locations.push({ file: a.file, digest: hash });
         setProgress(Math.round(attachments.length > 0 ? 5 + (i / attachments.length) * 80 : 80));
       }
+      //return;
 
       var completeMessage = message;
       completeMessage.attachments = locations;
@@ -253,7 +255,7 @@ export function ComposeNewMessage({
       // encrypt smail
       if (isEncrypted) {
         smail = JSON.stringify(EncDec.nacl_encrypt(smail, recipientKey));
-        console.log("enc smail", smail);
+        //console.log("enc smail", smail);
         fileSize += JSON.stringify(smail).length;
       }
 
@@ -261,7 +263,7 @@ export function ComposeNewMessage({
       setProgressStatus("Uploading email...");
       setProgress(90);
       const mailDigest = await uploadDataToBee(smail, "application/octet-stream", startTime + ".smail"); // ms-mail.json
-      console.log("mailDigest", mailDigest);
+      //console.log("mailDigest", mailDigest);
 
       // fileSize expects size in bytes
       var pricePerByte = 42 * 8 * 2; // 10000 mio wei per byte
@@ -280,7 +282,7 @@ export function ComposeNewMessage({
       setProgress(95);
       setProgressStatus("Waiting for transaction to finish...");
       await newTx.wait();
-      console.log("mail sent", newTx);
+      //console.log("mail sent", newTx);
       setProgress(100);
       modalControl(false); // turn off modal
 

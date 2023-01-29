@@ -24,7 +24,7 @@ import {
   Checkbox,
   Avatar,
 } from "antd";
-import { EnterOutlined, EditOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import { EnterOutlined, EditOutlined, ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
 
 import VirtualList from "rc-virtual-list";
 
@@ -446,14 +446,11 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       </>
       {viewMail && (
         <Modal
-          style={{ width: "100%", resize: "auto", borderRadious: "20px" }}
+          style={{ width: "100%", resize: "none", borderRadious: "20px" }}
           title={
             <>
               <h3>{viewMail.subject}</h3> <Blockies className="mailIdenticon" seed={viewMail.sender} />{" "}
               <small> {viewMail.sender}</small>
-              <span style={{ margin: "15px", cursor: "pointer" }} onClick={() => setReplyTo(viewMail.sender)}>
-                <IconText icon={ArrowLeftOutlined} tooltip="Reply" key="list-vertical-reply-o" />
-              </span>
             </>
           }
           footer={null}
@@ -467,8 +464,24 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
           }}
         >
           <>
-            <>{viewMail.contents}</>
+            <MarkdownPreview
+              source={viewMail.contents}
+              darkMode={true}
+              wrapperElement={{
+                "data-color-mode": "dark",
+              }}
+            />
           </>
+          <br />
+          <Button onClick={() => setReplyTo(viewMail.sender)}>
+            <IconText icon={ArrowLeftOutlined} tooltip="Reply" key="list-vertical-reply-o" />
+            &nbsp; Reply
+          </Button>{" "}
+          &nbsp;
+          {/* <Button>
+            <IconText icon={ArrowRightOutlined} tooltip="Reply" key="list-vertical-reply-o" />
+            &nbsp; Forward
+          </Button> */}
         </Modal>
       )}
     </div>
