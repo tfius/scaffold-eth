@@ -47,16 +47,22 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
       return; // todo get pub key from ENS
     }
     const data = await readContracts.SwarmMail.getPublicKeys(address);
-    setIsRegistered(data.registered);
-    setKey(data.key);
     //setSmailMail(data.smail);
 
-    if (smailMail.key === "") {
+    if (smailMail.key === null) {
       var encryptedSmailKey = await downloadSmailKeyData(data.smail); // download encrypted key
-      var decryptedSmailKey = await decryptSmailKey(address, encryptedSmailKey); // decrypt key from metamas
 
-      setSmailMail({ key: data.key, smail: decryptedSmailKey });
-      console.log(key, decryptedSmailKey);
+      try {
+        var decryptedSmailKey = await decryptSmailKey(address, encryptedSmailKey); // decrypt key from metamas
+        if (decryptedSmailKey !== undefined) {
+          setIsRegistered(data.registered);
+          setKey(data.key);
+          setSmailMail({ key: data.key, smail: decryptedSmailKey });
+          console.log(key, decryptedSmailKey);
+        }
+      } catch (err) {
+        console.log("err", err);
+      }
     }
 
     setIsLoading(false);

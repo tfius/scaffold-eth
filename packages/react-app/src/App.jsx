@@ -92,17 +92,15 @@ function App(props) {
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
   const [isLoading, setIsLoading] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
-
-  const [smailMail, setSmailMail] = useState({ key: "", smail: "" });
+  const [smailMail, setSmailMail] = useState({ key: null, smail: null }); // this has to be defined
   const [replyTo, _setReplyTo] = useState("");
+  const [isModalVisible, _setIsModalVisible] = useState(false);
+  const location = useLocation();
+
   const setReplyTo = replyTo => {
     _setReplyTo(replyTo);
     setIsModalVisible(true);
   };
-
-  const location = useLocation();
-
-  const [isModalVisible, _setIsModalVisible] = useState(false);
   const setIsModalVisible = visible => {
     console.log(visible);
     _setIsModalVisible(visible);
@@ -300,31 +298,41 @@ function App(props) {
             style={{ textAlign: "left", height: "100%", borderRight: 0 }}
             selectedKeys={[location.pathname]}
           >
-            <Menu.Item key="/">
-              <Link to="/">Home</Link>
-            </Menu.Item>
-            <Menu.Item key="/inbox">
-              <Link to="/inbox">Inbox</Link>
-            </Menu.Item>
-            <Menu.Item key="/sent">
-              <Link to="/sent">Sent</Link>
-            </Menu.Item>
-            <Menu.Item key="/contacts">
-              <Link to="/contacts">Contacts</Link>
-            </Menu.Item>
-
-            <Menu.Item key="/swarmmail">
-              <Link to="/swarmmail">Contract</Link>
-            </Menu.Item>
-            <Menu.Item key="/add" disabled>
-              {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
-            </Menu.Item>
-            <Menu.Item key="/smailmailkey" disabled>
-              {smailMail.key}
-            </Menu.Item>
-            <Menu.Item key="/smailmailpk" disabled>
-              {smailMail.smail}
-            </Menu.Item>
+            {smailMail && smailMail.key && smailMail.smail ? (
+              <>
+                <Menu.Item key="/">
+                  <Link to="/">Home</Link>
+                </Menu.Item>
+                <Menu.Item key="/inbox">
+                  <Link to="/inbox">Inbox</Link>
+                </Menu.Item>
+                {/* /////////////////////////////////////////////////
+                /////////////////////////////////////////////////
+                // all debug */}
+                <Menu.Item key="/sent">
+                  <Link to="/sent">Sent</Link>
+                </Menu.Item>
+                <Menu.Item key="/contacts">
+                  <Link to="/contacts">Contacts</Link>
+                </Menu.Item>
+                <Menu.Item key="/swarmmail">
+                  <Link to="/swarmmail">Contract</Link>
+                </Menu.Item>
+                <Menu.Item key="/add" disabled>
+                  {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
+                </Menu.Item>
+                <Menu.Item key="/smailmailkey" disabled>
+                  {smailMail.key}
+                </Menu.Item>
+                <Menu.Item key="/smailmailpk" disabled>
+                  {smailMail.smail}
+                </Menu.Item>
+              </>
+            ) : (
+              <Menu.Item key="/">
+                <Link to="/">Connect</Link>
+              </Menu.Item>
+            )}
           </Menu>
           {/* <Balance address={address} provider={localProvider} price={price} /> */}
         </Sider>
