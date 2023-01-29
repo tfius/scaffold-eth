@@ -93,7 +93,7 @@ function App(props) {
   const [isLoading, setIsLoading] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
 
-  const [smailMail, setSmailMail] = useState(null);
+  const [smailMail, setSmailMail] = useState({ key: "", smail: "" });
   const location = useLocation();
 
   const [isModalVisible, _setIsModalVisible] = useState(false);
@@ -309,8 +309,11 @@ function App(props) {
             <Menu.Item key="/add" disabled>
               {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
             </Menu.Item>
-            <Menu.Item key="/smailmail" disabled>
-              {smailMail}
+            <Menu.Item key="/smailmailkey" disabled>
+              {smailMail.key}
+            </Menu.Item>
+            <Menu.Item key="/smailmailpk" disabled>
+              {smailMail.smail}
             </Menu.Item>
           </Menu>
           {/* <Balance address={address} provider={localProvider} price={price} /> */}

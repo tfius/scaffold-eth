@@ -191,6 +191,10 @@ export function nacl_decodePublicKey(receiverPublicKey) {
   return nacl.util.decodeBase64(receiverPublicKey);
 }
 
+export function nacl_encodePublicKey(receiverPublicKey) {
+  return nacl.util.encodeBase64(receiverPublicKey);
+}
+
 export function nacl_getEncryptionPublicKey(privateKey) {
   var privateKeyUint8Array = nacl_decodeHex(privateKey.substr(2, privateKey.length));
   var encryptionPublicKey = nacl.box.keyPair.fromSecretKey(privateKeyUint8Array).publicKey;

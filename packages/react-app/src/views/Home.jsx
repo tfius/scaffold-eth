@@ -51,10 +51,13 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
     setKey(data.key);
     //setSmailMail(data.smail);
 
-    var encryptedSmailKey = await downloadSmailKeyData(data.smail); // download encrypted key
-    var decryptedSmailKey = await decryptSmailKey(address, encryptedSmailKey); // decrypt key from metamas
+    if (smailMail.key === "") {
+      var encryptedSmailKey = await downloadSmailKeyData(data.smail); // download encrypted key
+      var decryptedSmailKey = await decryptSmailKey(address, encryptedSmailKey); // decrypt key from metamas
 
-    setSmailMail(decryptedSmailKey);
+      setSmailMail({ key: data.key, smail: decryptedSmailKey });
+      console.log(key, decryptedSmailKey);
+    }
 
     setIsLoading(false);
   });
@@ -140,7 +143,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
   };
 
   const uploadSmailKey = async encryptedSmailKey => {
-    var hash = await uploadDataToBee(encryptedSmailKey, "enc", address);
+    var hash = await uploadDataToBee(encryptedSmailKey, "application/octet-stream", address);
     console.log("uploadSmailKey", hash);
     return hash;
   };

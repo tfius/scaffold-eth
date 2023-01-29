@@ -5,6 +5,7 @@ import { uploadJsonToBee, downloadDataFromBee, uploadDataToBee } from "./../Swar
 import * as layouts from "./layouts.js";
 
 import { utils, ethers } from "ethers";
+import * as EncDec from "./../utils/EncDec.js";
 
 import { downloadGateway } from "./../Swarm/BeeService";
 import { DropzoneSwarmUpload } from "./../Swarm/DropzoneSwarmUpload";
@@ -24,19 +25,29 @@ class ComposeNewMessageForm extends React.Component {
       file: null,
       attachments: [],
       recepient: "",
+      recipientKey: null,
+      isRecipientRegistered: false,
     };
   }
   onSend = async message => {
     console.log("onFinish", message);
     this.props.loading(true);
-    await this.props.onSendMessage(this.props.address, message.recipient, message, this.state.attachments);
+    await this.props.onSendMessage(
+      this.props.address,
+      message.recipient,
+      message,
+      this.state.attachments,
+      this.state.recipientKey,
+    );
     this.props.loading(null);
     this.setState({ isInProgress: false });
   };
 
   onRecepientChange = async name => {
     this.setState({ recepient: name });
-    this.props.onRetrieveRecipientPubKey(name, false);
+    var { pk, registered } = await this.props.onRetrieveRecipientPubKey(name, false);
+    this.setState({ recipientKey: pk });
+    this.setState({ isRecipientRegistered: registered });
   };
 
   onFileUploaded = async (hash, file) => {
@@ -95,8 +106,11 @@ class ComposeNewMessageForm extends React.Component {
             htmlType="submit"
             style={{ width: "80%", borderRadius: "25px", alignItems: "center", left: "10%" }}
           >
-            Send
+            {this.state.recipientKey === null ? "Send" : "SECURE SEND"}
           </Button>
+          <div style={{ textAlign: "center", width: "100%" }}>
+            {this.state.isRecipientRegistered === false ? "Recipient unknown or invalid" : null}
+          </div>
         </Form>
         <div>
           <br />
@@ -135,39 +149,7 @@ const { v4: uuidv4 } = require("uuid");
 const ascii85 = require("ascii85");
 import { encrypt } from "@metamask/eth-sig-util";
 
-function joinPublicKey(x, y) {
-  return "0x04" + x.substring(2) + y.substring(2);
-}
-// email send & receive
-// publicKey: base64, data: Buffer|string : return Buffer
-function encryptEmailKey(publicKey, data) {
-  // Returned object contains 4 properties: version, ephemPublicKey, nonce, ciphertext
-  // Each contains data encoded using base64, version is always the same string
-  const enc = encrypt({
-    publicKey: publicKey,
-    data: ascii85.encode(data).toString(),
-    version: "x25519-xsalsa20-poly1305",
-  });
-  // We want to store the data in smart contract, therefore we concatenate them
-  // into single Buffer
-  const buf = Buffer.concat([
-    Buffer.from(enc.ephemPublicKey, "base64"),
-    Buffer.from(enc.nonce, "base64"),
-    Buffer.from(enc.ciphertext, "base64"),
-  ]);
-  // In smart contract we are using `bytes[112]` variable (fixed size byte array)
-  // you might need to use `bytes` type for dynamic sized array
-  // We are also using ethers.js which requires type `number[]` when passing data
-  // for argument of type `bytes` to the smart contract function
-  // Next line just converts the buffer to `number[]` required by contract function
-  // THIS LINE IS USED IN OUR ORIGINAL CODE:
-  // return buf.toJSON().data;
-
-  // Return just the Buffer to make the function directly compatible with decryptData function
-  return buf;
-}
-
-export function ComposeNewMessage({ readContracts, writeContracts, address, modalControl, tx, onMessageSent }) {
+export function ComposeNewMessage({ readContracts, writeContracts, address, modalControl, tx, onMessageSent, smail }) {
   const [loading, setLoading] = useState(false);
   const [sendingInProgress, setSendingInProgress] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -185,22 +167,25 @@ export function ComposeNewMessage({ readContracts, writeContracts, address, moda
 
   const retrievePubKey = async (forAddress, isSender = false) => {
     try {
-      const data = await readContracts.SwarmMail.getPublicKeys(address); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
+      const data = await readContracts.SwarmMail.getPublicKeys(forAddress); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
       const rkey = data.key.substr(2, data.key.length - 1);
-      const pk = Buffer.from(rkey, "hex").toString("base64");
+      var pk = Buffer.from(rkey, "hex").toString("base64");
+      // console.log("pk", pk);
 
       if (isSender) setSenderPubKey(pk);
       else setReceiverPubKey(pk);
 
-      console.log(isSender ? "sender" : "receiver", isSender, data);
-      return pk;
+      console.log(isSender ? "sender" : "receiver", data);
+
+      if (data.key === "0x0000000000000000000000000000000000000000000000000000000000000000") pk = null;
+      return { pk: pk, registered: data.registered };
     } catch (e) {
       console.log(e);
-      return null;
     }
+    return { pk: null, registered: false };
   };
 
-  const onSendMessage = async (senderAddress, recipientAddress, message, attachments) => {
+  const onSendMessage = async (senderAddress, recipientAddress, message, attachments, recipientKey) => {
     setSendingInProgress(true);
     try {
       let senderPubKey = await retrievePubKey(senderAddress, true); // get sender public key
@@ -208,18 +193,20 @@ export function ComposeNewMessage({ readContracts, writeContracts, address, moda
       let receiverPubKey = await retrievePubKey(recipientAddress, false); // get receiver public key
       setProgress(2);
 
-      //debugger;
+      /*
       let emailUuid = uuidv4();
       console.log("emailUuid", emailUuid);
-
       let driveKey = senderPubKey; // this is not ok
-
       const emailKey = await deriveDriveKey(driveKey, emailUuid); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       setProgress(3);
       const encryptSendKey = encryptEmailKey(senderPubKey, Buffer.from(emailKey, "base64"));
       setProgress(4);
       const encryptReceiveKey = encryptEmailKey(receiverPubKey, Buffer.from(emailKey, "base64"));
       setProgress(5);
+      */
+      var isEncrypted = recipientKey !== null;
+      var fileSize = 0; // bytes
+      console.log("isEncrypted", isEncrypted);
 
       setProgressStatus("Uploading attachments...");
       var startTime = Date.now();
@@ -228,7 +215,19 @@ export function ComposeNewMessage({ readContracts, writeContracts, address, moda
         var a = attachments[i];
         // encrypt attachment
         //var encAttachment = await encryptMessage(attachment, recepient);
-        var hash = await uploadDataToBee(a.binaryData, a.file.type, a.file.name);
+        var hash = consts.emptyHash;
+        if (isEncrypted) {
+          console.log(a, JSON.stringify(a));
+          var binaryData = Array.from(new Uint8Array(a.binaryData));
+          var fileObject = { binaryData: binaryData, file: a.file };
+          var encAttachment = EncDec.nacl_encrypt(JSON.stringify(fileObject), recipientKey);
+          hash = await uploadDataToBee(encAttachment, "application/octet-stream", "sm" + i);
+          var size = JSON.stringify(encAttachment).length;
+          fileSize += size;
+        } else {
+          hash = await uploadDataToBee(a.binaryData, a.file.type, a.file.name);
+          fileSize += a.binaryData.byteLength;
+        }
         locations.push({ file: a.file, digest: hash });
         setProgress(Math.round(attachments.length > 0 ? 5 + (i / attachments.length) * 80 : 80));
       }
@@ -242,6 +241,11 @@ export function ComposeNewMessage({ readContracts, writeContracts, address, moda
       var smail = JSON.stringify(completeMessage);
 
       // encrypt smail
+      if (isEncrypted) {
+        smail = JSON.stringify(EncDec.nacl_encrypt(smail, recipientKey));
+        console.log("enc smail", smail);
+        fileSize += JSON.stringify(smail).length;
+      }
 
       //const mailDigest = await uploadJsonToBee(values, date.getTime() + "_mail.json"); // ms-mail.json
       setProgressStatus("Uploading email...");
@@ -249,14 +253,18 @@ export function ComposeNewMessage({ readContracts, writeContracts, address, moda
       const mailDigest = await uploadDataToBee(smail, "application/octet-stream", startTime + ".smail"); // ms-mail.json
       console.log("mailDigest", mailDigest);
 
-      var cost = Math.floor((fileSize + 326) / 1024 / 24);
-      var cost = "0.001";
+      // fileSize expects size in bytes
+      var pricePerByte = 42 * 8 * 2; // 10000 mio wei per byte
+      var cost = Math.floor(fileSize * pricePerByte) + "000000";
+      console.log("cost", cost);
+      //var cost = "0.001";
 
       /// this.props.onDataSubmitedToBee(swarmHash);
       setProgressStatus("Waiting for user to sign transaction ...");
       let newTx = await tx(
-        writeContracts.SwarmMail.sendEmail(recipientAddress, false, "0x" + mailDigest, {
-          value: utils.parseEther(cost),
+        writeContracts.SwarmMail.sendEmail(recipientAddress, isEncrypted, "0x" + mailDigest, {
+          value: cost, // in wei
+          //value: utils.parseEther(cost),
         }),
       );
       setProgress(95);

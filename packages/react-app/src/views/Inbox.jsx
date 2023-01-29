@@ -31,6 +31,7 @@ import VirtualList from "rc-virtual-list";
 import { uploadJsonToBee, downloadDataFromBee, uploadDataToBee } from "./../Swarm/BeeService";
 import { useResolveEnsName } from "eth-hooks/dapps/ens";
 import * as consts from "./consts";
+import * as EncDec from "./../utils/EncDec.js";
 import Blockies from "react-blockies";
 const { Meta } = Card;
 
@@ -91,7 +92,7 @@ export async function encryptMessage(encryptionPublicKey /* receiver pubKey */, 
   }
 }
 
-export function Inbox({ readContracts, writeContracts, tx, userSigner, address, messageCount }) {
+export function Inbox({ readContracts, writeContracts, tx, userSigner, address, messageCount, smail }) {
   const [isRegistered, setIsRegistered] = useState(false);
   const [key, setKey] = useState(consts.emptyHash);
   const [publicKey, setPublicKey] = useState({ x: consts.emptyHash, y: consts.emptyHash });
@@ -169,27 +170,6 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     setMessageCountTrigger(messageCount);
   }, [messageCount]);
 
-
-
-  const registerAccount = async () => {
-    //const data = await getPublicKeyFromSignature(userSigner);
-    const key = await getPublicKey(/*userSigner*/ window.ethereum, address);
-    // key pk in hex( 0x ) 0x form as required in SmarmMail contract
-    const pk = "0x" + Buffer.from(key, "base64").toString("hex");
-    const tx = await onRegister(pk); // await testMetamaskEncryption(key, address, "text to encrypt");
-  };
-
-  const onRegister = async (pubKey /*, x, y*/) => {
-    //console.log("Registering", address, pubKey /*, x, y*/);
-    let newTx = await tx(writeContracts.SwarmMail.register(pubKey /*, x, y*/));
-    await newTx.wait();
-    notification.open({
-      message: "Registered " + address,
-      description: `Your key: ${pubKey}`,
-    });
-    await updateRegistration();
-  };
-
   const onSignMail = async mail => {
     let newTx = await tx(writeContracts.SwarmMail.signEmail(mail.location));
     await newTx.wait();
@@ -202,6 +182,9 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     setIsLoading(true);
     var existingMails = mails;
     for (let i = 0; i < sMails.length; i++) {
+      // see if mail is encrypted
+      // no ?
+      // do this for non encrypted mails
       try {
         const smail = sMails[i];
         const data = await downloadDataFromBee(sMails[i].swarmLocation); // returns buffer
@@ -267,7 +250,6 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
             <Typography>
               It appears your account is not registred yet. Please register to receive encrypted data.
             </Typography>
-            <Button onClick={() => registerAccount(address)}>REGISTER NOW</Button>
           </Card>
         )}
       </>
