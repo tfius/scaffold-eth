@@ -79,7 +79,7 @@ iframe {
   color: inherit;
   background-color: transparent;
 }
-.wmde-markdown {
-  color: inherit;
-  background-color: transparent;
+
+.largerModal {
+  max-width: 80%;
 }

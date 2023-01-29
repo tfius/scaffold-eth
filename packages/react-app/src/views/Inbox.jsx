@@ -446,7 +446,8 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       </>
       {viewMail && (
         <Modal
-          style={{ width: "100%", resize: "none", borderRadious: "20px" }}
+          className="largerModal"
+          style={{ width: "100%", resize: "auto", borderRadious: "20px" }}
           title={
             <>
               <h3>{viewMail.subject}</h3> <Blockies className="mailIdenticon" seed={viewMail.sender} />{" "}
@@ -466,6 +467,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
           <>
             <MarkdownPreview
               source={viewMail.contents}
+              style={{ backgroundColor: "transparent", color: "inherit" }}
               darkMode={true}
               wrapperElement={{
                 "data-color-mode": "dark",
@@ -482,6 +484,46 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
             <IconText icon={ArrowRightOutlined} tooltip="Reply" key="list-vertical-reply-o" />
             &nbsp; Forward
           </Button> */}
+          <div>
+            {viewMail.attachments.length > 0 && (
+              <>
+                <br />
+                {viewMail.attachments.map((a, i) => (
+                  <Tooltip
+                    title={
+                      <>
+                        {a.file.path} <br /> <small>{a.file.type}</small>
+                      </>
+                    }
+                    key={a.digest}
+                  >
+                    <span
+                      style={{
+                        cursor: "pointer",
+                        display: "inline-block",
+                        border: "1px solid #00000055",
+                        borderRadius: "5px",
+                        paddingLeft: "0.2rem",
+                        width: "200px",
+                        overflow: "hidden",
+                        textAlign: "center",
+                        textOverflow: "ellipsis",
+                        overflowWrap: "anywhere",
+                        fontSize: "0.7rem",
+                        marginRight: "20px",
+                        marginTop: "3px",
+                        maxHeight: "1.1rem",
+                        background: "#88888888",
+                      }}
+                      onClick={() => onDownloadFile(viewMail, i, a)}
+                    >
+                      {a.file.path}
+                    </span>
+                  </Tooltip>
+                ))}
+              </>
+            )}
+          </div>
         </Modal>
       )}
     </div>
