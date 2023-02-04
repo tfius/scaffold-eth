@@ -260,8 +260,8 @@ function App(props) {
   ]);
 
   useEffect(() => {
-     console.log("Address changed to: ", address);
-     setSmailMail({ key: null, smail: null }); // this has to be defined
+    console.log("Address changed to: ", address);
+    setSmailMail({ key: null, smail: null }); // this has to be defined
   }, [address]);
 
   const loadWeb3Modal = useCallback(async () => {
@@ -292,6 +292,8 @@ function App(props) {
   }, [loadWeb3Modal]);
 
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
+
+  // ping back to inbox / outbox to update the messages
   const onMessageSent = async (message, recipient) => {
     await new Promise(resolve => setTimeout(resolve, 10000));
     setMessageCount(messageCount + 1);
