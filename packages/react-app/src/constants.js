@@ -139,7 +139,7 @@ export const NETWORKS = {
     gasPrice: 0,
   },
   optimism: {
-    name: "optimism",
+    name: "Optimism",
     color: "#f01a37",
     chainId: 10,
     blockExplorer: "https://optimistic.etherscan.io/",
@@ -161,8 +161,9 @@ export const NETWORKS = {
     rpcUrl: `https://api.avax-test.network/ext/bc/C/rpc`,
     gasPrice: 225000000000,
   },
-  mainnetAvalanche: {
-    name: "mainnetAvalanche",
+  // mainnetAvalanche
+  avalanche: {
+    name: "Avalanche Mainnet",
     color: "#666666",
     chainId: 43114,
     blockExplorer: "https://cchain.explorer.avax.network/",
@@ -177,7 +178,8 @@ export const NETWORKS = {
     rpcUrl: `https://api.s0.b.hmny.io`,
     gasPrice: 1000000000,
   },
-  mainnetHarmony: {
+  //mainnetHarmony
+  harmony: {
     name: "Harmony Mainnet",
     color: "#00b0ef",
     chainId: 1666600000,

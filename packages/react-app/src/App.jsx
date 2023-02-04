@@ -84,7 +84,18 @@ window.isLoading = false;
 function App(props) {
   // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
   // reference './constants.js' for other networks
-  const networkOptions = ["localhost", "mainnet", "rinkeby"];
+  const networkOptions = [
+    "localhost",
+    "mainnet",
+    "xdai",
+    "arbitrum",
+    "optimism",
+    "matic",
+    "avalanche",
+    "harmony",
+    "goerli",
+    "rinkeby",
+  ];
 
   const { currentTheme } = useThemeSwitcher();
   const [injectedProvider, setInjectedProvider] = useState();
