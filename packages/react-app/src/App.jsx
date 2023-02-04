@@ -1,15 +1,8 @@
-import { Alert, Button, Col, Menu, Row, Modal, Spin, Breadcrumb, Layout, MenuProps, Tooltip } from "antd";
+import { Button, Col, Menu, Row, Modal, Spin, Layout, Tooltip } from "antd";
 const { Header, Content, Sider } = Layout;
 
 import "antd/dist/antd.css";
-import {
-  useBalance,
-  useContractLoader,
-  useContractReader,
-  useGasPrice,
-  useOnBlock,
-  useUserProviderAndSigner,
-} from "eth-hooks";
+import { useContractLoader, useGasPrice, useUserProviderAndSigner } from "eth-hooks";
 import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
@@ -25,10 +18,8 @@ import {
   Header as AppHeader,
   Ramp,
   ThemeSwitch,
-  NetworkDisplay,
   FaucetHint,
   NetworkSwitch,
-  Address,
   AddressSimple,
 } from "./components";
 import { NETWORKS, ALCHEMY_KEY } from "./constants";
@@ -37,7 +28,6 @@ import externalContracts from "./contracts/external_contracts";
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
 import { useStaticJsonRPC } from "./hooks";
-import { Footer } from "antd/lib/layout/layout";
 
 import { Home } from "./views/Home";
 import { Inbox } from "./views/Inbox";

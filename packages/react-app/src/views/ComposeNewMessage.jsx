@@ -9,7 +9,6 @@ import * as EncDec from "./../utils/EncDec.js";
 import { DropzoneReadFileContents } from "./../Swarm/DropzoneReadFileContents";
 import { useEffect } from "react";
 
-import { useLookupAddress } from "eth-hooks/dapps/ens";
 
 const { Meta } = Card;
 const { Text } = Typography;
@@ -359,14 +358,18 @@ export function ComposeNewMessage({
     setSendingInProgress(false);
   };
   var titleProgress = "New message";
-  if(sendingInProgress) titleProgress = "Sending message";
+  if (sendingInProgress) titleProgress = "Sending message";
 
   return (
     <>
       {/* {loading && <Spin />} */}
       <Modal
         style={{ width: "80%", resize: "auto", borderRadious: "20px" }}
-        title={<h3>{titleProgress} {loading && <Spin />} </h3>}
+        title={
+          <h3>
+            {titleProgress} {loading && <Spin />}{" "}
+          </h3>
+        }
         footer={null}
         visible={true}
         maskClosable={false}

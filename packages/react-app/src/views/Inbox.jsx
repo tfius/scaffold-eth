@@ -10,20 +10,7 @@ import * as EncDec from "./../utils/EncDec.js";
 import Blockies from "react-blockies";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 
-import {
-  Account,
-  Contract,
-  Faucet,
-  GasGauge,
-  Header as AppHeader,
-  Ramp,
-  ThemeSwitch,
-  NetworkDisplay,
-  FaucetHint,
-  NetworkSwitch,
-  Address,
-  AddressSimple,
-} from "./../components";
+import { AddressSimple } from "./../components";
 
 const { Meta } = Card;
 
