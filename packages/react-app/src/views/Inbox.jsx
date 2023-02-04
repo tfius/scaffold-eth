@@ -10,6 +10,21 @@ import * as EncDec from "./../utils/EncDec.js";
 import Blockies from "react-blockies";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 
+import {
+  Account,
+  Contract,
+  Faucet,
+  GasGauge,
+  Header as AppHeader,
+  Ramp,
+  ThemeSwitch,
+  NetworkDisplay,
+  FaucetHint,
+  NetworkSwitch,
+  Address,
+  AddressSimple,
+} from "./../components";
+
 const { Meta } = Card;
 
 const ethUtil = require("ethereumjs-util");
@@ -316,7 +331,8 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                   avatar={
                     <>
                       <Checkbox value={mail.location} style={{ margin: "0rem 1rem 0rem 0rem" }} />
-                      <Tooltip title={mail.sender}>
+                      {/* <Tooltip title={ {mail.sender}}> */}
+                      <Tooltip title={<AddressSimple address={mail.sender} />}>
                         <span>
                           <Blockies className="mailIdenticon" seed={mail.sender} />
                         </span>

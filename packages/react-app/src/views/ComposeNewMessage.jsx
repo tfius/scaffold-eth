@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Card, Typography, Modal, Input, Form, Spin, Progress, Tooltip } from "antd";
+import { Button, Card, Typography, Modal, Input, Form, Spin, Progress, Tooltip, notification } from "antd";
 import * as consts from "./consts";
 import { uploadDataToBee } from "./../Swarm/BeeService";
 import * as layouts from "./layouts.js";
@@ -9,8 +9,12 @@ import * as EncDec from "./../utils/EncDec.js";
 import { DropzoneReadFileContents } from "./../Swarm/DropzoneReadFileContents";
 import { useEffect } from "react";
 
+import { useLookupAddress } from "eth-hooks/dapps/ens";
+
 const { Meta } = Card;
 const { Text } = Typography;
+
+const isENS = (address = "") => address.endsWith(".eth") || address.endsWith(".xyz");
 class ComposeNewMessageForm extends React.Component {
   formRef = React.createRef();
 
@@ -25,14 +29,23 @@ class ComposeNewMessageForm extends React.Component {
       recepient: this.props.recipient,
       recipientKey: null,
       isRecipientRegistered: false,
+      recipientEns: null,
     };
   }
   onSend = async message => {
     //console.log("onFinish", message);
     this.props.loading(true);
+    var possibleAddress = await this.props.ensProvider.resolveName(message.recipient);
+    if (possibleAddress) {
+      console.log("ensAddress", possibleAddress);
+    } else {
+      possibleAddress = message.recipient;
+    }
+
     await this.props.onSendMessage(
       this.props.address,
-      message.recipient,
+      //message.recipient,
+      possibleAddress,
       message,
       this.state.attachments,
       this.state.recipientKey,
@@ -42,8 +55,27 @@ class ComposeNewMessageForm extends React.Component {
   };
 
   onRecepientChange = async name => {
-    this.setState({ recepient: name });
-    var { pk, registered } = await this.props.onRetrieveRecipientPubKey(name, false);
+    let ensAddress = null;
+    let inputNameOrAddress = name;
+    if (isENS(name)) {
+      try {
+        const possibleAddress = await this.props.ensProvider.resolveName(name);
+        if (possibleAddress) {
+          inputNameOrAddress = possibleAddress;
+          console.log("ensAddress", possibleAddress);
+          this.setState({ recipientEns: possibleAddress });
+          this.setState({ recepient: possibleAddress });
+          notification.open({
+            message: `${name} ENS resolved`,
+            description: `${possibleAddress}`,
+          });
+        }
+        // eslint-disable-next-line no-empty
+      } catch (e) {}
+    } else this.setState({ recipientEns: null });
+
+    this.setState({ recepient: inputNameOrAddress });
+    var { pk, registered } = await this.props.onRetrieveRecipientPubKey(inputNameOrAddress, false);
     this.setState({ recipientKey: pk });
     this.setState({ isRecipientRegistered: registered });
   };
@@ -83,6 +115,11 @@ class ComposeNewMessageForm extends React.Component {
           <Form.Item name="sender" label="Sender">
             <Input disabled />
           </Form.Item>
+          {/* {this.state.recipientEns && (
+            <div style={{ textAlign: "center" }}>
+              <small>Resolved to: {this.state.recipientEns}</small>
+            </div>
+          )} */}
           <Form.Item name="recipient" label="Recipient" rules={required}>
             <Input
               defaultValue={this.props.recipient}
@@ -165,6 +202,7 @@ const ascii85 = require("ascii85");
 export function ComposeNewMessage({
   readContracts,
   writeContracts,
+  ensProvider,
   address,
   modalControl,
   tx,
@@ -178,6 +216,13 @@ export function ComposeNewMessage({
   const [progressStatus, setProgressStatus] = useState("");
   const [senderPkRegister, setSenderPkRegister] = useState(consts.emptyHash);
   const [receiverPkRegister, setReceiverPkRegister] = useState(consts.emptyHash);
+
+  const [senderENS, setSenderENS] = useState(null);
+  const [receiverENS, setReceiverENS] = useState(null);
+
+  //let senderENS = null;
+  //let receiverENS = null;
+
   // const onSendSubmitDataToBee = async approvedSwarmHash => {
   //   setLoading(true);
   //   //var data = modalRequestDataSwarm;
@@ -190,6 +235,11 @@ export function ComposeNewMessage({
   useEffect(() => {
     const retrieveSenderPubKey = async (address = false) => {
       let senderPubKey = await retrievePubKey(address, true); // get sender public key
+
+      //const ens = useLookupAddress(ensProvider, address);
+      //const ensSplit = ens && ens.split(".");
+      //const validEnsCheck = ensSplit && ensSplit[ensSplit.length - 1] === "eth";
+      //if (validEnsCheck) setSenderENS(ens);
     };
     retrieveSenderPubKey(address);
   }, [address]);
@@ -205,6 +255,7 @@ export function ComposeNewMessage({
       else setReceiverPkRegister(pkRegister);
       console.log(isSender ? "sender" : "receiver", data);
       if (data.key === "0x0000000000000000000000000000000000000000000000000000000000000000") pk = null;
+
       return { pk: pk, registered: data.registered };
     } catch (e) {
       console.log(e);
@@ -307,13 +358,15 @@ export function ComposeNewMessage({
     }
     setSendingInProgress(false);
   };
+  var titleProgress = "New message";
+  if(sendingInProgress) titleProgress = "Sending message";
 
   return (
     <>
       {/* {loading && <Spin />} */}
       <Modal
         style={{ width: "80%", resize: "auto", borderRadious: "20px" }}
-        title={<h3>New Message {loading && <Spin />} </h3>}
+        title={<h3>{titleProgress} {loading && <Spin />} </h3>}
         footer={null}
         visible={true}
         maskClosable={false}
@@ -337,7 +390,10 @@ export function ComposeNewMessage({
             onRetrieveRecipientPubKey={retrievePubKey}
             onSendMessage={onSendMessage}
             recipient={recipient}
+            ensProvider={ensProvider}
             senderPkRegister={senderPkRegister}
+            senderENS={senderENS}
+            // receiverENS={receiverENS}
           />
         )}
       </Modal>

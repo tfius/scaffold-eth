@@ -94,7 +94,7 @@ function App(props) {
     "avalanche",
     "harmony",
     "goerli",
-    "rinkeby",
+    //"rinkeby",
   ];
 
   const { currentTheme } = useThemeSwitcher();
@@ -425,6 +425,7 @@ function App(props) {
           <ComposeNewMessage
             readContracts={readContracts}
             writeContracts={writeContracts}
+            ensProvider={mainnetProvider}
             address={address}
             modalControl={setIsModalVisible}
             tx={tx}

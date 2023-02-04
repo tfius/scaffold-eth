@@ -292,6 +292,30 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
           .
         </Card>
       </>
+      <>
+        <Card>
+          Multiple network support, BUT:
+          <ul>
+            <li>Cross network sending is NOT supported. </li>
+            <li>You will have to register on each network.</li>
+            <li>Each Smail Wallet will be different.</li>
+          </ul>
+          Which means if you send on one network, receiver will get message on that network only.
+          <hr />
+          Networks:
+          <ul>
+            <li>Ethereum</li>
+            <li>Xdai</li>
+            <li>Arbitrum</li>
+            <li>Optimism</li>
+            <li>Matic</li>
+            <li>Avalanche</li>
+            <li>Harmony</li>
+            <li>Goerli</li>
+            <li>Rinkeby</li>
+          </ul>
+        </Card>
+      </>
     </div>
   );
 }
