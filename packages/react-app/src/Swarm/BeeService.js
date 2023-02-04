@@ -57,7 +57,7 @@ export const uploadFileToBee = async file => {
       indexDocument: metadata.name,
     });
 
-    console.log("uploaded reference", reference, metadata.name);
+    // console.log("uploaded reference", reference, metadata.name);
     return reference;
   } catch (error) {
     notification.error({

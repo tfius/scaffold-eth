@@ -120,7 +120,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     updatingMails = true;
     const mails = await readContracts.SwarmMail.getInbox(address);
     processSMails(mails);
-    console.log("got smails", mails);
+    //console.log("got smails", mails);
     updatingMails = false;
   });
 
@@ -173,7 +173,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
 
       // see if mail is encrypted
       if (s.isEncryption === true) {
-        console.log("data", data, smailMail);
+        //console.log("data", data, smailMail);
         try {
           var d = JSON.parse(new TextDecoder().decode(data));
           //console.log("d", d);
@@ -200,7 +200,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       mail.isEncryption = s.isEncryption;
       // only add if not existing
       existingMails.findIndex(m => m.sendTime == mail.sendTime) == -1 ? setMails(mails => [mail, ...mails]) : null;
-      console.log(mail);
+      //console.log(mail);
     }
     setIsLoading(false);
     //console.log("processedMails", mails);
