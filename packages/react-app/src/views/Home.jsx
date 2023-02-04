@@ -204,6 +204,16 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
   return (
     <div style={{ margin: "auto", width: "100%" }}>
       <>
+        {isRegistered == true && smailMail.key !== null && (
+          <>
+            <Card>
+              <h1>Welcome</h1>
+              <Typography>
+                It appears your account is properly registred. You can send and receive encrypted data.
+              </Typography>
+            </Card>
+          </>
+        )}
         {/* {notifyUserToDecryptSmailKey && <Card>Confirm decryption of Smail Mail in your Wallet</Card>} */}
         <Card title={notifyUserToDecryptSmailKey ? <>Confirm decryption of Smail Mail in your Wallet</> : null}>
           {isRegistered == true && smailMail.key === null && (
@@ -246,7 +256,8 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
               <li>Data is packaged and encrypted so only reciever retrieve its contents</li>
               <li>A transaction is sent to notify receiver of new data available</li>
             </ul>
-            You will be asked to decrypt your Smail Wallet every time you visit this page.
+            You will be asked to decrypt your Smail Wallet every time you visit this page. In order to use this page,
+            your must allow decryption of SMail Wallet in your MetaMask.
             <hr />
             <strong>BEWARE AND BEHOLD</strong>
             <br />
@@ -258,26 +269,27 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
       </>
 
       <>
-        {isRegistered == true && smailMail.key !== null && (
-          <>
-            <Card>
-              <h1>Welcome</h1>
-              <Typography>It appears your account is properly registred. You can send and receive data.</Typography>
-            </Card>
-          </>
-        )}
-
         <Card>
           Sending unencrypted data is supported.
           <ul>
             <li>if either sender or receiver is not a Smail registered user</li>
-            <li>a Smail Wallet can not be retrievet for sender</li>
-            <li>receiver key can not be retrieved</li>
-            <li>a transaction is sent to register Smail public key and Swarm Wallet</li>
-            All data and attachements can be retrieved by anyone with the link.
+            <li>sender Smail Wallet can not be retrieved</li>
+            <li>receiver public key can not be retrieved</li>
           </ul>
-          If you want to store unencrypted data you can use Swarm directly, or use FairOS or FDP protocol.
-          <Link to="https://fairdatasociety.org/" target="_blank" rel="noopener noreferrer" />
+          <strong>BEWARE !!! </strong>All unencrypted data and attachements can be retrieved by anyone with the link. If
+          you want to store unencrypted data you can use{" "}
+          <a href="https://www.ethswarm.org/" target="_blank" rel="noopener noreferrer">
+            Swarm
+          </a>{" "}
+          directly, or use{" "}
+          <a href="https://docs.fairos.fairdatasociety.org/docs/" target="_blank" rel="noopener noreferrer">
+            FairOS
+          </a>{" "}
+          or{" "}
+          <a href="https://fdp.fairdatasociety.org/" target="_blank" rel="noopener noreferrer">
+            FDP protocol
+          </a>
+          .
         </Card>
       </>
     </div>
