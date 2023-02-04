@@ -1,16 +1,13 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Button, Card, Tooltip, Typography, Modal, Input, Form, Spin, Progress } from "antd";
+import React, { useState } from "react";
+import { Button, Card, Typography, Modal, Input, Form, Spin, Progress, Tooltip } from "antd";
 import * as consts from "./consts";
-import { uploadJsonToBee, downloadDataFromBee, uploadDataToBee } from "./../Swarm/BeeService";
+import { uploadDataToBee } from "./../Swarm/BeeService";
 import * as layouts from "./layouts.js";
 
-import { utils, ethers } from "ethers";
 import * as EncDec from "./../utils/EncDec.js";
 
-import { downloadGateway } from "./../Swarm/BeeService";
-import { DropzoneSwarmUpload } from "./../Swarm/DropzoneSwarmUpload";
 import { DropzoneReadFileContents } from "./../Swarm/DropzoneReadFileContents";
-import { deriveDriveKey, deriveFileKey, fileDecrypt, fileEncrypt } from "./../utils/w3crypto";
+import { useEffect } from "react";
 
 const { Meta } = Card;
 const { Text } = Typography;
@@ -19,8 +16,7 @@ class ComposeNewMessageForm extends React.Component {
 
   constructor(props) {
     super(props);
-    //console.log("ComposeNewMessageForm", props);
-
+    console.log("ComposeNewMessageForm", props);
     this.state = {
       amount: 0,
       hash: null,
@@ -107,10 +103,27 @@ class ComposeNewMessageForm extends React.Component {
             htmlType="submit"
             style={{ width: "80%", borderRadius: "25px", alignItems: "center", left: "10%" }}
           >
-            {this.state.recipientKey === null ? "Send" : "SECURE SEND"}
+            {this.state.recipientKey === null || this.props.senderPkRegister.registered === false
+              ? "Send"
+              : "SECURE SEND"}
           </Button>
-          <div style={{ textAlign: "center", width: "100%" }}>
-            {this.state.isRecipientRegistered === false ? "Recipient unknown or invalid" : null}
+          <div style={{ textAlign: "center", width: "100%", color: "#AA3333" }}>
+            <Tooltip title="Sender and Recipient must both be registered to send secure encrypted messages">
+              <span>
+                {this.props.senderPkRegister.registered === false && (
+                  <>
+                    <br />
+                    Sender not registered.
+                  </>
+                )}
+                {this.state.isRecipientRegistered === false && (
+                  <>
+                    <br />
+                    Recipient not registered.
+                  </>
+                )}
+              </span>
+            </Tooltip>
           </div>
         </Form>
         <div>
@@ -148,7 +161,6 @@ class ComposeNewMessageForm extends React.Component {
 
 const { v4: uuidv4 } = require("uuid");
 const ascii85 = require("ascii85");
-import { encrypt } from "@metamask/eth-sig-util";
 
 export function ComposeNewMessage({
   readContracts,
@@ -157,36 +169,41 @@ export function ComposeNewMessage({
   modalControl,
   tx,
   onMessageSent,
-  smail,
+  smailMail,
   recipient,
 }) {
   const [loading, setLoading] = useState(false);
   const [sendingInProgress, setSendingInProgress] = useState(false);
   const [progress, setProgress] = useState(0);
   const [progressStatus, setProgressStatus] = useState("");
-  const [senderPubKey, setSenderPubKey] = useState(consts.emptyHash);
-  const [receiverPubKey, setReceiverPubKey] = useState(consts.emptyHash);
-  const onSendSubmitDataToBee = async approvedSwarmHash => {
-    setLoading(true);
-    //var data = modalRequestDataSwarm;
-    //data.reviewerDataHash = approvedSwarmHash;
-    //setModalRequestDataSwarm(data);
-    setLoading(null);
-    //setReviewSubmittedHash(approvedSwarmHash);
-  };
+  const [senderPkRegister, setSenderPkRegister] = useState(consts.emptyHash);
+  const [receiverPkRegister, setReceiverPkRegister] = useState(consts.emptyHash);
+  // const onSendSubmitDataToBee = async approvedSwarmHash => {
+  //   setLoading(true);
+  //   //var data = modalRequestDataSwarm;
+  //   //data.reviewerDataHash = approvedSwarmHash;
+  //   //setModalRequestDataSwarm(data);
+  //   setLoading(null);
+  //   //setReviewSubmittedHash(approvedSwarmHash);
+  // };
+
+  useEffect(() => {
+    const retrieveSenderPubKey = async (address = false) => {
+      let senderPubKey = await retrievePubKey(address, true); // get sender public key
+    };
+    retrieveSenderPubKey(address);
+  }, [address]);
 
   const retrievePubKey = async (forAddress, isSender = false) => {
     try {
       const data = await readContracts.SwarmMail.getPublicKeys(forAddress); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
       const rkey = data.key.substr(2, data.key.length - 1);
       var pk = Buffer.from(rkey, "hex").toString("base64");
+      var pkRegister = { pk: pk, registered: data.registered };
       // console.log("pk", pk);
-
-      if (isSender) setSenderPubKey(pk);
-      else setReceiverPubKey(pk);
-
-      //console.log(isSender ? "sender" : "receiver", data);
-
+      if (isSender) setSenderPkRegister(pkRegister);
+      else setReceiverPkRegister(pkRegister);
+      console.log(isSender ? "sender" : "receiver", data);
       if (data.key === "0x0000000000000000000000000000000000000000000000000000000000000000") pk = null;
       return { pk: pk, registered: data.registered };
     } catch (e) {
@@ -198,10 +215,10 @@ export function ComposeNewMessage({
   const onSendMessage = async (senderAddress, recipientAddress, message, attachments, recipientKey) => {
     setSendingInProgress(true);
     try {
-      let senderPubKey = await retrievePubKey(senderAddress, true); // get sender public key
-      setProgress(1);
-      let receiverPubKey = await retrievePubKey(recipientAddress, false); // get receiver public key
-      setProgress(2);
+      //let senderPubKey = await retrievePubKey(senderAddress, true); // get sender public key
+      //setProgress(1);
+      //let receiverPubKey = await retrievePubKey(recipientAddress, false); // get receiver public key
+      //setProgress(2);
 
       /*
       let emailUuid = uuidv4();
@@ -259,7 +276,6 @@ export function ComposeNewMessage({
         fileSize += JSON.stringify(smail).length;
       }
 
-      //const mailDigest = await uploadJsonToBee(values, date.getTime() + "_mail.json"); // ms-mail.json
       setProgressStatus("Uploading email...");
       setProgress(90);
       const mailDigest = await uploadDataToBee(smail, "application/octet-stream", startTime + ".smail"); // ms-mail.json
@@ -271,7 +287,6 @@ export function ComposeNewMessage({
       console.log("cost", cost);
       //var cost = "0.001";
 
-      /// this.props.onDataSubmitedToBee(swarmHash);
       setProgressStatus("Waiting for user to sign transaction ...");
       let newTx = await tx(
         writeContracts.SwarmMail.sendEmail(recipientAddress, isEncrypted, "0x" + mailDigest, {
@@ -318,11 +333,11 @@ export function ComposeNewMessage({
         {sendingInProgress === false && (
           <ComposeNewMessageForm
             address={address}
-            onDataSubmitedToBee={onSendSubmitDataToBee}
             loading={setLoading}
             onRetrieveRecipientPubKey={retrievePubKey}
             onSendMessage={onSendMessage}
             recipient={recipient}
+            senderPkRegister={senderPkRegister}
           />
         )}
       </Modal>

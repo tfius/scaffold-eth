@@ -1,35 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useContractReader } from "eth-hooks";
-import { useContractWriter } from "eth-hooks";
 
 import { ethers } from "ethers";
-import {
-  Button,
-  List,
-  Card,
-  Descriptions,
-  Divider,
-  Drawer,
-  InputNumber,
-  Modal,
-  notification,
-  Row,
-  Col,
-  Select,
-  Space,
-  Tooltip,
-  Typography,
-  IconText,
-  Spin,
-  Checkbox,
-  Avatar,
-} from "antd";
-import { EnterOutlined, EditOutlined, ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
+import { Button, List, Card, Modal, notification, Tooltip, Typography, Spin, Checkbox } from "antd";
+import { EnterOutlined, EditOutlined, ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
 
-import VirtualList from "rc-virtual-list";
-
-import { uploadJsonToBee, downloadDataFromBee, uploadDataToBee } from "./../Swarm/BeeService";
-import { useResolveEnsName } from "eth-hooks/dapps/ens";
+import { downloadDataFromBee } from "./../Swarm/BeeService";
 import * as consts from "./consts";
 import * as EncDec from "./../utils/EncDec.js";
 import Blockies from "react-blockies";
@@ -63,8 +38,6 @@ export async function getECDN(signer, account, ephemeralKey) {
 }
 export async function decryptMessage(signer, accountToDecrypt, encryptedMessage) {
   try {
-    // debugger;
-    // signer ?
     return await signer.request({
       method: "eth_decrypt",
       params: [encryptedMessage, accountToDecrypt],
@@ -96,8 +69,8 @@ export async function encryptMessage(encryptionPublicKey /* receiver pubKey */, 
 
 export function Inbox({ readContracts, writeContracts, tx, userSigner, address, messageCount, smailMail, setReplyTo }) {
   const [isRegistered, setIsRegistered] = useState(false);
-  const [key, setKey] = useState(consts.emptyHash);
-  const [publicKey, setPublicKey] = useState({ x: consts.emptyHash, y: consts.emptyHash });
+  // const [key, setKey] = useState(consts.emptyHash);
+  // const [publicKey, setPublicKey] = useState({ x: consts.emptyHash, y: consts.emptyHash });
   const [mails, setMails] = useState([]);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -106,6 +79,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
   const [checkAll, setCheckAll] = useState(false);
   const [messageCountTrigger, setMessageCountTrigger] = useState(0);
   const [viewMail, _setViewMail] = useState(null);
+  const [viewAddress, setViewAddress] = useState(null);
   const setViewMail = async mail => {
     console.log("onViewMessage", mail);
     _setViewMail(mail);
@@ -136,12 +110,12 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return; // todo get pub key from ENS
     const data = await readContracts.SwarmMail.getPublicKeys(address);
     setIsRegistered(data.registered);
-    setKey(data.key);
+    // setKey(data.key);
     if (isRegistered === false && data.registered) updateMails();
   });
   var updatingMails = false;
   const updateMails = useCallback(async () => {
-    if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
+    //if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
     if (updatingMails) return;
     updatingMails = true;
     const mails = await readContracts.SwarmMail.getInbox(address);
@@ -167,6 +141,10 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
   });
 
   useEffect(() => {
+    if (viewAddress !== address) {
+      setViewAddress(address);
+      setMails([]);
+    }
     updateRegistration();
   }, [address]);
 
@@ -244,6 +222,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
         console.error("decrypt", e);
       }
     } else {
+      saveFileAs(new Blob([data], { type: attachment.file.type }), attachment.file.path);
     }
     setIsLoading(false);
   };
@@ -278,7 +257,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       appendData();
     }
   };
-  const IconText = ({ icon, tooltip, text }: { icon: React.FC, text: string }) => (
+  const IconText = ({ icon, tooltip, text }) => (
     <Tooltip title={tooltip}>
       {React.createElement(icon)}
       {text}
@@ -295,149 +274,152 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
 
   return (
     <div style={{ margin: "auto", width: "100%" }}>
-      <>
-        {!isRegistered && (
-          <Card title={<div>Not Registred</div>}>
-            <Typography>
-              It appears your account is not registred yet. Please register to receive encrypted data.
-            </Typography>
-          </Card>
-        )}
-      </>
+      {!isRegistered && (
+        <Card>
+          <Typography>
+            <h5>Not Registred</h5>
+            It appears your account is not registred yet. Please register to send and receive private and encrypted
+            data.
+          </Typography>
+        </Card>
+      )}
 
       <>
         <>
-          <>
-            {isRegistered && (
-              <>
-                <Checkbox indeterminate={indeterminate} onChange={onCheckAllChange} checked={checkAll} /> &nbsp;
-                <Button onClick={() => updateMails()}>🗘</Button>
-                <Button onClick={() => deleteMails()}>🗑</Button>&nbsp;
-                {isLoading && <Spin />}
-              </>
-            )}
-          </>
-          <Checkbox.Group
-            style={{ width: "100%" }}
-            value={checked}
-            onChange={checkedValues => {
-              setChecked(checkedValues);
-            }}
-          >
-            {/* // TODO https://ant.design/components/list */}
-            <List
-              itemLayout="horizontal"
-              dataSource={mails}
-              renderItem={mail => (
-                <List.Item style={{ marginBottom: "5px", marginTop: "0px", padding: "0px" }}>
-                  <List.Item.Meta
-                    style={{
-                      background: !mail.isEncryption ? "#1890ff05" : "#00000011",
-                      borderRadius: "5px",
-                      paddingBottom: "5px",
-                      paddingTop: "5px",
-                      paddingRight: "5px",
-                    }}
-                    avatar={
-                      <>
-                        <Checkbox value={mail.location} style={{ margin: "0rem 1rem 0rem 0rem" }} />
-                        <Tooltip title={mail.sender}>
-                          <span>
-                            <Blockies className="mailIdenticon" seed={mail.sender} />
-                          </span>
-                        </Tooltip>
-                        {/* <IconText icon={EditOutlined} tooltip="Sign" key="list-vertical-like-o" />, */}
-                      </>
-                    }
-                    title={
-                      <div
-                        style={{
-                          marginTop: "1px",
-                          maxHeight: "1.3rem",
-                          width: "98%",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          overflowWrap: "anywhere",
-                        }}
-                      >
-                        <strong style={{ cursor: "pointer" }} onClick={() => setViewMail(mail)}>
-                          {mail.subject}
-                        </strong>
-                        <span style={{ margin: "15px", cursor: "pointer" }} onClick={() => setReplyTo(mail.sender)}>
-                          <IconText icon={ArrowLeftOutlined} tooltip="Reply" key="list-vertical-reply-o" />
+          <Checkbox indeterminate={indeterminate} onChange={onCheckAllChange} checked={checkAll} /> &nbsp;
+          <Button onClick={() => updateMails()}>🗘</Button>
+          <Button onClick={() => deleteMails()}>🗑</Button>&nbsp;
+          {isLoading && <Spin />}
+        </>
+        <Checkbox.Group
+          style={{ width: "100%" }}
+          value={checked}
+          onChange={checkedValues => {
+            setChecked(checkedValues);
+          }}
+        >
+          {/* // TODO https://ant.design/components/list */}
+          <List
+            itemLayout="horizontal"
+            dataSource={mails}
+            renderItem={mail => (
+              <List.Item style={{ marginBottom: "5px", marginTop: "0px", padding: "0px" }}>
+                <List.Item.Meta
+                  style={{
+                    background: mail.isEncryption ? "#1890ff05" : "#ff000011",
+                    borderRadius: "5px",
+                    paddingBottom: "5px",
+                    paddingTop: "5px",
+                    paddingRight: "5px",
+                    paddingLeft: "5px",
+                  }}
+                  avatar={
+                    <>
+                      <Checkbox value={mail.location} style={{ margin: "0rem 1rem 0rem 0rem" }} />
+                      <Tooltip title={mail.sender}>
+                        <span>
+                          <Blockies className="mailIdenticon" seed={mail.sender} />
                         </span>
-                        {mail.signed === true ? (
-                          <span style={{ float: "right", right: "0px" }}>
-                            <IconText
-                              icon={EditOutlined}
-                              tooltip="You signed statement of acknowledgment for this message"
-                              key="list-vertical-signed-o"
-                            />
-                          </span>
-                        ) : (
-                          <span
-                            onClick={e => onSignMail(mail)}
-                            style={{ float: "right", right: "0px", top: "0px", cursor: "pointer" }}
-                          >
-                            <IconText
-                              icon={EnterOutlined}
-                              tooltip="Sign statement of acknowledgment"
-                              key="list-vertical-sign-o"
-                            />
-                          </span>
+                      </Tooltip>
+                      {/* <IconText icon={EditOutlined} tooltip="Sign" key="list-vertical-like-o" />, */}
+                    </>
+                  }
+                  title={
+                    <div
+                      style={{
+                        marginTop: "1px",
+                        maxHeight: "1.3rem",
+                        width: "98%",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        overflowWrap: "anywhere",
+                      }}
+                    >
+                      <strong style={{ cursor: "pointer" }} onClick={() => setViewMail(mail)}>
+                        {mail.subject}
+                      </strong>
+
+                      <span style={{ margin: "15px", cursor: "pointer" }} onClick={() => setReplyTo(mail.sender)}>
+                        <IconText icon={ArrowLeftOutlined} tooltip="Reply" key="list-vertical-reply-o" />
+                      </span>
+                      {mail.isEncryption === false && (
+                        <IconText
+                          icon={InfoCircleOutlined}
+                          tooltip="This message is not encrypted"
+                          key="list-vertical-signed-o"
+                        />
+                      )}
+                      {mail.signed === true ? (
+                        <span style={{ float: "right", right: "0px" }}>
+                          <IconText
+                            icon={EditOutlined}
+                            tooltip="You signed statement of acknowledgment for this message"
+                            key="list-vertical-signed-o"
+                          />
+                        </span>
+                      ) : (
+                        <span
+                          onClick={e => onSignMail(mail)}
+                          style={{ float: "right", right: "0px", top: "0px", cursor: "pointer" }}
+                        >
+                          <IconText
+                            icon={EnterOutlined}
+                            tooltip="Sign statement of acknowledgment"
+                            key="list-vertical-sign-o"
+                          />
+                        </span>
+                      )}
+                    </div>
+                  }
+                  description={
+                    <>
+                      <div style={{ maxHeight: "2.7rem", overflow: "hidden" }}>{mail.contents}</div>
+                      <div>
+                        {mail.attachments.length > 0 && (
+                          <>
+                            {mail.attachments.map((a, i) => (
+                              <Tooltip
+                                title={
+                                  <>
+                                    {a.file.path} <br /> <small>{a.file.type}</small>
+                                  </>
+                                }
+                                key={a.digest}
+                              >
+                                <span
+                                  style={{
+                                    cursor: "pointer",
+                                    display: "inline-block",
+                                    border: "1px solid #00000055",
+                                    borderRadius: "5px",
+                                    paddingLeft: "0.2rem",
+                                    width: "150px",
+                                    overflow: "hidden",
+                                    textAlign: "center",
+                                    textOverflow: "ellipsis",
+                                    overflowWrap: "anywhere",
+                                    fontSize: "0.7rem",
+                                    marginRight: "20px",
+                                    marginTop: "3px",
+                                    maxHeight: "1.1rem",
+                                    background: "#88888888",
+                                  }}
+                                  onClick={() => onDownloadFile(mail, i, a)}
+                                >
+                                  {a.file.path}
+                                </span>
+                              </Tooltip>
+                            ))}
+                          </>
                         )}
                       </div>
-                    }
-                    description={
-                      <>
-                        <div style={{ maxHeight: "2.7rem", overflow: "hidden" }}>{mail.contents}</div>
-                        <div>
-                          {mail.attachments.length > 0 && (
-                            <>
-                              {mail.attachments.map((a, i) => (
-                                <Tooltip
-                                  title={
-                                    <>
-                                      {a.file.path} <br /> <small>{a.file.type}</small>
-                                    </>
-                                  }
-                                  key={a.digest}
-                                >
-                                  <span
-                                    style={{
-                                      cursor: "pointer",
-                                      display: "inline-block",
-                                      border: "1px solid #00000055",
-                                      borderRadius: "5px",
-                                      paddingLeft: "0.2rem",
-                                      width: "150px",
-                                      overflow: "hidden",
-                                      textAlign: "center",
-                                      textOverflow: "ellipsis",
-                                      overflowWrap: "anywhere",
-                                      fontSize: "0.7rem",
-                                      marginRight: "20px",
-                                      marginTop: "3px",
-                                      maxHeight: "1.1rem",
-                                      background: "#88888888",
-                                    }}
-                                    onClick={() => onDownloadFile(mail, i, a)}
-                                  >
-                                    {a.file.path}
-                                  </span>
-                                </Tooltip>
-                              ))}
-                            </>
-                          )}
-                        </div>
-                      </>
-                    }
-                  />
-                </List.Item>
-              )}
-            />
-          </Checkbox.Group>
-        </>
+                    </>
+                  }
+                />
+              </List.Item>
+            )}
+          />
+        </Checkbox.Group>
       </>
       <>
         <div style={{ marginTop: 20 }}>
@@ -532,9 +514,8 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
 
 export default Inbox;
 
-
 // const testMetamaskEncryption = async (receiverPubKey, receiverAddress, messageString) => {
-    
+
 //     // const key = await getPublicKey(window.ethereum, address);
 //     // // key pk in hex( 0x ) 0x form
 //     // const pk = "0x" + Buffer.from(key, "base64").toString("hex");
@@ -542,12 +523,12 @@ export default Inbox;
 //     // // get key from hex(0x)
 //     // const rkey = pk.substr(2, pk.length - 1);
 //     // const bkey = Buffer.from(rkey, "hex").toString("base64");
-//     // console.log("Got key", key, pk, "Reverse", rkey, bkey); 
+//     // console.log("Got key", key, pk, "Reverse", rkey, bkey);
 
 //     // const e = await encryptMessage(bkey, "test");
 //     // console.log("Encrypted:", e);
 //     // const d = await decryptMessage(window.ethereum, address, e);
-//     // console.log("Decrypted:", d);  
+//     // console.log("Decrypted:", d);
 
 //     const e = await encryptMessage(receiverPubKey, messageString);
 //     console.log("Encrypted:", e);

@@ -51,7 +51,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
     var data = {};
     try {
       data = await readContracts.SwarmMail.getPublicKeys(address);
-      console.log("got data", data);
+      //console.log("got data", data);
       if (
         data.key === "0x0000000000000000000000000000000000000000000000000000000000000000" ||
         data.smail === "0x0000000000000000000000000000000000000000000000000000000000000000"
@@ -97,14 +97,14 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
     const newPrivateKey = newWallet._signingKey().privateKey;
     // const newPublicKey = newWallet._signingKey().compressedPublicKey;
     //const newCPublicKey = ethers.utils.computePublicKey(newPrivateKey, true);
-    console.log("newPrivateKey", newPrivateKey);
+    // console.log("newPrivateKey", newPrivateKey);
     //console.log("newPublicKey", newPublicKey);
 
     const encKey = EncDec.nacl_getEncryptionPublicKey(newPrivateKey);
-    console.log("encKey", encKey);
+    // console.log("encKey", encKey);
     const fromUrlPubKey = "0x" + Buffer.from(encKey, "base64").toString("hex");
     //console.log("fromUrlPubKey", EncDec.nacl_decodeHex(EncDec.nacl_decodePublicKey(encKey)));
-    console.log("fromUrlPubKey", fromUrlPubKey);
+    //console.log("fromUrlPubKey", fromUrlPubKey);
 
     // // // //////////////////////////////////////////////////////////////////////////////////////////
     // // // /// TEST nacl encrypt decrypt
@@ -167,23 +167,23 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
 
   const uploadSmailKey = async encryptedSmailKey => {
     var hash = await uploadDataToBee(encryptedSmailKey, "application/octet-stream", address);
-    console.log("uploadSmailKey", hash);
+    //console.log("uploadSmailKey", hash);
     return hash;
   };
   const downloadSmailKeyData = async uploadSmailKeyLocation => {
     var downloadSmailKeyData = await downloadDataFromBee(uploadSmailKeyLocation);
     var smailKeyData = new TextDecoder("utf-8").decode(downloadSmailKeyData);
-    console.log("downloadSmailKeyData", smailKeyData);
+    //console.log("downloadSmailKeyData", smailKeyData);
     return smailKeyData;
   };
   const decryptSmailKey = async (forAddress, encryptedSmailKeyData) => {
     var decryptedSmailKey = await EncDec.MMdecryptMessage(window.ethereum, forAddress, encryptedSmailKeyData);
-    console.log("decryptedSmailKey", decryptedSmailKey);
+    //console.log("decryptedSmailKey", decryptedSmailKey);
     return decryptedSmailKey;
   };
 
   const onRegister = async (pubKey, smailKeyLocation) => {
-    console.log("Registering", address, pubKey, smailKeyLocation);
+    //console.log("Registering", address, pubKey, smailKeyLocation);
     let newTx = await tx(writeContracts.SwarmMail.register(pubKey, smailKeyLocation));
     await newTx.wait();
     notification.open({

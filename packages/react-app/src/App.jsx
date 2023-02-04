@@ -1,4 +1,4 @@
-import { Alert, Button, Col, Menu, Row, Modal, Spin, Breadcrumb, Layout, MenuProps } from "antd";
+import { Alert, Button, Col, Menu, Row, Modal, Spin, Breadcrumb, Layout, MenuProps, Tooltip } from "antd";
 const { Header, Content, Sider } = Layout;
 
 import "antd/dist/antd.css";
@@ -248,6 +248,11 @@ function App(props) {
     //mainnetContracts,
   ]);
 
+  useEffect(() => {
+     console.log("Address changed to: ", address);
+     setSmailMail({ key: null, smail: null }); // this has to be defined
+  }, [address]);
+
   const loadWeb3Modal = useCallback(async () => {
     const provider = await web3Modal.connect();
     setInjectedProvider(new ethers.providers.Web3Provider(provider));
@@ -302,11 +307,12 @@ function App(props) {
               <Link to="/">Home</Link>
             </Menu.Item>
 
+            <Menu.Item key="/inbox">
+              <Link to="/inbox">Inbox</Link>
+            </Menu.Item>
+
             {smailMail.key && smailMail.smail ? (
               <>
-                <Menu.Item key="/inbox">
-                  <Link to="/inbox">Inbox</Link>
-                </Menu.Item>
                 {/* /////////////////////////////////////////////////
                 /////////////////////////////////////////////////
                 // all debug */}
@@ -326,8 +332,10 @@ function App(props) {
               </Menu.Item>
             )}
             <Menu.Item key="/smailmailkey" disabled>
-              {smailMail.key ? "system" : "connection"} &nbsp;
-              {smailMail.smail ? "active" : "absent"}
+              <Tooltip title="Registration status">
+                {smailMail.key ? "key" : "no key"} &nbsp;
+                {smailMail.smail ? "wallet" : "no wallet"}
+              </Tooltip>
             </Menu.Item>
             <Menu.Item key="/swarmmail">
               <Link to="/swarmmail">Contract</Link>
