@@ -9,7 +9,7 @@ function NetworkDisplay({ NETWORKCHECK, localChainId, selectedChainId, targetNet
     const networkLocal = NETWORK(localChainId);
     if (selectedChainId === 1337 && localChainId === 31337) {
       networkDisplay = (
-        <div style={{ zIndex: 2, position: "absolute", right: 0, top: 60, padding: 16 }}>
+        <div style={{ zIndex: 2, position: "absolute", right: 200, top: 60, padding: 16, width: 300 }}>
           <Alert
             message="⚠️ Wrong Network ID"
             description={
@@ -26,7 +26,7 @@ function NetworkDisplay({ NETWORKCHECK, localChainId, selectedChainId, targetNet
       );
     } else {
       networkDisplay = (
-        <div style={{ zIndex: 2, position: "absolute", right: 0, top: 60, padding: 16 }}>
+        <div style={{ zIndex: 2, position: "absolute", right: 14, top: 28, padding: 16, width: 300 }}>
           <Alert
             message="⚠️ Wrong Network"
             description={
@@ -82,8 +82,18 @@ function NetworkDisplay({ NETWORKCHECK, localChainId, selectedChainId, targetNet
     }
   } else {
     networkDisplay = (
-      <div style={{ zIndex: -1, position: "absolute", right: 154, top: 28, padding: 16, color: targetNetwork.color }}>
-        {targetNetwork.name}
+      <div
+        style={{
+          zIndex: -1,
+          position: "absolute",
+          right: 200,
+          top: -2,
+          padding: 16,
+          width: "100%",
+          color: targetNetwork.color,
+        }}
+      >
+        <small>{targetNetwork.name}</small>
       </div>
     );
   }

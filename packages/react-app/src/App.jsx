@@ -21,6 +21,7 @@ import {
   FaucetHint,
   NetworkSwitch,
   AddressSimple,
+  NetworkDisplay,
 } from "./components";
 import { NETWORKS, ALCHEMY_KEY } from "./constants";
 import externalContracts from "./contracts/external_contracts";
@@ -139,10 +140,11 @@ function App(props) {
   };
 
   /* 💵 This hook will get the price of ETH from 🦄 Uniswap: */
-  const price = useExchangeEthPrice(targetNetwork, mainnetProvider, 100);
+  const price = useExchangeEthPrice(targetNetwork, mainnetProvider, 60000);
 
   /* 🔥 This hook will get the price of Gas from ⛽️ EtherGasStation */
-  const gasPrice = useGasPrice(targetNetwork, "fast");
+  const gasPrice = useGasPrice(targetNetwork, "fast", 25000);
+  //const gasPrice = 1;
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
   const userProviderAndSigner = useUserProviderAndSigner(injectedProvider, localProvider);
   const userSigner = userProviderAndSigner.signer;
@@ -482,6 +484,12 @@ function App(props) {
               setSelectedNetwork={setSelectedNetwork}
             />
           </div>
+          <NetworkDisplay
+            NETWORKCHECK={NETWORKCHECK}
+            localChainId={localChainId}
+            selectedChainId={selectedChainId}
+            targetNetwork={targetNetwork}
+          />
           {/* <Account
             address={address}
             localProvider={localProvider}
@@ -500,7 +508,7 @@ function App(props) {
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
       <>
         <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
-          <Row align="middle" gutter={[4, 4]}>
+          {/* <Row align="middle" gutter={[4, 4]}>
             <Col span={8}>
               <Ramp price={price} address={address} networks={NETWORKS} />
             </Col>
@@ -521,7 +529,7 @@ function App(props) {
                 Support
               </Button>
             </Col>
-          </Row>
+          </Row> */}
 
           <Row align="middle" gutter={[4, 4]}>
             <Col span={24}>

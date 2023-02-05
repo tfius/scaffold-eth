@@ -83,7 +83,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
   const [viewMail, _setViewMail] = useState(null);
   const [viewAddress, setViewAddress] = useState(null);
   const setViewMail = async mail => {
-    console.log("onViewMessage", mail);
+    // console.log("onViewMessage", mail);
     _setViewMail(mail);
   };
 

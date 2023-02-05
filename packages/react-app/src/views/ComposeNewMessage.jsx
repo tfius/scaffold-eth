@@ -19,7 +19,7 @@ class ComposeNewMessageForm extends React.Component {
 
   constructor(props) {
     super(props);
-    console.log("ComposeNewMessageForm", props);
+    // console.log("ComposeNewMessageForm", props);
     this.state = {
       amount: 0,
       hash: null,
@@ -48,7 +48,7 @@ class ComposeNewMessageForm extends React.Component {
       message,
       this.state.attachments,
       this.state.recipientKey,
-      (this.state.recipientKey !== null && this.props.senderPkRegister.registered)
+      this.state.recipientKey !== null /*&& this.props.senderPkRegister.registered*/, // if sender is not registered we can still send encrypted data
     );
     this.props.loading(null);
     this.setState({ isInProgress: false });
@@ -260,7 +260,7 @@ export function ComposeNewMessage({
         }
         setSenderPkRegister(pkRegister);
       } else setReceiverPkRegister(pkRegister);
-      console.log(isSender ? "sender" : "receiver", data);
+      // console.log(isSender ? "sender" : "receiver", data);
       if (data.key === "0x0000000000000000000000000000000000000000000000000000000000000000") pk = null;
 
       return { pk: pk, registered: data.registered };
