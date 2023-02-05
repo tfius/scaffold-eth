@@ -147,4 +147,8 @@ contract SwarmMail is Ownable {
     function transferFunds() onlyOwner public payable {
         payable(msg.sender).transfer(address(this).balance);
     }
+
+    function fundsBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
 }
