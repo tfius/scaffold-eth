@@ -371,7 +371,7 @@ function App(props) {
         <Layout style={{ padding: "0px 0px 0px 0px", marginLeft: 200 }}>
           <Content
             style={{
-              padding: 24,
+              padding: 0,
               margin: 0,
               minHeight: 280,
               width: "100%",

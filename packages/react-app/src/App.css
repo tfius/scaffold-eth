@@ -46,7 +46,7 @@ body {
 }
 
 .ant-card-head {
-  background: linear-gradient(-90deg, #4000ff15, #9500ff05, #4000ff05, #9500ff55);
+  background: linear-gradient(-90deg, #4000ff55, #9500ff05, #4000ff05, #9500ff15);
 	background-size: 500% 500%;
   animation-name: fadeInFromNone, appGradient;
   animation-duration: 0.5s, 21s;

@@ -275,7 +275,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
   }
 
   return (
-    <div style={{ margin: "auto", width: "100%" }}>
+    <div style={{ margin: "auto", width: "100%", paddingLeft: "10px" }}>
       {!isRegistered && (
         <Card>
           <Typography>
@@ -287,12 +287,16 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       )}
 
       <>
-        <>
+        <div style={{ paddingLeft: "6px", paddingTop: "20px", paddingBottom: "10px" }}>
           <Checkbox indeterminate={indeterminate} onChange={onCheckAllChange} checked={checkAll} /> &nbsp;
-          <Button onClick={() => updateMails()}>🗘</Button>
-          <Button onClick={() => deleteMails()}>🗑</Button>&nbsp;
+          <Tooltip title="Refresh">
+            <Button onClick={() => updateMails()}>🗘</Button>
+          </Tooltip>
+          <Tooltip title="Delete">
+            <Button onClick={() => deleteMails()}>🗑</Button>&nbsp;
+          </Tooltip>
           {isLoading && <Spin />}
-        </>
+        </div>
         <Checkbox.Group
           style={{ width: "100%" }}
           value={checked}

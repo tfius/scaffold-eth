@@ -214,9 +214,9 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
       <>
         {isRegistered == true && smailMail.key !== null && (
           <Card>
-            <h2>Welcome</h2>
+            <h2>Hello</h2>
             <Typography>
-              It appears your account is properly registred. You can send and receive encrypted data.
+              It appears your account is properly registred and bonded. You can send and receive encrypted data.
             </Typography>
           </Card>
         )}
@@ -280,7 +280,11 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
           <div>
             <br />
             <h2>Pricing</h2>
-            When you send message you pay for data storage on Swarm network and transaction cost.
+            When you send message you pay transaction costs and for storage fees on Swarm network. Data persistance is
+            not guarateed. Storage fees go to Smail maintainer and are used to buy Bzz tokens to store data for as long
+            as possible. For how long you might ask? Answer to this question is tricky. It depends on market conditions
+            as prices fluctuate when demand increases. If market is willing to pay more for storage, then postage stamps
+            expire sooner and data will be garbage collected.
           </div>
           <div>
             <br />
