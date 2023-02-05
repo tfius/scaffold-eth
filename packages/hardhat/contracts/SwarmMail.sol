@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 // import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract SwarmMail {
+contract SwarmMail is Ownable {
     // using Strings for uint256;
 
     struct PublicKey {
@@ -14,13 +15,6 @@ contract SwarmMail {
         require(users[msg.sender].key != bytes32(0), "Email is not registred");
         _;
     }
-
-
-    // struct File {
-    //     uint256 time;
-    //     bytes uuid;
-    //     bytes name;
-    // }
 
     function getPublicKeys(address addr) public view returns (bool registered, bytes32 key, bytes32 smail) {
         registered = users[addr].key != bytes32(0) ;
@@ -35,7 +29,7 @@ contract SwarmMail {
         address to;
         bytes32 swarmLocation;
         bool    signed;
-               //bytes uuid;
+        //bytes uuid;
     }
 
     struct User {
@@ -60,11 +54,6 @@ contract SwarmMail {
         user.smail = smail;
     }
 
-    /*
-    function getUserData(address addr) public view returns (Email[] memory inbox, Email[] memory sent) {
-        inbox = users[addr].inboxEmails;
-        sent  = users[addr].sentEmails;
-    }*/
     function getInbox(address addr) public view returns (Email[] memory mails) {
         mails = users[addr].inboxEmails;
     }
@@ -113,31 +102,11 @@ contract SwarmMail {
         // fileContract.writeChunk{value: msg.value}(getNewName(uuid, 'message'), 0, encryptData);
     }
 
-    function removeContent(address from, bytes32 swarmLocation) private {
-        /*
-        FlatDirectory fileContract = FlatDirectory(fromFdContract);
-        // remove mail
-        fileContract.remove(getNewName(uuid, 'message'));
-        // remove file
-        fileContract.remove(getNewName('file', fileUuid));
-        // claim stake token
-        fileContract.refund();
-        payable(from).transfer(address(this).balance);
-        */
-    }
-
     function removeSentEmail(bytes32 swarmLocation) public {
         User storage u = users[msg.sender];
         require(u.sentEmailIds[swarmLocation] != 0, "Email does not exist");
 
         uint256 removeIndex = u.sentEmailIds[swarmLocation] - 1;
-        // remove content
-        Email memory email = u.sentEmails[removeIndex];
-        if(users[email.to].inboxEmailIds[swarmLocation] == 0) {
-            // if inbox is delete
-            removeContent(msg.sender, swarmLocation);
-        }
-
         // remove info
         uint256 lastIndex = u.sentEmails.length - 1;
         if (lastIndex != removeIndex) {
@@ -153,13 +122,6 @@ contract SwarmMail {
         require(u.inboxEmailIds[swarmLocation] != 0, "Email does not exist");
 
         uint256 removeIndex = u.inboxEmailIds[swarmLocation] - 1;
-        // remove content
-        Email memory email = u.inboxEmails[removeIndex];
-        if(users[email.from].sentEmailIds[swarmLocation] == 0) {
-            // if sent is delete
-            removeContent(email.from, swarmLocation);
-        }
-
         // remove info
         uint256 lastIndex = u.inboxEmails.length - 1;
         if (lastIndex != removeIndex) {
@@ -182,102 +144,7 @@ contract SwarmMail {
         }
     }
 
-    /*
-    function getNewName(bytes memory dir, bytes memory name) public pure returns (bytes memory) {
-        return abi.encodePacked(dir, '/', name);
+    function transferFunds() onlyOwner public payable {
+        payable(msg.sender).transfer(address(this).balance);
     }
-
-    function getInboxEmails() public view
-        returns (
-            bool[] memory isEncryptions,
-            uint256[] memory times,
-            address[] memory fromMails,
-            address[] memory toMails,
-            bytes32[] memory swarmLocations
-        )
-    {
-        User storage u = users[msg.sender];
-        uint256 length = u.inboxEmails.length;
-        isEncryptions = new bool[](length);
-        times = new uint256[](length);
-        fromMails = new address[](length);
-        toMails = new address[](length);
-        swarmLocations = new bytes32[](length);
-
-        for (uint256 i; i < length; i++) {
-            isEncryptions[i] = u.inboxEmails[i].isEncryption;
-            times[i] = u.inboxEmails[i].time;
-            fromMails[i] = u.inboxEmails[i].from;
-            toMails[i] = u.inboxEmails[i].to;
-            swarmLocations[i] = u.inboxEmails[i].swarmLocation;
-        }
-    }
-
-    function getSentEmails() public view
-        returns (
-            bool[] memory isEncryptions,
-            uint256[] memory times,
-            address[] memory fromMails,
-            address[] memory toMails,
-            bytes32[] memory swarmLocations
-        )
-    {
-        User storage u = users[msg.sender];
-        uint256 length = u.sentEmails.length;
-        isEncryptions = new bool[](length);
-        times = new uint256[](length);
-        fromMails = new address[](length);
-        toMails = new address[](length);
-        swarmLocations = new bytes32[](length);
-
-        for (uint256 i; i < length; i++) {
-            isEncryptions[i] = u.sentEmails[i].isEncryption;
-            times[i] = u.sentEmails[i].time;
-            fromMails[i] = u.sentEmails[i].from;
-            toMails[i] = u.sentEmails[i].to;
-            swarmLocations[i] = u.inboxEmails[i].swarmLocation;
-        }
-    }
-    */
-
-    // function getEmailContent(address fromEmail, bytes memory uuid, uint256 chunkId) public view returns(bytes memory data) {
-    //     if(fromEmail == address(this) &&  keccak256(uuid) == keccak256('default-email')) {
-    //         return bytes(defaultEmail);
-    //     }
-
-    //     FlatDirectory fileContract = FlatDirectory(getFlatDirectory(fromEmail));
-    //     (data, ) = fileContract.readChunk(getNewName(uuid, bytes('message')), chunkId);
-    //     return 0;
-    // }
-
-    /*
-    function getFile(address fromEmail, bytes memory uuid, uint256 chunkId) public view returns(bytes memory data) {
-        FlatDirectory fileContract = FlatDirectory(getFlatDirectory(fromEmail));
-        (data,) = fileContract.readChunk(getNewName('file', uuid), chunkId);
-    }*/
-
-    /*
-    function countChunks(address fromEmail, bytes memory uuid) public view returns (uint256) {
-        FlatDirectory fileContract = FlatDirectory(getFlatDirectory(fromEmail));
-        return fileContract.countChunks(getNewName('file', uuid));
-    }*/
-
-    // function getPublicKey(address userAddress) public view returns(bytes32 publicKey) {
-    //     return userInfos[userAddress].publicKey;
-    // }
-
-    /*
-    function getFlatDirectory(address userAddress) internal view returns(address) {
-        return userInfos[userAddress].fdContract;
-    }*/
-    // function writeChunk(bytes memory uuid, bytes memory name, uint256 chunkId, bytes calldata data) public payable {
-    //     User storage user = userInfos[msg.sender];
-    //     if (user.files[uuid].time == 0) {
-    //         // first add file
-    //         user.files[uuid] = File(block.timestamp, uuid, name);
-    //     }
-
-    //     FlatDirectory fileContract = FlatDirectory(user.fdContract);
-    //     fileContract.writeChunk{value: msg.value}(getNewName('file', uuid), chunkId, data);
-    // }    
 }
