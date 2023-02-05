@@ -426,7 +426,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       </>
       <>
         <div style={{ marginTop: 20 }}>
-          <small style={{ fontSize: 4 }}>Selection: {checked.join(", ")} </small>
+          <small style={{ fontSize: 4 }}>{checked.join(", ")} </small>
         </div>
       </>
       {viewMail && (

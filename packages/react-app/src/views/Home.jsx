@@ -205,95 +205,109 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
     <div style={{ margin: "auto", width: "100%" }}>
       <>
         {isRegistered == true && smailMail.key !== null && (
-          <>
-            <Card>
-              <h1>Welcome</h1>
-              <Typography>
-                It appears your account is properly registred. You can send and receive encrypted data.
-              </Typography>
-            </Card>
-          </>
+          <Card>
+            <h2>Welcome</h2>
+            <Typography>
+              It appears your account is properly registred. You can send and receive encrypted data.
+            </Typography>
+          </Card>
         )}
         {/* {notifyUserToDecryptSmailKey && <Card>Confirm decryption of Smail Mail in your Wallet</Card>} */}
-        <Card title={notifyUserToDecryptSmailKey ? <>Confirm decryption of Smail Mail in your Wallet</> : null}>
+        <Card>
           {isRegistered == true && smailMail.key === null && (
             <>
-              <Button onClick={() => verifyRegistration()}>DECRYPT SMAIL WALLET</Button>
+              <h2>Confirm decryption of Smail in your Wallet</h2>
+              <Button onClick={() => verifyRegistration()} type="primary">
+                DECRYPT TO BOND WITH SMAIL
+              </Button>
               <br />
-              Opens MetaMask and prompts you with decrypt request. Decryption of Smail Wallet requires this step.
+              This will open MetaMask and prompts you with decrypt request. This step is required to bond Smail Wallet
+              with your MetaMask account.
               <hr />
             </>
           )}
           {isRegistered == false && (
             <>
-              <h1>Not Registered</h1>
+              <h2>Not Registered</h2>
               <Typography>
                 It appears your account is not listed in registry yet. To receive data you must add you account and
                 public key to catalogue. Please register to be able to send and receive data.
               </Typography>
 
               <br />
-              <Button onClick={() => registerAccount(address)}>REGISTER NOW</Button>
+              <Button onClick={() => registerAccount(address)} type="primary">
+                REGISTER NOW
+              </Button>
               <br />
               <br />
             </>
           )}
           <div>
+            <h2>How Smail works</h2>
             How registration works:
             <ul>
-              <li>your encryption public key is requested</li>
+              <li>your public encryption key is requested</li>
               <li>a new Smail Wallet will be created</li>
               <li>Wallet is encrypted with your MetaMask and uploaded to Swarm</li>
-              <li>a transaction is sent to register Smail public key and Swarm Wallet</li>
-              Only your MetaMask account with whom you registered can decrypt your Smail Wallet
+              <li>a transaction is sent to register Smail public key and Smail Wallet</li>
+              Only MetaMask account that created Smail Wallet can decrypt and bond with it.
             </ul>
           </div>
           <div>
             How sending data works:
             <ul>
               <li>Smail Wallet is retrieved and decrypted in MetaMask</li>
-              <li>Recipients Public Key is needed to create Ephemeral key for each package</li>
-              <li>Data is packaged and encrypted so only reciever retrieve its contents</li>
+              <li>Recipient's Smail public Key is retrieved</li>
+              <li>New Ephemeral key is created</li>
+              <li>Data is packaged, encrypted and uploaded </li>
               <li>A transaction is sent to notify receiver of new data available</li>
+              Your must decrypt Smail Wallet in your MetaMask to be able to send encrypted data.
             </ul>
-            You will be asked to decrypt your Smail Wallet every time you visit this page. In order to use this page,
-            your must allow decryption of SMail Wallet in your MetaMask.
+            You will be asked to decrypt your Smail Wallet every time you visit this page. Data sent can not be read by
+            anyone but receiver. <strong>NOTE: </strong>Only receiver can retrieve its contents.
             <hr />
-            <strong>BEWARE AND BEHOLD</strong>
-            <br />
+            <h2>BEWARE AND BEHOLD</h2>
             Always check that you are on correct domain and that you are using correct MetaMask account. Even though
             your MetaMask account's public key is not stored anywhere scammers could potentially ask you to decrypt
             Smail Wallet and gain access to your data.
           </div>
-        </Card>
-      </>
-
-      <>
-        <Card>
-          Sending unencrypted data is supported.
-          <ul>
-            <li>if either sender or receiver is not a Smail registered user</li>
-            <li>sender Smail Wallet can not be retrieved</li>
-            <li>receiver public key can not be retrieved</li>
-          </ul>
-          <strong>BEWARE !!! </strong>All unencrypted data and attachements can be retrieved by anyone with the link. If
-          you want to store unencrypted data you can use{" "}
-          <a href="https://www.ethswarm.org/" target="_blank" rel="noopener noreferrer">
-            Swarm
-          </a>{" "}
-          directly, or use{" "}
-          <a href="https://docs.fairos.fairdatasociety.org/docs/" target="_blank" rel="noopener noreferrer">
-            FairOS
-          </a>{" "}
-          or{" "}
-          <a href="https://fdp.fairdatasociety.org/" target="_blank" rel="noopener noreferrer">
-            FDP protocol
-          </a>
-          .
-        </Card>
-      </>
-      <>
-        <Card>
+          <div>
+            <br />
+            <h2>Pricing</h2>
+            When you send message you pay for data storage on Swarm network and transaction cost.
+          </div>
+          <div>
+            <br />
+            <h2>Privacy</h2>
+            Sending unencrypted data is supported.
+            <ul>
+              <li>if either sender or receiver is not a Smail registered user</li>
+              <li>sender Smail Wallet can not be retrieved</li>
+              <li>receiver public key can not be retrieved</li>
+            </ul>
+            <strong>BEWARE !!! </strong>All unencrypted data and attachements can be retrieved by anyone with the link.
+            If you want to store unencrypted data you can use{" "}
+            <a href="https://www.ethswarm.org/" target="_blank" rel="noopener noreferrer">
+              Swarm
+            </a>{" "}
+            directly, or use{" "}
+            <a href="https://docs.fairos.fairdatasociety.org/docs/" target="_blank" rel="noopener noreferrer">
+              FairOS
+            </a>{" "}
+            or{" "}
+            <a href="https://fdp.fairdatasociety.org/" target="_blank" rel="noopener noreferrer">
+              FDP protocol
+            </a>
+            .
+          </div>
+          <br />
+          <h2>Consideration</h2>
+          When you send encrypted data, only receiver will be able to read it. It must be noted that transaction is sent
+          from your MetaMask account and is as such recorded on blockchain. Transaction metadata can be linked to your
+          account.
+          <br />
+          <br />
+          <h2>Networks</h2>
           Multiple network support, BUT:
           <ul>
             <li>Cross network sending is NOT supported. </li>
@@ -301,7 +315,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
             <li>Each Smail Wallet will be different.</li>
           </ul>
           Which means if you send on one network, receiver will get message on that network only.
-          <hr />
+          {/* <hr />
           Networks:
           <ul>
             <li>Ethereum</li>
@@ -313,7 +327,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
             <li>Harmony</li>
             <li>Goerli</li>
             <li>Rinkeby</li>
-          </ul>
+          </ul> */}
         </Card>
       </>
     </div>

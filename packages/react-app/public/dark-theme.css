@@ -676,7 +676,7 @@ html {
   -ms-text-size-adjust: 100%;
   -ms-overflow-style: scrollbar;
   -webkit-tap-highlight-color: transparent;
-  --antd-wave-shadow-color: #2caad9;
+  --antd-wave-shadow-color: rgba(116, 97, 252, 0.9);
   --scroll-bar: 0;
 }
 @-ms-viewport {
@@ -778,19 +778,19 @@ sup {
   top: -0.5em;
 }
 a {
-  color: #2caad9;
+  color: rgb(171, 167, 255);
   text-decoration: none;
   background-color: transparent;
   outline: 0;
   cursor: pointer;
   transition: color 0.3s;
-  -webkit-text-decoration-skip: objects;
+  -webkit-text-decoration-skip: objects; 
 }
 a:hover {
-  color: #287a99;
+  color: rgb(131, 121, 255);
 }
-a:active {
-  color: #4eb3d2;
+a:active { 
+  color: rgb(54, 40, 255);
 }
 a:active,
 a:hover {
@@ -948,7 +948,7 @@ mark {
 }
 ::selection {
   color: #fff;
-  background: #2caad9;
+  background: rgba(65, 51, 255, 0.9);
 }
 .clearfix::after,
 .clearfix::before {
@@ -960,7 +960,7 @@ mark {
 }
 .anticon {
   display: inline-block;
-  color: inherit;
+  color: rgba(149, 141, 255, 0.9);
   font-style: normal;
   line-height: 0;
   text-align: center;
@@ -2380,7 +2380,7 @@ mark {
   font-size: 14px;
 }
 .ant-btn > a:only-child {
-  color: currentColor;
+  color: rgba(149, 141, 255, 0.9);
 }
 .ant-btn > a:only-child::after {
   position: absolute;
@@ -2393,8 +2393,8 @@ mark {
 }
 .ant-btn:focus,
 .ant-btn:hover {
-  color: #287a99;
-  border-color: #287a99;
+  color: rgba(149, 141, 255, 0.9);
+  border-color: rgba(65, 51, 255, 0.9);
 }
 .ant-btn:focus > a:only-child,
 .ant-btn:hover > a:only-child {
@@ -2407,13 +2407,13 @@ mark {
   right: 0;
   bottom: 0;
   left: 0;
-  background: 0 0;
+  background: rgba(101, 90, 255, 0.9);
   content: "";
 }
 .ant-btn:active {
-  color: #4eb3d2;
-  background: 0 0;
-  border-color: #4eb3d2;
+  color: rgba(179, 174, 255, 0.9);
+  background: rgba(101, 90, 255, 0.9);
+  border-color: rgba(101, 90, 255, 0.9);
 }
 .ant-btn-primary > a:only-child,
 .ant-btn:active > a:only-child {
@@ -2473,16 +2473,16 @@ mark {
 }
 .ant-btn-primary {
   color: #fff;
-  background: #2caad9;
-  border-color: #2caad9;
+  background: rgba(149, 141, 255, 0.8); 
+  border-color: rgba(166,183,255,0.1);
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
 }
 .ant-btn-primary:focus,
 .ant-btn-primary:hover {
   color: #fff;
-  background: #1b85b3;
-  border-color: #1b85b3;
+  background: rgba(91, 79, 255, 0.9);
+  border-color: rgba(166,183,255,0.0);
 }
 .ant-btn-primary:active {
   color: #fff;
@@ -14735,21 +14735,21 @@ tr.ant-table-expanded-row .ant-descriptions-view table {
 .ant-menu-item-danger.ant-menu-item-selected > a,
 .ant-menu-item-danger.ant-menu-item-selected > a:hover,
 .ant-menu-item-danger.ant-menu-item:hover {
-  color: #ab2229;
+  color: rgba(149, 141, 255, 0.9);
 }
 .ant-menu-item-danger.ant-menu-item:active {
   background: #351d20;
 }
 .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-danger.ant-menu-item-selected {
-  background-color: #351d20;
+  background-color: rgba(149, 141, 255, 0.9);
 }
 .ant-menu-inline .ant-menu-item-danger.ant-menu-item::after {
-  border-right-color: #ab2229;
+  border-right-color: rgba(149, 141, 255, 0.9);
 }
 .ant-menu-dark .ant-menu-item-danger.ant-menu-item,
 .ant-menu-dark .ant-menu-item-danger.ant-menu-item:hover,
 .ant-menu-dark .ant-menu-item-danger.ant-menu-item > a {
-  color: #ab2229;
+  color: rgba(149, 141, 255, 0.9);
 }
 .ant-menu-dark.ant-menu-dark:not(.ant-menu-horizontal) .ant-menu-item-danger.ant-menu-item-selected {
   color: #fff;
@@ -14802,7 +14802,7 @@ tr.ant-table-expanded-row .ant-descriptions-view table {
 .ant-menu-item a:hover,
 .ant-menu-item > .ant-badge a:hover,
 .ant-menu-submenu-selected {
-  color: #2caad9;
+  color: rgba(179, 171, 255, 0.9);
 }
 .ant-menu-item:active,
 .ant-menu-submenu-title:active {
@@ -14836,7 +14836,7 @@ tr.ant-table-expanded-row .ant-descriptions-view table {
 .ant-menu-submenu-active,
 .ant-menu-submenu-title:hover,
 .ant-menu:not(.ant-menu-inline) .ant-menu-submenu-open {
-  color: #2caad9;
+  color: rgba(149, 141, 255, 0.9);
 }
 .ant-menu-horizontal .ant-menu-item,
 .ant-menu-horizontal .ant-menu-submenu {
@@ -14850,10 +14850,10 @@ tr.ant-table-expanded-row .ant-descriptions-view table {
 .ant-menu-item-selected,
 .ant-menu-item-selected a,
 .ant-menu-item-selected a:hover {
-  color: #2caad9;
+  color: rgba(149, 141, 255, 0.9);
 }
 .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
-  background-color: #1e2b31;
+  background-color: rgba(149, 141, 255, 0.1); 
 }
 .ant-menu-inline,
 .ant-menu-vertical,
@@ -15145,7 +15145,7 @@ table tr th.ant-table-selection-column .ant-radio-wrapper {
 .ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-submenu-open,
 .ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-submenu-selected,
 .ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-submenu:hover {
-  color: #2caad9;
+  color: rgba(149, 141, 255, 0.9);
   border-bottom: 2px solid #2caad9;
 }
 .ant-menu-horizontal > .ant-menu-item,
@@ -15189,7 +15189,7 @@ table tr th.ant-table-selection-column .ant-radio-wrapper {
   top: 0;
   right: 0;
   bottom: 0;
-  border-right: 3px solid #2caad9;
+  border-right: 3px solid rgba(149, 141, 255, 0.9);
   transform: scaleY(0.0001);
   opacity: 0;
   transition: transform 0.15s cubic-bezier(0.215, 0.61, 0.355, 1), opacity 0.15s cubic-bezier(0.215, 0.61, 0.355, 1);
@@ -15444,7 +15444,7 @@ table tr th.ant-table-selection-column .ant-radio-wrapper {
   border-bottom: 0;
 }
 .ant-menu-dark.ant-menu-horizontal > .ant-menu-item:hover {
-  background-color: #2caad9;
+  background-color: rgba(149, 141, 255, 0.9);
 }
 .ant-menu-dark.ant-menu-horizontal > .ant-menu-item > a::before {
   bottom: 0;
@@ -15493,14 +15493,14 @@ table tr th.ant-table-selection-column .ant-radio-wrapper {
   width: 100%;
 }
 .ant-menu-dark .ant-menu-item:hover {
-  color: #fff;
+  color: rgba(149, 141, 255, 0.9);
 }
 .ant-menu-dark .ant-menu-item-active,
 .ant-menu-dark .ant-menu-submenu-active,
 .ant-menu-dark .ant-menu-submenu-open,
 .ant-menu-dark .ant-menu-submenu-selected,
 .ant-menu-dark .ant-menu-submenu-title:hover {
-  color: #fff;
+  color: rgba(149, 141, 255, 0.9);
   background-color: transparent;
 }
 .ant-menu-dark .ant-menu-item-active > a,
@@ -15774,7 +15774,7 @@ table tr th.ant-table-selection-column .ant-radio-wrapper {
   border: 0;
   outline: 0;
   cursor: pointer;
-  transition: color 0.3s;
+  transition: color 0.5s;
 }
 .ant-modal-close-x {
   display: block;

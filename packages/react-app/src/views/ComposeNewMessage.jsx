@@ -137,7 +137,7 @@ class ComposeNewMessageForm extends React.Component {
           <Button
             type="primary"
             htmlType="submit"
-            style={{ width: "80%", borderRadius: "25px", alignItems: "center", left: "10%" }}
+            style={{ width: "80%", borderRadius: "5px", alignItems: "center", left: "10%" }}
           >
             {this.state.recipientKey === null || this.props.senderPkRegister.registered === false
               ? "Send"

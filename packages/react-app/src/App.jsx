@@ -307,7 +307,7 @@ function App(props) {
             selectedKeys={[location.pathname]}
           >
             <Menu.Item key="/">
-              <Link to="/">Home</Link>
+              <Link to="/">{smailMail.key === null || smailMail.smail == null ? <>Register</> : <>Home</>}</Link>
             </Menu.Item>
 
             <Menu.Item key="/inbox">
@@ -325,23 +325,38 @@ function App(props) {
                 <Menu.Item key="/contacts">
                   <Link to="/contacts">Contacts</Link>
                 </Menu.Item> */}
-                <Menu.Item key="/add" disabled>
-                  {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
-                </Menu.Item>
               </>
             ) : (
-              <Menu.Item key="/connect">
-                <Link to="/">Connect</Link>
-              </Menu.Item>
+              <></>
+              // <Menu.Item key="/connect">
+              //   <Link to="/">Connect</Link>
+              // </Menu.Item>
             )}
-            <Menu.Item key="/smailmailkey" disabled>
-              <Tooltip title="Registration status">
-                {smailMail.key ? "key" : "no key"} &nbsp;
-                {smailMail.smail ? "wallet" : "no wallet"}
-              </Tooltip>
-            </Menu.Item>
             <Menu.Item key="/swarmmail">
               <Link to="/swarmmail">Contract</Link>
+            </Menu.Item>
+            <Menu.Item key="/smailmailkey" disabled>
+              <Tooltip title="Registration status">
+                {smailMail.key ? "wallet" : "no key"}&nbsp;
+                {smailMail.smail ? "bonded" : "no bond"}
+              </Tooltip>
+            </Menu.Item>
+            <Menu.Item key="/add" disabled>
+              {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
+            </Menu.Item>
+            <Menu.Item key="/account" disabled>
+              <Account
+                minimized
+                address={address}
+                localProvider={localProvider}
+                userSigner={userSigner}
+                mainnetProvider={mainnetProvider}
+                price={price}
+                web3Modal={web3Modal}
+                loadWeb3Modal={loadWeb3Modal}
+                logoutOfWeb3Modal={logoutOfWeb3Modal}
+                blockExplorer={blockExplorer}
+              />
             </Menu.Item>
           </Menu>
           {/* <Balance address={address} provider={localProvider} price={price} /> */}
@@ -401,29 +416,29 @@ function App(props) {
       </Layout>
 
       {isModalVisible && (
-        <Modal
-          title={<h2>New Message</h2>}
-          visible={isModalVisible}
-          footer={null}
-          onOk={() => {
-            setIsModalVisible(false);
-          }}
-          onCancel={() => {
-            setIsModalVisible(false);
-          }}
-        >
-          <ComposeNewMessage
-            readContracts={readContracts}
-            writeContracts={writeContracts}
-            ensProvider={mainnetProvider}
-            address={address}
-            modalControl={setIsModalVisible}
-            tx={tx}
-            onMessageSent={onMessageSent}
-            smailMail={smailMail}
-            recipient={replyTo}
-          />
-        </Modal>
+        // <Modal
+        //   title={<h2>New Message</h2>}
+        //   visible={isModalVisible}
+        //   footer={null}
+        //   onOk={() => {
+        //     setIsModalVisible(false);
+        //   }}
+        //   onCancel={() => {
+        //     setIsModalVisible(false);
+        //   }}
+        // >
+        <ComposeNewMessage
+          readContracts={readContracts}
+          writeContracts={writeContracts}
+          ensProvider={mainnetProvider}
+          address={address}
+          modalControl={setIsModalVisible}
+          tx={tx}
+          onMessageSent={onMessageSent}
+          smailMail={smailMail}
+          recipient={replyTo}
+        />
+        // </Modal>
       )}
 
       {/* ✏️ Edit the header and change the title to your project name */}
@@ -459,7 +474,7 @@ function App(props) {
               setSelectedNetwork={setSelectedNetwork}
             />
           </div>
-          <Account
+          {/* <Account
             address={address}
             localProvider={localProvider}
             userSigner={userSigner}
@@ -469,7 +484,7 @@ function App(props) {
             loadWeb3Modal={loadWeb3Modal}
             logoutOfWeb3Modal={logoutOfWeb3Modal}
             blockExplorer={blockExplorer}
-          />
+          /> */}
         </div>
         <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
       </div>
