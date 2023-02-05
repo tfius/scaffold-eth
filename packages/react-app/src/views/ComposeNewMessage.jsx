@@ -48,6 +48,7 @@ class ComposeNewMessageForm extends React.Component {
       message,
       this.state.attachments,
       this.state.recipientKey,
+      (this.state.recipientKey !== null && this.props.senderPkRegister.registered)
     );
     this.props.loading(null);
     this.setState({ isInProgress: false });
@@ -140,8 +141,8 @@ class ComposeNewMessageForm extends React.Component {
             style={{ width: "80%", borderRadius: "5px", alignItems: "center", left: "10%" }}
           >
             {this.state.recipientKey === null || this.props.senderPkRegister.registered === false
-              ? "Send"
-              : "SECURE SEND"}
+              ? "SEND"
+              : "ENCRYPT AND SEND"}
           </Button>
           <div style={{ textAlign: "center", width: "100%", color: "#AA3333" }}>
             <Tooltip title="Sender and Recipient must both be registered to send secure encrypted messages">
@@ -250,8 +251,15 @@ export function ComposeNewMessage({
       var pk = Buffer.from(rkey, "hex").toString("base64");
       var pkRegister = { pk: pk, registered: data.registered };
       // console.log("pk", pk);
-      if (isSender) setSenderPkRegister(pkRegister);
-      else setReceiverPkRegister(pkRegister);
+      if (isSender) {
+        if (smailMail.smail === null) {
+          var notDecrypted = { pk: null, registered: false };
+          setSenderPkRegister(notDecrypted);
+          // not decrypted
+          return notDecrypted;
+        }
+        setSenderPkRegister(pkRegister);
+      } else setReceiverPkRegister(pkRegister);
       console.log(isSender ? "sender" : "receiver", data);
       if (data.key === "0x0000000000000000000000000000000000000000000000000000000000000000") pk = null;
 
@@ -262,7 +270,7 @@ export function ComposeNewMessage({
     return { pk: null, registered: false };
   };
 
-  const onSendMessage = async (senderAddress, recipientAddress, message, attachments, recipientKey) => {
+  const onSendMessage = async (senderAddress, recipientAddress, message, attachments, recipientKey, isEncrypted) => {
     setSendingInProgress(true);
     try {
       //let senderPubKey = await retrievePubKey(senderAddress, true); // get sender public key
@@ -281,7 +289,7 @@ export function ComposeNewMessage({
       const encryptReceiveKey = encryptEmailKey(receiverPubKey, Buffer.from(emailKey, "base64"));
       setProgress(5);
       */
-      var isEncrypted = recipientKey !== null;
+      //var isEncrypted = recipientKey !== null;
       var fileSize = 0; // bytes
       //console.log("isEncrypted", isEncrypted);
 

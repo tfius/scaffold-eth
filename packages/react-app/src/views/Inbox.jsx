@@ -308,7 +308,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
               <List.Item style={{ marginBottom: "5px", marginTop: "0px", padding: "0px" }}>
                 <List.Item.Meta
                   style={{
-                    background: mail.isEncryption ? "#1890ff05" : "#ff000011",
+                    background: mail.isEncryption ? "#4000ff05" : "#90009915",
                     borderRadius: "5px",
                     paddingBottom: "5px",
                     paddingTop: "5px",
