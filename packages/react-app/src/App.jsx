@@ -301,7 +301,7 @@ function App(props) {
   return (
     <div className="App">
       <Layout style={{ minHeight: "100vh" }}>
-        <Sider theme={currentTheme}>
+        <Sider theme={currentTheme} style={{ position: "fixed", height: "100vh", left: 0, top: 0, bottom: 0 }}>
           <AppHeader />
           {/* collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)} */}
           {/* <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }}/> */}
@@ -368,13 +368,14 @@ function App(props) {
           </Menu>
           {/* <Balance address={address} provider={localProvider} price={price} /> */}
         </Sider>
-        <Layout style={{ padding: "0px 0px 0px 0px" }}>
+        <Layout style={{ padding: "0px 0px 0px 0px", marginLeft: 200 }}>
           <Content
             style={{
               padding: 24,
               margin: 0,
               minHeight: 280,
               width: "100%",
+              overflow: "initial",
               // background: "#000000",
             }}
           >

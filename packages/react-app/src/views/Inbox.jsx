@@ -308,7 +308,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
               <List.Item style={{ marginBottom: "5px", marginTop: "0px", padding: "0px" }}>
                 <List.Item.Meta
                   style={{
-                    background: mail.isEncryption ? "#4000ff05" : "#90009915",
+                    background: mail.isEncryption ? "#4000ff00" : "#4000ff10",
                     borderRadius: "5px",
                     paddingBottom: "5px",
                     paddingTop: "5px",
@@ -321,7 +321,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                       {/* <Tooltip title={ {mail.sender}}> */}
                       <Tooltip title={<AddressSimple address={mail.sender} />}>
                         <span>
-                          <Blockies className="mailIdenticon" seed={mail.sender} />
+                          <Blockies className="mailIdenticon" seed={mail.sender} size="8" />
                         </span>
                       </Tooltip>
                       {/* <IconText icon={EditOutlined} tooltip="Sign" key="list-vertical-like-o" />, */}
@@ -435,8 +435,18 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
           style={{ width: "100%", resize: "auto", borderRadious: "20px" }}
           title={
             <>
-              <h3>{viewMail.subject}</h3> <Blockies className="mailIdenticon" seed={viewMail.sender} />{" "}
-              <small> {viewMail.sender}</small>
+              <h3>{viewMail.subject}</h3>{" "}
+              <small>
+                {" "}
+                <AddressSimple address={viewMail.sender} />
+              </small>
+              <span style={{ float: "right", verticalAlignement: "top" }}>
+                <Tooltip title={<AddressSimple address={viewMail.sender} />}>
+                  <span>
+                    <Blockies className="mailIdenticon" seed={viewMail.sender} size="4" />
+                  </span>
+                </Tooltip>
+              </span>
             </>
           }
           footer={null}

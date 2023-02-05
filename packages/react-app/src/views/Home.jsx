@@ -74,9 +74,17 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
         if (decryptedSmailKey !== undefined) {
           setSmailMail({ key: data.key, smail: decryptedSmailKey });
           //console.log(key, decryptedSmailKey);
-        }
+        } else
+          notification.warning({
+            message: "Warning",
+            description: "Not decrypted and not bonded",
+          });
       } catch (err) {
         console.log("err", err);
+        notification.error({
+          message: "Error",
+          description: err.message,
+        });
         setSmailMail({ key: null, smail: null });
       }
     }
@@ -246,9 +254,8 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
             <h2>How Smail works</h2>
             How registration works:
             <ul>
-              <li>your public encryption key is requested</li>
-              <li>a new Smail Wallet will be created</li>
-              <li>Wallet is encrypted with your MetaMask and uploaded to Swarm</li>
+              <li>your public encryption key is requested with which new Smail Wallet is created</li>
+              <li>Smail Wallets is encrypted with your MetaMask and uploaded to Swarm</li>
               <li>a transaction is sent to register Smail public key and Smail Wallet</li>
               Only MetaMask account that created Smail Wallet can decrypt and bond with it.
             </ul>
@@ -256,15 +263,14 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
           <div>
             How sending data works:
             <ul>
-              <li>Smail Wallet is retrieved and decrypted in MetaMask</li>
               <li>Recipient's Smail public Key is retrieved</li>
               <li>New Ephemeral key is created</li>
               <li>Data is packaged, encrypted and uploaded </li>
               <li>A transaction is sent to notify receiver of new data available</li>
-              Your must decrypt Smail Wallet in your MetaMask to be able to send encrypted data.
+              Your must decrypt Smail Wallet in your MetaMask and bond with it to be able to send encrypted data.
             </ul>
-            You will be asked to decrypt your Smail Wallet every time you visit this page. Data sent can not be read by
-            anyone but receiver. <strong>NOTE: </strong>Only receiver can retrieve its contents.
+            You will be asked to decrypt your Smail Wallet every time you visit this page. <strong>NOTE: </strong>Only
+            receiver can retrieve and decrypt its contents.
             <hr />
             <h2>BEWARE AND BEHOLD</h2>
             Always check that you are on correct domain and that you are using correct MetaMask account. Even though
@@ -279,11 +285,12 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
           <div>
             <br />
             <h2>Privacy</h2>
-            Sending unencrypted data is supported.
+            Sending unencrypted data is supported and occours when:
             <ul>
-              <li>if either sender or receiver is not a Smail registered user</li>
-              <li>sender Smail Wallet can not be retrieved</li>
-              <li>receiver public key can not be retrieved</li>
+              <li>if either sender or receiver is not a registered</li>
+              <li>Sender's Smail Wallet can not be retrieved or is not decrypted</li>
+              <li>Receiver public key can not be retrieved</li>
+              You can read and send unencrypted messages if you are connected and not bonded.
             </ul>
             <strong>BEWARE !!! </strong>All unencrypted data and attachements can be retrieved by anyone with the link.
             If you want to store unencrypted data you can use{" "}
@@ -302,9 +309,8 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
           </div>
           <br />
           <h2>Consideration</h2>
-          When you send encrypted data, only receiver will be able to read it. It must be noted that transaction is sent
-          from your MetaMask account and is as such recorded on blockchain. Transaction metadata can be linked to your
-          account.
+          It must be noted that transaction is sent from your MetaMask account and is as such recorded on blockchain.
+          Transaction metadata can be linked to your account.
           <br />
           <br />
           <h2>Networks</h2>
