@@ -55,11 +55,14 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
         Email[] inboxEmails;
         mapping(bytes32 => uint256) inboxEmailIds;
 
-        // 
+        // who wants to subscribe to what
         SubRequest[] subRequests;
         mapping(bytes32 => uint256) subRequestIds;
+        // what is user subscribed to
         SubItem[] subItems;
         mapping(bytes32 => uint256) subItemIds;
+
+        bytes32[] listedSubscriptions;
     }
     mapping(address => User) users;
 
@@ -83,10 +86,21 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
     function getSent(address addr) public view returns (Email[] memory mails) {
         mails  = users[addr].sentEmails;
     }
+    function getSubRequests(address addr) public view returns (SubRequest[] memory requests) {
+        requests = users[addr].subRequests;
+    }
+    function getSubItems(address addr) public view returns (SubItem[] memory items) {
+        items = users[addr].subItems;
+    }
+    function getListedSubscriptions(address addr) public view returns (bytes32[] memory items) {
+        items = users[addr].listedSubscriptions;
+    }
 
-    function getBoxCount(address addr) public view returns (uint numInboxItems, uint numSentItems) {
+    function getBoxCount(address addr) public view returns (uint numInboxItems, uint numSentItems, uint numSubRequests, uint numSubItems) {
         numInboxItems = users[addr].inboxEmails.length;
         numSentItems  = users[addr].sentEmails.length;
+        numSubRequests = users[addr].subRequests.length;
+        numSubItems = users[addr].subItems.length;
     }
 
     function getInboxAt(address addr, uint index) public view returns (Email memory) {
@@ -95,6 +109,14 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
 
     function getSentAt(address addr, uint index) public view returns (Email memory) {
         return users[addr].sentEmails[index];
+    }
+
+    function getSubRequestAt(address addr, uint index) public view returns (SubRequest memory) {
+        return users[addr].subRequests[index];
+    }
+
+    function getSubItemAt(address addr, uint index) public view returns (SubItem memory) {
+        return users[addr].subItems[index];
     }
 
     function signEmail(bytes32 swarmLocation) public {
@@ -170,7 +192,7 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
     }
 
     function fundsTransfer() onlyOwner public payable {
-        payable(msg.sender).transfer(address(this).balance);
+        payable(msg.sender).transfer((address(this).balance-inEscrow));
     }
     function fundsBalance() public view returns (uint256) {
         return address(this).balance;
@@ -178,7 +200,9 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     uint256 private constant FEE_PRECISION = 1e5;  
-    uint256 private marketFee = 50; // 0.05%
+    uint256 private marketFee = 500; // 0.5%
+    uint256 public  feesCollected = 0;
+    uint256 public  inEscrow = 0;
     function getFee(uint256 _fee, uint256 amount) public pure returns (uint256) {
         return (amount * _fee) / FEE_PRECISION;
     }
@@ -205,6 +229,16 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
     }
 
     mapping(bytes32 => Category) categories; // where is category in categories array
+
+    function getCategory(bytes32 category) public view returns (Category memory) {
+        return categories[category];
+    }
+    function getSubscription(uint index) public view returns (Subscription memory) {
+        return subscriptions[index];
+    }
+    function getSubscriptionBy(bytes32 subHash) public view returns (Subscription memory) {
+        return subscriptions[subscriptionIds[subHash]];
+    }
     
     // Market to sell encrypted swarmLocation
     function listSubscription(address fdpSeller, bytes32 dataSwarmLocation, uint price, bytes32 category) public payable {
@@ -216,6 +250,16 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
 
         Category storage c = categories[category];
         c.subscriptions.push(subscriptions.length - 1);
+
+        User storage seller = users[msg.sender];
+        seller.listedSubscriptions.push(subHash);
+    }
+
+    function enableSubscription(bytes32 subHash, bool active) public {
+        require(subscriptionIds[subHash] != 0, "No Subscription"); // must exists
+        Subscription storage s = subscriptions[subscriptionIds[subHash] - 1]; 
+        require(s.seller == msg.sender, "Only seller can enable subscription"); // only seller can enable subscription
+        s.active = active;
     }
 
     function bidSubscription(bytes32 subHash, address fdpBuyer) public nonReentrant payable {
@@ -238,9 +282,10 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
 
         seller.subRequests.push(sr);
         seller.subRequestIds[requestHash] = seller.subRequests.length;
+        inEscrow += msg.value;
     }
 
-    function sellSubscription(bytes32 requestHash, address fdpSeller, bytes32 encryptedDataLocation) public payable {
+    function sellSubscription(bytes32 requestHash, address fdpSeller, bytes32 encryptedKeyLocation) public payable {
         User storage seller = users[msg.sender];
 
         require(seller.subRequestIds[requestHash] != 0, "Request invalid");
@@ -252,11 +297,13 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
 
         uint256 fee = getFee(marketFee, s.price);
         payable(msg.sender).transfer(s.price-fee);
+        inEscrow -= s.price;
+        feesCollected += fee;
 
         User storage buyer = users[br.buyer];
         SubItem memory si;
         si.subHash = br.subHash;
-        si.unlockKeyLocation = encryptedDataLocation;
+        si.unlockKeyLocation = encryptedKeyLocation;
         si.validTill = block.timestamp + 30 days;
         buyer.subItems.push(si);
 
