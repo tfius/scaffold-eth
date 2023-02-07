@@ -201,7 +201,7 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     uint256 private constant FEE_PRECISION = 1e5;  
     uint256 private marketFee = 500; // 0.5%
-    uint256 private minListingFee = 10000 gwei; // min listing fee
+    uint256 private minListingFee = 100000 gwei; // min listing fee - 0.0001000 ETH
     uint256 public  feesCollected = 0;
     uint256 public  inEscrow = 0;
     function getFee(uint256 _fee, uint256 amount) public pure returns (uint256) {
@@ -221,11 +221,12 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
         bytes32 subHash;
         address fdpSeller; // 
         address seller;
-        bytes32 swarmLocation;
+        bytes32 swarmLocation; // metadata location
         uint256 price;
         bool    active; // is subscription active
         uint64  bids;
         uint64  sells;
+        uint64  reports;
     }
     
     Sub[] subscriptions;
@@ -259,7 +260,7 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
         bytes32 subHash = keccak256(abi.encode(msg.sender, fdpSeller, dataSwarmLocation, price, category, block.timestamp));
         require(msg.value>minListingFee, "listingFee"); // sent value must be equal to price
 
-        Sub memory s = Sub(subHash, fdpSeller, msg.sender, dataSwarmLocation, price, true, 0, 0);
+        Sub memory s = Sub(subHash, fdpSeller, msg.sender, dataSwarmLocation, price, true, 0, 0, 0);
         subscriptions.push(s);
         subscriptionIds[subHash] = subscriptions.length;
 
