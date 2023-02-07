@@ -34,6 +34,7 @@ import { useResolveEnsName } from "eth-hooks/dapps/ens";
 import * as consts from "./consts";
 import Blockies from "react-blockies";
 import * as EncDec from "./../utils/EncDec.js";
+import { PUBKEY_HEX_LENGTH } from "@ethersphere/bee-js";
 const { Meta } = Card;
 
 export function Home({ readContracts, writeContracts, tx, userSigner, address, provider, smailMail, setSmailMail }) {
@@ -101,12 +102,20 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
     const mmKey = await EncDec.MMgetPublicKey(/*userSigner*/ window.ethereum, address);
     // console.log("mmKey", mmKey);
     // const pk = "0x" + Buffer.from(key, "base64").toString("hex");
+    // 
+    // username, password
+    // ens, soc, get seed
+    // fdpWallet = fromSeed(seed)
+    // 
+
     const newWallet = ethers.Wallet.createRandom();
     const newPrivateKey = newWallet._signingKey().privateKey;
     // const newPublicKey = newWallet._signingKey().compressedPublicKey;
     //const newCPublicKey = ethers.utils.computePublicKey(newPrivateKey, true);
     // console.log("newPrivateKey", newPrivateKey);
     //console.log("newPublicKey", newPublicKey);
+    //T(pubkey(x,y)) = EncryptionPubKey (bytes32)
+    // base64 encoded
 
     const encKey = EncDec.nacl_getEncryptionPublicKey(newPrivateKey);
     // console.log("encKey", encKey);
@@ -187,6 +196,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
   const decryptSmailKey = async (forAddress, encryptedSmailKeyData) => {
     var decryptedSmailKey = await EncDec.MMdecryptMessage(window.ethereum, forAddress, encryptedSmailKeyData);
     //console.log("decryptedSmailKey", decryptedSmailKey);
+    // get soc location from ENS, download and decrypt key, and use it here 
     return decryptedSmailKey;
   };
 

@@ -42,6 +42,8 @@ contract SwarmMail is Ownable {
         mapping(bytes32 => uint256) inboxEmailIds;
     }
     mapping(address => User) users;
+
+    
     constructor() {
     }
 
@@ -57,6 +59,7 @@ contract SwarmMail is Ownable {
     function getInbox(address addr) public view returns (Email[] memory mails) {
         mails = users[addr].inboxEmails;
     }
+
     function getSent(address addr) public view returns (Email[] memory mails) {
         mails  = users[addr].sentEmails;
     }
@@ -65,9 +68,11 @@ contract SwarmMail is Ownable {
         numInboxItems = users[addr].inboxEmails.length;
         numSentItems  = users[addr].sentEmails.length;
     }
+
     function getInboxAt(address addr, uint index) public view returns (Email memory) {
         return users[addr].inboxEmails[index];
     }
+
     function getSentAt(address addr, uint index) public view returns (Email memory) {
         return users[addr].sentEmails[index];
     }
@@ -79,6 +84,7 @@ contract SwarmMail is Ownable {
         require(msg.sender == email.to, "Only receiver can sign email");
         email.signed = true;
     }
+
     function sendEmail( address toAddress, bool isEncryption, bytes32 swarmLocation ) public payable
     {
         User storage receiver = users[toAddress];
@@ -116,7 +122,6 @@ contract SwarmMail is Ownable {
         u.sentEmails.pop();
         delete u.sentEmailIds[swarmLocation];
     }
-
     function removeInboxEmail(bytes32 swarmLocation) public {
         User storage u = users[msg.sender];
         require(u.inboxEmailIds[swarmLocation] != 0, "Email does not exist");
@@ -147,7 +152,6 @@ contract SwarmMail is Ownable {
     function fundsTransfer() onlyOwner public payable {
         payable(msg.sender).transfer(address(this).balance);
     }
-
     function fundsBalance() public view returns (uint256) {
         return address(this).balance;
     }

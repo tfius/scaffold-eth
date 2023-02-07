@@ -71,6 +71,9 @@ module.exports = {
         (you can put in a mnemonic here to set the deployer locally)
       
       */
+      // accounts: {
+      //   mnemonic: mnemonic(),
+      // },
     },
 
     // rinkeby: {
