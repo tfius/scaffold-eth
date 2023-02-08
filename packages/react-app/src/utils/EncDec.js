@@ -2,6 +2,8 @@ import crypto from "crypto";
 import hkdf from "futoin-hkdf";
 import { parse } from "uuid";
 
+import { uploadDataToBee } from "./../Swarm/BeeService";
+
 const nacl = require("tweetnacl");
 nacl.util = require("tweetnacl-util");
 
@@ -236,4 +238,10 @@ export function nacl_decrypt(encryptedData, receiverPrivateKey) {
   } catch (e) {
     console.error("nacl_decrypt", e);
   }
+}
+
+export async function encryptAndUpload(data, recipientKey) {
+  var encryptedData = EncDec.nacl_encrypt(JSON.stringify(data), recipientKey);
+  var encryptedDataLocation = await uploadDataToBee(encryptedData, "application/octet-stream", Date.now() + ".data");
+  return encryptedDataLocation;
 }

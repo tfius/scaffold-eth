@@ -12,62 +12,6 @@ import MarkdownPreview from "@uiw/react-markdown-preview";
 
 import { AddressSimple } from "./../components";
 
-const { Meta } = Card;
-
-const ethUtil = require("ethereumjs-util");
-const sigUtil = require("@metamask/eth-sig-util");
-export async function getPublicKey(signer, account) {
-  try {
-    // signer = window.ethereum
-    return await signer.request({
-      method: "eth_getEncryptionPublicKey",
-      params: [account],
-    });
-  } catch (e) {
-    return undefined;
-  }
-}
-export async function getECDN(signer, account, ephemeralKey) {
-  try {
-    // signer = window.ethereum
-    return await signer.request({
-      method: "eth_performECDH",
-      params: [account],
-    });
-  } catch (e) {
-    return undefined;
-  }
-}
-export async function decryptMessage(signer, accountToDecrypt, encryptedMessage) {
-  try {
-    return await signer.request({
-      method: "eth_decrypt",
-      params: [encryptedMessage, accountToDecrypt],
-    });
-  } catch (e) {
-    console.error("decryptMessage", e);
-    return undefined;
-  }
-}
-export async function encryptMessage(encryptionPublicKey /* receiver pubKey */, messageToEncrypt) {
-  try {
-    return ethUtil.bufferToHex(
-      Buffer.from(
-        JSON.stringify(
-          sigUtil.encrypt({
-            publicKey: encryptionPublicKey,
-            data: messageToEncrypt,
-            version: "x25519-xsalsa20-poly1305",
-          }),
-        ),
-        "utf8",
-      ),
-    );
-  } catch (e) {
-    console.error("encryptMessage", e);
-    return undefined;
-  }
-}
 
 export function Inbox({ readContracts, writeContracts, tx, userSigner, address, messageCount, smailMail, setReplyTo }) {
   const [isRegistered, setIsRegistered] = useState(false);
@@ -552,3 +496,63 @@ export default Inbox;
 //     const d = await decryptMessage(window.ethereum, receiverAddress, e);
 //     console.log("Decrypted:", d);
 //   };
+
+
+/*
+// const { Meta } = Card;
+// const ethUtil = require("ethereumjs-util");
+// const sigUtil = require("@metamask/eth-sig-util");
+
+// export async function getPublicKey(signer, account) {
+//   try {
+//     // signer = window.ethereum
+//     return await signer.request({
+//       method: "eth_getEncryptionPublicKey",
+//       params: [account],
+//     });
+//   } catch (e) {
+//     return undefined;
+//   }
+// }
+// export async function getECDN(signer, account, ephemeralKey) {
+//   try {
+//     // signer = window.ethereum
+//     return await signer.request({
+//       method: "eth_performECDH",
+//       params: [account],
+//     });
+//   } catch (e) {
+//     return undefined;
+//   }
+// }
+// export async function decryptMessage(signer, accountToDecrypt, encryptedMessage) {
+//   try {
+//     return await signer.request({
+//       method: "eth_decrypt",
+//       params: [encryptedMessage, accountToDecrypt],
+//     });
+//   } catch (e) {
+//     console.error("decryptMessage", e);
+//     return undefined;
+//   }
+// }
+// export async function encryptMessage(encryptionPublicKey , messageToEncrypt) {
+//   try {
+//     return ethUtil.bufferToHex(
+//       Buffer.from(
+//         JSON.stringify(
+//           sigUtil.encrypt({
+//             publicKey: encryptionPublicKey,
+//             data: messageToEncrypt,
+//             version: "x25519-xsalsa20-poly1305",
+//           }),
+//         ),
+//         "utf8",
+//       ),
+//     );
+//   } catch (e) {
+//     console.error("encryptMessage", e);
+//     return undefined;
+//   }
+// }
+*/

@@ -14,6 +14,7 @@ import {
   Account,
   Contract,
   Faucet,
+  Balance,
   GasGauge,
   Header as AppHeader,
   Ramp,
@@ -32,6 +33,7 @@ import { useStaticJsonRPC } from "./hooks";
 
 import { Home } from "./views/Home";
 import { Inbox } from "./views/Inbox";
+import { Marketplace } from "./views/Marketplace";
 import { ComposeNewMessage } from "./views/ComposeNewMessage";
 
 const { ethers } = require("ethers");
@@ -323,6 +325,10 @@ function App(props) {
               <Link to="/inbox">Inbox</Link>
             </Menu.Item>
 
+            <Menu.Item key="/marketplace">
+              <Link to="/marketplace">Marketplace</Link>
+            </Menu.Item>
+
             {smailMail.key && smailMail.smail ? (
               <>
                 {/* /////////////////////////////////////////////////
@@ -350,10 +356,13 @@ function App(props) {
                 {smailMail.smail ? "bonded" : "no bond"}
               </Tooltip>
             </Menu.Item>
-            <Menu.Item key="/add" disabled>
-              {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
+            <Menu.Item key="/add">
+              <Tooltip title={<Balance address={address} provider={localProvider} price={price} />}>
+                <div style={{ display: "flex", alignItems: "center" }}>⬨&nbsp;</div>
+              </Tooltip>
+              <>{address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}</>
             </Menu.Item>
-            <Menu.Item key="/account" disabled>
+            <Menu.Item key="/account">
               <Account
                 minimized
                 address={address}
@@ -405,6 +414,16 @@ function App(props) {
                   messageCount={messageCount}
                   smailMail={smailMail}
                   setReplyTo={setReplyTo}
+                />
+              </Route>
+              <Route exact path="/marketplace">
+                <Marketplace
+                  readContracts={readContracts}
+                  writeContracts={writeContracts}
+                  userSigner={userSigner}
+                  tx={tx}
+                  address={address}
+                  smailMail={smailMail}
                 />
               </Route>
 

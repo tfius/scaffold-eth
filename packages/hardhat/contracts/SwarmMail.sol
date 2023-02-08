@@ -90,6 +90,8 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
         requests = users[addr].subRequests;
     }
     function getSubItems(address addr) public view returns (SubItem[] memory items) {
+        // either we  iterate through all items and return only those that are active
+        // or we return all items and let the client filter them
         items = users[addr].subItems;
     }
     function getListedSubscriptions(address addr) public view returns (bytes32[] memory items) {
@@ -200,8 +202,8 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     uint256 private constant FEE_PRECISION = 1e5;  
-    uint256 private marketFee = 500; // 0.5%
-    uint256 private minListingFee = 100000 gwei; // min listing fee - 0.0001000 ETH
+    uint256 public marketFee = 500; // 0.5%
+    uint256 public minListingFee = 100000 gwei; // min listing fee - 0.0001000 ETH
     uint256 public  feesCollected = 0;
     uint256 public  inEscrow = 0;
     function getFee(uint256 _fee, uint256 amount) public pure returns (uint256) {
@@ -224,9 +226,10 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
         bytes32 swarmLocation; // metadata location
         uint256 price;
         bool    active; // is subscription active
-        uint64  bids;
-        uint64  sells;
-        uint64  reports;
+        uint32  bids;
+        uint32  sells;
+        uint32  reports;
+        uint32  podIndex;
     }
     
     Sub[] subscriptions;
@@ -256,11 +259,12 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
     }
     
     // Market to sell encrypted swarmLocation
-    function listSub(address fdpSeller, bytes32 dataSwarmLocation, uint price, bytes32 category) public payable {
-        bytes32 subHash = keccak256(abi.encode(msg.sender, fdpSeller, dataSwarmLocation, price, category, block.timestamp));
+    function listSub(address fdpSeller, bytes32 dataSwarmLocation, uint price, bytes32 category, uint32 podIndex) public payable {
+        bytes32 subHash = keccak256(abi.encode(msg.sender, fdpSeller, dataSwarmLocation, price, category));
         require(msg.value>minListingFee, "listingFee"); // sent value must be equal to price
+        require(subscriptionIds[subHash] == 0, "Sub Exists"); // must not exists
 
-        Sub memory s = Sub(subHash, fdpSeller, msg.sender, dataSwarmLocation, price, true, 0, 0, 0);
+        Sub memory s = Sub(subHash, fdpSeller, msg.sender, dataSwarmLocation, price, true, 0, 0, 0, podIndex);
         subscriptions.push(s);
         subscriptionIds[subHash] = subscriptions.length;
 
@@ -275,12 +279,12 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
         require(subscriptionIds[subHash] != 0, "No Sub"); // must exists
         Sub storage s = subscriptions[subscriptionIds[subHash] - 1]; 
 
-        require(msg.value==s.price, "Value!=price"); // sent value must be equal to price
         require(s.active, "Inactive"); // must be active
+        require(msg.value==s.price, "Value!=price"); // sent value must be equal to price
 
         User storage seller = users[s.seller];
         bytes32 requestHash = keccak256(abi.encode(msg.sender, subHash, fdpBuyer, block.timestamp));
-        require(seller.subRequestIds[requestHash] == 0, "Request exists");
+        require(seller.subRequestIds[requestHash] == 0, "Req exists");
 
         s.bids++;
 
@@ -298,12 +302,12 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
     function sellSub(bytes32 requestHash, bytes32 encryptedKeyLocation) public payable {
         User storage seller = users[msg.sender];
 
-        require(seller.subRequestIds[requestHash] != 0, "No Request");
+        require(seller.subRequestIds[requestHash] != 0, "No Req");
         SubRequest memory br = seller.subRequests[seller.subRequestIds[requestHash] - 1];
 
         require(subscriptionIds[br.subHash] != 0, "No Sub"); // must exists
         Sub storage s = subscriptions[subscriptionIds[br.subHash] - 1]; 
-        require(msg.sender==s.seller, "Not SubSeller"); // sent value must be equal to price
+        require(msg.sender==s.seller, "Not Sub Seller"); // sent value must be equal to price
 
         uint256 fee = getFee(marketFee, s.price);
         payable(msg.sender).transfer(s.price-fee);
@@ -324,7 +328,7 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
 
     function removeSubItem(uint256 index) public {
         User storage u = users[msg.sender];
-        require(index < u.subItems.length, "Invalid index");
+        require(index < u.subItems.length, "!Index");
 
         uint256 lastIndex = u.subItems.length - 1;
         if (lastIndex != index) {
@@ -332,10 +336,11 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
         }
         u.subItems.pop();
     }
+    // remove subRequest from seller needs to return money to bidder 
 
-    function removeSubRequest(bytes32 requestHash) public {
+    function removeSubRequest(bytes32 requestHash) private {
         User storage u = users[msg.sender];
-        require(u.subRequestIds[requestHash] != 0, "No Request");
+        require(u.subRequestIds[requestHash] != 0, "!Req");
 
         uint256 removeIndex = u.subRequestIds[requestHash] - 1;
         // remove info

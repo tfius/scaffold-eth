@@ -246,15 +246,15 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
           )}
           {isRegistered == false && (
             <>
-              <h2>Not Registered</h2>
+              <h2>Not Bonded</h2>
               <Typography>
-                It appears your account is not listed in registry yet. To receive data you must add you account and
-                public key to catalogue. Please register to be able to send and receive data.
+                It appears your account is not listed in catalogue yet. To receive encrypted data you must bond your
+                account and public key to catalogue. Please register and bond to receive encrypted data.
               </Typography>
 
               <br />
               <Button onClick={() => registerAccount(address)} type="primary">
-                REGISTER NOW
+                BOND NOW
               </Button>
               <br />
               <br />
