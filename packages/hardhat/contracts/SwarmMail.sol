@@ -3,8 +3,9 @@ pragma solidity ^0.8.0;
 // import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract SwarmMail is Ownable, ReentrancyGuard  {
+contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     // using Strings for uint256;
 
     struct PublicKey {
@@ -13,7 +14,7 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
     }
  
     modifier isRegistered() { 
-        require(users[msg.sender].key != bytes32(0), "Email is not registred");
+        require(users[msg.sender].key != bytes32(0), "User not registred");
         _;
     }
 
@@ -74,7 +75,7 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
 
     function register(bytes32 key, bytes32 smail) public {
         User storage user = users[msg.sender];
-        require(user.key == bytes32(0), "Address is registered");
+        require(user.key == bytes32(0), "Already registered");
         user.key = key;
         user.smail = smail;
     }
@@ -123,16 +124,16 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
 
     function signEmail(bytes32 swarmLocation) public {
         User storage u = users[msg.sender];
-        require(u.inboxEmailIds[swarmLocation] != 0, "Email does not exist");
+        require(u.inboxEmailIds[swarmLocation] != 0, "Message !exist");
         Email storage email = u.inboxEmails[u.inboxEmailIds[swarmLocation] - 1];
-        require(msg.sender == email.to, "Only receiver can sign email");
+        require(msg.sender == email.to, "Only receiver can sign");
         email.signed = true;
     }
 
     function sendEmail( address toAddress, bool isEncryption, bytes32 swarmLocation ) public payable
     {
         User storage receiver = users[toAddress];
-        require(!isEncryption || receiver.key != bytes32(0), "Unregistered users can only send unencrypted emails");
+        require(!isEncryption || receiver.key != bytes32(0), "Unregistered can't send encrypted");
         User storage sender = users[msg.sender];
         // create email
         Email memory email;
@@ -154,7 +155,7 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
 
     function removeSentEmail(bytes32 swarmLocation) public {
         User storage u = users[msg.sender];
-        require(u.sentEmailIds[swarmLocation] != 0, "Email does not exist");
+        require(u.sentEmailIds[swarmLocation] != 0, "message !exist");
 
         uint256 removeIndex = u.sentEmailIds[swarmLocation] - 1;
         // remove info
@@ -168,7 +169,7 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
     }
     function removeInboxEmail(bytes32 swarmLocation) public {
         User storage u = users[msg.sender];
-        require(u.inboxEmailIds[swarmLocation] != 0, "Email does not exist");
+        require(u.inboxEmailIds[swarmLocation] != 0, "message !exist");
 
         uint256 removeIndex = u.inboxEmailIds[swarmLocation] - 1;
         // remove info
@@ -236,7 +237,7 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
     mapping(bytes32 => uint256) subscriptionIds; 
 
     struct Category {
-        bytes32    categoryHash;
+        //bytes32    categoryHash;
         uint[]     subIdxs;
     }
 
@@ -254,15 +255,16 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
     function enableSub(bytes32 subHash, bool active) public {
         require(subscriptionIds[subHash] != 0, "No Sub"); // must exists
         Sub storage s = subscriptions[subscriptionIds[subHash] - 1]; 
-        require(s.seller == msg.sender, "Sub Seller invalid"); // only seller can enable subscription
+        require(s.seller == msg.sender, "Not Seller"); // only seller can enable subscription
         s.active = active;
     }
     
     // Market to sell encrypted swarmLocation
     function listSub(address fdpSeller, bytes32 dataSwarmLocation, uint price, bytes32 category, uint32 podIndex) public payable {
-        bytes32 subHash = keccak256(abi.encode(msg.sender, fdpSeller, dataSwarmLocation, price, category));
-        require(msg.value>minListingFee, "listingFee"); // sent value must be equal to price
-        require(subscriptionIds[subHash] == 0, "Sub Exists"); // must not exists
+        //bytes32 subHash = keccak256(abi.encode(msg.sender, fdpSeller, dataSwarmLocation, price, category, podIndex));
+        bytes32 subHash = keccak256(abi.encode(msg.sender, fdpSeller, podIndex));// user can list same pod only once
+        require(msg.value>=minListingFee, "minFee"); // sent value must be equal to price
+        require(subscriptionIds[subHash] == 0, "SubExists"); // must not exists
 
         Sub memory s = Sub(subHash, fdpSeller, msg.sender, dataSwarmLocation, price, true, 0, 0, 0, podIndex);
         subscriptions.push(s);
@@ -273,6 +275,8 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
 
         User storage seller = users[msg.sender];
         seller.listedSubs.push(subHash);
+
+        feesCollected+=msg.value;
     }
 
     function bidSub(bytes32 subHash, address fdpBuyer) public nonReentrant payable {
@@ -283,7 +287,7 @@ contract SwarmMail is Ownable, ReentrancyGuard  {
         require(msg.value==s.price, "Value!=price"); // sent value must be equal to price
 
         User storage seller = users[s.seller];
-        bytes32 requestHash = keccak256(abi.encode(msg.sender, subHash, fdpBuyer, block.timestamp));
+        bytes32 requestHash = keccak256(abi.encode(msg.sender, subHash, fdpBuyer)); //, block.timestamp));
         require(seller.subRequestIds[requestHash] == 0, "Req exists");
 
         s.bids++;

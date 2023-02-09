@@ -420,6 +420,7 @@ function App(props) {
                 <Marketplace
                   readContracts={readContracts}
                   writeContracts={writeContracts}
+                  mainnetProvider={mainnetProvider}
                   userSigner={userSigner}
                   tx={tx}
                   address={address}
