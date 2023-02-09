@@ -425,43 +425,56 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
           return (
             <Card key={i} style={{ maxWidth: "33%", minWidth: "100px" }}>
               <div key={i}>
-                <Tooltip title={<img src={sub.imageUrl} style={{ width: "100%" }} alt="image" />}>
-                  <h4>{sub.title}</h4>
+                <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
+                  <small>
+                    <Tooltip
+                      title={
+                        <>
+                          Category: <strong>{sub.category}</strong> Seller: <br />
+                          <AddressSimple address={sub.fdpSeller} ensProvider={mainnetProvider} />
+                          <br />
+                          FDP Seller: <AddressSimple address={sub.seller} ensProvider={mainnetProvider} />
+                          <div>
+                            Pod index: {sub.podIndex} / {sub.podContractIndex}
+                          </div>
+                        </>
+                      }
+                    >
+                      <span>{sub.category}</span>
+                    </Tooltip>
+
+                    <Tooltip
+                      title={
+                        <>
+                          Bids: <strong>{sub.bids}</strong> Sells <strong>{sub.sells}</strong> Report{" "}
+                          <strong>{sub.reports}</strong>
+                        </>
+                      }
+                    >
+                      &nbsp;<span>♡</span>
+                    </Tooltip>
+                    <Tooltip title={"User info"}>
+                      &nbsp;<span>ⓘ</span>
+                    </Tooltip>
+                  </small>
+                </div>
+                <Tooltip
+                  title={
+                    <>
+                      {sub.title} <br />
+                      <img src={sub.imageUrl} style={{ width: "100%" }} alt="image" />
+                    </>
+                  }
+                >
+                  <h3 style={{ width: "100%", overflow: "hidden", top: "-6px", position: "relative" }}>{sub.title}</h3>
                 </Tooltip>
 
-                <div>{sub.description}</div>
+                <div
+                  style={{ width: "100%", maxHeight: "200px", top: "-6px", position: "relative", overflow: "hidden" }}
+                >
+                  {sub.description}
+                </div>
 
-                <small>
-                  <Tooltip
-                    title={
-                      <>
-                        Category: <strong>{sub.category}</strong> Seller: <br />
-                        <AddressSimple address={sub.fdpSeller} ensProvider={mainnetProvider} />
-                        <br />
-                        FDP Seller: <AddressSimple address={sub.seller} ensProvider={mainnetProvider} />
-                        <div>
-                          Pod index: {sub.podIndex} / {sub.podContractIndex}
-                        </div>
-                      </>
-                    }
-                  >
-                    <span>{sub.category}</span>
-                  </Tooltip>
-
-                  <Tooltip
-                    title={
-                      <>
-                        Bids: <strong>{sub.bids}</strong> Sells <strong>{sub.sells}</strong> Report{" "}
-                        <strong>{sub.reports}</strong>
-                      </>
-                    }
-                  >
-                    &nbsp;<span>♡</span>
-                  </Tooltip>
-                  <Tooltip title={"User info"}>
-                    &nbsp;<span>ⓘ</span>
-                  </Tooltip>
-                </small>
                 <br />
                 <Tooltip title={<>Bid on subscription for {sub.price}⬨ for 30 days</>}>
                   <Button onClick={() => onBidSub(sub)}>{sub.price} ⬨</Button>
