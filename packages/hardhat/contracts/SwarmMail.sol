@@ -268,7 +268,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
 
         Sub memory s = Sub(subHash, fdpSeller, msg.sender, dataSwarmLocation, price, true, 0, 0, 0, podIndex);
         subscriptions.push(s);
-        subscriptionIds[subHash] = subscriptions.length;
+        subscriptionIds[subHash] = subscriptions.length-1;
 
         Category storage c = categories[category];
         c.subIdxs.push(subscriptions.length - 1);
