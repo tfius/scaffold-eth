@@ -63,7 +63,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         SubItem[] subItems;
         mapping(bytes32 => uint256) subItemIds;
 
-        bytes32[] listedSubs;
+        bytes32[] listedSubs; // everything user listed 
     }
     mapping(address => User) users;
 
@@ -95,8 +95,12 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         // or we return all items and let the client filter them
         items = users[addr].subItems;
     }
-    function getListedSubscriptions(address addr) public view returns (bytes32[] memory items) {
+    function getListedSubs(address addr) public view returns (bytes32[] memory items) {
         items = users[addr].listedSubs;
+    }
+    function getSubRequestByHash(address addr, bytes32 requestHash) public view returns (SubRequest memory) {
+        User storage u = users[addr];
+        return u.subRequests[u.subRequestIds[requestHash]-1];
     }
 
     function getBoxCount(address addr) public view returns (uint numInboxItems, uint numSentItems, uint numSubRequests, uint numSubItems) {
@@ -219,6 +223,11 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         minListingFee = newListingFee; 
     }      
 
+    struct Category {
+        uint[]     subIdxs;
+    }
+    mapping(bytes32 => Category) categories; // where is category in categories array
+
     // Sub listings
     struct Sub {
         bytes32 subHash;
@@ -227,21 +236,34 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         bytes32 swarmLocation; // metadata location
         uint256 price;
         bool    active; // is subscription active
+        uint256 earned;  
         uint32  bids;
         uint32  sells;
         uint32  reports;
         uint32  podIndex;
     }
-    
-    Sub[] subscriptions;
-    mapping(bytes32 => uint256) subscriptionIds; 
+    Sub[] public  subscriptions;
+    mapping(bytes32 => uint256) public subscriptionIds; 
 
-    struct Category {
-        //bytes32    categoryHash;
-        uint[]     subIdxs;
+    // struct SubSubscriber {
+    //     address subscriber;
+    //     uint256 balance;
+    // }
+    // mapping(bytes32 => SubSubscriber[]) public subScribers; // where is sub in subscriptions array
+    struct SubInfo {
+        mapping(address => uint256) perSubscriberBalance; // balance per subscriber
+        address[] subscribers; 
     }
 
-    mapping(bytes32 => Category) categories; // where is category in categories array
+    mapping(bytes32 => SubInfo) subInfos; // where is sub in subscriptions array
+    function getSubSubscribers(bytes32 subHash) public view returns (address[] memory) {
+        return subInfos[subHash].subscribers;
+    }
+    function getSubInfoBalance(bytes32 subHash, address forAddress) public view returns (uint256) {
+        return subInfos[subHash].perSubscriberBalance[forAddress];
+    }
+
+
 
     function getCategory(bytes32 category) public view returns (Category memory) {
         return categories[category];
@@ -250,10 +272,10 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         return subscriptions[index];
     }
     function getSubBy(bytes32 subHash) public view returns (Sub memory) {
-        return subscriptions[subscriptionIds[subHash]];
+        return subscriptions[subscriptionIds[subHash]-1];
     }
     function enableSub(bytes32 subHash, bool active) public {
-        require(subscriptionIds[subHash] != 0, "No Sub"); // must exists
+        require(subscriptionIds[subHash]-1 != 0, "No Sub"); // must exists
         Sub storage s = subscriptions[subscriptionIds[subHash] - 1]; 
         require(s.seller == msg.sender, "Not Seller"); // only seller can enable subscription
         s.active = active;
@@ -266,12 +288,13 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         require(msg.value>=minListingFee, "minFee"); // sent value must be equal to price
         require(subscriptionIds[subHash] == 0, "SubExists"); // must not exists
 
-        Sub memory s = Sub(subHash, fdpSeller, msg.sender, dataSwarmLocation, price, true, 0, 0, 0, podIndex);
+        Sub memory s = Sub(subHash, fdpSeller, msg.sender, dataSwarmLocation, price, true, 0, 0, 0, 0, podIndex);
+        
         subscriptions.push(s);
-        subscriptionIds[subHash] = subscriptions.length-1;
+        subscriptionIds[subHash] = subscriptions.length; // will point to 1 more than index
 
         Category storage c = categories[category];
-        c.subIdxs.push(subscriptions.length - 1);
+        c.subIdxs.push(subscriptions.length - 1); // point to index
 
         User storage seller = users[msg.sender];
         seller.listedSubs.push(subHash);
@@ -280,6 +303,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     }
 
     function bidSub(bytes32 subHash, address fdpBuyer) public nonReentrant payable {
+        require(users[msg.sender].key != bytes32(0), "Not reg"); // user can not receive encrypted data
         require(subscriptionIds[subHash] != 0, "No Sub"); // must exists
         Sub storage s = subscriptions[subscriptionIds[subHash] - 1]; 
 
@@ -295,11 +319,12 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         SubRequest memory sr;
         sr.fdpBuyer = fdpBuyer;
         sr.buyer = msg.sender;
-        sr.subHash = subHash;
+        sr.subHash = s.subHash;
         sr.requestHash = requestHash;
 
         seller.subRequests.push(sr);
-        seller.subRequestIds[requestHash] = seller.subRequests.length;
+        seller.subRequestIds[requestHash] = seller.subRequests.length; // +1 of index
+        
         inEscrow += msg.value;
     }
 
@@ -307,10 +332,10 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         User storage seller = users[msg.sender];
 
         require(seller.subRequestIds[requestHash] != 0, "No Req");
-        SubRequest memory br = seller.subRequests[seller.subRequestIds[requestHash] - 1];
+        SubRequest memory br = seller.subRequests[seller.subRequestIds[requestHash]-1];
 
         require(subscriptionIds[br.subHash] != 0, "No Sub"); // must exists
-        Sub storage s = subscriptions[subscriptionIds[br.subHash] - 1]; 
+        Sub storage s = subscriptions[subscriptionIds[br.subHash]-1]; 
         require(msg.sender==s.seller, "Not Sub Seller"); // sent value must be equal to price
 
         uint256 fee = getFee(marketFee, s.price);
@@ -319,6 +344,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         feesCollected += fee;
 
         s.sells++;
+        s.earned += (s.price-fee);
 
         User storage buyer = users[br.buyer];
         SubItem memory si;
@@ -327,9 +353,19 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         si.validTill = block.timestamp + 30 days;
         buyer.subItems.push(si);
 
+        //subScribers[br.subHash].subscriber = br.buyer;
+        //subScribers[br.subHash].balance += (s.price-fee);
+
+        if(subInfos[br.subHash].perSubscriberBalance[br.buyer]==0) // only add subscriber if not already added
+           subInfos[br.subHash].subscribers.push(br.buyer);
+
+        subInfos[br.subHash].perSubscriberBalance[br.buyer] += (s.price-fee);
+
+        // seller removes request from his list
         removeSubRequest(requestHash);
     }
 
+    // user can remove subItem from his list if wishes to do so
     function removeSubItem(uint256 index) public {
         User storage u = users[msg.sender];
         require(index < u.subItems.length, "!Index");
@@ -347,7 +383,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         require(u.subRequestIds[requestHash] != 0, "!Req");
 
         uint256 removeIndex = u.subRequestIds[requestHash] - 1;
-        // remove info
+        // replace removeIndex with last item and pop last item
         uint256 lastIndex = u.subRequests.length - 1;
         if (lastIndex != removeIndex) {
             u.subRequests[removeIndex] = u.subRequests[lastIndex];
@@ -355,6 +391,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         }
         u.subRequests.pop();
         delete u.subRequestIds[requestHash];
+        //delete u.subRequests[lastIndex];
     }
 
     // // smail extend with market place
@@ -369,3 +406,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     //     payable(seller).transfer(msg.value);
     // }
 }
+
+    /*
+    */
+    

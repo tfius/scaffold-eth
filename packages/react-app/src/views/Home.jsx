@@ -6,6 +6,7 @@ import { useContractWriter } from "eth-hooks";
 import { ethers } from "ethers";
 import {
   Button,
+  Timeline,
   List,
   Card,
   Descriptions,
@@ -43,6 +44,14 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
   const [key, setKey] = useState(consts.emptyHash);
   const [smail, setSmail] = useState(consts.emptyHash);
   const [notifyUserToDecryptSmailKey, setNotifyUserToDecryptSmailKey] = useState(false);
+  const [timeline, setTimeline] = useState([
+    { children: "Get Encryption Public Key" },
+    { children: "Generating new key pair and encrypt for your account" },
+    { children: "Sign transaction to register account with Smail" },
+    { children: "Registered And Ready To Bond" },
+    { children: "Decrypt to Bond" },
+  ]);
+  const [currentStep, setCurrentStep] = useState(0);
 
   const verifyRegistration = useCallback(async () => {
     /*if (readContracts === undefined || readContracts.SwarmMail === undefined) {
@@ -65,12 +74,14 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
       setIsLoading(false);
       setIsRegistered(false);
       setSmailMail({ key: null, smail: null });
+      setCurrentStep(-1);
       return;
     }
     if (smailMail.key === null) {
       try {
         var encryptedSmailKey = await downloadSmailKeyData(data.smail); // download encrypted key
         setNotifyUserToDecryptSmailKey(true);
+        setCurrentStep(4);
         var decryptedSmailKey = await decryptSmailKey(address, encryptedSmailKey); // decrypt key from metamas
         if (decryptedSmailKey !== undefined) {
           setSmailMail({ key: data.key, smail: decryptedSmailKey });
@@ -80,6 +91,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
             message: "Warning",
             description: "Not decrypted and not bonded",
           });
+        setCurrentStep(-1);
       } catch (err) {
         console.log("err", err);
         notification.error({
@@ -99,14 +111,24 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
   }, [address]); // readContracts, writeContracts,
 
   const registerAccount = async () => {
+    setCurrentStep(0);
     const mmKey = await EncDec.MMgetPublicKey(/*userSigner*/ window.ethereum, address);
+    console.log("mmKey", mmKey);
+    if (mmKey === undefined) {
+      notification.error({
+        message: "Error",
+        description: "User denied public key request",
+      });
+      return;
+    }
+    setCurrentStep(1);
     // console.log("mmKey", mmKey);
     // const pk = "0x" + Buffer.from(key, "base64").toString("hex");
-    // 
+    //
     // username, password
     // ens, soc, get seed
     // fdpWallet = fromSeed(seed)
-    // 
+    //
 
     const newWallet = ethers.Wallet.createRandom();
     const newPrivateKey = newWallet._signingKey().privateKey;
@@ -116,7 +138,6 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
     //console.log("newPublicKey", newPublicKey);
     //T(pubkey(x,y)) = EncryptionPubKey (bytes32)
     // base64 encoded
-
     const encKey = EncDec.nacl_getEncryptionPublicKey(newPrivateKey);
     // console.log("encKey", encKey);
     const fromUrlPubKey = "0x" + Buffer.from(encKey, "base64").toString("hex");
@@ -159,6 +180,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
     //var password = "password";
     //var rootKey = await EncDec.createRootKey(password);
     //console.log("driveKey", rootKey);
+
     var encryptedKey = await EncDec.MMencryptMessage(mmKey, newPrivateKey);
     var keyLocation = await uploadSmailKey(encryptedKey); // upload necrypted key
 
@@ -179,6 +201,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
     //var decryptRootKey = await EncDec.MMdecryptMessage(window.ethereum, address, decodedRootKey);
     //console.log("decryptKey", decryptRootKey);
 
+    setCurrentStep(2);
     const tx = await onRegister(fromUrlPubKey, "0x" + keyLocation); // await testMetamaskEncryption(key, address, "text to encrypt");
   };
 
@@ -196,7 +219,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
   const decryptSmailKey = async (forAddress, encryptedSmailKeyData) => {
     var decryptedSmailKey = await EncDec.MMdecryptMessage(window.ethereum, forAddress, encryptedSmailKeyData);
     //console.log("decryptedSmailKey", decryptedSmailKey);
-    // get soc location from ENS, download and decrypt key, and use it here 
+    // get soc location from ENS, download and decrypt key, and use it here
     return decryptedSmailKey;
   };
 
@@ -218,6 +241,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
       </div>
     );
   }
+  console.log(timeline);
 
   return (
     <div style={{ margin: "auto", width: "100%" }}>
@@ -241,7 +265,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
               <br />
               This will open MetaMask and prompts you with decrypt request. This step is required to bond Smail Wallet
               with your MetaMask account.
-              <hr />
+              <br />
             </>
           )}
           {isRegistered == false && (
@@ -259,6 +283,18 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
               <br />
               <br />
             </>
+          )}
+          {timeline.length > 0 && currentStep >= 0 && (
+            <div>
+              <br />
+              <Timeline>
+                {timeline.map((item, index) => (
+                  <Timeline.Item key={index} color={currentStep === index ? "red" : "blue"}>
+                    {item.children}
+                  </Timeline.Item>
+                ))}
+              </Timeline>
+            </div>
           )}
           <div>
             <h2>How Smail works</h2>

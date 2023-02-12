@@ -5,7 +5,7 @@
       "chainId": "31337",
       "contracts": {
         "SwarmMail": {
-          "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+          "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
           "abi": [
             {
               "inputs": [],
@@ -387,7 +387,7 @@
                   "type": "address"
                 }
               ],
-              "name": "getListedSubscriptions",
+              "name": "getListedSubs",
               "outputs": [
                 {
                   "internalType": "bytes32[]",
@@ -596,6 +596,11 @@
                       "type": "bool"
                     },
                     {
+                      "internalType": "uint256",
+                      "name": "earned",
+                      "type": "uint256"
+                    },
+                    {
                       "internalType": "uint32",
                       "name": "bids",
                       "type": "uint32"
@@ -667,6 +672,11 @@
                       "type": "bool"
                     },
                     {
+                      "internalType": "uint256",
+                      "name": "earned",
+                      "type": "uint256"
+                    },
+                    {
                       "internalType": "uint32",
                       "name": "bids",
                       "type": "uint32"
@@ -690,6 +700,30 @@
                   "internalType": "struct SwarmMail.Sub",
                   "name": "",
                   "type": "tuple"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "subHash",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "forAddress",
+                  "type": "address"
+                }
+              ],
+              "name": "getSubInfoBalance",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -824,6 +858,52 @@
                   "internalType": "address",
                   "name": "addr",
                   "type": "address"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "requestHash",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "getSubRequestByHash",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "fdpBuyer",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "buyer",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "subHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "requestHash",
+                      "type": "bytes32"
+                    }
+                  ],
+                  "internalType": "struct SwarmMail.SubRequest",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "addr",
+                  "type": "address"
                 }
               ],
               "name": "getSubRequests",
@@ -854,6 +934,25 @@
                   "internalType": "struct SwarmMail.SubRequest[]",
                   "name": "requests",
                   "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "subHash",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "getSubSubscribers",
+              "outputs": [
+                {
+                  "internalType": "address[]",
+                  "name": "",
+                  "type": "address[]"
                 }
               ],
               "stateMutability": "view",
@@ -1182,6 +1281,94 @@
               "name": "signEmail",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "subscriptionIds",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "name": "subscriptions",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "subHash",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "fdpSeller",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "seller",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "swarmLocation",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "price",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "active",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "earned",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "bids",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "sells",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "reports",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "podIndex",
+                  "type": "uint32"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             },
             {

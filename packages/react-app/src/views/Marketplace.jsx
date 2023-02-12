@@ -36,10 +36,9 @@ import { categoryList } from "./categories";
 // Allows to bid on a subscription
 // Allows to sell a subscription - accept a bid
 
-
 export function Marketplace({ readContracts, writeContracts, tx, userSigner, address, smailMail, mainnetProvider }) {
   const [listingFee, setListingFee] = useState(ethers.utils.parseEther("0.0001"));
-  const [marketFee, setMarketFee] = useState(500); // 0.5% of the price
+  const [marketFee, setMarketFee] = useState(0); // 0.5% of the price
   const [inEscrow, setInEscrow] = useState(0);
   const [contractBalance, setContractBalance] = useState(0);
   const [feesCollected, setFeesCollected] = useState(0);
@@ -57,7 +56,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
     var balanceInEscrow = await readContracts.SwarmMail.inEscrow();
     setInEscrow(balanceInEscrow.toString());
     var fees = await readContracts.SwarmMail.feesCollected();
-    setFeesCollected(fees.toString())
+    setFeesCollected(fees.toString());
     console.log("marketFee", marketFee, "listingFee", listFee);
   });
   const getCategory = useCallback(async categoryHash => {
@@ -70,23 +69,23 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
     console.log("sub", sub);
     return sub;
   });
-  const getSubBy = useCallback(async subHash => {
-    var sub = await readContracts.SwarmMail.getSubBy(subHash);
-    console.log("sub", sub);
-    return sub;
-  });
-  const getListedSubs = useCallback(async forAddress => {
-    var listedSubs = await readContracts.SwarmMail.getListedSubscriptions(forAddress);
-    console.log("getListedSubs", listedSubs);
-  });
-  const getSubRequests = useCallback(async forAddress => {
-    var subRequests = await readContracts.SwarmMail.getSubRequests(forAddress);
-    console.log("getSubRequests", subRequests);
-  });
-  const getSubItems = useCallback(async forAddress => {
-    var subItems = await readContracts.SwarmMail.getSubItems(forAddress);
-    console.log("getSubItems", subItems);
-  });
+  // const getSubBy = useCallback(async subHash => {
+  //   var sub = await readContracts.SwarmMail.getSubBy(subHash);
+  //   console.log("sub", sub);
+  //   return sub;
+  // });
+  // const getListedSubs = useCallback(async forAddress => {
+  //   var listedSubs = await readContracts.SwarmMail.getListedSubscriptions(forAddress);
+  //   console.log("getListedSubs", listedSubs);
+  // });
+  // const getSubRequests = useCallback(async forAddress => {
+  //   var subRequests = await readContracts.SwarmMail.getSubRequests(forAddress);
+  //   console.log("getSubRequests", subRequests);
+  // });
+  // const getSubItems = useCallback(async forAddress => {
+  //   var subItems = await readContracts.SwarmMail.getSubItems(forAddress);
+  //   console.log("getSubItems", subItems);
+  // });
 
   // A modal with form to collect data for listing a subscription
   // data = json object { title, description, image, price, category, podIndex }
@@ -119,12 +118,12 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
   // what is in unlockingData?
   // { podName, podIndex, .... }
   //
-  const sellSub = useCallback(async (subRequest, unlockingData) => {
-    // encrypt data for subRequest.buyer and upload data to swarm
-    var encryptedKeyLocation = await EncDec.encryptAndUpload(unlockingData, subRequest.buyer);
-    var newTx = await tx(writeContracts.SwarmMail.sellSub(subRequest.requestHash, encryptedKeyLocation));
-    await newTx.wait();
-  });
+  // const sellSub = useCallback(async (subRequest, unlockingData) => {
+  //   // encrypt data for subRequest.buyer and upload data to swarm
+  //   var encryptedKeyLocation = await EncDec.encryptAndUpload(unlockingData, subRequest.buyer);
+  //   var newTx = await tx(writeContracts.SwarmMail.sellSub(subRequest.requestHash, encryptedKeyLocation));
+  //   await newTx.wait();
+  // });
 
   const onListSub = async values => {
     console.log("onListSub", values);
@@ -145,7 +144,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
       var cat = await getCategory(values[i]);
       for (var subId = 0; subId < cat.subIdxs.length; subId++) {
         try {
-          var sub = await getSub(cat.subIdxs[subId]);
+          var sub = await getSub(cat.subIdxs[subId]); // getting by index is different than getting by hash
           console.log("sub", sub);
           var subData = await downloadDataFromBee(sub.swarmLocation);
           var subscription = JSON.parse(new TextDecoder().decode(subData));
@@ -181,10 +180,10 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px" }}>
       <div>
         <small>
-        Market fee: {marketFee}% Listing fee: {ethers.utils.formatEther(listingFee)}<br/>
-        Fees collected: {ethers.utils.formatEther(feesCollected)}
-        In Escrow: {ethers.utils.formatEther(inEscrow)}
-        Funds: {ethers.utils.formatEther(contractBalance)}
+          Market fee: {marketFee}% Listing fee: {ethers.utils.formatEther(listingFee)}
+          <br />
+          Fees collected: {ethers.utils.formatEther(feesCollected)} &nbsp; In Escrow:
+          {ethers.utils.formatEther(inEscrow)}&nbsp; Funds: {ethers.utils.formatEther(contractBalance)}
         </small>
       </div>
       <div>
@@ -192,7 +191,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
       </div>
       <Select
         placeholder="Please select category"
-        defaultValue="General"
+        //defaultValue="General"
         onChange={onCategoryChange}
         options={categories}
         style={{ width: "99%" }}
@@ -284,30 +283,32 @@ export function ListSub({ listSub, categories }) {
     listSub(values);
     console.log("onSend", values);
   };
-  const onCategoryChange = value => {
+  const onListSubCategoryChange = value => {
     console.log("onCategoryChange", value);
   };
+  const required = [{ required: true }];
+
   return (
     <Form {...layouts.layout} onFinish={onSend}>
-      <Form.Item name="title" label="Title">
+      <Form.Item name="title" label="Title" rules={required}>
         <Input />
       </Form.Item>
-      <Form.Item name="description" label="Description">
+      <Form.Item name="description" label="Description" rules={required}>
         <Input.TextArea maxLength={1024} rows={3} autosize={{ minRows: "3", maxRows: "5" }} />
       </Form.Item>
       <Form.Item name="imageUrl" label="Image">
         <Input />
       </Form.Item>
-      <Form.Item name="price" label="Price">
+      <Form.Item name="price" label="Price" rules={required}>
         <Input />
       </Form.Item>
-      <Form.Item name="category" label="Category">
-        <Select defaultValue={categories[0].value} onChange={onCategoryChange} options={categories} />
+      <Form.Item name="category" label="Category" rules={required}>
+        <Select onChange={onListSubCategoryChange} options={categories} />
       </Form.Item>
-      <Form.Item name="fdpSeller" label="FDP Account">
+      <Form.Item name="fdpSeller" label="FDP Account" rules={required}>
         <Input />
       </Form.Item>
-      <Form.Item name="podIndex" label="Pod Index">
+      <Form.Item name="podIndex" label="Pod Index" rules={required}>
         <Input />
       </Form.Item>
       <Button

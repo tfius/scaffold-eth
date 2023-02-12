@@ -12,7 +12,6 @@ import MarkdownPreview from "@uiw/react-markdown-preview";
 
 import { AddressSimple } from "./../components";
 
-
 export function Inbox({ readContracts, writeContracts, tx, userSigner, address, messageCount, smailMail, setReplyTo }) {
   const [isRegistered, setIsRegistered] = useState(false);
   // const [key, setKey] = useState(consts.emptyHash);
@@ -496,7 +495,6 @@ export default Inbox;
 //     const d = await decryptMessage(window.ethereum, receiverAddress, e);
 //     console.log("Decrypted:", d);
 //   };
-
 
 /*
 // const { Meta } = Card;

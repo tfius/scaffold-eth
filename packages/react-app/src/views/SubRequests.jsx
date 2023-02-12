@@ -46,7 +46,7 @@ export function SubRequests({ readContracts, writeContracts, tx, userSigner, add
     getSubsForSubRequests(requests);
   });
   const getSub = useCallback(async subHash => {
-    var sub = await readContracts.SwarmMail.getSubBy(subHash);
+    return await readContracts.SwarmMail.getSubBy(subHash);
   });
   const getSubsForSubRequests  = useCallback(async subRequests => {
     for (let i = 0; i < subRequests.length; i++) {
@@ -62,24 +62,31 @@ export function SubRequests({ readContracts, writeContracts, tx, userSigner, add
 
   const getPubKeyFor = async forAddress => {
     const data = await readContracts.SwarmMail.getPublicKeys(forAddress); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
+    if (data.registered == false) {
+      notification.error({ message: "Receiver not registered", description: "You can only sell to registered users" });
+      return;
+    }
     const rkey = data.key.substr(2, data.key.length - 1);
     var pk = Buffer.from(rkey, "hex").toString("base64");
     var pkRegister = { pk: pk, registered: data.registered };
     console.log("pkRegister", pkRegister);
     return pkRegister;
-  }
-  const onApproveSubRequest = async subRequest => {
+  };
+  const onSellSubRequest = async subRequest => {
+    console.log("onSellSubRequest", subRequest);
     // get receiver pubKey encrypt key upload encrypted then sell sub
-    let receiverPubKey = await getPubKeyFor(subRequest.buyer); 
-    let dataWithKey = { ref: consts.emptyHash, sender: address }
+    let receiverPubKey = await getPubKeyFor(subRequest.buyer);
+    let dataWithKey = { ref: consts.emptyHash, sender: address };
     var encryptedKeyLocation = await EncDec.encryptAndUpload(dataWithKey, receiverPubKey.pk);
-    var tx = await writeContracts.SwarmMail.sellSub(subRequest.requestHash, encryptedKeyLocation);
+    var tx = await writeContracts.SwarmMail.sellSub(subRequest.requestHash, "0x" + encryptedKeyLocation);
     await tx.wait();
   };
 
   return (
-    <>
-      <h3>Subscription Requests</h3>
+    <div style={{ margin: "auto", width: "100%", paddingLeft: "10px" }}>
+      <h3>Subscription Offers</h3>
+      <>Here are all bids made to your listings </>
+
       <Row>
         {subRequests.map((subRequest, i) => {
           return (
@@ -87,13 +94,19 @@ export function SubRequests({ readContracts, writeContracts, tx, userSigner, add
               <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
                 <small></small>
               </div>
-              <Tooltip title={<>Allow {subRequest.buyer} to access {subRequest.podIndex} for 30 days</>}>
-                <Button onClick={() => onApproveSubRequest(subRequest)}>⬨</Button>
+              <Tooltip
+                title={
+                  <>
+                    Allow {subRequest.buyer} to access {subRequest.podIndex} for 30 days
+                  </>
+                }
+              >
+                <Button onClick={() => onSellSubRequest(subRequest)}>⬨</Button>
               </Tooltip>
             </Card>
           );
         })}
       </Row>
-    </>
+    </div>
   );
 }

@@ -36,6 +36,7 @@ import { Inbox } from "./views/Inbox";
 import { Marketplace } from "./views/Marketplace";
 import { ComposeNewMessage } from "./views/ComposeNewMessage";
 import { SubRequests } from "./views/SubRequests";
+import { Subscribers } from "./views/Subscribers";
 
 const { ethers } = require("ethers");
 /*
@@ -332,6 +333,9 @@ function App(props) {
             <Menu.Item key="/requests">
               <Link to="/requests">Requests</Link>
             </Menu.Item>
+            <Menu.Item key="/subscribers">
+              <Link to="/subscribers">Subscribers</Link>
+            </Menu.Item>
 
             {smailMail.key && smailMail.smail ? (
               <>
@@ -433,13 +437,25 @@ function App(props) {
               </Route>
               <Route exact path="/requests">
                 <SubRequests
-                    readContracts={readContracts}
-                    writeContracts={writeContracts}
-                    mainnetProvider={mainnetProvider}
-                    userSigner={userSigner}
-                    tx={tx}
-                    address={address}
-                    smailMail={smailMail} />
+                  readContracts={readContracts}
+                  writeContracts={writeContracts}
+                  mainnetProvider={mainnetProvider}
+                  userSigner={userSigner}
+                  tx={tx}
+                  address={address}
+                  smailMail={smailMail}
+                />
+              </Route>
+              <Route exact path="/subscribers">
+                <Subscribers
+                  readContracts={readContracts}
+                  writeContracts={writeContracts}
+                  mainnetProvider={mainnetProvider}
+                  userSigner={userSigner}
+                  tx={tx}
+                  address={address}
+                  smailMail={smailMail}
+                />
               </Route>
 
               <Route exact path="/swarmmail">
