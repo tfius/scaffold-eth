@@ -179,16 +179,14 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "10px" }}>
       <div>
+        <Button onClick={() => setOpenListSub(!openListSub)}>List Sub</Button> &nbsp;
         <small>
-          Market fee: {marketFee}% Listing fee: {ethers.utils.formatEther(listingFee)}
-          <br />
-          Fees collected: {ethers.utils.formatEther(feesCollected)} &nbsp; In Escrow:
-          {ethers.utils.formatEther(inEscrow)}&nbsp; Funds: {ethers.utils.formatEther(contractBalance)}
+          Market fee: {marketFee}% &nbsp; Listing fee: {ethers.utils.formatEther(listingFee)}⬨ &nbsp; In Escrow:
+          {ethers.utils.formatEther(inEscrow)}⬨&nbsp; Funds: {ethers.utils.formatEther(contractBalance)}⬨ &nbsp; Fees
+          collected: {ethers.utils.formatEther(feesCollected)}⬨
         </small>
       </div>
-      <div>
-        <Button onClick={() => setOpenListSub(!openListSub)}>List Sub</Button>
-      </div>
+      <br />
       <Select
         placeholder="Please select category"
         //defaultValue="General"

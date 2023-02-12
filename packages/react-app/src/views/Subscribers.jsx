@@ -18,7 +18,8 @@ import {
   Row,
   Col,
 } from "antd";
-import { EnterOutlined, EditOutlined, ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
+//import { EnterOutlined, EditOutlined, ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { PieChart, Pie, Sector, Cell, ResponsiveContainer, Tooltip as ReTooltip } from "recharts";
 
 import { downloadDataFromBee, downloadJsonFromBee } from "../Swarm/BeeService";
 import * as consts from "./consts";
@@ -29,6 +30,26 @@ import { AddressSimple } from "../components";
 
 import { uploadJsonToBee, uploadDataToBee } from "./../Swarm/BeeService";
 import { categoryList } from "./categories";
+
+const data01 = [
+  { name: "Group A", value: 400 },
+  { name: "Group B", value: 300 },
+  { name: "Group C", value: 300 },
+  { name: "Group D", value: 200 },
+];
+const data02 = [
+  { name: "A1", value: 100 },
+  { name: "A2", value: 300 },
+  { name: "B1", value: 100 },
+  { name: "B2", value: 80 },
+  { name: "B3", value: 40 },
+  { name: "B4", value: 30 },
+  { name: "B5", value: 50 },
+  { name: "C1", value: 100 },
+  { name: "C2", value: 200 },
+  { name: "D1", value: 150 },
+  { name: "D2", value: 50 },
+];
 
 // displays the list of subscribers for a given address
 export function Subscribers({ readContracts, writeContracts, tx, userSigner, address, smailMail, mainnetProvider }) {
@@ -52,7 +73,11 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
     setViewSubscribers(true);
     for (let i = 0; i < subscribers.length; i++) {
       var subscriberBalance = await readContracts.SwarmMail.getSubInfoBalance(subHash, subscribers[i]);
-      var subscriber = { address: subscribers[i], balance: subscriberBalance };
+      var subscriber = {
+        name: subscribers[i],
+        balance: ethers.utils.formatEther(subscriberBalance),
+        value: subscriberBalance.div(10000000000).toNumber(),
+      };
       setSubscribers(subscribers => [...subscribers, subscriber]);
     }
   });
@@ -94,12 +119,12 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
   //     var tx = await writeContracts.SwarmMail.sellSub(subRequest.requestHash, "0x" + encryptedKeyLocation);
   //     await tx.wait();
   //   };
+  // https://recharts.org/en-US/examples/TwoLevelPieChart
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "10px" }}>
       <h3>Subscribers</h3>
-      <>Manage your listed subs and subscribers</> <br />
-      <>{subscriptions.length} listing. </>
+      <>Manage {subscriptions.length} listings and subscribers. </>
       <>Total earnings: {ethers.utils.formatEther(totalEarnings)}⬨</>
       <Row>
         <Modal
@@ -119,14 +144,46 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
             setViewSubscribers(false);
           }}
         >
-          {subscribers.map((subscriber, i) => {
-            return (
-              <div key={"subscriber" + i}>
-                <AddressSimple address={subscriber.address} ensProvider={mainnetProvider} />{" "}
-                {ethers.utils.formatEther(subscriber.balance)}⬨
-              </div>
-            );
-          })}
+          <>
+            <div height="100px">
+              <PieChart width={400} height={110}>
+                <Pie
+                  dataKey="value"
+                  startAngle={180}
+                  endAngle={0}
+                  data={subscribers}
+                  cx="50%"
+                  cy="100%"
+                  outerRadius={70}
+                  fill="#8884d8"
+                  label
+                />
+               <ReTooltip />
+              </PieChart>
+              {/* <ResponsiveContainer width="100%" height="100%"> */}
+              {/* <PieChart width={400} height={400}>
+                  <Pie data={data01} dataKey="value" cx="50%" cy="50%" outerRadius={60} fill="#8884d8" />
+                  <Pie
+                    data={data02}
+                    dataKey="value"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={70}
+                    outerRadius={90}
+                    fill="#82ca9d"
+                    label
+                  />
+                </PieChart> */}
+              {/* </ResponsiveContainer> */}
+            </div>
+            {subscribers.map((subscriber, i) => {
+              return (
+                <div key={"subscriber" + i}>
+                  <AddressSimple address={subscriber.name} ensProvider={mainnetProvider} /> {subscriber.balance}⬨
+                </div>
+              );
+            })}
+          </>
         </Modal>
         {subscriptions.map((sub, i) => {
           return (
