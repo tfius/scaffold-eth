@@ -17623,7 +17623,7 @@ span.ant-transfer-list-search-action {
   cursor: auto;
 }
 .ant-select-focused:not(.ant-select-disabled).ant-select-multiple .ant-select-selector {
-  border-color: #40a9ff;
+  border-color: rgba(64, 0, 255, 0.9);
   border-right-width: 1px !important;
   outline: 0;
   box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
@@ -17813,7 +17813,7 @@ span.ant-transfer-list-search-action {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  color: rgba(0, 0, 0, 0.85);
+  color: rgba(64, 0, 255, 0.9);
   font-size: 14px;
   font-variant: tabular-nums;
   line-height: 1.5715;

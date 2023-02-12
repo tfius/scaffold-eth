@@ -177,7 +177,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
     //getCategory("0x" + consts.emptyHash);
   }, [address]);
   return (
-    <div style={{ margin: "auto", width: "100%", paddingLeft: "10px" }}>
+    <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "10px" }}>
       <div>
         <small>
           Market fee: {marketFee}% Listing fee: {ethers.utils.formatEther(listingFee)}
@@ -210,7 +210,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
       <Row>
         {subscriptions.map((sub, i) => {
           return (
-            <Card key={i} style={{ maxWidth: "33%", minWidth: "100px" }}>
+            <Card key={i} style={{ maxWidth: "30%", minWidth: "150px" }}>
               <div key={i}>
                 <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
                   <small>

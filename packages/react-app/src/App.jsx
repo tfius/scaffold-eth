@@ -324,17 +324,25 @@ function App(props) {
             </Menu.Item>
 
             <Menu.Item key="/inbox">
-              <Link to="/inbox">Inbox</Link>
+              <Tooltip title="View received messages" placement="right">
+                <Link to="/inbox">Inbox</Link>
+              </Tooltip>
             </Menu.Item>
 
             <Menu.Item key="/marketplace">
-              <Link to="/marketplace">Marketplace</Link>
+              <Tooltip title="View offers, open new listings" placement="right">
+                <Link to="/marketplace">Marketplace</Link>
+              </Tooltip>
             </Menu.Item>
             <Menu.Item key="/requests">
-              <Link to="/requests">Requests</Link>
+              <Tooltip title="Approve subscription requests for your listings" placement="right">
+                <Link to="/requests">Requests</Link>
+              </Tooltip>
             </Menu.Item>
             <Menu.Item key="/subscribers">
-              <Link to="/subscribers">Subscribers</Link>
+              <Tooltip title="Manage listings, view subscribers and earnings" placement="right">
+                <Link to="/subscribers">Subscribers</Link>
+              </Tooltip>
             </Menu.Item>
 
             {smailMail.key && smailMail.smail ? (

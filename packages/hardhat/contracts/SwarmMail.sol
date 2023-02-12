@@ -263,8 +263,6 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         return subInfos[subHash].perSubscriberBalance[forAddress];
     }
 
-
-
     function getCategory(bytes32 category) public view returns (Category memory) {
         return categories[category];
     }
@@ -275,7 +273,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         return subscriptions[subscriptionIds[subHash]-1];
     }
     function enableSub(bytes32 subHash, bool active) public {
-        require(subscriptionIds[subHash]-1 != 0, "No Sub"); // must exists
+        require(subscriptionIds[subHash] != 0, "No Sub"); // must exists
         Sub storage s = subscriptions[subscriptionIds[subHash] - 1]; 
         require(s.seller == msg.sender, "Not Seller"); // only seller can enable subscription
         s.active = active;

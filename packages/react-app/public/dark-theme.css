@@ -17709,7 +17709,7 @@ span.ant-transfer-list-search-action {
 .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
   position: relative;
   background-color: transparent;
-  border: 1px solid #6f6c6c;
+  border: 1px solid rgba(64, 0, 255, 0.9);
   border-radius: 4px;
   transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
   width: 100%;
@@ -17726,7 +17726,7 @@ span.ant-transfer-list-search-action {
   cursor: auto;
 }
 .ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-  border-color: #2caad9;
+  border-color: rgba(64, 0, 255, 0.9);
   border-right-width: 1px !important;
   outline: 0;
   box-shadow: 0 0 0 2px rgba(44, 170, 217, 0.2);
@@ -18035,7 +18035,7 @@ span.ant-transfer-list-search-action {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(194, 173, 255, 0.9);
   font-size: 14px;
   font-variant: tabular-nums;
   line-height: 1.5715;
@@ -18045,8 +18045,12 @@ span.ant-transfer-list-search-action {
   display: inline-block;
   cursor: pointer;
 }
+.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+  background-color: rgba(116, 106, 255,0.2);
+  border: 1px solid rgba(116, 106, 255,0.2);
+}
 .ant-select:not(.ant-select-disabled):hover .ant-select-selector {
-  border-color: #287a99;
+  border-color: rgba(116, 106, 255,0.2);
   border-right-width: 1px !important;
 }
 .ant-input-rtl .ant-select:not(.ant-select-disabled):hover .ant-select-selector {
