@@ -122,10 +122,12 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
   // https://recharts.org/en-US/examples/TwoLevelPieChart
 
   return (
-    <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "10px" }}>
+    <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
       <h3>Subscribers</h3>
       <>Manage {subscriptions.length} listings and subscribers. </>
       <>Total earnings: {ethers.utils.formatEther(totalEarnings)}⬨</>
+      <br />
+      <br />
       <Row>
         <Modal
           style={{ width: "80%", resize: "auto", borderRadious: "20px" }}
@@ -158,7 +160,7 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
                   fill="#8884d8"
                   label
                 />
-               <ReTooltip />
+                <ReTooltip />
               </PieChart>
               {/* <ResponsiveContainer width="100%" height="100%"> */}
               {/* <PieChart width={400} height={400}>
@@ -185,6 +187,7 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
             })}
           </>
         </Modal>
+
         {subscriptions.map((sub, i) => {
           return (
             <Card key={i} style={{ maxWidth: "30%", minWidth: "100px" }}>
@@ -220,7 +223,6 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
                       Sold: {sub.sells} Bids: {sub.bids}
                     </div>
                   </Tooltip>
-                  <br />
                   <Tooltip title={sub.active ? "Disable listing" : "Enable listing"}>
                     <a onClick={() => disableEnableSub(sub.subHash, !sub.active)}>
                       {sub.active ? "Active" : "Disabled"}

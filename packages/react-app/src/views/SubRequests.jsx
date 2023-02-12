@@ -85,8 +85,8 @@ export function SubRequests({ readContracts, writeContracts, tx, userSigner, add
   //const subscribers
 
   return (
-    <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "10px" }}>
-      <h3>Subscription Offers</h3>
+    <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
+      <h3>Subscription bids</h3>
       <>Here are all bids made to your listings </>
 
       <Row>

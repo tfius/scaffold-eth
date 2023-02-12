@@ -207,10 +207,10 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     uint256 private constant FEE_PRECISION = 1e5;  
-    uint256 public marketFee = 500; // 0.5%
-    uint256 public minListingFee = 100000 gwei; // min listing fee - 0.0001000 ETH
-    uint256 public  feesCollected = 0;
-    uint256 public  inEscrow = 0;
+    uint256 public marketFee = 1000; // 1%
+    uint256 public minListingFee = 1000000 gwei; // min listing fee - 0.0001000 ETH
+    uint256 public feesCollected = 0;
+    uint256 public inEscrow = 0;
     function getFee(uint256 _fee, uint256 amount) public pure returns (uint256) {
         return (amount * _fee) / FEE_PRECISION;
     }

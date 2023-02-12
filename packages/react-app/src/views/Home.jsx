@@ -51,7 +51,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
     { children: "Registered And Ready To Bond" },
     { children: "Decrypt to Bond" },
   ]);
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(-1);
 
   const verifyRegistration = useCallback(async () => {
     /*if (readContracts === undefined || readContracts.SwarmMail === undefined) {
@@ -85,13 +85,14 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
         var decryptedSmailKey = await decryptSmailKey(address, encryptedSmailKey); // decrypt key from metamas
         if (decryptedSmailKey !== undefined) {
           setSmailMail({ key: data.key, smail: decryptedSmailKey });
+          setCurrentStep(-1);
           //console.log(key, decryptedSmailKey);
         } else
           notification.warning({
             message: "Warning",
             description: "Not decrypted and not bonded",
           });
-        setCurrentStep(-1);
+        //setCurrentStep(-1);
       } catch (err) {
         console.log("err", err);
         notification.error({
@@ -301,7 +302,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
             How registration works:
             <ul>
               <li>your public encryption key is requested with which new Smail Wallet is created</li>
-              <li>Smail Wallets is encrypted with your MetaMask and uploaded to Swarm</li>
+              <li>Smail Wallet is encrypted with your MetaMask and uploaded to Swarm</li>
               <li>a transaction is sent to register Smail public key and Smail Wallet</li>
               Only MetaMask account that created Smail Wallet can decrypt and bond with it.
             </ul>
