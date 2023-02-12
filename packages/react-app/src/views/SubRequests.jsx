@@ -48,7 +48,7 @@ export function SubRequests({ readContracts, writeContracts, tx, userSigner, add
   const getSub = useCallback(async subHash => {
     return await readContracts.SwarmMail.getSubBy(subHash);
   });
-  const getSubsForSubRequests  = useCallback(async subRequests => {
+  const getSubsForSubRequests = useCallback(async subRequests => {
     for (let i = 0; i < subRequests.length; i++) {
       let sub = await getSub(subRequests[i].subHash);
       console.log("sub", sub);
@@ -82,15 +82,17 @@ export function SubRequests({ readContracts, writeContracts, tx, userSigner, add
     await tx.wait();
   };
 
+  //const subscribers
+
   return (
-    <div style={{ margin: "auto", width: "100%", paddingLeft: "10px" }}>
+    <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "10px" }}>
       <h3>Subscription Offers</h3>
       <>Here are all bids made to your listings </>
 
       <Row>
         {subRequests.map((subRequest, i) => {
           return (
-            <Card key={i} style={{ maxWidth: "33%", minWidth: "100px" }}>
+            <Card key={i} style={{ maxWidth: "30%", minWidth: "100px" }}>
               <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
                 <small></small>
               </div>
