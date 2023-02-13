@@ -74,13 +74,14 @@ export function SubRequests({ readContracts, writeContracts, tx, userSigner, add
   };
   const onSellSubRequest = async subRequest => {
     console.log("onSellSubRequest", subRequest);
+    var fdp = { podAddress: "", podIndex: 0 }; // TODO
     // get receiver pubKey encrypt key upload encrypted then sell sub
     let receiverPubKey = await getPubKeyFor(subRequest.buyer);
-    let dataWithKey = { ref: consts.emptyHash, sender: address };
+    let dataWithKey = { ref: consts.emptyHash, sender: address, podAddress: fdp.podAddress, podIndex: sub.podIndex };
     var encryptedKeyLocation = await EncDec.encryptAndUpload(dataWithKey, receiverPubKey.pk);
     var tx = await writeContracts.SwarmMail.sellSub(subRequest.requestHash, "0x" + encryptedKeyLocation);
     await tx.wait();
-  };
+  };;
 
   //const subscribers
 
