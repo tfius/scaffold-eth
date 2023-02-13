@@ -320,9 +320,8 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
             receiver can retrieve and decrypt its contents.
             <hr />
             <h2>BEWARE AND BEHOLD</h2>
-            Always check that you are on correct domain and that you are using correct MetaMask account. Even though
-            your MetaMask account's public key is not stored anywhere scammers could potentially ask you to decrypt
-            Smail Wallet and gain access to your data.
+            Always check that you are on correct domain and that you are using correct MetaMask account. Scammers could
+            potentially ask you to decrypt Smail Wallet and gain access to your data.
           </div>
           <div>
             <br />
