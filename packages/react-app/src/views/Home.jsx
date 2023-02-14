@@ -82,11 +82,11 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
         var encryptedSmailKey = await downloadSmailKeyData(data.smail); // download encrypted key
         setNotifyUserToDecryptSmailKey(true);
         setCurrentStep(4);
-        var decryptedSmailKey = await decryptSmailKey(address, encryptedSmailKey); // decrypt key from metamas
-        if (decryptedSmailKey !== undefined) {
-          setSmailMail({ key: data.key, smail: decryptedSmailKey });
+        var privateKeySmail = await decryptSmailKey(address, encryptedSmailKey); // decrypt key from metamas
+        if (privateKeySmail !== undefined) {
+          setSmailMail({ key: data.key, smail: privateKeySmail });
           setCurrentStep(-1);
-          //console.log(key, decryptedSmailKey);
+          //console.log(key, privateKeySmail);
         } else
           notification.warning({
             message: "Warning",
