@@ -245,3 +245,10 @@ export async function encryptAndUpload(data, recipientKey) {
   var encryptedDataLocation = await uploadDataToBee(encryptedData, "application/octet-stream", Date.now() + ".data");
   return encryptedDataLocation;
 }
+
+
+export async function calculateSharedSecret(fromPrivateKey, toPublicKey) {
+  var publickKey = nacl.scalarMult.base(fromPrivateKey);
+  var sharedSecret = nacl.scalarMult(fromPrivateKey, toPublicKey);
+  return sharedSecret;
+}

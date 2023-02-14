@@ -187,6 +187,23 @@ export const NETWORKS = {
     rpcUrl: `https://api.harmony.one`,
     gasPrice: 1000000000,
   },
+  testnetSapphire: {
+    name: "Sapphire ParaTime Testnet",
+    color: "#5050aa",
+    chainId: 23295,
+    blockExplorer: "https://testnet.explorer.sapphire.oasis.dev/",
+    rpcUrl: `https://testnet.sapphire.oasis.dev`,
+    gasPrice: 1000000000,
+  },
+  //mainnetHarmony
+  sapphire: {
+    name: "Oasis Sapphire",
+    color: "#5555FF",
+    chainId: 23294,
+    blockExplorer: "https://explorer.sapphire.oasis.io/",
+    rpcUrl: `https://sapphire.oasis.io`,
+    gasPrice: 1000000000,
+  },
 };
 
 export const NETWORK = chainId => {

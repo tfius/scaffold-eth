@@ -148,6 +148,7 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
         >
           <>
             <div height="100px">
+              {/* https://recharts.org/en-US/examples/TwoSimplePieChart */}
               <PieChart width={400} height={110}>
                 <Pie
                   dataKey="value"

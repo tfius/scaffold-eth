@@ -392,6 +392,24 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         //delete u.subRequests[lastIndex];
     }
 
+    // https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/cryptography/MerkleProof.sol
+    
+    /*
+    function encrypt(bytes32 podReference, bytes32 sharedSecret) public {
+         xor(podReference, keccak256(sharedSecret));
+    }
+    function decrypt(bytes32 encryptedReference, bytes32 sharedSecret) public view returns (bytes32) {
+        return xor(encryptedReference, keccak256(sharedSecret));
+    }
+
+    function xor(bytes32 a, bytes32 b) private pure returns (bytes32) {
+        uint256[] memory ab = new uint256[](2);
+        ab[0] = uint256(a);
+        ab[1] = uint256(b);
+        return bytes32(ab[0] ^ ab[1]);
+    } 
+    */
+
     // // smail extend with market place
     // function buy(address seller, bytes32 swarmLocation) public payable {
     //     User storage u = users[seller];
@@ -408,3 +426,14 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     /*
     */
     
+
+    //////////////////////////////////////////
+    // import "../token/ERC20/utils/SafeERC20.sol";
+    /* 
+     function release(address token, uint amount) public virtual {
+        //uint256 amount = releasable(token);
+        //_erc20Released[token] += amount;
+        //emit ERC20Released(token, amount);
+        SafeERC20.safeTransfer(IERC20(token), beneficiary(), amount);
+    }
+    */
