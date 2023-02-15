@@ -40,6 +40,7 @@ export function SubRequests({ readContracts, writeContracts, tx, userSigner, add
   const [subRequests, setSubRequests] = useState([]);
   const [subscriptions, setSubscriptions] = useState([]);
   const getSubRequests = useCallback(async forAddress => {
+    if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
     var requests = await readContracts.SwarmMail.getSubRequests(forAddress);
     console.log("getSubRequests", requests);
     setSubRequests(requests);
@@ -56,7 +57,6 @@ export function SubRequests({ readContracts, writeContracts, tx, userSigner, add
     }
   });
   useEffect(() => {
-    if (readContracts === undefined) return;
     getSubRequests(address);
   }, [address, readContracts]);
 
@@ -77,11 +77,11 @@ export function SubRequests({ readContracts, writeContracts, tx, userSigner, add
     var fdp = { podAddress: "", podIndex: 0 }; // TODO
     // get receiver pubKey encrypt key upload encrypted then sell sub
     let receiverPubKey = await getPubKeyFor(subRequest.buyer);
-    let dataWithKey = { ref: consts.emptyHash, sender: address, podAddress: fdp.podAddress, podIndex: sub.podIndex };
+    let dataWithKey = { ref: consts.emptyHash, sender: address }; //, podAddress: fdp.podAddress, podIndex: sub.podIndex };
     var encryptedKeyLocation = await EncDec.encryptAndUpload(dataWithKey, receiverPubKey.pk);
     var tx = await writeContracts.SwarmMail.sellSub(subRequest.requestHash, "0x" + encryptedKeyLocation);
     await tx.wait();
-  };;
+  };;;
 
   //const subscribers
 

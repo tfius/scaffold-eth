@@ -82,6 +82,7 @@ function App(props) {
   const networkOptions = [
     "localhost",
     "mainnet",
+    "sapphire",
     "xdai",
     "arbitrum",
     "optimism",
@@ -89,6 +90,7 @@ function App(props) {
     "avalanche",
     "harmony",
     "goerli",
+    "testnetSapphire",
     //"rinkeby",
   ];
 

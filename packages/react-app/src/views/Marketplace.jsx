@@ -28,7 +28,7 @@ import MarkdownPreview from "@uiw/react-markdown-preview";
 import { AddressSimple } from "../components";
 
 import { uploadJsonToBee, uploadDataToBee } from "./../Swarm/BeeService";
-import { categoryList } from "./categories";
+import { categoriesTree, categoryList } from "./categories";
 
 // what is this?
 // Displays categories and subscriptions
@@ -100,6 +100,10 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
         }),
       );
       await newTx.wait();
+      // tx(create, (update) => {
+      //   if(išdate && update.status === confirmed || update.status === failed) {
+      //   }
+      // })
     } catch (e) {
       console.log(e);
       notification.error = {
@@ -176,6 +180,31 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
     getFees();
     //getCategory("0x" + consts.emptyHash);
   }, [address]);
+
+  useEffect(() => {
+    var flattened = [];
+    function flatten(data, outputArray, root) {
+      var prevRoot = root;
+      for (var i = 0; i < data.length; i++) {
+        outputArray.push(root + data[i].label);
+        if (data[i].items !== undefined) {
+          flatten(data[i].items, outputArray, prevRoot + data[i].label + "/");
+        }
+      }
+      root = prevRoot;
+      /*
+      data.forEach(function (element) {
+        if (Array.isArray(element)) {
+          flatten(element, outputArray);
+        } else {
+          outputArray.push(element);
+        }
+      });*/
+    }
+    //debugger;
+    flatten(categoriesTree, flattened, "");
+    console.log("flattened", flattened);
+  }, []);
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
       <div>
@@ -195,6 +224,9 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
         style={{ width: "99%" }}
         mode="multiple"
         allowClear
+        showSearch
+        optionFilterProp="children"
+        filterOption={(input, option) => option?.label.toLowerCase().indexOf(input.toLowerCase()) >= 0}
       />
       <Modal
         title="List Subscription"
