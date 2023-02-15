@@ -326,6 +326,9 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         inEscrow += msg.value;
     }
 
+    // podAddress, seller.address, buyer.address, encryptedSecret
+    
+    // encryptedSecret is podReference encrypited with sharedSecret 
     function sellSub(bytes32 requestHash, bytes32 encryptedKeyLocation) public payable {
         User storage seller = users[msg.sender];
 
