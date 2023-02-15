@@ -16,6 +16,7 @@ import {
   Select,
   Skeleton,
   Row,
+  Menu,
   Col,
 } from "antd";
 import { EnterOutlined, EditOutlined, ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
@@ -30,6 +31,16 @@ import { AddressSimple } from "../components";
 import { uploadJsonToBee, uploadDataToBee } from "./../Swarm/BeeService";
 import { categoriesTree, categoryList } from "./categories";
 
+function getMenuItem(label, key, icon, children, type) {
+  return {
+    key,
+    icon,
+    children,
+    label,
+    type,
+  };
+}
+
 // what is this?
 // Displays categories and subscriptions
 // Allows to list a subscription
@@ -37,6 +48,7 @@ import { categoriesTree, categoryList } from "./categories";
 // Allows to sell a subscription - accept a bid
 
 export function Marketplace({ readContracts, writeContracts, tx, userSigner, address, smailMail, mainnetProvider }) {
+  const [menuItems, setMenuItems] = useState([]);
   const [listingFee, setListingFee] = useState(ethers.utils.parseEther("0.0001"));
   const [marketFee, setMarketFee] = useState(0); // 0.5% of the price
   const [inEscrow, setInEscrow] = useState(0);
@@ -174,6 +186,9 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
     }
     console.log("listedCategories", listedCategories);
   };
+  const onMenuClick = async e => {
+    console.log("onMenuClick", e);
+  };
 
   useEffect(() => {
     //calcCategories();
@@ -183,27 +198,33 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
 
   useEffect(() => {
     var flattened = [];
-    function flatten(data, outputArray, root) {
+    var mItems = [];
+    function flatten(data, outputArray, root, itemsArray, parentItem) {
       var prevRoot = root;
       for (var i = 0; i < data.length; i++) {
-        outputArray.push(root + data[i].label);
-        if (data[i].items !== undefined) {
-          flatten(data[i].items, outputArray, prevRoot + data[i].label + "/");
+        var itemName = root + data[i].label;
+        var itemHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(itemName)).toString(); // ie a category hash
+        outputArray.push({ label: itemName, value: itemHash });
+
+        var item = getMenuItem(data[i].label, itemHash, null, []);
+        console.log("item", itemName, item.key);
+        if (parentItem !== undefined) {
+          parentItem.children.push(item);
+        } else {
+          itemsArray.push(item);
         }
+
+        if (data[i].items !== undefined) {
+          flatten(data[i].items, outputArray, prevRoot + data[i].label + "/", itemsArray, item);
+        } else item.children = undefined;
       }
       root = prevRoot;
-      /*
-      data.forEach(function (element) {
-        if (Array.isArray(element)) {
-          flatten(element, outputArray);
-        } else {
-          outputArray.push(element);
-        }
-      });*/
     }
     //debugger;
-    flatten(categoriesTree, flattened, "");
+    flatten(categoriesTree, flattened, "", mItems, undefined);
     console.log("flattened", flattened);
+    setMenuItems(mItems);
+    setCategories(flattened);
   }, []);
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
@@ -237,71 +258,78 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
       >
         <ListSub listSub={onListSub} categories={categories} />
       </Modal>
-      <Row>
-        {subscriptions.map((sub, i) => {
-          return (
-            <Card key={i} style={{ maxWidth: "30%", minWidth: "150px" }}>
-              <div key={i}>
-                <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
-                  <small>
-                    <Tooltip
-                      title={
-                        <>
-                          Category: <strong>{sub.category}</strong> Seller: <br />
-                          <AddressSimple address={sub.fdpSeller} ensProvider={mainnetProvider} />
-                          <br />
-                          FDP Seller: <AddressSimple address={sub.seller} ensProvider={mainnetProvider} />
-                          <div>
-                            Pod index: {sub.podIndex} / {sub.podContractIndex}
-                          </div>
-                        </>
-                      }
-                    >
-                      <span>{sub.category}</span>
-                    </Tooltip>
+      <div style={{ float: "left" }}>
+        <Menu style={{ width: "256px" }} mode="vertical" items={menuItems} onClick={onMenuClick} />
+      </div>
+      <div>
+        <Row>
+          {subscriptions.map((sub, i) => {
+            return (
+              <Card key={i} style={{ maxWidth: "30%", minWidth: "150px" }}>
+                <div key={i}>
+                  <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
+                    <small>
+                      <Tooltip
+                        title={
+                          <>
+                            Category: <strong>{sub.category}</strong> Seller: <br />
+                            <AddressSimple address={sub.fdpSeller} ensProvider={mainnetProvider} />
+                            <br />
+                            FDP Seller: <AddressSimple address={sub.seller} ensProvider={mainnetProvider} />
+                            <div>
+                              Pod index: {sub.podIndex} / {sub.podContractIndex}
+                            </div>
+                          </>
+                        }
+                      >
+                        <span>{sub.category}</span>
+                      </Tooltip>
 
-                    <Tooltip
-                      title={
-                        <>
-                          Bids: <strong>{sub.bids}</strong> Sells <strong>{sub.sells}</strong> Report{" "}
-                          <strong>{sub.reports}</strong>
-                        </>
-                      }
-                    >
-                      &nbsp;<span>♡</span>
-                    </Tooltip>
-                    <Tooltip title={"User info"}>
-                      &nbsp;<span>ⓘ</span>
-                    </Tooltip>
-                  </small>
+                      <Tooltip
+                        title={
+                          <>
+                            Bids: <strong>{sub.bids}</strong> Sells <strong>{sub.sells}</strong> Report{" "}
+                            <strong>{sub.reports}</strong>
+                          </>
+                        }
+                      >
+                        &nbsp;<span>♡</span>
+                      </Tooltip>
+                      <Tooltip title={"User info"}>
+                        &nbsp;<span>ⓘ</span>
+                      </Tooltip>
+                    </small>
+                  </div>
+                  <Tooltip
+                    title={
+                      <>
+                        {sub.title} <br />
+                        <img src={sub.imageUrl} style={{ width: "100%" }} alt="image" />
+                      </>
+                    }
+                  >
+                    <h3 style={{ width: "100%", overflow: "hidden", top: "-6px", position: "relative" }}>
+                      {sub.title}
+                    </h3>
+                  </Tooltip>
+
+                  <div
+                    style={{ width: "100%", maxHeight: "200px", top: "-6px", position: "relative", overflow: "hidden" }}
+                  >
+                    {sub.description}
+                  </div>
+
+                  <br />
+                  <Tooltip title={<>Bid on subscription for {sub.price}⬨ for 30 days</>}>
+                    <Button onClick={() => onBidSub(sub)}>{sub.price} ⬨</Button>
+                  </Tooltip>
                 </div>
-                <Tooltip
-                  title={
-                    <>
-                      {sub.title} <br />
-                      <img src={sub.imageUrl} style={{ width: "100%" }} alt="image" />
-                    </>
-                  }
-                >
-                  <h3 style={{ width: "100%", overflow: "hidden", top: "-6px", position: "relative" }}>{sub.title}</h3>
-                </Tooltip>
-
-                <div
-                  style={{ width: "100%", maxHeight: "200px", top: "-6px", position: "relative", overflow: "hidden" }}
-                >
-                  {sub.description}
-                </div>
-
-                <br />
-                <Tooltip title={<>Bid on subscription for {sub.price}⬨ for 30 days</>}>
-                  <Button onClick={() => onBidSub(sub)}>{sub.price} ⬨</Button>
-                </Tooltip>
-              </div>
-              <Skeleton loading={false} />
-            </Card>
-          );
-        })}
-      </Row>
+                <Skeleton loading={false} />
+              </Card>
+            );
+          })}
+        </Row>
+      </div>
     </div>
   );
 }
