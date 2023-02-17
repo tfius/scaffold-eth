@@ -163,7 +163,17 @@ function App(props) {
       }
     }
     getAddress();
+    mConnect();
   }, [userSigner]);
+
+  async function mConnect(url, options) {
+    let resp = await window.connect(
+      "https://bee-1.fairdatasociety.org",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      "https://xdai.dev.fairdatasociety.org",
+      "testnet");
+    console.log(resp);
+  }
 
   // You can warn the user if you would like them to be on a specific network
   const localChainId = localProvider && localProvider._network && localProvider._network.chainId;
