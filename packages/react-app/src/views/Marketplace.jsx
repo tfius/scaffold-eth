@@ -207,7 +207,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
         outputArray.push({ label: itemName, value: itemHash });
 
         var item = getMenuItem(data[i].label, itemHash, null, []);
-        console.log("item", itemName, item.key);
+        //console.log("item", itemName, item.key);
         if (parentItem !== undefined) {
           parentItem.children.push(item);
         } else {
@@ -222,9 +222,10 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
     }
     //debugger;
     flatten(categoriesTree, flattened, "", mItems, undefined);
-    console.log("flattened", flattened);
+    // console.log("flattened", flattened);
     setMenuItems(mItems);
     setCategories(flattened);
+    //
   }, []);
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>

@@ -376,7 +376,7 @@ function App(props) {
             </Menu.Item>
             <Menu.Item key="/add">
               <Tooltip title={<Balance address={address} provider={localProvider} price={price} />}>
-                <div style={{ display: "flex", alignItems: "center" }}>⬨&nbsp;</div>
+                <span style={{ display: "flex", alignItems: "center" }}>⬨&nbsp;</span>
               </Tooltip>
               <>{address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}</>
             </Menu.Item>
