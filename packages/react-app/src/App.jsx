@@ -95,24 +95,28 @@ function App(props) {
     //"rinkeby",
   ];
   const BEENETWORKS = {
-    gateway: {
+    "gateway bee": {
       name: "gateway",
       downloadUrl: "https://gateway.fairdatasociety.org/bzz/",
       uploadUrl: "https://gateway.fairdatasociety.org/proxy",
     },
-    local: {
+    "local bee": {
       name: "localhost",
       downloadUrl: "http://localhost:1635/bzz/",
       uploadUrl: "http://localhost:1635/proxy",
     },
   };
-  const beeNetworkOptions = ["gateway", "local"];
+  const beeNetworkOptions = ["gateway bee", "local bee"];
 
   const { currentTheme } = useThemeSwitcher();
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
-  const [selectedBeeNetwork, setSelectedBeeNetwork] = useState(beeNetworkOptions[0]);
+  const [selectedBeeNetwork, _setSelectedBeeNetwork] = useState(beeNetworkOptions[0]);
+  const setSelectedBeeNetwork = beeNetwork => {
+    console.log("setSelectedBeeNetwork", beeNetwork, BEENETWORKS[beeNetwork]);
+    _setSelectedBeeNetwork(beeNetwork);
+  };
   //////////////////////////////////////////////////////////////////////////////////////////////////////
   const [isLoading, setIsLoading] = useState(false);
   const [messageCount, setMessageCount] = useState(0);

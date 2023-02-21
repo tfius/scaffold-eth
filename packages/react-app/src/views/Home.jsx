@@ -242,7 +242,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
       </div>
     );
   }
-  console.log(timeline);
+  //console.log(timeline);
 
   return (
     <div style={{ margin: "auto", width: "100%" }}>
