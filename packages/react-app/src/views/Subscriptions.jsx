@@ -74,18 +74,18 @@ export function Subscriptions({ readContracts, writeContracts, tx, userSigner, a
     getSubItems(address);
   }, [address, readContracts]);
 
-  const getPubKeyFor = async forAddress => {
-    const data = await readContracts.SwarmMail.getPublicKeys(forAddress); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
-    if (data.registered == false) {
-      notification.error({ message: "Receiver not registered", description: "You can only sell to registered users" });
-      return;
-    }
-    const rkey = data.key.substr(2, data.key.length - 1);
-    var pk = Buffer.from(rkey, "hex").toString("base64");
-    var pkRegister = { pk: pk, registered: data.registered };
-    console.log("pkRegister", pkRegister);
-    return pkRegister;
-  };
+  //   const getPubKeyFor = async forAddress => {
+  //     const data = await readContracts.SwarmMail.getPublicKeys(forAddress); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
+  //     if (data.registered == false) {
+  //       notification.error({ message: "Receiver not registered", description: "You can only sell to registered users" });
+  //       return;
+  //     }
+  //     const rkey = data.key.substr(2, data.key.length - 1);
+  //     var pk = Buffer.from(rkey, "hex").toString("base64");
+  //     var pkRegister = { pk: pk, registered: data.registered };
+  //     console.log("pkRegister", pkRegister);
+  //     return pkRegister;
+  //   };
   //   const onSellSubRequest = async subRequest => {
   //     console.log("onSellSubRequest", subRequest);
   //     var fdp = { podAddress: "", podIndex: 0 }; // TODO
@@ -97,6 +97,16 @@ export function Subscriptions({ readContracts, writeContracts, tx, userSigner, a
   //     await tx.wait();
   //   };
   //   const subscribers
+  console.log(smailMail);
+  if (smailMail.smail === null)
+    return (
+      <>
+        <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
+          <h3>No key for decryption</h3>
+          <Spin />
+        </div>
+      </>
+    );
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
@@ -114,7 +124,7 @@ export function Subscriptions({ readContracts, writeContracts, tx, userSigner, a
                       {ab.data.description}
                       <div>List price:{ethers.utils.formatEther(ab.data.price)}⬨</div>
 
-                      <div>{JSON.stringify(ab.keyData)}⬨</div>
+                      <div>{JSON.stringify(ab.keyData)}</div>
                     </>
                   }
                 >
