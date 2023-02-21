@@ -391,7 +391,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     }
 
     // removes active bids from SubRequests of seller and from Active bids of buyer
-    function removeMyActiveBid(bytes32 requestHash) public {
+    function removeUserActiveBid(bytes32 requestHash) public {
         User storage u = users[msg.sender];
         require(u.activeBidIds[requestHash] != 0, "!ab Req");
         ActiveBid memory ab = u.activeBids[u.activeBidIds[requestHash]-1];
