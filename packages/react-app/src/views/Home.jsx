@@ -95,7 +95,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
         //setCurrentStep(-1);
       } catch (err) {
         console.log("err", err);
-        notification.error({
+        notification.warning({
           message: "Error",
           description: err.message,
         });
@@ -116,7 +116,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
     const mmKey = await EncDec.MMgetPublicKey(/*userSigner*/ window.ethereum, address);
     console.log("mmKey", mmKey);
     if (mmKey === undefined) {
-      notification.error({
+      notification.warning({
         message: "Error",
         description: "User denied public key request",
       });

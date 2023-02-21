@@ -41,6 +41,11 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         bytes32 subHash; //which subscription;
         bytes32 requestHash;
     }
+    // active Bid
+    struct ActiveBid {
+        address seller;
+        bytes32 requestHash;
+    }
     // subscription items
     struct SubItem {
         bytes32 subHash;  // what subscription you are entitled to
@@ -64,6 +69,9 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         SubItem[] subItems;
         mapping(bytes32 => uint256) subItemIds;
 
+        ActiveBid[] activeBids;
+        mapping(bytes32 => uint256) activeBidIds;
+
         bytes32[] listedSubs; // everything user listed 
     }
     mapping(address => User) users;
@@ -81,34 +89,38 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         user.smail = smail;
     }
 
-    function getInbox(address addr) public view returns (Email[] memory mails) {
-        mails = users[addr].inboxEmails;
+    function getInbox(address addr) public view returns (Email[] memory) {
+        return users[addr].inboxEmails;
     }
 
-    function getSent(address addr) public view returns (Email[] memory mails) {
-        mails  = users[addr].sentEmails;
+    function getSent(address addr) public view returns (Email[] memory) {
+        return users[addr].sentEmails;
     }
-    function getSubRequests(address addr) public view returns (SubRequest[] memory requests) {
-        requests = users[addr].subRequests;
+    function getSubRequests(address addr) public view returns (SubRequest[] memory) {
+        return users[addr].subRequests;
     }
-    function getSubItems(address addr) public view returns (SubItem[] memory items) {
+    function getSubItems(address addr) public view returns (SubItem[] memory) {
         // either we  iterate through all items and return only those that are active
         // or we return all items and let the client filter them
-        items = users[addr].subItems;
+        return users[addr].subItems;
     }
-    function getListedSubs(address addr) public view returns (bytes32[] memory items) {
-        items = users[addr].listedSubs;
+    function getListedSubs(address addr) public view returns (bytes32[] memory) {
+        return users[addr].listedSubs;
+    }
+    function getActiveBids(address addr) public view returns (ActiveBid[] memory) {
+        return users[addr].activeBids;
     }
     function getSubRequestByHash(address addr, bytes32 requestHash) public view returns (SubRequest memory) {
         User storage u = users[addr];
         return u.subRequests[u.subRequestIds[requestHash]-1];
     }
 
-    function getBoxCount(address addr) public view returns (uint numInboxItems, uint numSentItems, uint numSubRequests, uint numSubItems) {
+    function getBoxCount(address addr) public view returns (uint numInboxItems, uint numSentItems, uint numSubRequests, uint numSubItems, uint numActiveBids) {
         numInboxItems = users[addr].inboxEmails.length;
         numSentItems  = users[addr].sentEmails.length;
         numSubRequests = users[addr].subRequests.length;
         numSubItems = users[addr].subItems.length;
+        numActiveBids = users[addr].activeBids.length;
     }
 
     function getInboxAt(address addr, uint index) public view returns (Email memory) {
@@ -125,6 +137,9 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
 
     function getSubItemAt(address addr, uint index) public view returns (SubItem memory) {
         return users[addr].subItems[index];
+    }
+    function getActiveBidAt(address addr, uint index) public view returns (ActiveBid memory) {
+        return users[addr].activeBids[index];
     }
 
     function signEmail(bytes32 swarmLocation) public {
@@ -325,6 +340,14 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         seller.subRequestIds[requestHash] = seller.subRequests.length; // +1 of index
         
         inEscrow += msg.value;
+
+        ActiveBid memory ab;
+        ab.requestHash = requestHash;
+        ab.seller = msg.sender;
+
+        User storage buyer = users[msg.sender];
+        buyer.activeBids.push(ab);      
+        buyer.activeBidIds[requestHash] = buyer.activeBids.length; // +1 of index
     }
 
     // podAddress, seller.address, buyer.address, encryptedSecret
@@ -353,10 +376,9 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         si.subHash = br.subHash;
         si.unlockKeyLocation = encryptedKeyLocation;
         si.validTill = block.timestamp + 30 days;
-        buyer.subItems.push(si);
 
-        //subScribers[br.subHash].subscriber = br.buyer;
-        //subScribers[br.subHash].balance += (s.price-fee);
+        buyer.subItems.push(si);
+        buyer.subItemIds[br.subHash] = buyer.subItems.length; // +1 of index (so call subHash -1)
 
         if(subInfos[br.subHash].perSubscriberBalance[br.buyer]==0) // only add subscriber if not already added
            subInfos[br.subHash].subscribers.push(br.buyer);
@@ -364,7 +386,32 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         subInfos[br.subHash].perSubscriberBalance[br.buyer] += (s.price-fee);
 
         // seller removes request from his list
-        removeSubRequest(requestHash);
+        removeSubRequest(msg.sender, requestHash); // remove from seller 
+        removeActiveBid(br.buyer, requestHash);
+    }
+
+    // removes active bids from SubRequests of seller and from Active bids of buyer
+    function removeActiveBid(bytes32 requestHash) public {
+        User storage u = users[msg.sender];
+        require(u.activeBidIds[requestHash] != 0, "!ab Req");
+        ActiveBid memory ab = u.activeBids[u.activeBidIds[requestHash]-1];
+
+        removeSubRequest(ab.seller, requestHash); // remove from seller 
+        removeActiveBid(msg.sender, requestHash);
+    }
+
+    function removeActiveBid(address buyer, bytes32 requestHash) private {
+        User storage u = users[buyer];
+        require(u.activeBidIds[requestHash] != 0, "!ab Req");
+
+        uint256 removeIndex = u.activeBidIds[requestHash] - 1;
+        // replace removeIndex with last item and pop last item
+        uint256 lastIndex = u.activeBids.length - 1;
+        if (lastIndex != removeIndex) {
+            u.activeBids[removeIndex] = u.activeBids[lastIndex];
+        }
+        u.activeBids.pop();
+        delete u.activeBidIds[requestHash];
     }
 
     // user can remove subItem from his list if wishes to do so
@@ -380,8 +427,8 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     }
     // remove subRequest from seller needs to return money to bidder 
 
-    function removeSubRequest(bytes32 requestHash) private {
-        User storage u = users[msg.sender];
+    function removeSubRequest(address owner, bytes32 requestHash) private {
+        User storage u = users[owner]; //msg.sender];
         require(u.subRequestIds[requestHash] != 0, "!Req");
 
         uint256 removeIndex = u.subRequestIds[requestHash] - 1;

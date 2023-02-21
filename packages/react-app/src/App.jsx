@@ -37,6 +37,7 @@ import { Inbox } from "./views/Inbox";
 import { Marketplace } from "./views/Marketplace";
 import { ComposeNewMessage } from "./views/ComposeNewMessage";
 import { SubRequests } from "./views/SubRequests";
+import { SubBids } from "./views/SubBids";
 import { Subscribers } from "./views/Subscribers";
 
 const { ethers } = require("ethers");
@@ -115,6 +116,7 @@ function App(props) {
   const [selectedBeeNetwork, _setSelectedBeeNetwork] = useState(beeNetworkOptions[0]);
   const setSelectedBeeNetwork = beeNetwork => {
     console.log("setSelectedBeeNetwork", beeNetwork, BEENETWORKS[beeNetwork]);
+    // TODO set proper params to bee.js here
     _setSelectedBeeNetwork(beeNetwork);
   };
   //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -358,13 +360,18 @@ function App(props) {
               </Tooltip>
             </Menu.Item>
             <Menu.Item key="/requests">
-              <Tooltip title="Approve subscription requests for your listings" placement="right">
+              <Tooltip title="Approve bid requests for your listings" placement="right">
                 <Link to="/requests">Requests</Link>
               </Tooltip>
             </Menu.Item>
             <Menu.Item key="/subscribers">
               <Tooltip title="Manage listings, view subscribers and earnings" placement="right">
                 <Link to="/subscribers">Subscribers</Link>
+              </Tooltip>
+            </Menu.Item>
+            <Menu.Item key="/bids:bidRequestHash">
+              <Tooltip title="Manage your active bids" placement="right">
+                <Link to="/bids">Your bids</Link>
               </Tooltip>
             </Menu.Item>
 
@@ -479,6 +486,17 @@ function App(props) {
               </Route>
               <Route exact path="/subscribers">
                 <Subscribers
+                  readContracts={readContracts}
+                  writeContracts={writeContracts}
+                  mainnetProvider={mainnetProvider}
+                  userSigner={userSigner}
+                  tx={tx}
+                  address={address}
+                  smailMail={smailMail}
+                />
+              </Route>
+              <Route exact path="/bids">
+                <SubBids
                   readContracts={readContracts}
                   writeContracts={writeContracts}
                   mainnetProvider={mainnetProvider}

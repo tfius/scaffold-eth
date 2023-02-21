@@ -36,9 +36,9 @@ import { categoryList } from "./categories";
  subHash: "0x6d68ebbd2a7a135d72d0f351ec2fbfa67ce11088aee386dfd0edfd3a130a9624"
 */
 
-export function SubRequests({ readContracts, writeContracts, tx, userSigner, address, smailMail, mainnetProvider }) {
+export function SubBids({ readContracts, writeContracts, tx, userSigner, address, smailMail, mainnetProvider }) {
   const [subRequests, setSubRequests] = useState([]);
-  const [reqSubSubscriptions, setReqSubSubscriptions] = useState([]);
+  const [subscriptions, setSubscriptions] = useState([]);
   const getSubRequests = useCallback(async forAddress => {
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
     var requests = await readContracts.SwarmMail.getSubRequests(forAddress);
@@ -52,14 +52,8 @@ export function SubRequests({ readContracts, writeContracts, tx, userSigner, add
   const getSubsForSubRequests = useCallback(async subRequests => {
     for (let i = 0; i < subRequests.length; i++) {
       let sub = await getSub(subRequests[i].subHash);
-      const subData = await downloadJsonFromBee(sub.swarmLocation);
-      var newReqSub = {};
-      Object.assign(newReqSub, subRequests[i]);
-      newReqSub.sub = sub;
-      newReqSub.data = subData;
-
-      console.log("sub", newReqSub);
-      setReqSubSubscriptions(reqSubSubscriptions => [...reqSubSubscriptions, newReqSub]);
+      console.log("sub", sub);
+      setSubscriptions(subscriptions => [...subscriptions, sub]);
     }
   });
   useEffect(() => {
@@ -93,34 +87,24 @@ export function SubRequests({ readContracts, writeContracts, tx, userSigner, add
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
-      <h3>Subscription bids</h3>
-      <>Here are all bids made to your listings </>
+      <h3>Your bids</h3>
+      <>Here are all active bids you made </>
 
       <Row>
-        {reqSubSubscriptions.map((reqSub, i) => {
+        {subRequests.map((subRequest, i) => {
           return (
             <Card key={i} style={{ maxWidth: "30%", minWidth: "100px" }}>
               <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
-                <Tooltip
-                  title={
-                    <>
-                      {reqSub.data.description}
-                      <div>List price:{ethers.utils.formatEther(reqSub.data.price)}⬨</div>
-                    </>
-                  }
-                >
-                  <strong>{reqSub.data.title}</strong>
-                </Tooltip>
+                <small></small>
               </div>
               <Tooltip
                 title={
                   <>
-                    Allow {reqSub.buyer} to access {reqSub.podIndex} for 30 days
+                    Allow {subRequest.buyer} to access {subRequest.podIndex} for 30 days
                   </>
                 }
               >
-                {/* ⬨ */}
-                <Button onClick={() => onSellSubRequest(reqSub)}>Allow</Button>
+                {/* <Button onClick={() => onSellSubRequest(subRequest)}>⬨</Button> */}
               </Tooltip>
             </Card>
           );

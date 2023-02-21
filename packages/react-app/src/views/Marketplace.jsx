@@ -118,10 +118,10 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
       // })
     } catch (e) {
       console.log(e);
-      notification.error = {
+      notification.error({
         message: "Error listing subscription",
         description: "You can only list one subscription for a pod.",
-      };
+      });
     }
   });
   const bidSub = useCallback(async (subscription, fdpBuyer) => {
