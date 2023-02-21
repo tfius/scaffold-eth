@@ -107,6 +107,8 @@ export function SubBids({ readContracts, writeContracts, tx, userSigner, address
                 >
                   <strong>{ab.subData.title}</strong>
                 </Tooltip>
+                <br />
+                <small> {ab.subData.description}</small>
               </div>
               <Tooltip
                 title={

@@ -154,7 +154,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
 
   const onCategoryChange = async values => {
     console.log("onCategoryChange", values);
-    //setSubscriptions(subscriptions => []);
+    setSubscriptions(subscriptions => []);
     let listedCategories = [];
     for (var i = 0; i < values.length; i++) {
       var cat = await getCategory(values[i]);

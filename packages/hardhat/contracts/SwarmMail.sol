@@ -417,6 +417,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         uint256 lastIndex = u.activeBids.length - 1;
         if (lastIndex != removeIndex) {
             u.activeBids[removeIndex] = u.activeBids[lastIndex];
+            u.activeBidIds[u.activeBids[removeIndex].requestHash] = removeIndex + 1;
         }
         u.activeBids.pop();
         delete u.activeBidIds[requestHash];

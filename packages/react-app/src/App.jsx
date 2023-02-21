@@ -39,6 +39,7 @@ import { ComposeNewMessage } from "./views/ComposeNewMessage";
 import { SubRequests } from "./views/SubRequests";
 import { SubBids } from "./views/SubBids";
 import { Subscribers } from "./views/Subscribers";
+import { Subscriptions } from "./views/Subscriptions";
 
 const { ethers } = require("ethers");
 /*
@@ -359,6 +360,11 @@ function App(props) {
                 <Link to="/marketplace">Marketplace</Link>
               </Tooltip>
             </Menu.Item>
+            <Menu.Item key="/subscriptions:buySubRequestHash">
+              <Tooltip title="Manage your active buys" placement="right">
+                <Link to="/subscriptions">Subscriptions</Link>
+              </Tooltip>
+            </Menu.Item>
             <Menu.Item key="/requests">
               <Tooltip title="Approve bid requests for your listings" placement="right">
                 <Link to="/requests">Requests</Link>
@@ -371,7 +377,7 @@ function App(props) {
             </Menu.Item>
             <Menu.Item key="/bids:bidRequestHash">
               <Tooltip title="Manage your active bids" placement="right">
-                <Link to="/bids">Your bids</Link>
+                <Link to="/bids">Bids</Link>
               </Tooltip>
             </Menu.Item>
 
@@ -464,6 +470,17 @@ function App(props) {
               </Route>
               <Route exact path="/marketplace">
                 <Marketplace
+                  readContracts={readContracts}
+                  writeContracts={writeContracts}
+                  mainnetProvider={mainnetProvider}
+                  userSigner={userSigner}
+                  tx={tx}
+                  address={address}
+                  smailMail={smailMail}
+                />
+              </Route>
+              <Route exact path="/subscriptions">
+                <Subscriptions
                   readContracts={readContracts}
                   writeContracts={writeContracts}
                   mainnetProvider={mainnetProvider}

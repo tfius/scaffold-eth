@@ -5,7 +5,7 @@
       "chainId": "31337",
       "contracts": {
         "SwarmMail": {
-          "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+          "address": "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
           "abi": [
             {
               "inputs": [],
@@ -1178,19 +1178,6 @@
             {
               "inputs": [
                 {
-                  "internalType": "bytes32",
-                  "name": "requestHash",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "removeActiveBid",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
                   "internalType": "uint256",
                   "name": "types",
                   "type": "uint256"
@@ -1241,6 +1228,19 @@
                 }
               ],
               "name": "removeSubItem",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "requestHash",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "removeUserActiveBid",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
