@@ -23,6 +23,7 @@ import {
   NetworkSwitch,
   AddressSimple,
   NetworkDisplay,
+  BeeNetworkSwitch,
 } from "./components";
 import { NETWORKS, ALCHEMY_KEY } from "./constants";
 import externalContracts from "./contracts/external_contracts";
@@ -93,11 +94,26 @@ function App(props) {
     "testnetSapphire",
     //"rinkeby",
   ];
+  const BEENETWORKS = {
+    gateway: {
+      name: "gateway",
+      downloadUrl: "https://gateway.fairdatasociety.org/bzz/",
+      uploadUrl: "https://gateway.fairdatasociety.org/proxy",
+    },
+    local: {
+      name: "localhost",
+      downloadUrl: "http://localhost:1635/bzz/",
+      uploadUrl: "http://localhost:1635/proxy",
+    },
+  };
+  const beeNetworkOptions = ["gateway", "local"];
 
   const { currentTheme } = useThemeSwitcher();
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
+  const [selectedBeeNetwork, setSelectedBeeNetwork] = useState(beeNetworkOptions[0]);
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
   const [isLoading, setIsLoading] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
   const [smailMail, setSmailMail] = useState({ key: null, smail: null }); // this has to be defined
@@ -131,6 +147,7 @@ function App(props) {
   const mainnetProvider = useStaticJsonRPC(providers);
 
   if (DEBUG) console.log(`Using ${selectedNetwork} network`);
+  if (DEBUG) console.log(`Using ${selectedBeeNetwork} bee location`);
 
   // 🛰 providers
   //if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
@@ -376,9 +393,9 @@ function App(props) {
             </Menu.Item>
             <Menu.Item key="/add">
               <Tooltip title={<Balance address={address} provider={localProvider} price={price} />}>
-                <span style={{ display: "flex", alignItems: "center" }}>⬨&nbsp;</span>
+                <span>⬨</span>
               </Tooltip>
-              <>{address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}</>
+              {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
             </Menu.Item>
             <Menu.Item key="/account">
               <Account
@@ -537,11 +554,16 @@ function App(props) {
       {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
       <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
         <div style={{ display: "flex", flex: 1, alignItems: "center" }}>
-          <div style={{ marginRight: 20 }}>
+          <div style={{ marginRight: 20, display: "block" }}>
             <NetworkSwitch
               networkOptions={networkOptions}
               selectedNetwork={selectedNetwork}
               setSelectedNetwork={setSelectedNetwork}
+            />
+            <BeeNetworkSwitch
+              networkOptions={beeNetworkOptions}
+              selectedNetwork={selectedBeeNetwork}
+              setSelectedNetwork={setSelectedBeeNetwork}
             />
           </div>
           <NetworkDisplay
