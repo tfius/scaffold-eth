@@ -81,7 +81,7 @@ export function SubBids({ readContracts, writeContracts, tx, userSigner, address
   const onRemoveActiveBid = async activeBid => {
     console.log("onDeleteActiveBid", activeBid);
 
-    var tx = await writeContracts.SwarmMail.removeActiveBid(activeBid.seller, activeBid.requestHash);
+    var tx = await writeContracts.SwarmMail.removeMyActiveBid(activeBid.seller, activeBid.requestHash);
     await tx.wait();
   };
 
