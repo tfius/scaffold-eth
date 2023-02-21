@@ -396,6 +396,14 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         require(u.activeBidIds[requestHash] != 0, "!ab Req");
         ActiveBid memory ab = u.activeBids[u.activeBidIds[requestHash]-1];
 
+        User storage seller = users[ab.seller];
+
+        require(seller.subRequestIds[requestHash] != 0, "!seller Req");
+        SubRequest storage br = seller.subRequests[seller.subRequestIds[requestHash]-1];
+        require(subscriptionIds[br.subHash] != 0, "!sub");
+        Sub storage s = subscriptions[subscriptionIds[br.subHash]-1];
+        payable(msg.sender).transfer(s.price);
+
         removeSubRequest(ab.seller, requestHash); // remove from seller 
         removeActiveBid(msg.sender, requestHash);
     }

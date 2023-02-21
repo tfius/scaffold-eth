@@ -230,7 +230,7 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
     await newTx.wait();
     notification.open({
       message: "Registered " + address,
-      description: `Your key: ${pubKey}`,
+      description: `Your public key: ${pubKey}`,
     });
     await verifyRegistration();
   };
