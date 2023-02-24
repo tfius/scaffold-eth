@@ -22,3 +22,4 @@ export { default as NetworkDisplay } from "./NetworkDisplay";
 export { default as FaucetHint } from "./FaucetHint";
 export { default as NetworkSwitch } from "./NetworkSwitch";
 export { default as AddressSimple } from "./AddressSimple";
+export { default as BeeNetworkSwitch } from "./BeeNetworkSwitch";

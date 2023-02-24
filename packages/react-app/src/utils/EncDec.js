@@ -241,7 +241,7 @@ export function nacl_decrypt(encryptedData, receiverPrivateKey) {
 }
 
 export async function encryptAndUpload(data, recipientKey) {
-  var encryptedData = nacl_encrypt(JSON.stringify(data), recipientKey);
+  var encryptedData = JSON.stringify(nacl_encrypt(JSON.stringify(data), recipientKey));
   var encryptedDataLocation = await uploadDataToBee(encryptedData, "application/octet-stream", Date.now() + ".data");
   return encryptedDataLocation;
 }

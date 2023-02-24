@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Dropdown, Menu, Tooltip } from "antd";
 
-function NetworkSwitch({ networkOptions, selectedNetwork, setSelectedNetwork }) {
+function BeeNetworkSwitch({ networkOptions, selectedNetwork, setSelectedNetwork }) {
   const menu = (
     <Menu>
       {networkOptions
@@ -17,7 +17,7 @@ function NetworkSwitch({ networkOptions, selectedNetwork, setSelectedNetwork }) 
   );
 
   return (
-    <Tooltip title="Switch network" placement="left">
+    <Tooltip title="Select bee endpoint" placement="left">
       <Dropdown.Button overlay={menu} placement="bottomRight" trigger={["click"]}>
         <span style={{ textTransform: "capitalize" }}>{selectedNetwork}</span>
       </Dropdown.Button>
@@ -25,4 +25,4 @@ function NetworkSwitch({ networkOptions, selectedNetwork, setSelectedNetwork }) 
   );
 }
 
-export default NetworkSwitch;
+export default BeeNetworkSwitch;

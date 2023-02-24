@@ -74,16 +74,14 @@ export default function AddressSimple(props) {
   }
 
   return (
-    <span>
-      <span
-        style={{
-          verticalAlign: "middle",
-          paddingLeft: 0,
-          fontSize: props.fontSize ? props.fontSize : 14,
-        }}
-      >
-        <Text copyable={{ text: address }}>{displayAddress}</Text>
-      </span>
+    <span
+      style={{
+        verticalAlign: "middle",
+        paddingLeft: 0,
+        fontSize: props.fontSize ? props.fontSize : 14,
+      }}
+    >
+      <Text copyable={{ text: address }}>{displayAddress}</Text>
     </span>
   );
 }

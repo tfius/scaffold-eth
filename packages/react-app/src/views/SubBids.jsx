@@ -36,9 +36,27 @@ import { categoryList } from "./categories";
  subHash: "0x6d68ebbd2a7a135d72d0f351ec2fbfa67ce11088aee386dfd0edfd3a130a9624"
 */
 
-export function SubRequests({ readContracts, writeContracts, tx, userSigner, address, smailMail, mainnetProvider }) {
-  const [subRequests, setSubRequests] = useState([]);
-  const [reqSubSubscriptions, setReqSubSubscriptions] = useState([]);
+export function SubBids({ readContracts, writeContracts, tx, userSigner, address, smailMail, mainnetProvider }) {
+  const [activeBids, setActiveBids] = useState([]);
+
+  const getActiveBids = useCallback(async forAddress => {
+    if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
+    var activeBids = await readContracts.SwarmMail.getActiveBids(forAddress);
+    console.log("activeBids", activeBids);
+    getSubsRequestsFromActiveBids(activeBids);
+  });
+  const getSubsRequestsFromActiveBids = useCallback(async activeBids => {
+    for (let i = 0; i < activeBids.length; i++) {
+      let subReq = await readContracts.SwarmMail.getSubRequestByHash(activeBids[i].seller, activeBids[i].requestHash);
+      let sub = await readContracts.SwarmMail.getSubBy(subReq.subHash);
+      const subData = await downloadJsonFromBee(sub.swarmLocation);
+      let activeBid = { activeBid: activeBids[i], subRequest: subReq, sub: sub, subData: subData };
+
+      console.log("activeBid", activeBid);
+      setActiveBids(activeBids => [...activeBids, activeBid]);
+    }
+  });
+  /*
   const getSubRequests = useCallback(async forAddress => {
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
     var requests = await readContracts.SwarmMail.getSubRequests(forAddress);
@@ -52,40 +70,18 @@ export function SubRequests({ readContracts, writeContracts, tx, userSigner, add
   const getSubsForSubRequests = useCallback(async subRequests => {
     for (let i = 0; i < subRequests.length; i++) {
       let sub = await getSub(subRequests[i].subHash);
-      const subData = await downloadJsonFromBee(sub.swarmLocation);
-      var newReqSub = {};
-      Object.assign(newReqSub, subRequests[i]);
-      newReqSub.sub = sub;
-      newReqSub.data = subData;
-
-      console.log("sub", newReqSub);
-      setReqSubSubscriptions(reqSubSubscriptions => [...reqSubSubscriptions, newReqSub]);
+      console.log("sub", sub);
+      setSubscriptions(subscriptions => [...subscriptions, sub]);
     }
-  });
+  });*/
   useEffect(() => {
-    getSubRequests(address);
+    getActiveBids(address);
   }, [address, readContracts]);
 
-  const getPubKeyFor = async forAddress => {
-    const data = await readContracts.SwarmMail.getPublicKeys(forAddress); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
-    if (data.registered == false) {
-      notification.error({ message: "Receiver not registered", description: "You can only sell to registered users" });
-      return;
-    }
-    const rkey = data.key.substr(2, data.key.length - 1);
-    var pk = Buffer.from(rkey, "hex").toString("base64");
-    var pkRegister = { pk: pk, registered: data.registered };
-    console.log("pkRegister", pkRegister);
-    return pkRegister;
-  };
-  const onSellSubRequest = async subRequest => {
-    console.log("onSellSubRequest", subRequest);
-    var fdp = { podAddress: "", podIndex: 0 }; // TODO
-    // get receiver pubKey encrypt key upload encrypted then sell sub
-    let receiverPubKey = await getPubKeyFor(subRequest.buyer);
-    let dataWithKey = { ref: consts.emptyHash, sender: address }; //, podAddress: fdp.podAddress, podIndex: sub.podIndex };
-    var encryptedKeyLocation = await EncDec.encryptAndUpload(dataWithKey, receiverPubKey.pk);
-    var tx = await writeContracts.SwarmMail.sellSub(subRequest.requestHash, "0x" + encryptedKeyLocation);
+  const onRemoveActiveBid = async activeBid => {
+    console.log("onDeleteActiveBid", activeBid);
+
+    var tx = await writeContracts.SwarmMail.removeUserActiveBid(activeBid.requestHash);
     await tx.wait();
   };
 
@@ -93,34 +89,37 @@ export function SubRequests({ readContracts, writeContracts, tx, userSigner, add
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
-      <h3>Subscription bids</h3>
-      <>Here are all bids made to your listings </>
+      <h3>Your bids</h3>
+      <>Here are all active bids you made </>
 
       <Row>
-        {reqSubSubscriptions.map((reqSub, i) => {
+        {activeBids.map((ab, i) => {
           return (
             <Card key={i} style={{ maxWidth: "30%", minWidth: "100px" }}>
               <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
                 <Tooltip
                   title={
                     <>
-                      {reqSub.data.description}
-                      <div>List price:{ethers.utils.formatEther(reqSub.data.price)}⬨</div>
+                      {ab.subData.description}
+                      <div>List price:{ethers.utils.formatEther(ab.sub.price)}⬨</div>
                     </>
                   }
                 >
-                  <strong>{reqSub.data.title}</strong>
+                  <strong>{ab.subData.title}</strong>
                 </Tooltip>
+                <br />
+                <small> {ab.subData.description}</small>
               </div>
               <Tooltip
                 title={
                   <>
-                    Allow {reqSub.buyer} to access {reqSub.podIndex} for 30 days
+                    Asking {ab.sub.seller} to access {ab.sub.title} for {ethers.utils.formatEther(ab.sub.price)}⬨
+                    <br />
+                    You can remove this bid if you want to and get back your escrowed funds.
                   </>
                 }
               >
-                {/* ⬨ */}
-                <Button onClick={() => onSellSubRequest(reqSub)}>Allow</Button>
+                <Button onClick={() => onRemoveActiveBid(ab.activeBid)}>Remove</Button>
               </Tooltip>
             </Card>
           );

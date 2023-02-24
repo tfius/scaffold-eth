@@ -284,6 +284,22 @@ module.exports = {
         mnemonic: mnemonic(),
       },
     },
+    testnetSapphire: {
+      url: "https://testnet.sapphire.oasis.dev",
+      gasPrice: 1000000000,
+      chainId: 0x5aff,
+      accounts: {
+        mnemonic: mnemonic(),
+      },
+    },
+    sapphire: {
+      url: "https://explorer.sapphire.oasis.io",
+      gasPrice: 1000000000,
+      chainId: 0x5afe,
+      accounts: {
+        mnemonic: mnemonic(),
+      },
+    },
   },
   solidity: {
     compilers: [

@@ -23,6 +23,7 @@ import {
   NetworkSwitch,
   AddressSimple,
   NetworkDisplay,
+  BeeNetworkSwitch,
 } from "./components";
 import { NETWORKS, ALCHEMY_KEY } from "./constants";
 import externalContracts from "./contracts/external_contracts";
@@ -36,7 +37,9 @@ import { Inbox } from "./views/Inbox";
 import { Marketplace } from "./views/Marketplace";
 import { ComposeNewMessage } from "./views/ComposeNewMessage";
 import { SubRequests } from "./views/SubRequests";
+import { SubBids } from "./views/SubBids";
 import { Subscribers } from "./views/Subscribers";
+import { Subscriptions } from "./views/Subscriptions";
 
 const { ethers } = require("ethers");
 /*
@@ -93,11 +96,31 @@ function App(props) {
     "testnetSapphire",
     //"rinkeby",
   ];
+  const BEENETWORKS = {
+    "gateway bee": {
+      name: "gateway",
+      downloadUrl: "https://gateway.fairdatasociety.org/bzz/",
+      uploadUrl: "https://gateway.fairdatasociety.org/proxy",
+    },
+    "local bee": {
+      name: "localhost",
+      downloadUrl: "http://localhost:1635/bzz/",
+      uploadUrl: "http://localhost:1635/proxy",
+    },
+  };
+  const beeNetworkOptions = ["gateway bee", "local bee"];
 
   const { currentTheme } = useThemeSwitcher();
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
+  const [selectedBeeNetwork, _setSelectedBeeNetwork] = useState(beeNetworkOptions[0]);
+  const setSelectedBeeNetwork = beeNetwork => {
+    console.log("setSelectedBeeNetwork", beeNetwork, BEENETWORKS[beeNetwork]);
+    // TODO set proper params to bee.js here
+    _setSelectedBeeNetwork(beeNetwork);
+  };
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
   const [isLoading, setIsLoading] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
   const [smailMail, setSmailMail] = useState({ key: null, smail: null }); // this has to be defined
@@ -131,6 +154,7 @@ function App(props) {
   const mainnetProvider = useStaticJsonRPC(providers);
 
   if (DEBUG) console.log(`Using ${selectedNetwork} network`);
+  if (DEBUG) console.log(`Using ${selectedBeeNetwork} bee location`);
 
   // 🛰 providers
   //if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
@@ -346,14 +370,24 @@ function App(props) {
                 <Link to="/marketplace">Marketplace</Link>
               </Tooltip>
             </Menu.Item>
+            <Menu.Item key="/subscriptions:buySubRequestHash">
+              <Tooltip title="Manage your active buys" placement="right">
+                <Link to="/subscriptions">Subscriptions</Link>
+              </Tooltip>
+            </Menu.Item>
             <Menu.Item key="/requests">
-              <Tooltip title="Approve subscription requests for your listings" placement="right">
+              <Tooltip title="Approve bid requests for your listings" placement="right">
                 <Link to="/requests">Requests</Link>
               </Tooltip>
             </Menu.Item>
             <Menu.Item key="/subscribers">
               <Tooltip title="Manage listings, view subscribers and earnings" placement="right">
                 <Link to="/subscribers">Subscribers</Link>
+              </Tooltip>
+            </Menu.Item>
+            <Menu.Item key="/bids:bidRequestHash">
+              <Tooltip title="Manage your active bids" placement="right">
+                <Link to="/bids">Bids</Link>
               </Tooltip>
             </Menu.Item>
 
@@ -386,9 +420,9 @@ function App(props) {
             </Menu.Item>
             <Menu.Item key="/add">
               <Tooltip title={<Balance address={address} provider={localProvider} price={price} />}>
-                <div style={{ display: "flex", alignItems: "center" }}>⬨&nbsp;</div>
+                <span>⬨</span>
               </Tooltip>
-              <>{address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}</>
+              {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
             </Menu.Item>
             <Menu.Item key="/account">
               <Account
@@ -455,6 +489,17 @@ function App(props) {
                   smailMail={smailMail}
                 />
               </Route>
+              <Route exact path="/subscriptions">
+                <Subscriptions
+                  readContracts={readContracts}
+                  writeContracts={writeContracts}
+                  mainnetProvider={mainnetProvider}
+                  userSigner={userSigner}
+                  tx={tx}
+                  address={address}
+                  smailMail={smailMail}
+                />
+              </Route>
               <Route exact path="/requests">
                 <SubRequests
                   readContracts={readContracts}
@@ -468,6 +513,17 @@ function App(props) {
               </Route>
               <Route exact path="/subscribers">
                 <Subscribers
+                  readContracts={readContracts}
+                  writeContracts={writeContracts}
+                  mainnetProvider={mainnetProvider}
+                  userSigner={userSigner}
+                  tx={tx}
+                  address={address}
+                  smailMail={smailMail}
+                />
+              </Route>
+              <Route exact path="/bids">
+                <SubBids
                   readContracts={readContracts}
                   writeContracts={writeContracts}
                   mainnetProvider={mainnetProvider}
@@ -547,11 +603,16 @@ function App(props) {
       {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
       <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
         <div style={{ display: "flex", flex: 1, alignItems: "center" }}>
-          <div style={{ marginRight: 20 }}>
+          <div style={{ marginRight: 20, display: "block" }}>
             <NetworkSwitch
               networkOptions={networkOptions}
               selectedNetwork={selectedNetwork}
               setSelectedNetwork={setSelectedNetwork}
+            />
+            <BeeNetworkSwitch
+              networkOptions={beeNetworkOptions}
+              selectedNetwork={selectedBeeNetwork}
+              setSelectedNetwork={setSelectedBeeNetwork}
             />
           </div>
           <NetworkDisplay

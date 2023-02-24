@@ -118,10 +118,10 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
       // })
     } catch (e) {
       console.log(e);
-      notification.error = {
+      notification.error({
         message: "Error listing subscription",
         description: "You can only list one subscription for a pod.",
-      };
+      });
     }
   });
   const bidSub = useCallback(async (subscription, fdpBuyer) => {
@@ -154,7 +154,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
 
   const onCategoryChange = async values => {
     console.log("onCategoryChange", values);
-    //setSubscriptions(subscriptions => []);
+    setSubscriptions(subscriptions => []);
     let listedCategories = [];
     for (var i = 0; i < values.length; i++) {
       var cat = await getCategory(values[i]);
@@ -207,7 +207,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
         outputArray.push({ label: itemName, value: itemHash });
 
         var item = getMenuItem(data[i].label, itemHash, null, []);
-        console.log("item", itemName, item.key);
+        //console.log("item", itemName, item.key);
         if (parentItem !== undefined) {
           parentItem.children.push(item);
         } else {
@@ -222,9 +222,10 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
     }
     //debugger;
     flatten(categoriesTree, flattened, "", mItems, undefined);
-    console.log("flattened", flattened);
+    // console.log("flattened", flattened);
     setMenuItems(mItems);
     setCategories(flattened);
+    //
   }, []);
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
