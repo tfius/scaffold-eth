@@ -46,7 +46,7 @@ export function Subscriptions({ readContracts, writeContracts, tx, userSigner, a
   });
   const getSubsItemDetails = useCallback(async subItems => {
     for (let i = 0; i < subItems.length; i++) {
-      let sub = await readContracts.SwarmMail.getSubBy(subItems[i].subHash);
+      let sub = await readContracts.SwarmMail.getAllSubItems(subItems[i].subHash);
       var subData = await downloadJsonFromBee(sub.swarmLocation);
       var decData = {};
       //
