@@ -143,7 +143,6 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
 
   const onListSub = async values => {
     console.log("onListSub", values);
-    debugger;
     //var fdpSellerNameHash = "0x" + consts.emptyHash;
     await listSubTx(values.fdpSellerNameHash, values, values.price, values.category, values.podAddress);
     setOpenListSub(false);
@@ -152,10 +151,9 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
   const onBidSub = async subscription => {
     console.log("onBidSub", subscription);
     // address is fdpBuyerNameHash
-    debugger;
     var fdpBuyerNameHash = "0x" + consts.emptyHash;
     await bidSubTx(subscription, fdpBuyerNameHash); // TODO this must be FDPbuyer address not METAMASK address
-  };;
+  };
 
   const onCategoryChange = async values => {
     console.log("onCategoryChange", values);
@@ -228,7 +226,6 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
       }
       root = prevRoot;
     }
-    //debugger;
     flatten(categoriesTree, flattened, "", mItems, undefined);
     // console.log("flattened", flattened);
     setMenuItems(mItems);

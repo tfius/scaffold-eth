@@ -111,7 +111,6 @@ export async function MMgetECDN(provider, account, ephemeralKey) {
 }
 export async function MMdecryptMessage(provider, accountToDecrypt, encryptedMessage) {
   try {
-    // debugger;
     // signer ?
     return await provider.request({
       method: "eth_decrypt",

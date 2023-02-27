@@ -111,7 +111,6 @@ export const downloadFileFromBee = async contentHash => {
   const file = await bee.downloadFile(contentHash).then(data => {
     console.log("downloaded file", data);
     var f = new Blob([data.data], { type: data.contentType });
-    debugger;
     const writeFile = window.URL.createObjectURL(f);
 
     return data;
