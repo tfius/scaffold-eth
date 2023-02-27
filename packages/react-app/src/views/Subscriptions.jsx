@@ -40,7 +40,7 @@ export function Subscriptions({ readContracts, writeContracts, tx, userSigner, a
   const [activeSubItems, setActiveSubItems] = useState([]);
   const getSubItems = useCallback(async forAddress => {
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
-    var subItems = await readContracts.SwarmMail.getSubItems(forAddress);
+    var subItems = await readContracts.SwarmMail.getAllSubItems(forAddress);
     //console.log("getSubItems", subItems);
     getSubsItemDetails(subItems);
   });
