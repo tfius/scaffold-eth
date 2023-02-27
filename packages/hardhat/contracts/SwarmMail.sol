@@ -144,7 +144,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
                 items[i].unlockKeyLocation = bytes32(0);
             }
         }
-        return users[addr].subItems;
+        return items; //users[addr].subItems;
     }
     function getListedSubs(address addr) public view returns (bytes32[] memory) {
         return users[addr].listedSubs;
