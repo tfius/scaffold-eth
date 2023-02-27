@@ -39,7 +39,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         address fdpBuyer;
         address buyer;
         bytes32 subHash; //which subscription;
-        bytes32 requestHash;
+        bytes32 requestHash; // this is needed when
     }
     // active Bid
     struct ActiveBid {
@@ -99,9 +99,51 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     function getSubRequests(address addr) public view returns (SubRequest[] memory) {
         return users[addr].subRequests;
     }
-    function getSubItems(address addr) public view returns (SubItem[] memory) {
+    function getSubItemsCount(address addr) public view returns (uint) {
+        uint count = 0;	
+        for (uint i = 0; i < users[addr].subItems.length; i++) {
+            if(block.timestamp <= users[addr].subItems[i].validTill) {
+                count++;
+            }
+        }
+        return count;
+    }
+    function getSubItems(address addr, uint start, uint length) public view returns (SubItem[] memory) {
         // either we  iterate through all items and return only those that are active
         // or we return all items and let the client filter them
+        // iterate through active subItems
+        uint count = getSubItemsCount(addr); // all active subItems 
+
+        SubItem[] memory items = new SubItem[](count);
+        count = 0;
+        
+        for (uint i = 0; i < users[addr].subItems.length; i++) {
+            if(block.timestamp <= users[addr].subItems[i].validTill) {
+                if(count >= start && count < start + length)
+                {
+                   items[count] = users[addr].subItems[i];
+                }
+                count++;
+            }
+        }
+        //return users[addr].subItems;
+        return items;
+    }
+    function getSubItemBy(address addr, bytes32 subHash) public view returns (SubItem memory) {
+        // check if subHash subItem is active
+        require(block.timestamp <= users[addr].subItems[users[addr].subItemIds[subHash]-1].validTill, "SubItem expired");
+
+        return users[addr].subItems[users[addr].subItemIds[subHash]-1];
+    }
+    function getAllSubItems(address addr) public view returns (SubItem[] memory) {
+        // TODO return non active without keyLockLocation
+        SubItem[] memory items = new SubItem[](users[addr].subItems.length);
+        for (uint i = 0; i < users[addr].subItems.length; i++) {
+            items[i] = users[addr].subItems[i];
+            if(items[i].validTill > block.timestamp) {
+                items[i].unlockKeyLocation = bytes32(0);
+            }
+        }
         return users[addr].subItems;
     }
     function getListedSubs(address addr) public view returns (bytes32[] memory) {
