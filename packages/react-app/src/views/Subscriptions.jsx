@@ -134,7 +134,7 @@ export function Subscriptions({ readContracts, writeContracts, tx, userSigner, a
               <Tooltip
                 title={
                   <>
-                    Allow {ab.buyer} to access {ab.podIndex} for 30 days
+                    Allow {ab.buyer} to access {ab.podName} for 30 days
                   </>
                 }
               >
