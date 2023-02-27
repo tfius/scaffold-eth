@@ -115,7 +115,13 @@ export function SubRequests({ readContracts, writeContracts, tx, userSigner, add
               <Tooltip
                 title={
                   <>
-                    Allow {reqSub.buyer} to access {reqSub.podIndex} for 30 days
+                    Allow {reqSub.buyer}
+                    <br />
+                    to access pod
+                    <br />
+                    <strong>{reqSub.data.podName}</strong>
+                    <br />
+                    for 30 days
                   </>
                 }
               >

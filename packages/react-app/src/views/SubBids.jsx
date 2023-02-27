@@ -113,7 +113,15 @@ export function SubBids({ readContracts, writeContracts, tx, userSigner, address
               <Tooltip
                 title={
                   <>
-                    Asking {ab.sub.seller} to access {ab.sub.title} for {ethers.utils.formatEther(ab.sub.price)}⬨
+                    Asking {ab.sub.seller} <br />
+                    to access <strong> {ab.subData.title}</strong> <br />
+                    Pod <strong> {ab.subData.podName}</strong>
+                    <br />
+                    For <strong>{ethers.utils.formatEther(ab.sub.price)}</strong>⬨
+                    <br />
+                    <br />
+                    <i>{ab.subData.description}</i>
+                    <br />
                     <br />
                     You can remove this bid if you want to and get back your escrowed funds.
                   </>

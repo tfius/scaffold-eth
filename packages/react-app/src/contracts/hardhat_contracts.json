@@ -5,7 +5,7 @@
       "chainId": "31337",
       "contracts": {
         "SwarmMail": {
-          "address": "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
+          "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
           "abi": [
             {
               "inputs": [],
@@ -127,9 +127,9 @@
                   "type": "bytes32"
                 },
                 {
-                  "internalType": "address",
-                  "name": "fdpBuyer",
-                  "type": "address"
+                  "internalType": "bytes32",
+                  "name": "fdpBuyerNameHash",
+                  "type": "bytes32"
                 }
               ],
               "name": "bidSub",
@@ -248,6 +248,42 @@
                     }
                   ],
                   "internalType": "struct SwarmMail.ActiveBid[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "addr",
+                  "type": "address"
+                }
+              ],
+              "name": "getAllSubItems",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "subHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "unlockKeyLocation",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "validTill",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct SwarmMail.SubItem[]",
                   "name": "",
                   "type": "tuple[]"
                 }
@@ -643,9 +679,9 @@
                       "type": "bytes32"
                     },
                     {
-                      "internalType": "address",
-                      "name": "fdpSeller",
-                      "type": "address"
+                      "internalType": "bytes32",
+                      "name": "fdpSellerNameHash",
+                      "type": "bytes32"
                     },
                     {
                       "internalType": "address",
@@ -685,11 +721,6 @@
                     {
                       "internalType": "uint32",
                       "name": "reports",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint32",
-                      "name": "podIndex",
                       "type": "uint32"
                     }
                   ],
@@ -719,9 +750,9 @@
                       "type": "bytes32"
                     },
                     {
-                      "internalType": "address",
-                      "name": "fdpSeller",
-                      "type": "address"
+                      "internalType": "bytes32",
+                      "name": "fdpSellerNameHash",
+                      "type": "bytes32"
                     },
                     {
                       "internalType": "address",
@@ -761,11 +792,6 @@
                     {
                       "internalType": "uint32",
                       "name": "reports",
-                      "type": "uint32"
-                    },
-                    {
-                      "internalType": "uint32",
-                      "name": "podIndex",
                       "type": "uint32"
                     }
                   ],
@@ -848,6 +874,57 @@
                   "internalType": "address",
                   "name": "addr",
                   "type": "address"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "subHash",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "getSubItemBy",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "subHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "unlockKeyLocation",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "validTill",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct SwarmMail.SubItem",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "addr",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "start",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "length",
+                  "type": "uint256"
                 }
               ],
               "name": "getSubItems",
@@ -884,6 +961,25 @@
                   "internalType": "address",
                   "name": "addr",
                   "type": "address"
+                }
+              ],
+              "name": "getSubItemsCount",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "addr",
+                  "type": "address"
                 },
                 {
                   "internalType": "uint256",
@@ -896,9 +992,9 @@
                 {
                   "components": [
                     {
-                      "internalType": "address",
-                      "name": "fdpBuyer",
-                      "type": "address"
+                      "internalType": "bytes32",
+                      "name": "fdpBuyerNameHash",
+                      "type": "bytes32"
                     },
                     {
                       "internalType": "address",
@@ -942,9 +1038,9 @@
                 {
                   "components": [
                     {
-                      "internalType": "address",
-                      "name": "fdpBuyer",
-                      "type": "address"
+                      "internalType": "bytes32",
+                      "name": "fdpBuyerNameHash",
+                      "type": "bytes32"
                     },
                     {
                       "internalType": "address",
@@ -983,9 +1079,9 @@
                 {
                   "components": [
                     {
-                      "internalType": "address",
-                      "name": "fdpBuyer",
-                      "type": "address"
+                      "internalType": "bytes32",
+                      "name": "fdpBuyerNameHash",
+                      "type": "bytes32"
                     },
                     {
                       "internalType": "address",
@@ -1025,6 +1121,71 @@
                   "internalType": "address[]",
                   "name": "",
                   "type": "address[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getSubs",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "subHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "fdpSellerNameHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "seller",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "swarmLocation",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "price",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "active",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "earned",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "bids",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "sells",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "reports",
+                      "type": "uint32"
+                    }
+                  ],
+                  "internalType": "struct SwarmMail.Sub[]",
+                  "name": "",
+                  "type": "tuple[]"
                 }
               ],
               "stateMutability": "view",
@@ -1088,9 +1249,9 @@
             {
               "inputs": [
                 {
-                  "internalType": "address",
-                  "name": "fdpSeller",
-                  "type": "address"
+                  "internalType": "bytes32",
+                  "name": "fdpSellerNameHash",
+                  "type": "bytes32"
                 },
                 {
                   "internalType": "bytes32",
@@ -1108,9 +1269,9 @@
                   "type": "bytes32"
                 },
                 {
-                  "internalType": "uint32",
-                  "name": "podIndex",
-                  "type": "uint32"
+                  "internalType": "address",
+                  "name": "podAddress",
+                  "type": "address"
                 }
               ],
               "name": "listSub",
@@ -1403,9 +1564,9 @@
                   "type": "bytes32"
                 },
                 {
-                  "internalType": "address",
-                  "name": "fdpSeller",
-                  "type": "address"
+                  "internalType": "bytes32",
+                  "name": "fdpSellerNameHash",
+                  "type": "bytes32"
                 },
                 {
                   "internalType": "address",
@@ -1445,11 +1606,6 @@
                 {
                   "internalType": "uint32",
                   "name": "reports",
-                  "type": "uint32"
-                },
-                {
-                  "internalType": "uint32",
-                  "name": "podIndex",
                   "type": "uint32"
                 }
               ],

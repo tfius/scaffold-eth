@@ -101,13 +101,13 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
 
   // A modal with form to collect data for listing a subscription
   // data = json object { title, description, image, price, category, podIndex }
-  const listSub = useCallback(async (fdpSellerAddress, data, price, category, podIndex) => {
+  const listSubTx = useCallback(async (fdpSellerNameHash, data, price, category, podAddress) => {
     // upload data to swarm
     try {
       var dataLocation = await uploadDataToBee(JSON.stringify(data), "application/json", Date.now() + ".sub.json");
       console.log("dataLocation", dataLocation);
       var newTx = await tx(
-        writeContracts.SwarmMail.listSub(fdpSellerAddress, "0x" + dataLocation, price, category, podIndex, {
+        writeContracts.SwarmMail.listSub(fdpSellerNameHash, "0x" + dataLocation, price, category, podAddress, {
           value: listingFee,
         }),
       );
@@ -124,9 +124,9 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
       });
     }
   });
-  const bidSub = useCallback(async (subscription, fdpBuyer) => {
+  const bidSubTx = useCallback(async (subscription, fdpBuyerNameHash) => {
     var newTx = await tx(
-      writeContracts.SwarmMail.bidSub(subscription.subHash, fdpBuyer, { value: subscription.priceInWei }),
+      writeContracts.SwarmMail.bidSub(subscription.subHash, fdpBuyerNameHash, { value: subscription.priceInWei }),
     );
     await newTx.wait();
   });
@@ -143,14 +143,19 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
 
   const onListSub = async values => {
     console.log("onListSub", values);
-    await listSub(values.fdpSeller, values, values.price, values.category, values.podIndex);
+    debugger;
+    //var fdpSellerNameHash = "0x" + consts.emptyHash;
+    await listSubTx(values.fdpSellerNameHash, values, values.price, values.category, values.podAddress);
     setOpenListSub(false);
   };
 
   const onBidSub = async subscription => {
-    console.log("subscription", subscription);
-    await bidSub(subscription, address); // TODO this must be FDPbuyer address not METAMASK address
-  };
+    console.log("onBidSub", subscription);
+    // address is fdpBuyerNameHash
+    debugger;
+    var fdpBuyerNameHash = "0x" + consts.emptyHash;
+    await bidSubTx(subscription, fdpBuyerNameHash); // TODO this must be FDPbuyer address not METAMASK address
+  };;
 
   const onCategoryChange = async values => {
     console.log("onCategoryChange", values);
@@ -164,8 +169,9 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
           console.log("sub", sub);
           var subData = await downloadDataFromBee(sub.swarmLocation);
           var subscription = JSON.parse(new TextDecoder().decode(subData));
+          console.log("subscription", subscription);
           subscription.seller = sub.seller;
-          subscription.fdpSeller = sub.fdpSeller;
+          subscription.fdpSellerNameHash = sub.fdpSellerNameHash;
           subscription.price = ethers.utils.formatEther(sub.price).toString();
           subscription.priceInWei = sub.price.toString();
           subscription.bids = sub.bids.toString();
@@ -174,7 +180,9 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
           subscription.swarmLocation = sub.swarmLocation;
           subscription.subHash = sub.subHash;
           subscription.category = categories.find(x => x.value == values[i])?.label;
-          subscription.podContractIndex = sub.podIndex.toString();
+
+          subscription.dataPodName = subscription.podName;
+          subscription.dataPodAddress = subscription.podAddress;
 
           console.log("subData", subscription);
           setSubscriptions(subscriptions => [...subscriptions, subscription]);
@@ -257,7 +265,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
         onOk={() => setOpenListSub(false)}
         onCancel={() => setOpenListSub(false)}
       >
-        <ListSub listSub={onListSub} categories={categories} />
+        <ListSubModalForm listSub={onListSub} categories={categories} />
       </Modal>
       <div style={{ float: "left" }}>
         <Menu style={{ width: "256px" }} mode="vertical" items={menuItems} onClick={onMenuClick} />
@@ -274,11 +282,14 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
                         title={
                           <>
                             Category: <strong>{sub.category}</strong> Seller: <br />
-                            <AddressSimple address={sub.fdpSeller} ensProvider={mainnetProvider} />
+                            <AddressSimple address={sub.seller} ensProvider={mainnetProvider} />
                             <br />
-                            FDP Seller: <AddressSimple address={sub.seller} ensProvider={mainnetProvider} />
                             <div>
-                              Pod index: {sub.podIndex} / {sub.podContractIndex}
+                              Pod: {sub.dataPodName} <br />
+                              PodAddress: {sub.dataPodAddress} <br />
+                            </div>
+                            <div>
+                              FDP Seller NameHash: {sub.fdpSellerNameHash}<br />
                             </div>
                           </>
                         }
@@ -321,7 +332,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
                   </div>
 
                   <br />
-                  <Tooltip title={<>Bid on subscription for {sub.price}⬨ for 30 days</>}>
+                  <Tooltip title={<>Request to subscribe for {sub.price}⬨ for 30 days</>}>
                     <Button onClick={() => onBidSub(sub)}>{sub.price} ⬨</Button>
                   </Tooltip>
                 </div>
@@ -336,9 +347,9 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
 }
 
 import * as layouts from "./layouts.js";
-export function ListSub({ listSub, categories }) {
+export function ListSubModalForm({ listSub, categories }) {
   // const formRef = React.createRef();
-  const onSend = values => {
+  const onSendListBub = values => {
     listSub(values);
     console.log("onSend", values);
   };
@@ -348,7 +359,7 @@ export function ListSub({ listSub, categories }) {
   const required = [{ required: true }];
 
   return (
-    <Form {...layouts.layout} onFinish={onSend}>
+    <Form {...layouts.layout} onFinish={onSendListBub}>
       <Form.Item name="title" label="Title" rules={required}>
         <Input />
       </Form.Item>
@@ -364,10 +375,13 @@ export function ListSub({ listSub, categories }) {
       <Form.Item name="category" label="Category" rules={required}>
         <Select onChange={onListSubCategoryChange} options={categories} />
       </Form.Item>
-      <Form.Item name="fdpSeller" label="FDP Account" rules={required}>
+      <Form.Item name="fdpSellerNameHash" label="FDP NameHash" rules={required}>
         <Input />
       </Form.Item>
-      <Form.Item name="podIndex" label="Pod Index" rules={required}>
+      <Form.Item name="podName" label="Pod name" rules={required}>
+        <Input />
+      </Form.Item>
+      <Form.Item name="podAddress" label="Pod Address" rules={required}>
         <Input />
       </Form.Item>
       <Button
