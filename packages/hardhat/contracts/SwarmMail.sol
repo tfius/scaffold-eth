@@ -357,7 +357,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         seller.listedSubs.push(subHash);
 
         feesCollected+=msg.value;
-    }
+    }    
 
     function bidSub(bytes32 subHash, bytes32 fdpBuyerNameHash) public nonReentrant payable {
         require(users[msg.sender].key != bytes32(0), "Not reg"); // user can not receive encrypted data
