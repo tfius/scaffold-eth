@@ -40,13 +40,13 @@ export function Subscriptions({ readContracts, writeContracts, tx, userSigner, a
   const [activeSubItems, setActiveSubItems] = useState([]);
   const getSubItems = useCallback(async forAddress => {
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
-    var subItems = await readContracts.SwarmMail.getSubItems(forAddress);
+    var subItems = await readContracts.SwarmMail.getAllSubItems(forAddress);
     //console.log("getSubItems", subItems);
     getSubsItemDetails(subItems);
   });
   const getSubsItemDetails = useCallback(async subItems => {
     for (let i = 0; i < subItems.length; i++) {
-      let sub = await readContracts.SwarmMail.getAllSubItems(subItems[i].subHash);
+      let sub = await readContracts.SwarmMail.getSubBy(subItems[i].subHash);
       var subData = await downloadJsonFromBee(sub.swarmLocation);
       var decData = {};
       //
