@@ -36,7 +36,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     }
     // subscription request
     struct SubRequest {
-        address fdpBuyer;
+        bytes32 fdpBuyerNameHash;
         address buyer;
         bytes32 subHash; //which subscription;
         bytes32 requestHash; // this is needed when
@@ -289,7 +289,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     // Sub listings
     struct Sub {
         bytes32 subHash;
-        address fdpSeller; // 
+        bytes32 fdpSellerNameHash; //
         address seller;
         bytes32 swarmLocation; // metadata location
         uint256 price;
@@ -298,7 +298,6 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         uint32  bids;
         uint32  sells;
         uint32  reports;
-        uint32  podIndex;
     }
     Sub[] public  subscriptions;
     mapping(bytes32 => uint256) public subscriptionIds; 
@@ -320,7 +319,9 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     function getSubInfoBalance(bytes32 subHash, address forAddress) public view returns (uint256) {
         return subInfos[subHash].perSubscriberBalance[forAddress];
     }
-
+    function getSubs() public view returns (Sub[] memory) {
+        return subscriptions;
+    }
     function getCategory(bytes32 category) public view returns (Category memory) {
         return categories[category];
     }
@@ -338,13 +339,13 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     }
     
     // Market to sell encrypted swarmLocation
-    function listSub(address fdpSeller, bytes32 dataSwarmLocation, uint price, bytes32 category, uint32 podIndex) public payable {
+    function listSub(bytes32 fdpSellerNameHash, bytes32 dataSwarmLocation, uint price, bytes32 category, address podAddress) public payable {
         //bytes32 subHash = keccak256(abi.encode(msg.sender, fdpSeller, dataSwarmLocation, price, category, podIndex));
-        bytes32 subHash = keccak256(abi.encode(msg.sender, fdpSeller, podIndex));// user can list same pod only once
+        bytes32 subHash = keccak256(abi.encode(msg.sender, fdpSellerNameHash, podAddress));// user can list same pod only once
         require(msg.value>=minListingFee, "minFee"); // sent value must be equal to price
         require(subscriptionIds[subHash] == 0, "SubExists"); // must not exists
 
-        Sub memory s = Sub(subHash, fdpSeller, msg.sender, dataSwarmLocation, price, true, 0, 0, 0, 0, podIndex);
+        Sub memory s = Sub(subHash, fdpSellerNameHash, msg.sender, dataSwarmLocation, price, true, 0, 0, 0, 0);
         
         subscriptions.push(s);
         subscriptionIds[subHash] = subscriptions.length; // will point to 1 more than index
@@ -358,7 +359,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         feesCollected+=msg.value;
     }
 
-    function bidSub(bytes32 subHash, address fdpBuyer) public nonReentrant payable {
+    function bidSub(bytes32 subHash, bytes32 fdpBuyerNameHash) public nonReentrant payable {
         require(users[msg.sender].key != bytes32(0), "Not reg"); // user can not receive encrypted data
         require(subscriptionIds[subHash] != 0, "No Sub"); // must exists
         Sub storage s = subscriptions[subscriptionIds[subHash] - 1]; 
@@ -367,13 +368,13 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         require(msg.value==s.price, "Value!=price"); // sent value must be equal to price
 
         User storage seller = users[s.seller];
-        bytes32 requestHash = keccak256(abi.encode(msg.sender, subHash, fdpBuyer)); //, block.timestamp));
+        bytes32 requestHash = keccak256(abi.encode(msg.sender, subHash, fdpBuyerNameHash)); //, block.timestamp));
         require(seller.subRequestIds[requestHash] == 0, "Req exists");
 
         s.bids++;
 
         SubRequest memory sr;
-        sr.fdpBuyer = fdpBuyer;
+        sr.fdpBuyerNameHash = fdpBuyerNameHash;
         sr.buyer = msg.sender;
         sr.subHash = s.subHash;
         sr.requestHash = requestHash;
