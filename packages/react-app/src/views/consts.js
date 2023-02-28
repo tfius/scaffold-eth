@@ -4,6 +4,7 @@ export const PUBLIC_KEY_LENGTH = 132;
 export const PUBLIC_KEY_PART_LENGTH = (PUBLIC_KEY_LENGTH - 4) / 2 + 2;
 export const emptyHash = "0000000000000000000000000000000000000000000000000000000000000000";
 export const oneHash = "0000000000000000000000000000000000000000000000000000000000000001";
+export const emptyBatchId = "0000000000000000000000000000000000000000000000000000000000000000";
 
 export const stringToHex = s => ethers.utils.hexlify(ethers.utils.toUtf8Bytes(s));
 export const hexToString = h => ethers.utils.toUtf8String(h);

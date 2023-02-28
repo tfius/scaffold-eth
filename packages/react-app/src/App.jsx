@@ -32,6 +32,7 @@ import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
 import { useStaticJsonRPC } from "./hooks";
 
+import * as consts from "./views/consts";
 import { Home } from "./views/Home";
 import { Inbox } from "./views/Inbox";
 import { Marketplace } from "./views/Marketplace";
@@ -99,13 +100,17 @@ function App(props) {
   const BEENETWORKS = {
     "gateway bee": {
       name: "gateway",
+      endpoint: "https://gateway.fairdatasociety.org",
       downloadUrl: "https://gateway.fairdatasociety.org/bzz/",
       uploadUrl: "https://gateway.fairdatasociety.org/proxy",
+      rpc: "https://xdai.dev.fairdatasociety.org/",
     },
     "local bee": {
       name: "localhost",
-      downloadUrl: "http://localhost:1635/bzz/",
-      uploadUrl: "http://localhost:1635/proxy",
+      endpoint: "http://localhost:1633",
+      downloadUrl: "http://localhost:1633/bzz/",
+      uploadUrl: "http://localhost:1633/proxy",
+      rpc: "https://xdai.fairdatasociety.org/",
     },
   };
   const beeNetworkOptions = ["gateway bee", "local bee"];
@@ -114,6 +119,8 @@ function App(props) {
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
+
+  const [batchId, setBatchId] = useState(consts.emptyBatchId);
   const [selectedBeeNetwork, _setSelectedBeeNetwork] = useState(beeNetworkOptions[0]);
   const setSelectedBeeNetwork = beeNetwork => {
     console.log("setSelectedBeeNetwork", beeNetwork, BEENETWORKS[beeNetwork]);
@@ -327,6 +334,26 @@ function App(props) {
     await new Promise(resolve => setTimeout(resolve, 10000));
     setMessageCount(messageCount + 1);
   };
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //   FAIROS WASM STUFF
+  //   from https://github.com/fairDataSociety/fairos-client-examples/blob/wasm.0/wasm-hello-world/src/App.tsx
+  //   types https://github.com/asabya/scaffold-eth/blob/35eabe678331aa061265057a85f58ff92d746940/packages/react-app/src/react-app-env.d.ts
+
+  async function ConnectFairOS() {
+    console.log("wasmConnect", selectedBeeNetwork, targetNetwork, batchId);
+    let resp = await window.connect(
+      selectedBeeNetwork.endpoint, // "http://localhost:1633", // bee endpoint
+      batchId, //"51987f7304b419d8aa184d35d46b3cfeb1b00986ad937b3151c7ade699c81338", // stampId
+      selectedBeeNetwork.rpc, //"http://localhost:9545", // rpc
+      targetNetwork.name, //"play", // netowrk
+      targetNetwork.rpc, // "http://localhost:9545", // contract.rpc
+      readContracts.SwarmMail.address, //"0x21a59654176f2689d12E828B77a783072CD26680", // swarm mail contract address
+    );
+    console.log(resp);
+  }
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // if(true) return <div></div>
 
@@ -442,6 +469,7 @@ function App(props) {
               // background: "#000000",
             }}
           >
+            <Button onClick={() => ConnectFairOS()}>Connect</Button>
             <Switch>
               <Route exact path="/">
                 <Home

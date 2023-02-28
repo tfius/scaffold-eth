@@ -26,6 +26,21 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>Swarm Mail</title>
+    <script src="wasm_exec.js"></script>
+    <script>
+      (() => {
+        window.go = new Go()
+        WebAssembly.instantiateStreaming(fetch("fairos.wasm"), window.go.importObject).then(
+          result => {
+            console.log("WebAssembly", result)
+            window.go.run(result.instance).then( (r) => {
+              console.log(r)
+              console.log("exiting...")
+            })
+          }
+        );
+      })()
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
