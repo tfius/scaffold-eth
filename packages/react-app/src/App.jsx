@@ -100,7 +100,7 @@ function App(props) {
   const BEENETWORKS = {
     "gateway bee": {
       name: "gateway",
-      endpoint: "https://gateway.fairdatasociety.org",
+      endpoint: "https://bee-1.fairdatasociety.org",
       downloadUrl: "https://gateway.fairdatasociety.org/bzz/",
       uploadUrl: "https://gateway.fairdatasociety.org/proxy",
       rpc: "https://xdai.dev.fairdatasociety.org/",
@@ -122,6 +122,7 @@ function App(props) {
 
   const [batchId, setBatchId] = useState(consts.emptyBatchId);
   const [selectedBeeNetwork, _setSelectedBeeNetwork] = useState(beeNetworkOptions[0]);
+
   const setSelectedBeeNetwork = beeNetwork => {
     console.log("setSelectedBeeNetwork", beeNetwork, BEENETWORKS[beeNetwork]);
     // TODO set proper params to bee.js here
@@ -341,17 +342,22 @@ function App(props) {
   //   types https://github.com/asabya/scaffold-eth/blob/35eabe678331aa061265057a85f58ff92d746940/packages/react-app/src/react-app-env.d.ts
 
   async function ConnectFairOS() {
+    const beeNet = BEENETWORKS[selectedBeeNetwork];
     console.log("wasmConnect", selectedBeeNetwork, targetNetwork, batchId);
+    debugger;
     let resp = await window.connect(
-      selectedBeeNetwork.endpoint, // "http://localhost:1633", // bee endpoint
+      beeNet.endpoint, // "http://localhost:1633", // bee endpoint
       batchId, //"51987f7304b419d8aa184d35d46b3cfeb1b00986ad937b3151c7ade699c81338", // stampId
-      selectedBeeNetwork.rpc, //"http://localhost:9545", // rpc
-      targetNetwork.name, //"play", // netowrk
-      targetNetwork.rpc, // "http://localhost:9545", // contract.rpc
+      beeNet.rpc, //"http://localhost:9545", // rpc
+      "testnet", //targetNetwork.name, //"play or testnet", // netowork
+      targetNetwork.rpcUrl, // "http://localhost:9545", // contract.rpc
       readContracts.SwarmMail.address, //"0x21a59654176f2689d12E828B77a783072CD26680", // swarm mail contract address
     );
     console.log(resp);
   }
+  // wallet connect
+  // list pods
+
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

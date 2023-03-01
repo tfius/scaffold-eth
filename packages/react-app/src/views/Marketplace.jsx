@@ -391,3 +391,8 @@ export function ListSubModalForm({ listSub, categories }) {
     </Form>
   );
 }
+
+// podList -> podName
+// podStat -> podAddress
+// getUserHash(username) -> get user NameHash
+// getUseranem(nameHash) -> imposible
