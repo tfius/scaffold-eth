@@ -81,7 +81,6 @@ export function FairOSConnect({
       var userStat = await window.userStat(login.sessionId);
       setLogin({ login, userStat });
       console.log("Login", login, userStat);
-
       // {
       //   "user": "demotime11",
       //   "sessionId": "anfeayKjs1LkQC9fAW1jiiX74TLcJuOECgNQPWwJuOo="
@@ -104,9 +103,13 @@ export function FairOSConnect({
   }
   async function ConnectFairOSWithWallet() {
     try {
-      const signature = await userSigner.signMessage(login.user + " wants to connect with provider address " + address);
+      debugger;
+      const signature = await userSigner.signMessage(username + " wants to connect with provider address " + address);
       console.log("signature", signature);
       let resp = await window.connectWallet(username, password, login.userStat.address, signature);
+      // let resp = await window.connectWallet(username, password, address, signature);
+      // Signature failed Failed to create user : wallet doesnot match portable account address
+      // address expected is from userStat, but it should be from my wallet address
       console.log("connect wallet", resp);
       setIsConnectVisible(false);
     } catch (e) {
@@ -116,6 +119,12 @@ export function FairOSConnect({
       });
       return;
     }
+  }
+  async function LoginWithWallet() {
+    const signature = await userSigner.signMessage(username + " wants to connect with provider address " + address);
+    // need to get userStat.address from login, which is not available here, we still need to login first into fairOS to get it for what we need username password
+    let resp = await window.walletLogin(address, signature);
+    console.log(resp);
   }
 
   return (
@@ -170,8 +179,10 @@ export function FairOSConnect({
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit">
-                Login
+                Login with password
               </Button>
+              &nbsp;
+              <Button onClick={() => LoginWithWallet()}>Login with provider</Button>
             </Form.Item>
 
             <div style={{ color: "red" }}>{loginError}</div>
