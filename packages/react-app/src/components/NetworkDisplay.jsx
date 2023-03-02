@@ -86,14 +86,16 @@ function NetworkDisplay({ NETWORKCHECK, localChainId, selectedChainId, targetNet
         style={{
           zIndex: -1,
           position: "absolute",
-          right: 200,
-          top: -2,
+          right: 163,
+          //left: 400,
+          top: 25,
           padding: 16,
           width: "100%",
+          fontSize: 10,
           color: targetNetwork.color,
         }}
       >
-        <small>{targetNetwork.name}</small>
+        {targetNetwork.name}
       </div>
     );
   }

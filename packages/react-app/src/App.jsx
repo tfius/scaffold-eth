@@ -1,4 +1,4 @@
-import { Button, Col, Menu, Row, Modal, Spin, Layout, Tooltip } from "antd";
+import { Button, Col, Menu, Row, Modal, Spin, Layout, Tooltip, Form } from "antd";
 const { Header, Content, Sider } = Layout;
 
 import "antd/dist/antd.css";
@@ -41,6 +41,8 @@ import { SubRequests } from "./views/SubRequests";
 import { SubBids } from "./views/SubBids";
 import { Subscribers } from "./views/Subscribers";
 import { Subscriptions } from "./views/Subscriptions";
+
+import { FairOSConnect } from "./views/FairOSConnect";
 
 const { ethers } = require("ethers");
 /*
@@ -341,6 +343,9 @@ function App(props) {
   //   from https://github.com/fairDataSociety/fairos-client-examples/blob/wasm.0/wasm-hello-world/src/App.tsx
   //   types https://github.com/asabya/scaffold-eth/blob/35eabe678331aa061265057a85f58ff92d746940/packages/react-app/src/react-app-env.d.ts
 
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState(false);
+
   async function ConnectFairOS() {
     const beeNet = BEENETWORKS[selectedBeeNetwork];
     console.log("wasmConnect", selectedBeeNetwork, targetNetwork, batchId);
@@ -349,7 +354,7 @@ function App(props) {
       beeNet.endpoint, // "http://localhost:1633", // bee endpoint
       batchId, //"51987f7304b419d8aa184d35d46b3cfeb1b00986ad937b3151c7ade699c81338", // stampId
       beeNet.rpc, //"http://localhost:9545", // rpc
-      "testnet", //targetNetwork.name, //"play or testnet", // netowork
+      "testnet", //targetNetwork.name, //"play or testnet", // network
       targetNetwork.rpcUrl, // "http://localhost:9545", // contract.rpc
       readContracts.SwarmMail.address, //"0x21a59654176f2689d12E828B77a783072CD26680", // swarm mail contract address
     );
@@ -461,6 +466,23 @@ function App(props) {
                 blockExplorer={blockExplorer}
               />
             </Menu.Item>
+            <Menu.Item key="/fairOS">
+              <FairOSConnect
+                selectedBeeNetwork={selectedBeeNetwork}
+                targetNetwork={targetNetwork}
+                BEENETWORKS={BEENETWORKS}
+                batchId={batchId}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                userSigner={userSigner}
+                tx={tx}
+                address={address}
+                messageCount={messageCount}
+                provider={localProvider}
+                smailMail={smailMail}
+                setSmailMail={setSmailMail}
+              />
+            </Menu.Item>
           </Menu>
           {/* <Balance address={address} provider={localProvider} price={price} /> */}
         </Sider>
@@ -475,7 +497,6 @@ function App(props) {
               // background: "#000000",
             }}
           >
-            <Button onClick={() => ConnectFairOS()}>Connect</Button>
             <Switch>
               <Route exact path="/">
                 <Home
@@ -628,6 +649,12 @@ function App(props) {
       <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
         <div style={{ display: "flex", flex: 1, alignItems: "center" }}>
           <div style={{ marginRight: 20, display: "block" }}>
+            <NetworkDisplay
+              NETWORKCHECK={NETWORKCHECK}
+              localChainId={localChainId}
+              selectedChainId={selectedChainId}
+              targetNetwork={targetNetwork}
+            />
             <NetworkSwitch
               networkOptions={networkOptions}
               selectedNetwork={selectedNetwork}
@@ -639,12 +666,7 @@ function App(props) {
               setSelectedNetwork={setSelectedBeeNetwork}
             />
           </div>
-          <NetworkDisplay
-            NETWORKCHECK={NETWORKCHECK}
-            localChainId={localChainId}
-            selectedChainId={selectedChainId}
-            targetNetwork={targetNetwork}
-          />
+
           {/* <Account
             address={address}
             localProvider={localProvider}
