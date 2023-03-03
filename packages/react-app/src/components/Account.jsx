@@ -84,7 +84,7 @@ export default function Account({
             // size="large"
             onClick={logoutOfWeb3Modal}
           >
-            logout
+            DISCONNECT
           </Button>
         ) : (
           <Button
@@ -93,9 +93,10 @@ export default function Account({
             // shape="round"
             // size="large"
             /* type={minimized ? "default" : "primary"}     too many people just defaulting to MM and having a bad time */
+            type={"primary"}
             onClick={loadWeb3Modal}
           >
-            connect
+            CONNECT
           </Button>
         ))}
     </div>

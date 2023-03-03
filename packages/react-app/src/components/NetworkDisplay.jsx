@@ -26,7 +26,7 @@ function NetworkDisplay({ NETWORKCHECK, localChainId, selectedChainId, targetNet
       );
     } else {
       networkDisplay = (
-        <div style={{ zIndex: 2, position: "absolute", right: 14, top: 28, padding: 16, width: 300 }}>
+        <div style={{ zIndex: 200, position: "absolute", left: -14, top: 35, padding: 16, width: 230 }}>
           <Alert
             message="⚠️ Wrong Network"
             description={
@@ -86,12 +86,13 @@ function NetworkDisplay({ NETWORKCHECK, localChainId, selectedChainId, targetNet
         style={{
           zIndex: -1,
           position: "absolute",
-          right: 163,
-          //left: 400,
-          top: 25,
+          right: 0,
+          left: 8,
+          top: -12,
+          textAlign: "left",
           padding: 16,
           width: "100%",
-          fontSize: 10,
+          fontSize: 12,
           color: targetNetwork.color,
         }}
       >

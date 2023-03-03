@@ -5,7 +5,7 @@
       "chainId": "31337",
       "contracts": {
         "SwarmMail": {
-          "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+          "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
           "abi": [
             {
               "inputs": [],
@@ -514,6 +514,25 @@
                   "type": "address"
                 }
               ],
+              "name": "getPortableAddress",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "addr",
+                  "type": "address"
+                }
+              ],
               "name": "getPublicKeys",
               "outputs": [
                 {
@@ -530,6 +549,11 @@
                   "internalType": "bytes32",
                   "name": "smail",
                   "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "portable",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -1512,6 +1536,19 @@
                 }
               ],
               "name": "setListingFee",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "addr",
+                  "type": "address"
+                }
+              ],
+              "name": "setPortableAddress",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"

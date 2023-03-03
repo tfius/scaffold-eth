@@ -19,10 +19,11 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         _;
     }
 
-    function getPublicKeys(address addr) public view returns (bool registered, bytes32 key, bytes32 smail) {
+    function getPublicKeys(address addr) public view returns (bool registered, bytes32 key, bytes32 smail, address portable) {
         registered = users[addr].key != bytes32(0) ;
         key = users[addr].key;
         smail = users[addr].smail;
+        portable = userToPortable[addr];
     } 
 
     struct Email {
@@ -75,6 +76,14 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         bytes32[] listedSubs; // everything user listed 
     }
     mapping(address => User) users;
+    mapping(address => address) userToPortable;
+
+    function setPortableAddress(address addr) public {
+        userToPortable[msg.sender] = addr;
+    }
+    function getPortableAddress(address addr) public view returns (address) {
+        return userToPortable[addr];
+    }
 
     
     constructor() {
@@ -87,6 +96,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         require(user.key == bytes32(0), "Already registered");
         user.key = key;
         user.smail = smail;
+        //userToPortable[msg.sender] = portable;
     }
 
     function getInbox(address addr) public view returns (Email[] memory) {

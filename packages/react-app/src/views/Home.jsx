@@ -38,7 +38,17 @@ import * as EncDec from "./../utils/EncDec.js";
 import { PUBKEY_HEX_LENGTH } from "@ethersphere/bee-js";
 const { Meta } = Card;
 
-export function Home({ readContracts, writeContracts, tx, userSigner, address, provider, smailMail, setSmailMail }) {
+export function Home({
+  readContracts,
+  writeContracts,
+  tx,
+  userSigner,
+  address,
+  provider,
+  smailMail,
+  setSmailMail,
+  web3Modal,
+}) {
   const [isRegistered, setIsRegistered] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [key, setKey] = useState(consts.emptyHash);
@@ -278,9 +288,14 @@ export function Home({ readContracts, writeContracts, tx, userSigner, address, p
               </Typography>
 
               <br />
-              <Button onClick={() => registerAccount(address)} type="primary">
-                BOND NOW
-              </Button>
+              {web3Modal &&
+                (web3Modal?.cachedProvider ? (
+                  <Button onClick={() => registerAccount(address)} type="primary">
+                    BOND NOW
+                  </Button>
+                ) : (
+                  <strong>Wallet not connected. Please connect your wallet to continue.</strong>
+                ))}
               <br />
               <br />
             </>

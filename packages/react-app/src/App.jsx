@@ -42,7 +42,7 @@ import { SubBids } from "./views/SubBids";
 import { Subscribers } from "./views/Subscribers";
 import { Subscriptions } from "./views/Subscriptions";
 
-import { FairOSConnect } from "./views/FairOSConnect";
+import { FairOSWasmConnect } from "./views/FairOSWasmConnect";
 
 const { ethers } = require("ethers");
 /*
@@ -339,27 +339,12 @@ function App(props) {
   };
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
   //   FAIROS WASM STUFF
   //   from https://github.com/fairDataSociety/fairos-client-examples/blob/wasm.0/wasm-hello-world/src/App.tsx
   //   types https://github.com/asabya/scaffold-eth/blob/35eabe678331aa061265057a85f58ff92d746940/packages/react-app/src/react-app-env.d.ts
-
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState(false);
-
-  async function ConnectFairOS() {
-    const beeNet = BEENETWORKS[selectedBeeNetwork];
-    console.log("wasmConnect", selectedBeeNetwork, targetNetwork, batchId);
-    debugger;
-    let resp = await window.connect(
-      beeNet.endpoint, // "http://localhost:1633", // bee endpoint
-      batchId, //"51987f7304b419d8aa184d35d46b3cfeb1b00986ad937b3151c7ade699c81338", // stampId
-      beeNet.rpc, //"http://localhost:9545", // rpc
-      "testnet", //targetNetwork.name, //"play or testnet", // network
-      targetNetwork.rpcUrl, // "http://localhost:9545", // contract.rpc
-      readContracts.SwarmMail.address, //"0x21a59654176f2689d12E828B77a783072CD26680", // swarm mail contract address
-    );
-    console.log(resp);
-  }
+  //
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // wallet connect
   // list pods
 
@@ -372,7 +357,15 @@ function App(props) {
     <div className="App">
       <Layout style={{ minHeight: "100vh" }}>
         <Sider theme={currentTheme} style={{ position: "fixed", height: "100vh", left: 0, top: 0, bottom: 0 }}>
-          <AppHeader />
+          <>
+            <AppHeader />
+            <NetworkDisplay
+              NETWORKCHECK={NETWORKCHECK}
+              localChainId={localChainId}
+              selectedChainId={selectedChainId}
+              targetNetwork={targetNetwork}
+            />
+          </>
           {/* collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)} */}
           {/* <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }}/> */}
           <Button style={{ marginLeft: "24px" }} onClick={() => composeNewMail(!isModalVisible)}>
@@ -467,7 +460,7 @@ function App(props) {
               />
             </Menu.Item>
             <Menu.Item key="/fairOS">
-              <FairOSConnect
+              <FairOSWasmConnect
                 selectedBeeNetwork={selectedBeeNetwork}
                 targetNetwork={targetNetwork}
                 BEENETWORKS={BEENETWORKS}
@@ -507,6 +500,7 @@ function App(props) {
                   address={address}
                   messageCount={messageCount}
                   provider={localProvider}
+                  web3Modal={web3Modal}
                   smailMail={smailMail}
                   setSmailMail={setSmailMail}
                 />
@@ -649,12 +643,12 @@ function App(props) {
       <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
         <div style={{ display: "flex", flex: 1, alignItems: "center" }}>
           <div style={{ marginRight: 20, display: "block" }}>
-            <NetworkDisplay
+            {/* <NetworkDisplay
               NETWORKCHECK={NETWORKCHECK}
               localChainId={localChainId}
               selectedChainId={selectedChainId}
               targetNetwork={targetNetwork}
-            />
+            /> */}
             <NetworkSwitch
               networkOptions={networkOptions}
               selectedNetwork={selectedNetwork}
