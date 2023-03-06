@@ -136,6 +136,9 @@ function App(props) {
   const [smailMail, setSmailMail] = useState({ key: null, smail: null }); // this has to be defined
   const [replyTo, _setReplyTo] = useState("");
   const [isModalVisible, _setIsModalVisible] = useState(false);
+
+  const [fairOSPods, setFairOSPods] = useState([]);
+
   const location = useLocation();
 
   const setReplyTo = replyTo => {
@@ -391,7 +394,7 @@ function App(props) {
                 <Link to="/marketplace">Marketplace</Link>
               </Tooltip>
             </Menu.Item>
-            <Menu.Item key="/subscriptions:buySubRequestHash">
+            <Menu.Item key="/subscriptions">
               <Tooltip title="Manage your active buys" placement="right">
                 <Link to="/subscriptions">Subscriptions</Link>
               </Tooltip>
@@ -406,7 +409,7 @@ function App(props) {
                 <Link to="/subscribers">Subscribers</Link>
               </Tooltip>
             </Menu.Item>
-            <Menu.Item key="/bids:bidRequestHash">
+            <Menu.Item key="/bids">
               <Tooltip title="Manage your active bids" placement="right">
                 <Link to="/bids">Bids</Link>
               </Tooltip>
@@ -474,6 +477,7 @@ function App(props) {
                 provider={localProvider}
                 smailMail={smailMail}
                 setSmailMail={setSmailMail}
+                setFairOSPods={setFairOSPods}
               />
             </Menu.Item>
           </Menu>
@@ -591,17 +595,6 @@ function App(props) {
       </Layout>
 
       {isModalVisible && (
-        // <Modal
-        //   title={<h2>New Message</h2>}
-        //   visible={isModalVisible}
-        //   footer={null}
-        //   onOk={() => {
-        //     setIsModalVisible(false);
-        //   }}
-        //   onCancel={() => {
-        //     setIsModalVisible(false);
-        //   }}
-        // >
         <ComposeNewMessage
           readContracts={readContracts}
           writeContracts={writeContracts}
@@ -613,7 +606,6 @@ function App(props) {
           smailMail={smailMail}
           recipient={replyTo}
         />
-        // </Modal>
       )}
 
       {/* ✏️ Edit the header and change the title to your project name */}

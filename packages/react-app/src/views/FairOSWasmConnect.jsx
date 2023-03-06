@@ -30,6 +30,7 @@ import { AddressSimple } from "../components";
 
 import { uploadJsonToBee, uploadDataToBee } from "../Swarm/BeeService";
 import { categoriesTree, categoryList } from "./categories";
+import * as layouts from "./layouts.js";
 
 export function FairOSWasmConnect({
   selectedBeeNetwork,
@@ -43,24 +44,70 @@ export function FairOSWasmConnect({
   address,
   smailMail,
   mainnetProvider,
+  setFairOSPods,
 }) {
-  const [isLoginVisible, setIsLoginVisible] = useState(true);
-  const [isConnectVisible, setIsConnectVisible] = useState(false);
-  const [isPortableAddressVisible, setIsPortableAddressVisible] = useState(false);
+  const [listingFee, setListingFee] = useState(ethers.utils.parseEther("0.0001"));
+
+  const [isFairOSVisible, setIsFairOSVisible] = useState(true); // displays FairOS dialog
+  const [isLoginVisible, setIsLoginVisible] = useState(false); // displays login dialog
+  const [isConnectVisible, setIsConnectVisible] = useState(false); // displays connect dialog
+  const [isPortableAddressVisible, setIsPortableAddressVisible] = useState(false); // display wait TX for connect dialog
+  const [isListingVisible, setIsListingVisible] = useState(false);
+  const [isPodLoading, setIsPodLoading] = useState(false);
+
   const [fairOS, setFairOS] = useState(null);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [portableAddress, setPortableAddress] = useState(null);
+
   const [loginError, setLoginError] = useState("");
   const [login, setLogin] = useState(null);
-  const [podList, setPodList] = useState([]);
+  const [podList, setPodList] = useState({ pods: [], sharedPods: [] });
+
+  const [selectedPodName, setSelectedPodName] = useState(null);
+  const [selectedPodAddress, setSelectedPodAddress] = useState(null);
+
   const required = [{ required: true }];
 
+  async function getPortableAddress(forAddress) {
+    return await readContracts.SwarmMail.getPortableAddress(forAddress);
+  }
+
+  const refreshPortableAddress = useCallback(async forAddress => {
+    const fdpAddress = await getPortableAddress(address);
+    setPortableAddress(fdpAddress);
+    console.log("on load portableAddress", fdpAddress);
+    return fdpAddress;
+  });
+
+  useEffect(async () => {
+    if (readContracts != undefined && address != undefined) {
+      refreshPortableAddress(address);
+      var listFee = await readContracts.SwarmMail.minListingFee();
+      setListingFee(listFee.toString());
+    }
+  }, [readContracts, address, portableAddress]);
+
+  async function OpenFairOSDialog() {
+    refreshPortableAddress(address);
+    setIsFairOSVisible(true);
+    setIsLoginVisible(false);
+    setIsConnectVisible(false);
+    //setLogin(null);
+  }
   async function OpenLoginDialog() {
-    setLogin(null);
+    //setLogin(null);
+    //setIsFairOSVisible(true);
     setIsLoginVisible(true);
     setIsConnectVisible(false);
-    await window.userLogout();
+  }
+
+  async function Logout() {
+    setLogin(null);
+    OpenFairOSDialog();
+    setPodList({ pods: [], sharedPods: [] });
+    if (login.sessionId) await window.userLogout(login.sessionId);
   }
 
   async function ConnectFairOS() {
@@ -85,12 +132,11 @@ export function FairOSWasmConnect({
       await ConnectFairOS();
     }
     try {
-      var login = await window.login(values.username, values.password);
-
-      var userStat = await window.userStat(login.sessionId);
-      var loginObj = { user: login.user, sessionId: login.sessionId, address: userStat.address };
+      var resp = await window.login(values.username, values.password);
+      var userStat = await window.userStat(resp.sessionId);
+      var loginObj = { user: resp.user, sessionId: resp.sessionId, address: userStat.address };
       setLogin(loginObj);
-      console.log("Login", login, userStat, loginObj);
+      console.log("Login", resp, userStat, loginObj);
       // {
       //   "user": "demotime11",
       //   "sessionId": "anfeayKjs1LkQC9fAW1jiiX74TLcJuOECgNQPWwJuOo="
@@ -101,7 +147,7 @@ export function FairOSWasmConnect({
       // }
       setIsLoginVisible(false);
       notification.info({
-        message: "Login",
+        message: loginObj.user + " Logged In FairOS",
         description: "Login successfull",
       });
       setIsConnectVisible(true);
@@ -110,21 +156,15 @@ export function FairOSWasmConnect({
       setLoginError(e);
     }
   }
-  async function Logout() {
-    setLogin(null);
-    setIsLoginVisible(true);
-    await window.userLogout();
-  }
-  const setPortableAddress = useCallback(async (walletAddress, portableAddress) => {
+
+  const setPortableAddressTx = useCallback(async (walletAddress, portableAddress) => {
     var newTx = await tx(writeContracts.SwarmMail.setPortableAddress(portableAddress));
     await newTx.wait();
   });
   async function ConnectFairOSWithWallet() {
     try {
-      //debugger;
-      const signature = await userSigner.signMessage(username + " will connect with " + address);
-      console.log("signature", signature);
-      //let resp = await window.connectWallet(username, password, login.userStat.address, signature);
+      const signature = await userSigner.signMessage(login.address + " will connect with " + address);
+      console.log("signature 1", login.address, signature, address);
       let resp = await window.connectWallet(username, password, login.address, signature);
       // address expected is from userStat, but it should be from my wallet address, can fail with Signature failed to create user : wallet doesnot match portable account address
       console.log("connect wallet", resp);
@@ -134,38 +174,201 @@ export function FairOSWasmConnect({
         message: "Signature",
         description: "Signature failed " + e.toString(),
       });
-      //return;
     }
-
     await SetPortableAccount();
   }
   async function SetPortableAccount() {
     setIsPortableAddressVisible(true);
-    var newTx = await setPortableAddress(address, login.address);
+    var newTx = await setPortableAddressTx(address, login.address);
     setIsPortableAddressVisible(false);
     setIsConnectVisible(false);
   }
   async function LoginWithWallet() {
-    const portableAddress = await readContracts.SwarmMail.getPortableAddress(address);
-    const signature = await userSigner.signMessage(username + "  will connect with " + address);
-    console.log(portableAddress, "signature", signature);
+    const portableFDPAddress = await getPortableAddress(address);
+    const signature = await userSigner.signMessage(portableFDPAddress + " will connect with " + address);
+    console.log("signature 2", portableFDPAddress, signature, address);
     // need to get userStat.address from login, which is not available here, we still need to login first into fairOS to get it for what we need username password
-    let resp = await window.walletLogin(portableAddress, signature);
-    console.log("loginWithWallet", resp);
+    let resp = await window.walletLogin(portableFDPAddress, signature);
+    var userStat = await window.userStat(resp.sessionId);
+    var hash = await window.getNameHash(resp.sessionId, portableFDPAddress);
+
+    var loginObj = {
+      user: resp.user,
+      sessionId: resp.sessionId,
+      address: userStat.address,
+      portableAddress: portableFDPAddress,
+      nameHash: hash.namehash,
+    };
+    setLogin(loginObj);
+    if (loginObj.address.toString() !== loginObj.portableAddress.toString()) {
+      notification.error({
+        message: loginObj.user + " Mapping invalid",
+        description: loginObj.address + " INVALID " + loginObj.portableAddress,
+      });
+    }
+
+    console.log("loginWithWallet", loginObj);
+    setIsLoginVisible(false);
+    notification.info({
+      message: loginObj.user + " Logged In",
+      description: "Logged " + loginObj.address + " -> in through wallet " + address,
+    });
+
+    await PodList(loginObj.sessionId);
   }
-  async function PodList() {
-    let resp2 = await window.podList(resp.sessionId);
-    setPodList(resp2);
+  async function PodList(sessionId) {
+    setIsPodLoading(true);
+    let resp2 = await window.podList(sessionId);
     console.log("podList", resp2);
+    setPodList(resp2);
+    setIsPodLoading(false);
+    setFairOSPods(resp2.pods);
   }
+
+  async function ListPod(podName) {
+    //console.log("podStat", login, podName);
+    setIsPodLoading(true);
+    try {
+      let podOpen = await window.podOpen(login.sessionId, podName);
+      let podStat = await window.podStat(login.sessionId, podName);
+      console.log("podStat", login.sessionId, podName, podOpen, podStat);
+
+      setSelectedPodAddress(podStat.address);
+      setSelectedPodName(podName);
+      setIsListingVisible(true);
+    } catch (e) {}
+
+    setIsPodLoading(false);
+  }
+  const listSubTx = useCallback(async (fdpSellerNameHash, data, price, category, podAddress) => {
+    try {
+      var dataLocation = await uploadDataToBee(JSON.stringify(data), "application/json", Date.now() + ".sub.json");
+      console.log("dataLocation", dataLocation);
+      var newTx = await tx(
+        writeContracts.SwarmMail.listSub(
+          "0x" + fdpSellerNameHash,
+          "0x" + dataLocation,
+          price,
+          category,
+          "0x" + podAddress,
+          {
+            value: listingFee,
+          },
+        ),
+      );
+      await newTx.wait();
+    } catch (e) {
+      console.log(e);
+      notification.error({
+        message: "Error listing subscription",
+        description: "You can only list one subscription for a pod.",
+      });
+    }
+  });
+  /// getNameHash(address)
+  /// encryptedKeyLocation = encryptSubscription (sessionId: string, podName: string, subscriberNameHash: string): Promise<reference>
+  /// podName: string, subscriberNameHash: string
+  ///
+  /// openSubscribedPodFromReference (sessionId: string, reference: string, sellerNameHash: string): Promise<string>
+  /// getSubscriptions (sessionId: string, start: number, limit: number): Promise<subscriptions>
+  /// decrypt(contents(encryptedKeyLocation), buyerNameHash)
+
+  /// getSubscribablePodInfo - get pod info for a pod that is subscribable
 
   return (
     // <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
     <>
       {/* <Button onClick={() => ConnectFairOS()}>Connect</Button> */}
-      {!isLoginVisible && login != null && <Button onClick={() => Logout()}>Logout FairOS</Button>}
-      {!isLoginVisible && login == null && <Button onClick={() => OpenLoginDialog()}>Login FairOS</Button>}
+      {/* {!isLoginVisible && login != null && <Button onClick={() => Logout()}>Logout FairOS</Button>} */}
+      {/* {!isLoginVisible && login == null && ( */}
+      <Button type="primary" onClick={() => OpenFairOSDialog()}>
+        FairOS
+      </Button>
+      {/* )} */}
 
+      {/* Main FairOS dialog */}
+      {isFairOSVisible && (
+        <Modal
+          title={<h3>FairOS </h3>}
+          footer={null}
+          maskClosable={false}
+          visible={isFairOSVisible}
+          onCancel={() => setIsFairOSVisible(false)}
+        >
+          {login != null && (
+            <>
+              {isPodLoading ? (
+                <>
+                  <Spin />
+                  &nbsp;&nbsp;Please wait...
+                </>
+              ) : (
+                <>
+                  {podList.pods.length && (
+                    <>
+                      <h4>Pods</h4>
+                      <ul>
+                        {podList.pods.map((pod, index) => (
+                          <li className="podItem" onClick={() => ListPod(pod)}>
+                            {pod}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+
+                  <br />
+                  <Button type="primary" onClick={() => Logout()}>
+                    Sign out FairOS
+                  </Button>
+
+                  {/* <br />
+                  <br />
+                  <h4>Shared Pods</h4>
+                  <ul>
+                    {podList.sharedPods.map((pod, index) => (
+                      <li>{pod}</li>
+                    ))}
+                  </ul> */}
+                </>
+              )}
+            </>
+          )}
+
+          {portableAddress != null && login === null && (
+            <>
+              <p>
+                Smail detected you are connected with your wallet to your portable FDP account. You can now sign in.
+              </p>
+              <br />
+              <Tooltip title={"Portable Account Address " + portableAddress}>
+                <Button type="primary" onClick={() => LoginWithWallet()}>
+                  Sign-in with wallet
+                </Button>
+              </Tooltip>
+              <br /> <br />
+              <hr />
+            </>
+          )}
+
+          {login == null && (
+            <>
+              <br />
+              <h3>Connect Portable account</h3>
+              <p>
+                Log into FairOS with username and password. You can then connect your wallet with your portable FDP
+                account and later <strong>Sign in with wallet</strong>. This step is required if you want to use
+                portable account and FairOS in Smail.
+              </p>
+              <br />
+              <Button onClick={() => OpenLoginDialog()}>Login</Button> <br />
+            </>
+          )}
+          <br />
+        </Modal>
+      )}
+
+      {/* Intermediate step to wait for TX to map portable address to FairOS address */}
       {isPortableAddressVisible && (
         <Modal
           title={<h3>Set Portable Address</h3>}
@@ -225,7 +428,7 @@ export function FairOSWasmConnect({
           <Form onFinish={Login}>
             <Form.Item name="username" label="username">
               <Input
-                defaultValue={username}
+                //defaultValue={username}
                 placeholder="username"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
@@ -233,7 +436,7 @@ export function FairOSWasmConnect({
             </Form.Item>
             <Form.Item name="password" label="Password">
               <Input
-                defaultValue={password}
+                //defaultValue={password}
                 placeholder="password"
                 value={password}
                 type="password"
@@ -242,10 +445,10 @@ export function FairOSWasmConnect({
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit">
-                Login with password
+                Login to FairOS
               </Button>
               &nbsp;
-              <Button onClick={() => LoginWithWallet()}>Login with provider</Button>
+              {/* <Button onClick={() => LoginWithWallet()}>Login with provider</Button> */}
             </Form.Item>
 
             <div style={{ color: "red" }}>{loginError}</div>
@@ -258,7 +461,93 @@ export function FairOSWasmConnect({
           </Form>
         </Modal>
       )}
+
+      {isListingVisible && (
+        <>
+          <Modal
+            title={
+              <h3>
+                List Pod <strong>{selectedPodName}</strong>
+              </h3>
+            }
+            footer={null}
+            maskClosable={false}
+            visible={isListingVisible}
+            onCancel={() => setIsListingVisible(false)}
+          >
+            <ListPodModalForm
+              podName={selectedPodName}
+              podAddress={selectedPodAddress}
+              sellerNameHash={login.nameHash}
+              onListPod={listSubTx}
+              categories={[
+                { label: "Business", value: "0xda4fd9fa774c576c08e67dcb6bb94d647b4bc97f62502f1e2b62c2ba20f879cc" },
+              ]}
+            />
+          </Modal>
+        </>
+      )}
     </>
     // </div>
+  );
+}
+
+function ListPodModalForm({ podName, podAddress, sellerNameHash, categories, onListPod }) {
+  // const formRef = React.createRef();
+  const onSendListPod = async values => {
+    //listSub(values);
+    //console.log("onSend", values);
+    var data = {
+      title: values.title,
+      description: values.description,
+      imageUrl: values.imageUrl,
+      category: values.category,
+      price: values.price,
+      podAddress: podAddress,
+      podName: podName,
+      sellerNameHash: sellerNameHash,
+    };
+    console.log("onSendListPod", data);
+    await onListPod(data.sellerNameHash, data, data.price, data.category, data.podAddress);
+  };
+  const onListSubCategoryChange = value => {
+    console.log("onCategoryChange", value);
+  };
+  const required = [{ required: true }];
+
+  return (
+    <Form {...layouts.layout} onFinish={onSendListPod}>
+      <Form.Item name="title" label="Title" rules={required}>
+        <Input />
+      </Form.Item>
+      <Form.Item name="description" label="Description" rules={required}>
+        <Input.TextArea maxLength={1024} rows={3} autosize={{ minRows: "3", maxRows: "5" }} />
+      </Form.Item>
+      <Form.Item name="imageUrl" label="Image">
+        <Input />
+      </Form.Item>
+      <Form.Item name="price" label="Price" rules={required}>
+        <Input />
+      </Form.Item>
+      <Form.Item name="category" label="Category" rules={required}>
+        <Select onChange={onListSubCategoryChange} options={categories} />
+      </Form.Item>
+      {/* <Form.Item name="fdpSellerNameHash" label="FDP NameHash">
+        <Input defaultValue={sellerNameHash} value={sellerNameHash} />
+      </Form.Item>
+      <Form.Item name="podName" label="Pod name">
+        <Input defaultValue={podName} value={podName} />
+      </Form.Item>
+      <Form.Item name="podAddress" label="Pod Address">
+        <Input defaultValue={podAddress} value={podAddress} />
+      </Form.Item> */}
+      <Button
+        type="primary"
+        htmlType="submit"
+        style={{ width: "80%", borderRadius: "5px", alignItems: "center", left: "10%" }}
+      >
+        LIST POD
+      </Button>
+    </Form>
   );
 }

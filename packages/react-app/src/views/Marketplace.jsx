@@ -58,7 +58,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
   const [subscriptions, setSubscriptions] = useState([]);
   const [openListSub, setOpenListSub] = useState(false);
   const getFees = useCallback(async () => {
-    if (readContracts === undefined) return;
+    if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
     var listFee = await readContracts.SwarmMail.minListingFee();
     setListingFee(listFee.toString());
     var marketFee = await readContracts.SwarmMail.marketFee();

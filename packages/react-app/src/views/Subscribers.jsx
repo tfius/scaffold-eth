@@ -106,7 +106,7 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
   });
 
   useEffect(() => {
-    if (readContracts === undefined) return;
+    if (readContracts === undefined || address === undefined) return;
     getListedSubs(address);
   }, [address, readContracts]);
 

@@ -381,9 +381,7 @@ export function ComposeNewMessage({
         footer={null}
         visible={true}
         maskClosable={false}
-        onOk={() => {
-          //setModal(null);
-        }}
+        onOk={() => {}}
         onCancel={() => {
           modalControl(false);
         }}

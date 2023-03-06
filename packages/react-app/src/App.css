@@ -83,3 +83,12 @@ iframe {
 .largerModal {
   max-width: 80%;
 }
+
+.podItem {
+  cursor: pointer;
+  color:rgb(183, 106, 255);
+}
+
+.podItem:hover {
+  color:blueviolet;
+}
