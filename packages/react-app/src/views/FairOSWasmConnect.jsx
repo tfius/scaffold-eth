@@ -76,6 +76,7 @@ export function FairOSWasmConnect({
 
   const refreshPortableAddress = useCallback(async forAddress => {
     const fdpAddress = await getPortableAddress(address);
+    if (fdpAddress === "0x0000000000000000000000000000000000000000") fdpAddress = null;
     setPortableAddress(fdpAddress);
     console.log("on load portableAddress", fdpAddress);
     return fdpAddress;
@@ -304,7 +305,7 @@ export function FairOSWasmConnect({
                 </>
               ) : (
                 <>
-                  {podList.pods.length && (
+                  {podList.pods.length > 0 && (
                     <>
                       <h4>Pods</h4>
                       <ul>
@@ -338,6 +339,7 @@ export function FairOSWasmConnect({
           {portableAddress != null && login === null && (
             <>
               <p>
+                {/* {portableAddress} */}
                 Smail detected you are connected with your wallet to your portable FDP account. You can now sign in.
               </p>
               <br />
