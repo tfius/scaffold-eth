@@ -264,9 +264,9 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
       >
         <ListSubModalForm listSub={onListSub} categories={categories} />
       </Modal>
-      <div style={{ float: "left" }}>
+      {/* <div style={{ float: "left" }}>
         <Menu style={{ width: "256px" }} mode="vertical" items={menuItems} onClick={onMenuClick} />
-      </div>
+      </div> */}
       <div>
         <Row>
           {subscriptions.map((sub, i) => {
@@ -286,7 +286,8 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
                               PodAddress: {sub.dataPodAddress} <br />
                             </div>
                             <div>
-                              FDP Seller NameHash: {sub.fdpSellerNameHash}<br />
+                              FDP Seller NameHash: {sub.fdpSellerNameHash}
+                              <br />
                             </div>
                           </>
                         }
