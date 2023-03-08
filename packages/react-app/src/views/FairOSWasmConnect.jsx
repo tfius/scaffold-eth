@@ -187,6 +187,9 @@ export function FairOSWasmConnect({
   async function LoginWithWallet() {
     const portableFDPAddress = await getPortableAddress(address);
     const signature = await userSigner.signMessage(portableFDPAddress + " will connect with " + address);
+    if (!fairOS) {
+      await ConnectFairOS();
+    }
     console.log("signature 2", portableFDPAddress, signature, address);
     // need to get userStat.address from login, which is not available here, we still need to login first into fairOS to get it for what we need username password
     let resp = await window.walletLogin(portableFDPAddress, signature);
@@ -230,7 +233,6 @@ export function FairOSWasmConnect({
     //console.log("podStat", login, podName);
     setIsPodLoading(true);
     try {
-      let podOpen = await window.podOpen(login.sessionId, podName);
       let podStat = await window.podStat(login.sessionId, podName);
       console.log("podStat", login.sessionId, podName, podOpen, podStat);
 
