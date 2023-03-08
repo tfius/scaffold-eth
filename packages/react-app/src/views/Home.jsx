@@ -329,7 +329,8 @@ export function Home({
               <li>New Ephemeral key is created</li>
               <li>Data is packaged, encrypted and uploaded </li>
               <li>A transaction is sent to notify receiver of new data available</li>
-              Your must decrypt Smail Wallet in your MetaMask and bond with it to be able to send encrypted data.
+              You don't need to be bonded to send encrypted data, as long as receiver is registered with Smail you will
+              be able to send encrypted data.
             </ul>
             You will be asked to decrypt your Smail Wallet every time you visit this page. <strong>NOTE: </strong>Only
             receiver can retrieve and decrypt its contents.
