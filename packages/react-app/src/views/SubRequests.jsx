@@ -119,7 +119,7 @@ export function SubRequests({
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
       <h3>Subscription requests</h3>
-      <>Here are all access requests made to your listings </>
+      <>Here are all requests made to access your listings</>
 
       <Row>
         {reqSubSubscriptions.map((reqSub, i) => {
