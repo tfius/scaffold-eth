@@ -138,6 +138,7 @@ function App(props) {
   const [isModalVisible, _setIsModalVisible] = useState(false);
 
   const [fairOSPods, setFairOSPods] = useState([]);
+  const [fairOSSessionId, setFairOSSessionId] = useState(null);
 
   const location = useLocation();
 
@@ -391,7 +392,7 @@ function App(props) {
 
             <Menu.Item key="/marketplace">
               <Tooltip title="View offers, open new listings" placement="right">
-                <Link to="/marketplace">Marketplace</Link>
+                <Link to="/marketplace">Data Hub</Link>
               </Tooltip>
             </Menu.Item>
             <Menu.Item key="/subscriptions">
@@ -478,6 +479,7 @@ function App(props) {
                 smailMail={smailMail}
                 setSmailMail={setSmailMail}
                 setFairOSPods={setFairOSPods}
+                setSessionId={setFairOSSessionId}
               />
             </Menu.Item>
           </Menu>
@@ -552,6 +554,7 @@ function App(props) {
                   tx={tx}
                   address={address}
                   smailMail={smailMail}
+                  sessionId={fairOSSessionId}
                 />
               </Route>
               <Route exact path="/subscribers">

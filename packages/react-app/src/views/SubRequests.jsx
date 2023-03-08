@@ -36,14 +36,23 @@ import { categoryList } from "./categories";
  subHash: "0x6d68ebbd2a7a135d72d0f351ec2fbfa67ce11088aee386dfd0edfd3a130a9624"
 */
 
-export function SubRequests({ readContracts, writeContracts, tx, userSigner, address, smailMail, mainnetProvider }) {
-  const [subRequests, setSubRequests] = useState([]);
+export function SubRequests({
+  readContracts,
+  writeContracts,
+  tx,
+  userSigner,
+  address,
+  smailMail,
+  mainnetProvider,
+  sessionId,
+}) {
+  //const [subRequests, setSubRequests] = useState([]);
   const [reqSubSubscriptions, setReqSubSubscriptions] = useState([]);
   const getSubRequests = useCallback(async forAddress => {
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
     var requests = await readContracts.SwarmMail.getSubRequests(forAddress);
     console.log("getSubRequests", requests);
-    setSubRequests(requests);
+    //setSubRequests(requests);
     getSubsForSubRequests(requests);
   });
   const getSub = useCallback(async subHash => {
@@ -84,18 +93,33 @@ export function SubRequests({ readContracts, writeContracts, tx, userSigner, add
     // get receiver pubKey encrypt key upload encrypted then sell sub
     let receiverPubKey = await getPubKeyFor(subRequest.buyer);
     let dataWithKey = { ref: consts.emptyHash, sender: address }; //, podAddress: fdp.podAddress, podIndex: sub.podIndex };
+    var encryptedKeyLocationOld = await EncDec.encryptAndUpload(dataWithKey, receiverPubKey.pk);
+
+    var subscriberNameHash = await window.getNameHash(sessionId, subRequest.buyer);
+    if (sessionId === null) {
+      notification.error({ message: "Session not started", description: "You need to start a FairOS session first" });
+      return;
+    }
+    var encryptedKeyLocation = await window.encryptSubscription(
+      sessionId,
+      subRequest.data.podName,
+      "0x" + subscriberNameHash.namehash,
+    );
+    debugger;
     // window.encryptSubscription
-    var encryptedKeyLocation = await EncDec.encryptAndUpload(dataWithKey, receiverPubKey.pk);
-    var tx = await writeContracts.SwarmMail.sellSub(subRequest.requestHash, "0x" + encryptedKeyLocation);
+
+    var tx = await writeContracts.SwarmMail.sellSub(subRequest.requestHash, "0x" + encryptedKeyLocation.reference);
     await tx.wait();
+    // remove subRequest from
+    setReqSubSubscriptions(reqSubSubscriptions.filter(reqSub => reqSub.requestHash !== subRequest.requestHash));
   };
 
   //const subscribers
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
-      <h3>Subscription bids</h3>
-      <>Here are all bids made to your listings </>
+      <h3>Subscription requests</h3>
+      <>Here are all access requests made to your listings </>
 
       <Row>
         {reqSubSubscriptions.map((reqSub, i) => {

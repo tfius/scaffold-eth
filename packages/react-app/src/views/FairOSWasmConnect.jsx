@@ -45,6 +45,7 @@ export function FairOSWasmConnect({
   smailMail,
   mainnetProvider,
   setFairOSPods,
+  setSessionId,
 }) {
   const [listingFee, setListingFee] = useState(ethers.utils.parseEther("0.0001"));
 
@@ -218,6 +219,7 @@ export function FairOSWasmConnect({
       description: "Logged " + loginObj.address + " -> in through wallet " + address,
     });
 
+    setSessionId(loginObj.sessionId);
     await PodList(loginObj.sessionId);
   }
   async function PodList(sessionId) {
