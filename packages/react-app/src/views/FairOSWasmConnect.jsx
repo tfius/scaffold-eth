@@ -258,6 +258,11 @@ export function FairOSWasmConnect({
         ),
       );
       await newTx.wait();
+      setIsListingVisible(false);
+      notification.info({
+        message: "Listing completed",
+        description: "Listing " + dataLocation,
+      });
     } catch (e) {
       console.log(e);
       notification.error({
@@ -307,10 +312,11 @@ export function FairOSWasmConnect({
                 <>
                   {podList.pods.length > 0 && (
                     <>
-                      <h4>Pods</h4>
+                      List your pod to sell subscriptions to it.
+                      <h3>Available Pods</h3>
                       <ul>
                         {podList.pods.map((pod, index) => (
-                          <li className="podItem" onClick={() => ListPod(pod)}>
+                          <li className="podItem" key={pod + "_" + index} onClick={() => ListPod(pod)}>
                             {pod}
                           </li>
                         ))}
