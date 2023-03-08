@@ -92,14 +92,23 @@ export function SubRequests({
     var fdp = { podAddress: "", podIndex: 0 }; // TODO
     // get receiver pubKey encrypt key upload encrypted then sell sub
     let receiverPubKey = await getPubKeyFor(subRequest.buyer);
+    /*
+    type ShareInfo struct {
+      PodName     string `json:"podName"`
+      Address     string `json:"podAddress"`
+      Password    string `json:"password"`
+      UserAddress string `json:"userAddress"`
+     }*/
     let dataWithKey = { ref: consts.emptyHash, sender: address }; //, podAddress: fdp.podAddress, podIndex: sub.podIndex };
-    var encryptedKeyLocationOld = await EncDec.encryptAndUpload(dataWithKey, receiverPubKey.pk);
 
-    var subscriberNameHash = await window.getNameHash(sessionId, subRequest.buyer);
+    // var encryptedKeyLocationOld = await EncDec.encryptAndUpload(dataWithKey, receiverPubKey.pk);
+
     if (sessionId === null) {
       notification.error({ message: "Session not started", description: "You need to start a FairOS session first" });
       return;
     }
+
+    var subscriberNameHash = await window.getNameHash(sessionId, subRequest.buyer);
     var encryptedKeyLocation = await window.encryptSubscription(
       sessionId,
       subRequest.data.podName,
