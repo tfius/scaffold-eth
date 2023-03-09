@@ -202,9 +202,22 @@ export function nacl_getEncryptionPublicKey(privateKey) {
   return nacl.util.encodeBase64(encryptionPublicKey);
 }
 
+export function generate_ephemeral_key_pair() {
+  return nacl.box.keyPair();
+}
+
 export function nacl_encrypt(message, receiverPublicKey) {
   try {
-    var ephemeralKeyPair = nacl.box.keyPair();
+    var ephemeralKeyPair = generate_ephemeral_key_pair();
+    return nacl_encrypt_with_key(message, receiverPublicKey, ephemeralKeyPair) 
+  } catch (e) {
+    console.error("nacl_encrypt", e);
+  }
+  return null;
+}
+
+export function nacl_encrypt_with_key(message, receiverPublicKey, ephemeralKeyPair) {
+  try {
     var pubKeyUInt8Array = nacl.util.decodeBase64(receiverPublicKey);
     var msgParamsUInt8Array = nacl.util.decodeUTF8(message);
     var nonce = nacl.randomBytes(nacl.box.nonceLength);
@@ -218,7 +231,7 @@ export function nacl_encrypt(message, receiverPublicKey) {
     };
     return output; // return encrypted msg data
   } catch (e) {
-    console.error("nacl_encrypt", e);
+    console.error("nacl_encrypt_with_key", e);
   }
   return null;
 }

@@ -46,6 +46,7 @@ export function FairOSWasmConnect({
   mainnetProvider,
   setFairOSPods,
   setSessionId,
+  isWalletConnected,
 }) {
   const [listingFee, setListingFee] = useState(ethers.utils.parseEther("0.0001"));
 
@@ -76,7 +77,7 @@ export function FairOSWasmConnect({
   }
 
   const refreshPortableAddress = useCallback(async forAddress => {
-    const fdpAddress = await getPortableAddress(address);
+    var fdpAddress = await getPortableAddress(address);
     if (fdpAddress === "0x0000000000000000000000000000000000000000") fdpAddress = null;
     setPortableAddress(fdpAddress);
     console.log("on load portableAddress", fdpAddress);
@@ -284,6 +285,7 @@ export function FairOSWasmConnect({
   /// decrypt(contents(encryptedKeyLocation), buyerNameHash)
 
   /// getSubscribablePodInfo - get pod info for a pod that is subscribable
+  if (!isWalletConnected) return null;
 
   return (
     // <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
@@ -316,8 +318,8 @@ export function FairOSWasmConnect({
                 <>
                   {podList.pods.length > 0 && (
                     <>
-                      List your pod to sell subscriptions to it.
                       <h3>Available Pods</h3>
+                      Click on pod to list it in Data Hub.
                       <ul>
                         {podList.pods.map((pod, index) => (
                           <li className="podItem" key={pod + "_" + index} onClick={() => ListPod(pod)}>

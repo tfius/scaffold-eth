@@ -35,6 +35,7 @@ import { useStaticJsonRPC } from "./hooks";
 import * as consts from "./views/consts";
 import { Home } from "./views/Home";
 import { Inbox } from "./views/Inbox";
+import { Locker } from "./views/Locker";
 import { Marketplace } from "./views/Marketplace";
 import { ComposeNewMessage } from "./views/ComposeNewMessage";
 import { SubRequests } from "./views/SubRequests";
@@ -389,6 +390,11 @@ function App(props) {
                 <Link to="/inbox">Inbox</Link>
               </Tooltip>
             </Menu.Item>
+            <Menu.Item key="/locker">
+              <Tooltip title="Encrypt and store your data" placement="right">
+                <Link to="/locker">Locker</Link>
+              </Tooltip>
+            </Menu.Item>
 
             <Menu.Item key="/marketplace">
               <Tooltip title="View offers, open new listings" placement="right">
@@ -480,6 +486,7 @@ function App(props) {
                 setSmailMail={setSmailMail}
                 setFairOSPods={setFairOSPods}
                 setSessionId={setFairOSSessionId}
+                isWalletConnected={web3Modal && web3Modal?.cachedProvider}
               />
             </Menu.Item>
           </Menu>
@@ -521,6 +528,18 @@ function App(props) {
                   messageCount={messageCount}
                   smailMail={smailMail}
                   setReplyTo={setReplyTo}
+                />
+              </Route>
+              <Route exact path="/locker">
+                <Locker
+                  readContracts={readContracts}
+                  writeContracts={writeContracts}
+                  userSigner={userSigner}
+                  tx={tx}
+                  address={address}
+                  messageCount={messageCount}
+                  smailMail={smailMail}
+                  mainnetProvider={mainnetProvider}
                 />
               </Route>
               <Route exact path="/marketplace">

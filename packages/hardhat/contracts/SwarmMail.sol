@@ -63,6 +63,9 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         Email[] inboxEmails;
         mapping(bytes32 => uint256) inboxEmailIds;
 
+        Email[] lockerEmails;
+        mapping(bytes32 => uint256) lockerEmailIds;
+
         // who wants to subscribe to what
         SubRequest[] subRequests;
         mapping(bytes32 => uint256) subRequestIds;
@@ -101,6 +104,33 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
 
     function getInbox(address addr) public view returns (Email[] memory) {
         return users[addr].inboxEmails;
+    }
+    function getInboxCount(address addr) public view returns (uint) {
+        return users[addr].inboxEmails.length;
+    }
+    function getInboxRange(address addr, uint start, uint length) public view returns (Email[] memory) {
+        Email[] memory emails = new Email[](length);
+        require(start + length <= users[addr].inboxEmails.length, "Out of bounds");
+        for(uint i = start; i < start + length; i++)
+        {
+            emails[i] = users[addr].inboxEmails[i];
+        }
+        return emails;
+    }
+    function getLocker(address addr) public view returns (Email[] memory) {
+        return users[addr].lockerEmails;
+    }
+    function getLockerCount(address addr) public view returns (uint) {
+        return users[addr].lockerEmails.length;
+    }
+    function getLockerRange(address addr, uint start, uint length) public view returns (Email[] memory) {
+        Email[] memory emails = new Email[](length);
+        require(start + length <= users[addr].lockerEmails.length, "Out of bounds");
+        for(uint i = start; i < start + length; i++)
+        {
+            emails[i] = users[addr].lockerEmails[i];
+        }
+        return emails;
     }
 
     function getSent(address addr) public view returns (Email[] memory) {
@@ -205,7 +235,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     function sendEmail( address toAddress, bool isEncryption, bytes32 swarmLocation ) public payable
     {
         User storage receiver = users[toAddress];
-        require(!isEncryption || receiver.key != bytes32(0), "Unregistered can't send encrypted");
+        require(!isEncryption || receiver.key != bytes32(0), "receiver not registered");
         User storage sender = users[msg.sender];
         // create email
         Email memory email;
@@ -224,10 +254,36 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         // FlatDirectory fileContract = FlatDirectory(fromInfo.fdContract);
         // fileContract.writeChunk{value: msg.value}(getNewName(uuid, 'message'), 0, encryptData);
     }
+    function storeLocker(bytes32 swarmLocation) public payable {
+        User storage sender = users[msg.sender];
+        require(sender.lockerEmailIds[swarmLocation] == 0, "!exist");
+        Email memory email;
+        email.isEncryption = true;
+        email.time = block.timestamp;
+        email.from = msg.sender;
+        email.to = msg.sender;
+        email.swarmLocation = swarmLocation;
+        sender.lockerEmails.push(email);
+        sender.lockerEmailIds[swarmLocation] = sender.lockerEmails.length;
+    }
+    function removeLockerEmail(bytes32 swarmLocation) public {
+        User storage u = users[msg.sender];
+        require(u.lockerEmailIds[swarmLocation] != 0, "!exist");
+
+        uint256 removeIndex = u.lockerEmailIds[swarmLocation] - 1;
+        // remove info
+        uint256 lastIndex = u.lockerEmails.length - 1;
+        if (lastIndex != removeIndex) {
+            u.lockerEmails[removeIndex] = u.lockerEmails[lastIndex];
+            u.lockerEmailIds[u.lockerEmails[lastIndex].swarmLocation] = removeIndex + 1;
+        }
+        u.lockerEmails.pop();
+        delete u.lockerEmailIds[swarmLocation];
+    }
 
     function removeSentEmail(bytes32 swarmLocation) public {
         User storage u = users[msg.sender];
-        require(u.sentEmailIds[swarmLocation] != 0, "message !exist");
+        require(u.sentEmailIds[swarmLocation] != 0, "!exist");
 
         uint256 removeIndex = u.sentEmailIds[swarmLocation] - 1;
         // remove info
@@ -241,7 +297,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     }
     function removeInboxEmail(bytes32 swarmLocation) public {
         User storage u = users[msg.sender];
-        require(u.inboxEmailIds[swarmLocation] != 0, "message !exist");
+        require(u.inboxEmailIds[swarmLocation] != 0, "!exist");
 
         uint256 removeIndex = u.inboxEmailIds[swarmLocation] - 1;
         // remove info
@@ -259,9 +315,14 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
             for (uint256 i; i < swarmLocations.length; i++) {
                 removeInboxEmail(swarmLocations[i]);
             }
-        } else {
+        } else if(types == 0) {
             for (uint256 i; i < swarmLocations.length; i++) {
                 removeSentEmail(swarmLocations[i]);
+            }
+        }
+        else if(types == 2) {
+            for (uint256 i; i < swarmLocations.length; i++) {
+                removeLockerEmail(swarmLocations[i]);
             }
         }
     }

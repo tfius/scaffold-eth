@@ -110,7 +110,7 @@ export function Subscriptions({ readContracts, writeContracts, tx, userSigner, a
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
-      <h3>Subscription</h3>
+      <h1>Subscriptions</h1>
       <>Manage and see your subscriptions</>
 
       <Row>

@@ -4,16 +4,27 @@ import { ethers } from "ethers";
 import { Button, List, Card, Modal, notification, Tooltip, Typography, Spin, Checkbox } from "antd";
 import { EnterOutlined, EditOutlined, ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
 
-import { downloadDataFromBee } from "./../Swarm/BeeService";
+import { downloadDataFromBee } from "../Swarm/BeeService";
 import * as consts from "./consts";
-import * as EncDec from "./../utils/EncDec.js";
+import * as EncDec from "../utils/EncDec.js";
 import Blockies from "react-blockies";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 
-import { AddressSimple } from "./../components";
+import { AddressSimple } from "../components";
+import { ComposeNewLocker } from "./ComposeNewLocker";
 
-export function Inbox({ readContracts, writeContracts, tx, userSigner, address, messageCount, smailMail, setReplyTo }) {
+export function Locker({
+  readContracts,
+  writeContracts,
+  tx,
+  userSigner,
+  mainnetProvider,
+  address,
+  messageCount,
+  smailMail,
+}) {
   const [isRegistered, setIsRegistered] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   // const [key, setKey] = useState(consts.emptyHash);
   // const [publicKey, setPublicKey] = useState({ x: consts.emptyHash, y: consts.emptyHash });
   const [mails, setMails] = useState([]);
@@ -30,55 +41,38 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     _setViewMail(mail);
   };
 
-  // get publick key from signer
-  async function getPublicKeyFromSignature(signer) {
-    const ethAddress = await signer.getAddress();
-    const message = "Sign this transaction to enable data transfer. Hash: " + ethers.utils.hashMessage(address);
-    const sig = await signer.signMessage(message);
-    const msgHash = ethers.utils.hashMessage(message);
-    const msgHashBytes = ethers.utils.arrayify(msgHash);
-    // Now you have the digest,
-    const pk = ethers.utils.recoverPublicKey(msgHashBytes, sig);
-    const pubKey = await consts.splitPublicKey(pk);
-    const addr = ethers.utils.recoverAddress(msgHashBytes, sig);
-    // console.log("Got PK", pk, addr);
-    const recoveredAddress = ethers.utils.computeAddress(ethers.utils.arrayify(pk));
-    // Throwing here
-    if (recoveredAddress != ethAddress) {
-      throw Error(`Address recovered do not match, original ${ethAddress} versus computed ${recoveredAddress}`);
-      console.log("error", recoveredAddress, ethAddress);
-    }
-    return { pk, pubKey };
-  }
+  const onMessageSent = useCallback(async () => {
+    console.log("onMessageSent");
+    updateLocker();
+  }, []);
 
   const updateRegistration = useCallback(async () => {
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return; // todo get pub key from ENS
     const data = await readContracts.SwarmMail.getPublicKeys(address);
     setIsRegistered(data.registered);
     // setKey(data.key);
-    if (isRegistered === false && data.registered) updateMails();
+    if (isRegistered === false && data.registered) updateLocker();
   });
-  var updatingMails = false;
-  const updateMails = useCallback(async () => {
-    //if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
-    if (updatingMails) return;
-    updatingMails = true;
-    const mails = await readContracts.SwarmMail.getInbox(address);
+  var updatingLocker = false;
+  const updateLocker = useCallback(async () => {
+    if (updatingLocker) return;
+    updatingLocker = true;
+    const mails = await readContracts.SwarmMail.getLocker(address);
     processSMails(mails);
     //console.log("got smails", mails);
-    updatingMails = false;
+    updatingLocker = false;
   });
 
-  const deleteMails = useCallback(async () => {
+  const deleteLockerMail = useCallback(async () => {
     if (checked.length === 0) {
       notification.error({
-        message: "No mails selected",
-        description: "Please select mails to delete",
+        message: "No items selected",
+        description: "Please select items to delete",
       });
       return;
     }
-    console.log("got smails", checked);
-    var newTx = await tx(writeContracts.SwarmMail.removeEmails(1, checked));
+    console.log("got checked", checked);
+    var newTx = await tx(writeContracts.SwarmMail.removeEmails(2, checked));
     await newTx.wait();
     for (var i = 0; i < checked.length; i++) {
       setMails(mails.filter(m => m.location !== checked[i])); // remove mails with same location
@@ -95,7 +89,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
 
   useEffect(() => {
     console.log("messageCount", messageCount, messageCountTrigger);
-    if (messageCount > messageCountTrigger && !updatingMails) updateMails();
+    if (messageCount > messageCountTrigger && !updatingLocker) updateLocker();
 
     setMessageCountTrigger(messageCount);
   }, [messageCount]);
@@ -208,6 +202,25 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       {text}
     </Tooltip>
   );
+  const shareLocker = async locker => {
+    //console.log("shareLocker", locker);
+    // to convert call this:
+    var ephemeralKey = {
+      publicKey: new Uint8Array(Buffer.from(locker.ephemeralKey.publicKey, "base64")),
+      secretKey: new Uint8Array(Buffer.from(locker.ephemeralKey.secretKey, "base64")),
+    };
+
+    const shareLockerObject = {
+      subject: locker.subject,
+      contents: locker.contents,
+      isEncryption: locker.isEncryption,
+      sender: locker.sender,
+      attachments: locker.attachments,
+      location: locker.location,
+      ephemeralKey: locker.ephemeralKey,
+    };
+    console.log("shareLocker", locker, ephemeralKey, shareLockerObject);
+  };
 
   if (address === undefined) {
     return (
@@ -216,28 +229,35 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       </div>
     );
   }
+  if (!isRegistered) {
+    return (
+      <>
+        <h1 style={{ paddingTop: "18px" }}>Locker</h1>
+        <Card>
+          <Typography>
+            <h5>Not Registered</h5>
+            It appears your account is not registred yet. Please register to store your encrypted data.
+          </Typography>
+        </Card>
+      </>
+    );
+  }
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px" }}>
-      <h1 style={{ paddingTop: "18px" }}>Inbox</h1>
-      {!isRegistered && (
-        <Card>
-          <Typography>
-            <h5>Not Registred</h5>
-            It appears your account is not registred yet. Please register to send and receive private and encrypted
-            data.
-          </Typography>
-        </Card>
-      )}
+      <h1 style={{ paddingTop: "18px" }}>Locker</h1>
 
       <>
         <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
           <Checkbox indeterminate={indeterminate} onChange={onCheckAllChange} checked={checkAll} /> &nbsp;
           <Tooltip title="Refresh">
-            <Button onClick={() => updateMails()}>🗘</Button>
+            <Button onClick={() => updateLocker()}>🗘</Button>
           </Tooltip>
           <Tooltip title="Delete">
-            <Button onClick={() => deleteMails()}>🗑</Button>&nbsp;
+            <Button onClick={() => deleteLockerMail()}>🗑</Button>&nbsp;
+          </Tooltip>
+          <Tooltip title="Delete">
+            <Button onClick={() => setIsModalVisible(true)}>Add Data</Button>&nbsp;
           </Tooltip>
           {isLoading && <Spin />}
         </div>
@@ -290,9 +310,6 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                         {mail.subject}
                       </strong>
 
-                      <span style={{ margin: "15px", cursor: "pointer" }} onClick={() => setReplyTo(mail.sender)}>
-                        <IconText icon={ArrowLeftOutlined} tooltip="Reply" key="list-vertical-reply-o" />
-                      </span>
                       {mail.isEncryption === false && (
                         <IconText
                           icon={InfoCircleOutlined}
@@ -372,19 +389,19 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
           />
         </Checkbox.Group>
       </>
-      <>
+      {/* <>
         <div style={{ marginTop: 20 }}>
           <small style={{ fontSize: 4 }}>{checked.join(", ")} </small>
         </div>
-      </>
+      </> */}
       {viewMail && (
         <Modal
           className="largerModal"
           style={{ width: "100%", resize: "auto", borderRadious: "20px" }}
           title={
             <>
-              <h3>{viewMail.subject}</h3>{" "}
-              <small>
+              <h3>{viewMail.subject}</h3>
+              {/* <small>
                 {" "}
                 <AddressSimple address={viewMail.sender} />
               </small>
@@ -394,7 +411,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                     <Blockies className="mailIdenticon" seed={viewMail.sender} size="4" />
                   </span>
                 </Tooltip>
-              </span>
+              </span> */}
             </>
           }
           footer={null}
@@ -407,26 +424,16 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
             setViewMail(null);
           }}
         >
-          <>
-            <MarkdownPreview
-              source={viewMail.contents}
-              style={{ backgroundColor: "transparent", color: "inherit" }}
-              darkMode={true}
-              wrapperElement={{
-                "data-color-mode": "dark",
-              }}
-            />
-          </>
+          <MarkdownPreview
+            source={viewMail.contents}
+            style={{ backgroundColor: "transparent", color: "inherit" }}
+            darkMode={true}
+            wrapperElement={{
+              "data-color-mode": "dark",
+            }}
+          />
           <br />
-          <Button onClick={() => setReplyTo(viewMail.sender)}>
-            <IconText icon={ArrowLeftOutlined} tooltip="Reply" key="list-vertical-reply-o" />
-            &nbsp; Reply
-          </Button>{" "}
-          &nbsp;
-          {/* <Button>
-            <IconText icon={ArrowRightOutlined} tooltip="Reply" key="list-vertical-reply-o" />
-            &nbsp; Forward
-          </Button> */}
+          <Button onClick={() => shareLocker(viewMail)}>SHARE</Button>
           <div>
             {viewMail.attachments.length > 0 && (
               <>
@@ -469,89 +476,22 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
           </div>
         </Modal>
       )}
+
+      {isModalVisible && (
+        <ComposeNewLocker
+          readContracts={readContracts}
+          writeContracts={writeContracts}
+          ensProvider={mainnetProvider}
+          address={address}
+          modalControl={setIsModalVisible}
+          tx={tx}
+          onMessageSent={onMessageSent}
+          smailMail={smailMail}
+          recipient={address}
+        />
+      )}
     </div>
   );
 }
 
-export default Inbox;
-
-// const testMetamaskEncryption = async (receiverPubKey, receiverAddress, messageString) => {
-
-//     // const key = await getPublicKey(window.ethereum, address);
-//     // // key pk in hex( 0x ) 0x form
-//     // const pk = "0x" + Buffer.from(key, "base64").toString("hex");
-
-//     // // get key from hex(0x)
-//     // const rkey = pk.substr(2, pk.length - 1);
-//     // const bkey = Buffer.from(rkey, "hex").toString("base64");
-//     // console.log("Got key", key, pk, "Reverse", rkey, bkey);
-
-//     // const e = await encryptMessage(bkey, "test");
-//     // console.log("Encrypted:", e);
-//     // const d = await decryptMessage(window.ethereum, address, e);
-//     // console.log("Decrypted:", d);
-
-//     const e = await encryptMessage(receiverPubKey, messageString);
-//     console.log("Encrypted:", e);
-//     const d = await decryptMessage(window.ethereum, receiverAddress, e);
-//     console.log("Decrypted:", d);
-//   };
-
-/*
-// const { Meta } = Card;
-// const ethUtil = require("ethereumjs-util");
-// const sigUtil = require("@metamask/eth-sig-util");
-
-// export async function getPublicKey(signer, account) {
-//   try {
-//     // signer = window.ethereum
-//     return await signer.request({
-//       method: "eth_getEncryptionPublicKey",
-//       params: [account],
-//     });
-//   } catch (e) {
-//     return undefined;
-//   }
-// }
-// export async function getECDN(signer, account, ephemeralKey) {
-//   try {
-//     // signer = window.ethereum
-//     return await signer.request({
-//       method: "eth_performECDH",
-//       params: [account],
-//     });
-//   } catch (e) {
-//     return undefined;
-//   }
-// }
-// export async function decryptMessage(signer, accountToDecrypt, encryptedMessage) {
-//   try {
-//     return await signer.request({
-//       method: "eth_decrypt",
-//       params: [encryptedMessage, accountToDecrypt],
-//     });
-//   } catch (e) {
-//     console.error("decryptMessage", e);
-//     return undefined;
-//   }
-// }
-// export async function encryptMessage(encryptionPublicKey , messageToEncrypt) {
-//   try {
-//     return ethUtil.bufferToHex(
-//       Buffer.from(
-//         JSON.stringify(
-//           sigUtil.encrypt({
-//             publicKey: encryptionPublicKey,
-//             data: messageToEncrypt,
-//             version: "x25519-xsalsa20-poly1305",
-//           }),
-//         ),
-//         "utf8",
-//       ),
-//     );
-//   } catch (e) {
-//     console.error("encryptMessage", e);
-//     return undefined;
-//   }
-// }
-*/
+export default Locker;

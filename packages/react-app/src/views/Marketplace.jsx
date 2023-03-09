@@ -235,7 +235,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
       <div>
-        <Button onClick={() => setOpenListSub(!openListSub)}>List Sub</Button> &nbsp;
+        <Button onClick={() => setOpenListSub(!openListSub)}>List Data</Button> &nbsp;
         <small>
           Market fee: {marketFee}% &nbsp;Listing fee: {ethers.utils.formatEther(listingFee)}⬨ &nbsp;Escrowed:&nbsp;
           {ethers.utils.formatEther(inEscrow)}⬨&nbsp; Funds: {ethers.utils.formatEther(contractBalance)}⬨ &nbsp;
