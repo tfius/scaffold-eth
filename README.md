@@ -25,7 +25,7 @@ You don't need to be bonded to send encrypted data, as long as receiver is regis
 
 You will be asked to decrypt your Smail Wallet every time you visit this page. NOTE: Only receiver can retrieve and decrypt its contents.
 
-## BEWARE AND BEHOLD
+### BEWARE AND BEHOLD
 Always check that you are on correct domain and that you are using correct MetaMask account. Scammers could potentially ask you to decrypt Smail Wallet and gain access to your data.
 
 ## Pricing
@@ -33,14 +33,14 @@ When you send message you pay transaction costs and for storage fees on Swarm ne
 
 ## Privacy
 Sending unencrypted data is supported and occours when:
-if either sender or receiver is not a registered
-Sender's Smail Wallet can not be retrieved or is not decrypted
-Receiver public key can not be retrieved
+- if either sender or receiver is not a registered
+- Sender's Smail Wallet can not be retrieved or is not decrypted
+- Receiver public key can not be retrieved
 You can read and send unencrypted messages if you are connected and not bonded.
 
 **BEWARE !!!** All unencrypted data and attachements can be retrieved by anyone with the link. If you want to store unencrypted data you can use Swarm directly, or use FairOS or FDP protocol.
 
-Consideration
+## Consideration
 It must be noted that transaction is sent from your MetaMask account and is as such recorded on blockchain. Transaction metadata can be linked to your account.
 
 ## Networks
