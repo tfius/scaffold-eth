@@ -1,3 +1,14 @@
+# Smail 
+Smail is a email-like system that provides a secure, one-way communication channel for users who are looking for a private and efficient way of exchanging information. Smail's unique features include a locker with sharing capabilities and a marketplace for pod subscriptions, making it an all-in-one platform for managing your email communications.
+
+**One-way email** allows users to send messages to others without receiving any replies, ensuring that sensitive information remains confidential. This feature is ideal for business professionals, journalists, and anyone who values privacy in their communications.
+
+The **locker** with sharing capabilities is another standout feature of Smail, allowing users to store their emails securely and share them with trusted parties when needed. This feature is especially useful for sharing sensitive information with clients or colleagues, and it ensures that your information remains safe at all times.
+
+Finally, Smail's pod subscription marketplace **Data Hub** makes it easy to manage your data from your pods, email communications with vendors, service providers, and other third-party contacts. Users can subscribe to various data services and receive regular updates from vendors, ensuring that they stay up-to-date on important information without having to sift through countless emails.
+
+In summary, Smail is an email system that prioritizes privacy, security, and convenience. With features like one-way email, a locker with sharing capabilities, and a pod subscription marketplace, Smail is the perfect choice for anyone who wants to take control of their data and communications.
+
 # How Smail works
 ## How registration works:
 - your public encryption key is requested with which new Smail Wallet is created
