@@ -112,48 +112,107 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
-      <h3>Subscribers</h3>
-      <>Manage {subscriptions.length} listings and subscribers. </>
-      <>Total earnings: {ethers.utils.formatEther(totalEarnings)}⬨</>
-      <br />
-      <br />
-      <Row>
-        <Modal
-          style={{ width: "80%", resize: "auto", borderRadious: "20px" }}
-          title={
-            <>
-              <h3>{subTitle}</h3>Subscribers
-            </>
-          }
-          footer={null}
-          visible={viewSubscribers}
-          //   maskClosable={false}
-          onOk={() => {
-            //setModal(null);
-          }}
-          onCancel={() => {
-            setViewSubscribers(false);
-          }}
-        >
+      <h1>Subscribers</h1>
+      <div className="routeSubtitle">
+        Manage {subscriptions.length} listings and subscribers. Total earnings:{" "}
+        {ethers.utils.formatEther(totalEarnings)}⬨
+      </div>
+
+      <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
+        <Row>
+          {subscriptions.map((sub, i) => {
+            return (
+              <Card key={i} style={{ maxWidth: "30%", minWidth: "100px" }}>
+                <div>
+                  <Tooltip title={sub.data.description}>
+                    <strong>{sub.data.title}</strong>
+                  </Tooltip>
+                  <br />
+                  <small>
+                    <Tooltip title={"View subscribers and earnings per subscriber for this listing"}>
+                      <a
+                        onClick={() => {
+                          getSubscribers(sub.subHash, sub.subscribers);
+                          setSubTitle(sub.data.title);
+                        }}
+                      >
+                        Subscribers: {sub.subscribers.length.toString()}
+                      </a>
+                    </Tooltip>
+                    <div>List price:{ethers.utils.formatEther(sub.data.price)}⬨</div>
+                    <Tooltip title={sub.data.description}>
+                      <div>Earned:{ethers.utils.formatEther(sub.earned)}⬨</div>
+                    </Tooltip>
+                    <Tooltip
+                      title={
+                        <div>
+                          Reported: {sub.reports} <br />
+                          PodIndex: {sub.podIndex} <br />
+                        </div>
+                      }
+                    >
+                      <div>
+                        Sold: {sub.sells} Bids: {sub.bids}
+                      </div>
+                    </Tooltip>
+                    <Tooltip title={sub.active ? "Disable listing" : "Enable listing"}>
+                      <a onClick={() => disableEnableSub(sub.subHash, !sub.active)}>
+                        {sub.active ? "Active" : "Disabled"}
+                      </a>
+                    </Tooltip>
+                  </small>
+                </div>
+                {/* <Tooltip
+                title={
+                  <>
+                    Allow {subRequest.buyer} to access {subRequest.podIndex} for 30 days
+                  </>
+                }
+              >
+                <Button onClick={() => onSellSubRequest(subRequest)}>⬨</Button>
+              </Tooltip> */}
+              </Card>
+            );
+          })}
+        </Row>
+      </div>
+
+      <Modal
+        style={{ width: "80%", resize: "auto", borderRadious: "20px" }}
+        title={
           <>
-            <div height="100px">
-              {/* https://recharts.org/en-US/examples/TwoSimplePieChart */}
-              <PieChart width={400} height={110}>
-                <Pie
-                  dataKey="value"
-                  startAngle={180}
-                  endAngle={0}
-                  data={subscribers}
-                  cx="50%"
-                  cy="100%"
-                  outerRadius={70}
-                  fill="#8884d8"
-                  label
-                />
-                <ReTooltip />
-              </PieChart>
-              {/* <ResponsiveContainer width="100%" height="100%"> */}
-              {/* <PieChart width={400} height={400}>
+            <h3>{subTitle}</h3>Subscribers
+          </>
+        }
+        footer={null}
+        visible={viewSubscribers}
+        //   maskClosable={false}
+        onOk={() => {
+          //setModal(null);
+        }}
+        onCancel={() => {
+          setViewSubscribers(false);
+        }}
+      >
+        <>
+          <div height="100px">
+            {/* https://recharts.org/en-US/examples/TwoSimplePieChart */}
+            <PieChart width={400} height={110}>
+              <Pie
+                dataKey="value"
+                startAngle={180}
+                endAngle={0}
+                data={subscribers}
+                cx="50%"
+                cy="100%"
+                outerRadius={70}
+                fill="#8884d8"
+                label
+              />
+              <ReTooltip />
+            </PieChart>
+            {/* <ResponsiveContainer width="100%" height="100%"> */}
+            {/* <PieChart width={400} height={400}>
                   <Pie data={data01} dataKey="value" cx="50%" cy="50%" outerRadius={60} fill="#8884d8" />
                   <Pie
                     data={data02}
@@ -166,73 +225,17 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
                     label
                   />
                 </PieChart> */}
-              {/* </ResponsiveContainer> */}
-            </div>
-            {subscribers.map((subscriber, i) => {
-              return (
-                <div key={"subscriber" + i}>
-                  <AddressSimple address={subscriber.name} ensProvider={mainnetProvider} /> {subscriber.balance}⬨
-                </div>
-              );
-            })}
-          </>
-        </Modal>
-
-        {subscriptions.map((sub, i) => {
-          return (
-            <Card key={i} style={{ maxWidth: "30%", minWidth: "100px" }}>
-              <div>
-                <Tooltip title={sub.data.description}>
-                  <strong>{sub.data.title}</strong>
-                </Tooltip>
-                <br />
-                <small>
-                  <Tooltip title={"View subscribers and earnings per subscriber for this listing"}>
-                    <a
-                      onClick={() => {
-                        getSubscribers(sub.subHash, sub.subscribers);
-                        setSubTitle(sub.data.title);
-                      }}
-                    >
-                      Subscribers: {sub.subscribers.length.toString()}
-                    </a>
-                  </Tooltip>
-                  <div>List price:{ethers.utils.formatEther(sub.data.price)}⬨</div>
-                  <Tooltip title={sub.data.description}>
-                    <div>Earned:{ethers.utils.formatEther(sub.earned)}⬨</div>
-                  </Tooltip>
-                  <Tooltip
-                    title={
-                      <div>
-                        Reported: {sub.reports} <br />
-                        PodIndex: {sub.podIndex} <br />
-                      </div>
-                    }
-                  >
-                    <div>
-                      Sold: {sub.sells} Bids: {sub.bids}
-                    </div>
-                  </Tooltip>
-                  <Tooltip title={sub.active ? "Disable listing" : "Enable listing"}>
-                    <a onClick={() => disableEnableSub(sub.subHash, !sub.active)}>
-                      {sub.active ? "Active" : "Disabled"}
-                    </a>
-                  </Tooltip>
-                </small>
+            {/* </ResponsiveContainer> */}
+          </div>
+          {subscribers.map((subscriber, i) => {
+            return (
+              <div key={"subscriber" + i}>
+                <AddressSimple address={subscriber.name} ensProvider={mainnetProvider} /> {subscriber.balance}⬨
               </div>
-              {/* <Tooltip
-                title={
-                  <>
-                    Allow {subRequest.buyer} to access {subRequest.podIndex} for 30 days
-                  </>
-                }
-              >
-                <Button onClick={() => onSellSubRequest(subRequest)}>⬨</Button>
-              </Tooltip> */}
-            </Card>
-          );
-        })}
-      </Row>
+            );
+          })}
+        </>
+      </Modal>
     </div>
   );
 }

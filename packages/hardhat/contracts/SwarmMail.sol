@@ -129,40 +129,39 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     function getSubRequests(address addr) public view returns (SubRequest[] memory) {
         return users[addr].subRequests;
     }
-    function getSubItemsCount(address addr) public view returns (uint) {
+    /*
+    function getActiveSubItemsCount(address addr) public view returns (uint) {
         uint count = 0;	
         for (uint i = 0; i < users[addr].subItems.length; i++) {
             if(block.timestamp <= users[addr].subItems[i].validTill) {
-                count++;
+                ++count;
             }
         }
         return count;
-    }
+    } */
     function getSubItems(address addr, uint start, uint length) public view returns (SubItem[] memory) {
         // either we  iterate through all items and return only those that are active
         // or we return all items and let the client filter them
         // iterate through active subItems
-        uint count = getSubItemsCount(addr); // all active subItems 
 
-        SubItem[] memory items = new SubItem[](count);
-        count = 0;
+        SubItem[] memory items = new SubItem[](length);
+        uint count = 0;
         
-        for (uint i = 0; i < users[addr].subItems.length; i++) {
-            if(block.timestamp <= users[addr].subItems[i].validTill) {
-                if(count >= start && count < start + length)
+        for (uint i = start; i < users[addr].subItems.length; i++) {
+            if(block.timestamp < users[addr].subItems[i].validTill) {
+                if(count < length)
                 {
                    items[count] = users[addr].subItems[i];
-                }
-                count++;
+                   ++count;
+                } else 
+                    break;
             }
         }
-        //return users[addr].subItems;
         return items;
     }
     function getSubItemBy(address addr, bytes32 subHash) public view returns (SubItem memory) {
         // check if subHash subItem is active
         require(block.timestamp <= users[addr].subItems[users[addr].subItemIds[subHash]-1].validTill, "SubItem expired");
-
         return users[addr].subItems[users[addr].subItemIds[subHash]-1];
     }
     function getAllSubItems(address addr) public view returns (SubItem[] memory) {
@@ -170,7 +169,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         SubItem[] memory items = new SubItem[](users[addr].subItems.length);
         for (uint i = 0; i < users[addr].subItems.length; i++) {
             items[i] = users[addr].subItems[i];
-            if(items[i].validTill > block.timestamp) {
+            if(block.timestamp > items[i].validTill) {
                 items[i].unlockKeyLocation = bytes32(0);
             }
         }
@@ -529,11 +528,11 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     // encryptedSecret is podReference encrypited with sharedSecret 
     function sellSub(bytes32 requestHash, bytes32 encryptedKeyLocation) public payable {
         User storage seller = users[msg.sender];
-
         require(seller.subRequestIds[requestHash] != 0, "No Req");
-        SubRequest memory br = seller.subRequests[seller.subRequestIds[requestHash]-1];
 
+        SubRequest memory br = seller.subRequests[seller.subRequestIds[requestHash]-1];
         require(subscriptionIds[br.subHash] != 0, "No Sub"); // must exists
+
         Sub storage s = subscriptions[subscriptionIds[br.subHash]-1]; 
         require(msg.sender==s.seller, "Not Sub Seller"); // sent value must be equal to price
 
@@ -549,7 +548,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         SubItem memory si;
         si.subHash = br.subHash;
         si.unlockKeyLocation = encryptedKeyLocation;
-        si.validTill = block.timestamp + (s.daysValid * 1 days); //(daysValid * 60*60*24) // 30 days;
+        si.validTill = block.timestamp + (s.daysValid * 86400); //(daysValid * 60*60*24) // days;
 
         buyer.subItems.push(si);
         buyer.subItemIds[br.subHash] = buyer.subItems.length; // +1 of index (so call subHash -1)

@@ -73,16 +73,16 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
     setInEscrow(balanceInEscrow.toString());
     var fees = await readContracts.SwarmMail.feesCollected();
     setFeesCollected(fees.toString());
-    console.log("marketFee", marketFee, "listingFee", listFee);
+    //console.log("marketFee", marketFee, "listingFee", listFee);
   });
   const getCategory = useCallback(async categoryHash => {
     var category = await readContracts.SwarmMail.getCategory(categoryHash);
-    console.log("category", category);
+    //console.log("category", category);
     return category;
   });
   const getSub = useCallback(async subId => {
     var sub = await readContracts.SwarmMail.getSub(subId);
-    console.log("sub", sub);
+    //console.log("sub", sub);
     return sub;
   });
   // const getSubBy = useCallback(async subHash => {
@@ -168,10 +168,11 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
       for (var subId = 0; subId < cat.subIdxs.length; subId++) {
         try {
           var sub = await getSub(cat.subIdxs[subId]); // getting by index is different than getting by hash
-          console.log("sub", sub);
+          //console.log("sub", sub);
           var subData = await downloadDataFromBee(sub.swarmLocation);
           var subscription = JSON.parse(new TextDecoder().decode(subData));
-          console.log("subscription", subscription);
+          //console.log("subscription", subscription);
+
           subscription.seller = sub.seller;
           subscription.fdpSellerNameHash = sub.fdpSellerNameHash;
           subscription.price = ethers.utils.formatEther(sub.price).toString();
@@ -181,12 +182,13 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
           subscription.reports = sub.reports.toString();
           subscription.swarmLocation = sub.swarmLocation;
           subscription.subHash = sub.subHash;
+          subscription.daysValid = sub.daysValid;
           subscription.category = categories.find(x => x.value == values[i])?.label;
 
           subscription.dataPodName = subscription.podName;
           subscription.dataPodAddress = subscription.podAddress;
 
-          console.log("subData", subscription);
+          console.log("subscription", subscription);
           setSubscriptions(subscriptions => [...subscriptions, subscription]);
         } catch (e) {
           console.log(e);
@@ -350,7 +352,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
                           style={{ backgroundColor: "transparent", color: "inherit" }}
                           darkMode={true}
                           wrapperElement={{
-                             "data-color-mode": "dark",
+                            "data-color-mode": "dark",
                           }}
                         />
                       </>
@@ -366,7 +368,13 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
                   ></div>
 
                   <br />
-                  <Tooltip title={<>Request to subscribe for {sub.price}⬨ for 30 days</>}>
+                  <Tooltip
+                    title={
+                      <>
+                        Request to subscribe for {sub.price}⬨ for {sub.daysValid.toString()} days
+                      </>
+                    }
+                  >
                     <Button style={{ bottom: "5px", position: "absolute" }} onClick={() => onBidSub(sub)}>
                       {sub.price} ⬨
                     </Button>

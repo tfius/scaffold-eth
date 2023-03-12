@@ -47,6 +47,7 @@ export function Subscriptions({
   setReplyTo,
 }) {
   const [activeSubItems, setActiveSubItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const getSubItems = useCallback(async forAddress => {
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
     var subItems = await readContracts.SwarmMail.getAllSubItems(forAddress);
@@ -54,18 +55,26 @@ export function Subscriptions({
     getSubsItemDetails(subItems);
   });
   const getSubsItemDetails = useCallback(async subItems => {
+    setIsLoading(true);
     for (let i = 0; i < subItems.length; i++) {
       let sub = await readContracts.SwarmMail.getSubBy(subItems[i].subHash);
+      console.log("sub", sub);
+      console.log("subItem", subItems[i]);
       var subData = await downloadJsonFromBee(sub.swarmLocation);
       var decData = {};
-      //
-      try {
-        var subKeyData = await downloadDataFromBee(subItems[i].unlockKeyLocation);
-        var d = JSON.parse(new TextDecoder().decode(subKeyData));
-        var decRes = EncDec.nacl_decrypt(d, smailMail.smail.substr(2, smailMail.smail.length));
-        var decData = JSON.parse(decRes);
-      } catch (e) {
-        console.log("error", e);
+
+      if (subItems[i].unlockKeyLocation === consts.emptyBatchId) {
+        decData.state = "Expired";
+      } else {
+        // decoding can fail if its fairos sharing
+        try {
+          var subKeyData = await downloadDataFromBee(subItems[i].unlockKeyLocation);
+          var d = JSON.parse(new TextDecoder().decode(subKeyData));
+          var decRes = EncDec.nacl_decrypt(d, smailMail.smail.substr(2, smailMail.smail.length));
+          decData = JSON.parse(decRes);
+        } catch (e) {
+          console.log("error subItemDetail", e);
+        }
       }
 
       var item = {};
@@ -74,9 +83,10 @@ export function Subscriptions({
       item.data = subData;
       item.keyData = decData;
 
-      console.log("item", item);
-      setActiveSubItems(activeSubItems => [...activeSubItems, item]);
+      console.log("getSubsItemDetails", item);
+      setActiveSubItems(activeSubItems => [item, ...activeSubItems]);
     }
+    setIsLoading(false);
   });
 
   useEffect(() => {
@@ -97,47 +107,43 @@ export function Subscriptions({
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
       <h1>Subscriptions</h1>
-      <>Manage and see your subscriptions</>
+      <div className="routeSubtitle">Manage and see your subscriptions</div>
+      {isLoading && <Spin />}
 
-      <Row>
-        {activeSubItems.map((ab, i) => {
-          return (
-            <Card key={i} style={{ maxWidth: "30%", minWidth: "100px" }}>
-              <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
-                <Tooltip
-                  title={
-                    <>
-                      {ab.data.description}
-                      <br />
-                      <br />
+      <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
+        <Row>
+          {activeSubItems.map((ab, i) => {
+            return (
+              <Card key={i} style={{ maxWidth: "30%", minWidth: "100px" }}>
+                <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
+                  <Tooltip
+                    title={
+                      <>
+                        {ab.data.description}
+                        <br />
+                        <br />
 
-                      <a onClick={() => setReplyTo(ab.sub.seller)}>Contact seller</a>
-                      <div>Bought for: {ethers.utils.formatEther(ab.data.price)}⬨</div>
+                        <a onClick={() => setReplyTo(ab.sub.seller)}>Contact seller</a>
+                        <div>Bought for: {ethers.utils.formatEther(ab.data.price)}⬨</div>
 
-                      <div>Expires: {new Date(parseInt(ab.validTill.toString()) * 1000).toString()}</div>
+                        <div>Expires: {new Date(parseInt(ab.validTill.toString()) * 1000).toString()}</div>
 
-                      <br />
-                      <div>{JSON.stringify(ab.keyData)}</div>
-                    </>
-                  }
-                >
-                  <strong>{ab.data.title}</strong>
-                </Tooltip>
-              </div>
-              <Tooltip
-                title={
-                  <>
-                    Allow {ab.buyer} to access {ab.podName} for 30 days
-                  </>
-                }
-              >
-                {/* ⬨ */}
-                {/* <Button onClick={() => onSellSubRequest(reqSub)}>Allow</Button> */}
-              </Tooltip>
-            </Card>
-          );
-        })}
-      </Row>
+                        <br />
+                        <div>{JSON.stringify(ab.keyData)}</div>
+                      </>
+                    }
+                  >
+                    <strong>{ab.data.title}</strong>
+                  </Tooltip>
+                </div>
+                <div style={{ bottom: "5px", position: "absolute" }}>
+                  <small>{ab.keyData.state}</small>
+                </div>
+              </Card>
+            );
+          })}
+        </Row>
+      </div>
     </div>
   );
 }

@@ -244,8 +244,9 @@ export function Locker({
   }
 
   return (
-    <div style={{ margin: "auto", width: "100%", paddingLeft: "10px" }}>
-      <h1 style={{ paddingTop: "18px" }}>Locker</h1>
+    <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
+      <h1>Locker</h1>
+      <div className="routeSubtitle">Encrypted packages and sharing info</div>
 
       <>
         <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>

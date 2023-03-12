@@ -220,6 +220,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px" }}>
       <h1 style={{ paddingTop: "18px" }}>Inbox</h1>
+      <div className="routeSubtitle">All inbound messages</div>
       {!isRegistered && (
         <Card>
           <Typography>

@@ -1696,7 +1696,7 @@
       "chainId": "31337",
       "contracts": {
         "SwarmMail": {
-          "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+          "address": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
           "abi": [
             {
               "inputs": [],
@@ -1941,6 +1941,25 @@
                   "internalType": "struct SwarmMail.ActiveBid[]",
                   "name": "",
                   "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "addr",
+                  "type": "address"
+                }
+              ],
+              "name": "getActiveSubItemsCount",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -2590,6 +2609,137 @@
             {
               "inputs": [
                 {
+                  "internalType": "address",
+                  "name": "addr",
+                  "type": "address"
+                }
+              ],
+              "name": "getSharedLocker",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bool",
+                      "name": "isEncryption",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "time",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "from",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "to",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "swarmLocation",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "signed",
+                      "type": "bool"
+                    }
+                  ],
+                  "internalType": "struct SwarmMail.Email[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "addr",
+                  "type": "address"
+                }
+              ],
+              "name": "getSharedLockerCount",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "addr",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "start",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "length",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getSharedLockerRange",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bool",
+                      "name": "isEncryption",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "time",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "from",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "to",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "swarmLocation",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "signed",
+                      "type": "bool"
+                    }
+                  ],
+                  "internalType": "struct SwarmMail.Email[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
                   "internalType": "uint256",
                   "name": "index",
                   "type": "uint256"
@@ -2886,25 +3036,6 @@
                   "internalType": "struct SwarmMail.SubItem[]",
                   "name": "",
                   "type": "tuple[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "addr",
-                  "type": "address"
-                }
-              ],
-              "name": "getSubItemsCount",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -3494,6 +3625,24 @@
                   "internalType": "bytes32",
                   "name": "swarmLocation",
                   "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "withAddress",
+                  "type": "address"
+                }
+              ],
+              "name": "shareLockerWith",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "swarmLocation",
+                  "type": "bytes32"
                 }
               ],
               "name": "signEmail",
@@ -3630,6 +3779,24 @@
                 }
               ],
               "name": "transferOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "swarmLocation",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "withAddress",
+                  "type": "address"
+                }
+              ],
+              "name": "unshareLockerWith",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"

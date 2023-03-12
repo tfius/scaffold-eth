@@ -127,45 +127,47 @@ export function SubRequests({
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
-      <h3>Subscription requests</h3>
-      <>Here are all requests made to access your listings</>
+      <h1>Subscription requests</h1>
+      <div className="routeSubtitle">All requests to access your listings</div>
 
-      <Row>
-        {reqSubSubscriptions.map((reqSub, i) => {
-          return (
-            <Card key={i} style={{ maxWidth: "30%", minWidth: "100px" }}>
-              <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
+      <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
+        <Row>
+          {reqSubSubscriptions.map((reqSub, i) => {
+            return (
+              <Card key={i} style={{ maxWidth: "30%", minWidth: "100px" }}>
+                <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
+                  <Tooltip
+                    title={
+                      <>
+                        {reqSub.data.description}
+                        <div>List price:{ethers.utils.formatEther(reqSub.data.price)}⬨</div>
+                      </>
+                    }
+                  >
+                    <strong>{reqSub.data.title}</strong>
+                  </Tooltip>
+                </div>
                 <Tooltip
                   title={
                     <>
-                      {reqSub.data.description}
-                      <div>List price:{ethers.utils.formatEther(reqSub.data.price)}⬨</div>
+                      Allow {reqSub.buyer}
+                      <br />
+                      to access pod
+                      <br />
+                      <strong>{reqSub.data.podName}</strong>
+                      <br />
+                      for 30 days
                     </>
                   }
                 >
-                  <strong>{reqSub.data.title}</strong>
+                  {/* ⬨ */}
+                  <Button onClick={() => onSellSubRequest(reqSub)}>Allow</Button>
                 </Tooltip>
-              </div>
-              <Tooltip
-                title={
-                  <>
-                    Allow {reqSub.buyer}
-                    <br />
-                    to access pod
-                    <br />
-                    <strong>{reqSub.data.podName}</strong>
-                    <br />
-                    for 30 days
-                  </>
-                }
-              >
-                {/* ⬨ */}
-                <Button onClick={() => onSellSubRequest(reqSub)}>Allow</Button>
-              </Tooltip>
-            </Card>
-          );
-        })}
-      </Row>
+              </Card>
+            );
+          })}
+        </Row>
+      </div>
     </div>
   );
 }

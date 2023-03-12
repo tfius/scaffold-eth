@@ -110,3 +110,22 @@ iframe {
       rgba(134, 185, 255, 0.0)
       )
 }
+
+@keyframes myAnimation{
+  0%{
+    opacity: 1;
+  }
+  100%{
+    opacity: 0.9;
+    color:#865eff;
+    /* margin-bottom: 4px; */
+    /* display: none; */
+    /* transform: rotateX(90deg);  */
+  }
+}
+
+.routeSubtitle {
+    animation-name: myAnimation;
+    animation-duration: 21000ms;
+    animation-fill-mode: forwards;
+}

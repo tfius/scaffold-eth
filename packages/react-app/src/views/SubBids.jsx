@@ -89,50 +89,52 @@ export function SubBids({ readContracts, writeContracts, tx, userSigner, address
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
-      <h3>Your bids</h3>
-      <>Here are all active bids you made </>
+      <h1>Your bids</h1>
+      <div className="routeSubtitle">All your active bids</div>
 
-      <Row>
-        {activeBids.map((ab, i) => {
-          return (
-            <Card key={i} style={{ maxWidth: "30%", minWidth: "100px" }}>
-              <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
+      <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
+        <Row>
+          {activeBids.map((ab, i) => {
+            return (
+              <Card key={i} style={{ maxWidth: "30%", minWidth: "100px" }}>
+                <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
+                  <Tooltip
+                    title={
+                      <>
+                        {ab.subData.description}
+                        <div>List price:{ethers.utils.formatEther(ab.sub.price)}⬨</div>
+                      </>
+                    }
+                  >
+                    <strong>{ab.subData.title}</strong>
+                  </Tooltip>
+                  <br />
+                  <small> {ab.subData.description}</small>
+                </div>
                 <Tooltip
                   title={
                     <>
-                      {ab.subData.description}
-                      <div>List price:{ethers.utils.formatEther(ab.sub.price)}⬨</div>
+                      You are requesting to access <strong> {ab.subData.title}</strong> <br />
+                      Pod <strong> {ab.subData.podName}</strong>
+                      <br />
+                      For <strong>{ethers.utils.formatEther(ab.sub.price)}</strong>⬨
+                      <br />
+                      <br />
+                      <i>{ab.subData.description}</i>
+                      <br />
+                      from {ab.sub.seller} <br />
+                      <br />
+                      You can remove this bid if you want to and get back your escrowed funds.
                     </>
                   }
                 >
-                  <strong>{ab.subData.title}</strong>
+                  <Button onClick={() => onRemoveActiveBid(ab.activeBid)}>Remove</Button>
                 </Tooltip>
-                <br />
-                <small> {ab.subData.description}</small>
-              </div>
-              <Tooltip
-                title={
-                  <>
-                    Asking {ab.sub.seller} <br />
-                    to access <strong> {ab.subData.title}</strong> <br />
-                    Pod <strong> {ab.subData.podName}</strong>
-                    <br />
-                    For <strong>{ethers.utils.formatEther(ab.sub.price)}</strong>⬨
-                    <br />
-                    <br />
-                    <i>{ab.subData.description}</i>
-                    <br />
-                    <br />
-                    You can remove this bid if you want to and get back your escrowed funds.
-                  </>
-                }
-              >
-                <Button onClick={() => onRemoveActiveBid(ab.activeBid)}>Remove</Button>
-              </Tooltip>
-            </Card>
-          );
-        })}
-      </Row>
+              </Card>
+            );
+          })}
+        </Row>
+      </div>
     </div>
   );
 }
