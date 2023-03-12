@@ -83,7 +83,8 @@ This function returns a range of `Email` struct objects representing the inbox o
 - `length` is the length of the range to be retrieved.
 
 ### Function `getSent(address addr)`
-This function returns an array of Email struct objects representing the sent messages of a given user with the address `addr`. The function is a public view function, which means it does not modify the state of the contract and can be called from any address. 
+***Deprecated***
+This function returns an array of Email struct objects representing the sent messages of a given user with the address `addr`. The function is a public view function, which means it does not modify the state of the contract and can be called from any address. Returned objects are unreadable by sender.
 #### Arguments
 - `addr`, which is the address of the user whose sent messages are to be retrieved.
 
@@ -96,7 +97,6 @@ This function returns an array of SubRequest struct objects representing the sub
 This function returns the count of active subscription items of a given user with the address `addr`. The function is a public view function, which means it does not modify the state of the contract and can be called from any address. The function takes one argument `addr`, which is the address of the user whose active subscription items count is to be retrieved. An active subscription item is an item whose `validTill` property is greater than the current block timestamp.
 
 ### Function `getSubItems(address addr, uint start, uint length)`
-
 This function returns an array of SubItem struct objects for a given user's active subscriptions. The function takes in three arguments, 
 #### Arguments 
 - `addr` which is the user's address, 
@@ -108,13 +108,11 @@ If the user has no active subscriptions, the function returns an empty array. If
 Internally, the function iterates through all SubItems in the user's subscription list to check if they are active, and then returns only the active subscriptions within the specified range.
 
 ### Function `getSubItemBy(address addr, bytes32 subHash)`
-
 This function takes two arguments, addr which is the user's address and `subHash` which is the hash of the SubItem struct object to be retrieved. The function returns the SubItem struct object for the given hash if the subscription is active, and throws an error if the subscription is inactive or does not exist.
 
 Internally, the function checks if the SubItem is active by comparing the `validTill` property of the `SubItem` with the current timestamp. If the subscription is active, the function returns the `SubItem`.
 
 ### Function `getAllSubItems(address addr)`
-
 This function returns an array of all the `SubItem` struct objects for a given user, including both `active` and `inactive` subscriptions. The function takes in one argument, 
 #### Arguments 
 `addr` which is the user's address.
@@ -133,7 +131,7 @@ Returns the Email object located at the given index of the sentEmails array for 
 - `addr`: The Ethereum address of the user whose sentEmails array is being queried.
 - `index`: The index of the Email object to retrieve from the sentEmails array.
 
-### `getSubRequestAt(address addr, uint index)` public view returns (SubRequest memory)
+### Function `getSubRequestAt(address addr, uint index)` public view returns (SubRequest memory)
 Returns the `SubRequest` object located at the given index of the subRequests array for the specified addr user.
 #### Arguments 
 - `addr`: The Ethereum address of the user whose subRequests array is being queried.
@@ -185,10 +183,8 @@ Note that these functions modify the email lists of the user calling the functio
 #### Arguments 
 
 
-## Shared Lockers
-
+# Locker and sharing 
 This part of smart contract provides functionality for creating and managing shared lockers.
-
 ### Function `getSharedLocker(address addr)`
 Returns an array of `Email` structs representing the shared lockers of the given address.
 #### Arguments
@@ -224,6 +220,14 @@ Stops sharing a locker with another user.
 - `swarmLocation` - The location of the locker on Swarm.
 - `withAddress` - The address of the user with whom the locker is no longer being shared.
 
+# Marketplace
+The following code defines a smart contract that implements a marketplace for pod subscriptions. It includes several functions for setting and getting the subscription fees, enabling and listing subscriptions, and requesting and allowing access on them.
+
+## **User MUST be** ##
+- connected with FairOS account 
+- bonded with Smail contract 
+To list pod subscriptions and request access. 
+
 ### Function `getListedSubs(address addr)` public view returns (bytes32[] memory)
 This function retrieves the list of subscription hashes that the user has listed for sale.
 #### Arguments
@@ -257,11 +261,6 @@ This function retrieves the count of items in various boxes of the user.
 - `numSubRequests`: Number of subscription requests made by the user.
 - `numSubItems`: Number of subscription items owned by the user.
 - `numActiveBids`: Number of active bids made by the user on other users' listed subscriptions.
-
-
-# Marketplace implementation
-The following code defines a smart contract that implements a marketplace for subscriptions. It includes several functions for setting and getting the subscription fees, enabling and listing subscriptions, and bidding on them.
-
 ### Constants:
 - `FEE_PRECISION` with a value of 1e5
 - `marketFee` with a value of 1000
@@ -270,10 +269,8 @@ The following code defines a smart contract that implements a marketplace for su
 - `inEscrow` with an initial value of 0
 
 ### Structs:
-
 #### Struct `Category` 
    with a uint array subIdxs field
-
 #### Struct `Sub` with fields:
 - `subHash` (bytes32)
 - `fdpSellerNameHash` (bytes32)
@@ -286,7 +283,6 @@ The following code defines a smart contract that implements a marketplace for su
 - `sells` (uint32)
 - `reports` (uint32)
 - `daysValid` (uint)
-
 ### Functions:
 - `getFee(uint256 _fee, uint256 amount) public pure returns (uint256)`
 - `setFee(uint256 newFee) public`
@@ -305,9 +301,7 @@ The following code defines a smart contract that implements a marketplace for su
 - `removeActiveBid(address user, bytes32 requestHash) private`
 - `removeSubItem(uint256 index) public`
 - `removeSubRequest(address owner, bytes32 requestHash) private`
-
-
-## Functions Documentation
+## Marketplace Functions
 ### Function `getFee(uint256 _fee, uint256 amount)`
 Description: Calculates the fee based on the percentage and amount.
 #### Arguments
@@ -401,24 +395,45 @@ The function then updates the subscription's sell count and earnings. It also ad
 
 If the buyer is not already a subscriber, they are added to the subscription's list of subscribers. Finally, the function removes the bid request from the seller's list of sub requests and removes the bid request from the buyer's list of active bids.
 
+#### Arguments
+- `requestHash`: the hash of the bid request.
+- `encryptedKeyLocation`: the encrypted location of the subscription unlock key.
+
+#### Returns
+
 ### Function `removeUserActiveBid(bytes32 requestHash) public`
 
 This function is used to remove a bid request from a user's list of active bids. It takes in one argument, `requestHash` which is a hash of the bid request.
 
 The function first checks if the user has a corresponding active bid request in their list of active bids. If not, it throws an error. If the request is found, it checks if the seller has a corresponding sub request in their list of sub requests. If not, it throws an error. If the subscription corresponding to the bid exists in the subscription list, the function returns the funds back to the buyer.
+#### Arguments
+- `requestHash`: the hash of the bid request.
+#### Returns
 
 ### Function `removeActiveBid(address user, bytes32 requestHash) private`
 This function is used to remove an active bid request from a user's list of active bids. It takes in two arguments, `user` which is the address of the user and `requestHash` which is a hash of the bid request.
 
 The function first checks if the user has a corresponding active bid request in their list of active bids. If not, it throws an error. If the request is found, the function replaces the bid request at the remove index with the last bid request and pops the last bid request.
+#### Arguments
+- `user`: the address of the user.
+- `requestHash`: the hash of the bid request.
+#### Returns
 
 ### Function `removeSubItem(uint256 index) public`
 This function is used to remove a subscription item from a user's list of subscriptions. It takes in one argument, `index` which is the index of the subscription item to remove.
 
 The function first checks if the index is valid for the user's list of subscription items. If not, it throws an error. If the index is valid, the function replaces the subscription item at the remove index with the last subscription item and pops the last subscription item.
+#### Arguments
+- `index`: the index of the subscription item to remove.
+#### Returns
+
 
 ### Function `removeSubRequest(address owner, bytes32 requestHash) private`
 This function is used to remove a sub request from a seller's list of sub requests. It takes in two arguments, `owner` which is the address of the seller and `requestHash` which is a hash of the sub request.
 
 The function first checks if the seller has a corresponding sub request in their list of sub requests. 
+#### Arguments
+- `owner`: the address of the seller.
+- `requestHash`: the hash of the sub request.
+#### Returns
 
