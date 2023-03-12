@@ -1,4 +1,56 @@
+# How Smail works
+## How registration works:
+- your public encryption key is requested with which new Smail Wallet is created
+- Smail Wallet is encrypted with your MetaMask and uploaded to Swarm
+- a transaction is sent to register Smail public key and Smail Wallet
+Only MetaMask account that created Smail Wallet can decrypt and bond with it.
 
+## How sending data works:
+- Recipient's Smail public Key is retrieved
+- New Ephemeral key is created
+- Data is packaged, encrypted and uploaded
+- A transaction is sent to notify receiver of new data available
+You don't need to be bonded to send encrypted data, as long as receiver is registered with Smail you will be able to send encrypted data.
+
+You will be asked to decrypt your Smail Wallet every time you visit this page. NOTE: Only receiver can retrieve and decrypt its contents.
+
+## BEWARE AND BEHOLD
+Always check that you are on correct domain and that you are using correct MetaMask account. Scammers could potentially ask you to decrypt Smail Wallet and gain access to your data.
+
+## Pricing
+When you send message you pay transaction costs and for storage fees on Swarm network. Data persistence is not guaranteed. Storage fees go to Smail maintainer and are used to buy Bzz tokens to store data for as long as possible. For how long you might ask? Answer to this question is tricky. It depends on market conditions as prices fluctuate when demand increases. If market is willing to pay more for storage, then postage stamps expire sooner and data will be garbage collected.
+
+## Privacy
+Sending unencrypted data is supported and occours when:
+if either sender or receiver is not a registered
+Sender's Smail Wallet can not be retrieved or is not decrypted
+Receiver public key can not be retrieved
+You can read and send unencrypted messages if you are connected and not bonded.
+
+**BEWARE !!!** All unencrypted data and attachements can be retrieved by anyone with the link. If you want to store unencrypted data you can use Swarm directly, or use FairOS or FDP protocol.
+
+Consideration
+It must be noted that transaction is sent from your MetaMask account and is as such recorded on blockchain. Transaction metadata can be linked to your account.
+
+## Networks
+Multiple networks supported, BUT:
+Cross network sending is NOT supported.
+You will have to register on each network.
+Each Smail Wallet will be different.
+
+Which means if you send on one network, receiver will get message on that network only.
+
+# Why Locker 
+TODO 
+
+
+# Pod Subscriptions
+TODO
+
+# FairOS WASM
+TODO
+
+###################################################################
 
 How is it done ? https://github.com/dchest/tweetnacl-js/blob/master/README.md 
 
