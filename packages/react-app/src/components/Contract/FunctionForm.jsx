@@ -246,7 +246,7 @@ export default function FunctionForm({ contractFunction, functionInfo, provider,
             textAlign: "right",
             opacity: 0.333,
             paddingRight: 6,
-            fontSize: 24,
+            fontSize: 17,
           }}
         >
           {functionInfo.name}

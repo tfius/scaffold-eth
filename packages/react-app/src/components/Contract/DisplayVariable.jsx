@@ -28,13 +28,13 @@ const DisplayVariable = ({ contractFunction, functionInfo, refreshRequired, trig
             textAlign: "right",
             opacity: 0.333,
             paddingRight: 6,
-            fontSize: 24,
+            fontSize: 17,
           }}
         >
           {functionInfo.name}
         </Col>
         <Col span={14}>
-          <h2>{tryToDisplay(variable)}</h2>
+          <h3>{tryToDisplay(variable)}</h3>
         </Col>
         <Col span={2}>
           <h2>
