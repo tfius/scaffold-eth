@@ -1,5 +1,5 @@
 # Smail 
-Smail is a email-like system that provides a secure, one-way communication channel for users who are looking for a private and efficient way of exchanging information. Smail's unique features include a locker with sharing capabilities and a marketplace for pod subscriptions, making it an all-in-one platform for managing your email communications.
+Smail is an email-like system that provides a secure, one-way communication channel for users who are looking for a private and efficient way of exchanging information. Smail's unique features include a locker with sharing capabilities and a marketplace for pod subscriptions, making it an all-in-one platform for managing your email communications.
 
 **One-way email** allows users to send messages to others without receiving any replies, ensuring that sensitive information remains confidential. This feature is ideal for business professionals, journalists, and anyone who values privacy in their communications.
 
@@ -9,7 +9,7 @@ Finally, Smail's pod subscription marketplace **Data Hub** makes it easy to mana
 
 In summary, Smail is an email system that prioritizes privacy, security, and convenience. With features like one-way email, a locker with sharing capabilities, and a pod subscription marketplace, Smail is the perfect choice for anyone who wants to take control of their data and communications.
 
-# How Smail works
+# Bond with Smail
 ## How registration works:
 - your public encryption key is requested with which new Smail Wallet is created
 - Smail Wallet is encrypted with your MetaMask and uploaded to Swarm
@@ -21,7 +21,7 @@ Only MetaMask account that created Smail Wallet can decrypt and bond with it.
 - New Ephemeral key is created
 - Data is packaged, encrypted and uploaded
 - A transaction is sent to notify receiver of new data available
-You don't need to be bonded to send encrypted data, as long as receiver is registered with Smail you will be able to send encrypted data.
+You don't need to be bonded to send encrypted data. As long as receiver is registered with Smail you will be able to send encrypted data.
 
 You will be asked to decrypt your Smail Wallet every time you visit this page. NOTE: Only receiver can retrieve and decrypt its contents.
 
