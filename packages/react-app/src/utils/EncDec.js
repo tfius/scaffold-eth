@@ -39,19 +39,22 @@ export function hexToBase64(hexstring) {
       .join(""),
   );
 }
-
+/*
 export async function createRootKey(password) {
   const seed = new Uint16Array(8);
   window.crypto.getRandomValues(seed);
-  return await deriveDriveKey(seed.buffer, password); // /*'password'*/
-}
+  return await deriveDriveKey(seed.buffer, password); // // 'password'
+} 
+*/
 // Derive a key from the user's id
+/*
 export const deriveDriveKey = async (seed, dataEncryptionKey) => {
   const info = dataEncryptionKey;
   const driveKey = hkdf(Buffer.from(seed), keyByteLength, { info, hash: keyHash });
   return urlEncodeHashKey(driveKey);
 };
-
+*/ 
+/*
 export const encryptData = async (key, data) => {
   const keyData = Buffer.from(key, "base64");
   const iv = crypto.randomBytes(12);
@@ -63,7 +66,8 @@ export const encryptData = async (key, data) => {
     data: encryptedBuffer,
   };
 };
-
+*/
+/*
 export async function decryptData(key, data, cipherIV) {
   try {
     const authTag = data.slice(data.byteLength - authTagLength, data.byteLength);
@@ -79,7 +83,7 @@ export async function decryptData(key, data, cipherIV) {
     return Buffer.from("Error", "ascii");
   }
 }
-
+*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////

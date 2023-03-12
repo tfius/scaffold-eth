@@ -92,3 +92,21 @@ iframe {
 .podItem:hover {
   color:blueviolet;
 }
+
+.podItemLogoImage {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  color: #ffffff33;
+  padding: 0;
+  margin: 0;
+  top: 0px;
+  left: 0px;
+  color:#4000ff55;
+  opacity: 0.2;
+  background-color: #4000ff55;
+  background-image: linear-gradient(
+      rgba(189, 58, 255, 0.9),
+      rgba(134, 185, 255, 0.0)
+      )
+}

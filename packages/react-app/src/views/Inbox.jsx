@@ -380,6 +380,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       {viewMail && (
         <Modal
           className="largerModal"
+          width={"65%"}
           style={{ width: "100%", resize: "auto", borderRadious: "20px" }}
           title={
             <>
@@ -435,6 +436,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                   <Tooltip
                     title={
                       <>
+                        click to download <br />
                         {a.file.path} <br /> <small>{a.file.type}</small>
                       </>
                     }

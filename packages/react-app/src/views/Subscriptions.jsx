@@ -36,7 +36,16 @@ import { categoryList } from "./categories";
  subHash: "0x6d68ebbd2a7a135d72d0f351ec2fbfa67ce11088aee386dfd0edfd3a130a9624"
 */
 
-export function Subscriptions({ readContracts, writeContracts, tx, userSigner, address, smailMail, mainnetProvider }) {
+export function Subscriptions({
+  readContracts,
+  writeContracts,
+  tx,
+  userSigner,
+  address,
+  smailMail,
+  mainnetProvider,
+  setReplyTo,
+}) {
   const [activeSubItems, setActiveSubItems] = useState([]);
   const getSubItems = useCallback(async forAddress => {
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
@@ -74,30 +83,7 @@ export function Subscriptions({ readContracts, writeContracts, tx, userSigner, a
     getSubItems(address);
   }, [address, readContracts]);
 
-  //   const getPubKeyFor = async forAddress => {
-  //     const data = await readContracts.SwarmMail.getPublicKeys(forAddress); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
-  //     if (data.registered == false) {
-  //       notification.error({ message: "Receiver not registered", description: "You can only sell to registered users" });
-  //       return;
-  //     }
-  //     const rkey = data.key.substr(2, data.key.length - 1);
-  //     var pk = Buffer.from(rkey, "hex").toString("base64");
-  //     var pkRegister = { pk: pk, registered: data.registered };
-  //     console.log("pkRegister", pkRegister);
-  //     return pkRegister;
-  //   };
-  //   const onSellSubRequest = async subRequest => {
-  //     console.log("onSellSubRequest", subRequest);
-  //     var fdp = { podAddress: "", podIndex: 0 }; // TODO
-  //     // get receiver pubKey encrypt key upload encrypted then sell sub
-  //     let receiverPubKey = await getPubKeyFor(subRequest.buyer);
-  //     let dataWithKey = { ref: consts.emptyHash, sender: address }; //, podAddress: fdp.podAddress, podIndex: sub.podIndex };
-  //     var encryptedKeyLocation = await EncDec.encryptAndUpload(dataWithKey, receiverPubKey.pk);
-  //     var tx = await writeContracts.SwarmMail.sellSub(subRequest.requestHash, "0x" + encryptedKeyLocation);
-  //     await tx.wait();
-  //   };
-  //   const subscribers
-  console.log(smailMail);
+  //console.log(smailMail);
   if (smailMail.smail === null)
     return (
       <>
@@ -122,8 +108,15 @@ export function Subscriptions({ readContracts, writeContracts, tx, userSigner, a
                   title={
                     <>
                       {ab.data.description}
-                      <div>List price:{ethers.utils.formatEther(ab.data.price)}⬨</div>
+                      <br />
+                      <br />
 
+                      <a onClick={() => setReplyTo(ab.sub.seller)}>Contact seller</a>
+                      <div>Bought for: {ethers.utils.formatEther(ab.data.price)}⬨</div>
+
+                      <div>Expires: {new Date(parseInt(ab.validTill.toString()) * 1000).toString()}</div>
+
+                      <br />
                       <div>{JSON.stringify(ab.keyData)}</div>
                     </>
                   }

@@ -257,6 +257,7 @@ export function FairOSWasmConnect({
           price,
           category,
           "0x" + podAddress,
+          30, // days to sell subscription
           {
             value: listingFee,
           },
@@ -421,7 +422,9 @@ export function FairOSWasmConnect({
           </>
           <br />
           <br />
-          <Button onClick={() => ConnectFairOSWithWallet()}>Connect</Button>
+          <Button type="primary" onClick={() => ConnectFairOSWithWallet()}>
+            Connect
+          </Button>
         </Modal>
       )}
       {/* FairOS Login modal window */}

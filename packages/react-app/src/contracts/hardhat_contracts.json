@@ -1696,7 +1696,7 @@
       "chainId": "31337",
       "contracts": {
         "SwarmMail": {
-          "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+          "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
           "abi": [
             {
               "inputs": [],
@@ -2648,6 +2648,11 @@
                       "internalType": "uint32",
                       "name": "reports",
                       "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "daysValid",
+                      "type": "uint256"
                     }
                   ],
                   "internalType": "struct SwarmMail.Sub",
@@ -2719,6 +2724,11 @@
                       "internalType": "uint32",
                       "name": "reports",
                       "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "daysValid",
+                      "type": "uint256"
                     }
                   ],
                   "internalType": "struct SwarmMail.Sub",
@@ -3107,6 +3117,11 @@
                       "internalType": "uint32",
                       "name": "reports",
                       "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "daysValid",
+                      "type": "uint256"
                     }
                   ],
                   "internalType": "struct SwarmMail.Sub[]",
@@ -3198,6 +3213,11 @@
                   "internalType": "address",
                   "name": "podAddress",
                   "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "daysValid",
+                  "type": "uint256"
                 }
               ],
               "name": "listSub",
@@ -3572,6 +3592,11 @@
                   "internalType": "uint32",
                   "name": "reports",
                   "type": "uint32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "daysValid",
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",

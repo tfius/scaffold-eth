@@ -110,17 +110,6 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
     getListedSubs(address);
   }, [address, readContracts]);
 
-  //   const onSellSubRequest = async subRequest => {
-  //     console.log("onSellSubRequest", subRequest);
-  //     // get receiver pubKey encrypt key upload encrypted then sell sub
-  //     let receiverPubKey = await getPubKeyFor(subRequest.buyer);
-  //     let dataWithKey = { ref: consts.emptyHash, sender: address };
-  //     var encryptedKeyLocation = await EncDec.encryptAndUpload(dataWithKey, receiverPubKey.pk);
-  //     var tx = await writeContracts.SwarmMail.sellSub(subRequest.requestHash, "0x" + encryptedKeyLocation);
-  //     await tx.wait();
-  //   };
-  // https://recharts.org/en-US/examples/TwoLevelPieChart
-
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
       <h3>Subscribers</h3>

@@ -31,6 +31,8 @@ import { AddressSimple } from "../components";
 import { uploadJsonToBee, uploadDataToBee } from "./../Swarm/BeeService";
 import { categoriesTree, categoryList } from "./categories";
 
+
+
 function getMenuItem(label, key, icon, children, type) {
   return {
     key,
@@ -57,6 +59,8 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
   const [categories, setCategories] = useState(categoryList);
   const [subscriptions, setSubscriptions] = useState([]);
   const [openListSub, setOpenListSub] = useState(false);
+  const placeholderImage = "/logo512.png";
+
   const getFees = useCallback(async () => {
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
     var listFee = await readContracts.SwarmMail.minListingFee();
@@ -107,7 +111,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
       var dataLocation = await uploadDataToBee(JSON.stringify(data), "application/json", Date.now() + ".sub.json");
       console.log("dataLocation", dataLocation);
       var newTx = await tx(
-        writeContracts.SwarmMail.listSub(fdpSellerNameHash, "0x" + dataLocation, price, category, podAddress, {
+        writeContracts.SwarmMail.listSub(fdpSellerNameHash, "0x" + dataLocation, price, category, podAddress, 10, {
           value: listingFee,
         }),
       );
@@ -232,6 +236,9 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
     setCategories(flattened);
     //
   }, []);
+  const onImageError = e => {
+    e.target.src = window.location.origin + placeholderImage;
+  };
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
       <div>
@@ -271,22 +278,26 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
         <Row>
           {subscriptions.map((sub, i) => {
             return (
-              <Card key={i} style={{ maxWidth: "30%", minWidth: "150px" }}>
+              <Card
+                key={i}
+                style={{ width: "26%", maxWidth: "400px", minWidth: "256px", maxHeight: "200px" }}
+                hoverable
+              >
+                <img className="podItemLogoImage" src={sub.imageUrl} alt="image" onError={onImageError} />
                 <div key={i}>
                   <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
                     <small>
                       <Tooltip
                         title={
                           <>
-                            Category: <strong>{sub.category}</strong> Seller: <br />
-                            <AddressSimple address={sub.seller} ensProvider={mainnetProvider} />
+                            <h3>{sub.category}</h3>
+                            Category
                             <br />
                             <div>
                               Pod: {sub.dataPodName} <br />
                               PodAddress: {sub.dataPodAddress} <br />
                             </div>
                             <div>
-                              FDP Seller NameHash: {sub.fdpSellerNameHash}
                               <br />
                             </div>
                           </>
@@ -298,6 +309,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
                       <Tooltip
                         title={
                           <>
+                            <h3>Stats</h3>
                             Bids: <strong>{sub.bids}</strong> Sells <strong>{sub.sells}</strong> Report{" "}
                             <strong>{sub.reports}</strong>
                           </>
@@ -305,16 +317,42 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
                       >
                         &nbsp;<span>♡</span>
                       </Tooltip>
-                      <Tooltip title={"User info"}>
+                      <Tooltip
+                        title={
+                          <>
+                            <h3>User info</h3>
+                            Seller: <AddressSimple address={sub.seller} ensProvider={mainnetProvider} /> <br />
+                            FDP Seller NameHash: {sub.fdpSellerNameHash}
+                            <br />
+                          </>
+                        }
+                      >
                         &nbsp;<span>ⓘ</span>
                       </Tooltip>
                     </small>
                   </div>
                   <Tooltip
+                    overlayStyle={{ maxWidth: "60%" }}
                     title={
                       <>
-                        {sub.title} <br />
-                        <img src={sub.imageUrl} style={{ width: "100%" }} alt="image" />
+                        <div style={{ minWidth: "450px" }}>
+                          <h3>{sub.title}</h3>
+                        </div>
+                        <img
+                          src={sub.imageUrl}
+                          style={{ width: "100%", maxHeight: "200px" }}
+                          alt={sub.title + "image"}
+                          onError={onImageError}
+                        />
+                        <br />
+                        <MarkdownPreview
+                          source={sub.description}
+                          style={{ backgroundColor: "transparent", color: "inherit" }}
+                          darkMode={true}
+                          wrapperElement={{
+                             "data-color-mode": "dark",
+                          }}
+                        />
                       </>
                     }
                   >
@@ -325,13 +363,13 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
 
                   <div
                     style={{ width: "100%", maxHeight: "200px", top: "-6px", position: "relative", overflow: "hidden" }}
-                  >
-                    {sub.description}
-                  </div>
+                  ></div>
 
                   <br />
                   <Tooltip title={<>Request to subscribe for {sub.price}⬨ for 30 days</>}>
-                    <Button onClick={() => onBidSub(sub)}>{sub.price} ⬨</Button>
+                    <Button style={{ bottom: "5px", position: "absolute" }} onClick={() => onBidSub(sub)}>
+                      {sub.price} ⬨
+                    </Button>
                   </Tooltip>
                 </div>
                 <Skeleton loading={false} />

@@ -562,6 +562,7 @@ function App(props) {
                   tx={tx}
                   address={address}
                   smailMail={smailMail}
+                  setReplyTo={setReplyTo}
                 />
               </Route>
               <Route exact path="/requests">
