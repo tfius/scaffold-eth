@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 
 import { ethers } from "ethers";
+import { Link, Route, Switch, useLocation } from "react-router-dom";
 import { Button, List, Card, Modal, notification, Tooltip, Typography, Spin, Checkbox } from "antd";
 import { EnterOutlined, EditOutlined, ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
 
@@ -90,8 +91,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     //const mails = await readContracts.SwarmMail.getInbox(address);
     processSMails(mails);
     //console.log("got smails", mails);
-    updatingMails = false; 
-    
+    updatingMails = false;
   });
 
   useEffect(() => {
@@ -256,7 +256,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px" }}>
       <h1 style={{ paddingTop: "18px" }}>Inbox</h1>
-      <div className="routeSubtitle">All inbound messages: {totalItems}</div>
+      <div className="routeSubtitle">All inbound messages </div>
       <div className="paginationInfo">
         {startItem}-{endItem} of {totalItems} &nbsp;&nbsp;&nbsp;
         <a onClick={() => retrieveNewPage(page - 1)}>{"<"}</a>&nbsp;{page}/{maxPages}&nbsp;
@@ -268,6 +268,14 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
             <h5>Not Registred</h5>
             It appears your account is not registred yet. Please register to send and receive private and encrypted
             data.
+          </Typography>
+        </Card>
+      )}
+      {smailMail.smail === null && (
+        <Card>
+          <Typography>
+            <h5>Not bonded</h5>
+            It appears you did not decrypt your Smail. Please go to <Link to="/">register</Link> and decrypt your
           </Typography>
         </Card>
       )}

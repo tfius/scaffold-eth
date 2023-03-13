@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 
 import { ethers } from "ethers";
+import { Link, Route, Switch, useLocation } from "react-router-dom";
 import { Button, List, Card, Modal, notification, Tooltip, Typography, Spin, Checkbox } from "antd";
 import { EnterOutlined, EditOutlined, ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
 
@@ -71,7 +72,7 @@ export function Locker({
     updatingLocker = true;
     const boxCount = await readContracts.SwarmMail.getBoxCount(address);
     console.log("boxCount", boxCount);
-    const mailCount = boxCount.numLockers; // (await readContracts.SwarmMail.getLockerCount(address)).toNumber();
+    const mailCount = boxCount.numLockers.toNumber(); // (await readContracts.SwarmMail.getLockerCount(address)).toNumber();
 
     setTotalItems(mailCount);
     var allPages = Math.ceil(mailCount / pageSize);
@@ -89,7 +90,6 @@ export function Locker({
     processSMails(smails);
     //console.log("got smails", mails);
     updatingLocker = false;
- 
   });
 
   useEffect(() => {
@@ -280,6 +280,18 @@ export function Locker({
           <Typography>
             <h5>Not Registered</h5>
             It appears your account is not registred yet. Please register to store your encrypted data.
+          </Typography>
+        </Card>
+      </>
+    );
+  }
+  if (smailMail.smail === null) {
+    return (
+      <>
+        <Card>
+          <Typography>
+            <h5>Not bonded</h5>
+            It appears you did not decrypt your Smail. Please go to <Link to="/">register</Link> and decrypt your
           </Typography>
         </Card>
       </>

@@ -135,85 +135,27 @@ export function Home({
     setCurrentStep(1);
     // console.log("mmKey", mmKey);
     // const pk = "0x" + Buffer.from(key, "base64").toString("hex");
-    //
-    // username, password
-    // ens, soc, get seed
-    // fdpWallet = fromSeed(seed)
-    //
-
+    // username, password, ens, soc, get seed, fdpWallet = fromSeed(seed)
     const newWallet = ethers.Wallet.createRandom();
     const newPrivateKey = newWallet._signingKey().privateKey;
     // const newPublicKey = newWallet._signingKey().compressedPublicKey;
     //const newCPublicKey = ethers.utils.computePublicKey(newPrivateKey, true);
     // console.log("newPrivateKey", newPrivateKey);
-    //console.log("newPublicKey", newPublicKey);
-    //T(pubkey(x,y)) = EncryptionPubKey (bytes32)
+    // console.log("newPublicKey", newPublicKey);
+    // T(pubkey(x,y)) = EncryptionPubKey (bytes32)
     // base64 encoded
     const encKey = EncDec.nacl_getEncryptionPublicKey(newPrivateKey);
     // console.log("encKey", encKey);
     const fromUrlPubKey = "0x" + Buffer.from(encKey, "base64").toString("hex");
     //console.log("fromUrlPubKey", EncDec.nacl_decodeHex(EncDec.nacl_decodePublicKey(encKey)));
     //console.log("fromUrlPubKey", fromUrlPubKey);
-
-    // // // //////////////////////////////////////////////////////////////////////////////////////////
-    // // // /// TEST nacl encrypt decrypt
-    // // // var encRes = EncDec.nacl_encrypt("Hello World", encKey);
-    // // // console.log("encRes", encRes);
-    // // // var decRes = EncDec.nacl_decrypt(encRes, newPrivateKey.substr(2, newPrivateKey.length));
-    // // // console.log("decRes", decRes);
-    // // // //////////////////////////////////////////////////////////////////////////////////////////
-
-    // console.log("newCPublicKey", newCPublicKey);
-    //const compressedPublicKey = ethers.utils.compressPublicKey(newPublicKey);
-    //console.log("compressedPublicKey", compressedPublicKey);
-    // const base64EncodedPublicKey = ethers.utils.toUtf8String(newPublicKey.substr(2, newPublicKey.length));
-    // console.log("base64EncodedPublicKey", base64EncodedPublicKey);
-
-    // convert public key to base64
-    // // // const rkey = newPublicKey.substr(3, newPublicKey.length);
-    // // // const urlPubKey = EncDec.hexToBase64(rkey);
-    // // // console.log("urlPubKey", urlPubKey);
-
-    // // // const fromUrlPubKey = "0x" + Buffer.from(urlPubKey, "base64").toString("hex");
-    // // // console.log("fromUrlPubKey", fromUrlPubKey);
-
-    // // const bkey = Buffer.from(newPublicKey, "hex").toString("base64");
-    // // console.log("rkey bkey", rkey, bkey);
-    // // const urlPubKey = EncDec.hex2base64url(rkey);
-    // // console.log("urlPubKey", urlPubKey);
-    //const urlPubKey1 = EncDec.hexToBase64(rkey);
-    //console.log("urlPubKey1", urlPubKey1);
-    //const bkeypk = "0x" + Buffer.from(bkey, "base64").toString("hex");
-    //console.log("bkeypk", bkeypk);
-    //const sharedSecret = newWallet._signingKey().computeSharedSecret(newPublicKey); // computeSharedSecret
-    //console.log("sharedSecret", newPublicKey, EncDec.urlEncodeHashKey(newPublicKey));
-
-    //var password = "password";
-    //var rootKey = await EncDec.createRootKey(password);
-    //console.log("driveKey", rootKey);
-
     var encryptedKey = await EncDec.MMencryptMessage(mmKey, newPrivateKey);
     var keyLocation = await uploadSmailKey(encryptedKey); // upload necrypted key
-
-    // console.log("encryptedKey", encryptedKey, keyLocation);
-    // var encryptedSmailKey = await downloadSmailKeyData("0x" + keyLocation); // download encrypted key
-    // var decryptedSmailKey = await decryptSmailKey(address, encryptedSmailKey); // decrypt key from metamas
-
-    //var pubKey2 = EncDec.nacl_getEncryptionPublicKey(decryptedSmailKey);
-    //console.log("encKey", pubKey2);
-    //
-    //var decryptKey = await EncDec.MMdecryptMessage(window.ethereum, address, encryptKey);
-    //console.log("decryptKey", decryptKey);
-    //var uploadRootKeyHash = await uploadDataToBee(encryptKey, "enc", address);
-    //console.log("uploadRootKeyHash", uploadRootKeyHash);
-    //var downloadRootKeyData = await downloadDataFromBee("0x" + uploadRootKeyHash);
-    //var decodedRootKey = new TextDecoder("utf-8").decode(downloadRootKeyData);
-    //console.log("downloadRootKey", decodedRootKey);
-    //var decryptRootKey = await EncDec.MMdecryptMessage(window.ethereum, address, decodedRootKey);
-    //console.log("decryptKey", decryptRootKey);
-
     setCurrentStep(2);
     const tx = await onRegister(fromUrlPubKey, "0x" + keyLocation); // await testMetamaskEncryption(key, address, "text to encrypt");
+
+    setSmailMail({ key: fromUrlPubKey, smail: newPrivateKey });
+    setIsLoading(false);
   };
 
   const uploadSmailKey = async encryptedSmailKey => {
@@ -407,3 +349,57 @@ export function Home({
 }
 
 export default Home;
+
+// // // //////////////////////////////////////////////////////////////////////////////////////////
+// // // /// TEST nacl encrypt decrypt
+// // // var encRes = EncDec.nacl_encrypt("Hello World", encKey);
+// // // console.log("encRes", encRes);
+// // // var decRes = EncDec.nacl_decrypt(encRes, newPrivateKey.substr(2, newPrivateKey.length));
+// // // console.log("decRes", decRes);
+// // // //////////////////////////////////////////////////////////////////////////////////////////
+
+// console.log("newCPublicKey", newCPublicKey);
+//const compressedPublicKey = ethers.utils.compressPublicKey(newPublicKey);
+//console.log("compressedPublicKey", compressedPublicKey);
+// const base64EncodedPublicKey = ethers.utils.toUtf8String(newPublicKey.substr(2, newPublicKey.length));
+// console.log("base64EncodedPublicKey", base64EncodedPublicKey);
+
+// convert public key to base64
+// // // const rkey = newPublicKey.substr(3, newPublicKey.length);
+// // // const urlPubKey = EncDec.hexToBase64(rkey);
+// // // console.log("urlPubKey", urlPubKey);
+
+// // // const fromUrlPubKey = "0x" + Buffer.from(urlPubKey, "base64").toString("hex");
+// // // console.log("fromUrlPubKey", fromUrlPubKey);
+
+// // const bkey = Buffer.from(newPublicKey, "hex").toString("base64");
+// // console.log("rkey bkey", rkey, bkey);
+// // const urlPubKey = EncDec.hex2base64url(rkey);
+// // console.log("urlPubKey", urlPubKey);
+//const urlPubKey1 = EncDec.hexToBase64(rkey);
+//console.log("urlPubKey1", urlPubKey1);
+//const bkeypk = "0x" + Buffer.from(bkey, "base64").toString("hex");
+//console.log("bkeypk", bkeypk);
+//const sharedSecret = newWallet._signingKey().computeSharedSecret(newPublicKey); // computeSharedSecret
+//console.log("sharedSecret", newPublicKey, EncDec.urlEncodeHashKey(newPublicKey));
+
+//var password = "password";
+//var rootKey = await EncDec.createRootKey(password);
+//console.log("driveKey", rootKey);
+
+// console.log("encryptedKey", encryptedKey, keyLocation);
+// var encryptedSmailKey = await downloadSmailKeyData("0x" + keyLocation); // download encrypted key
+// var decryptedSmailKey = await decryptSmailKey(address, encryptedSmailKey); // decrypt key from metamas
+
+//var pubKey2 = EncDec.nacl_getEncryptionPublicKey(decryptedSmailKey);
+//console.log("encKey", pubKey2);
+//
+//var decryptKey = await EncDec.MMdecryptMessage(window.ethereum, address, encryptKey);
+//console.log("decryptKey", decryptKey);
+//var uploadRootKeyHash = await uploadDataToBee(encryptKey, "enc", address);
+//console.log("uploadRootKeyHash", uploadRootKeyHash);
+//var downloadRootKeyData = await downloadDataFromBee("0x" + uploadRootKeyHash);
+//var decodedRootKey = new TextDecoder("utf-8").decode(downloadRootKeyData);
+//console.log("downloadRootKey", decodedRootKey);
+//var decryptRootKey = await EncDec.MMdecryptMessage(window.ethereum, address, decodedRootKey);
+//console.log("decryptKey", decryptRootKey);
