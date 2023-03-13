@@ -1696,7 +1696,7 @@
       "chainId": "31337",
       "contracts": {
         "SwarmMail": {
-          "address": "0x99bbA657f2BbC93c02D617f8bA121cB8Fc104Acf",
+          "address": "0x36C02dA8a0983159322a80FFE9F24b1acfF8B570",
           "abi": [
             {
               "inputs": [],
@@ -2903,9 +2903,9 @@
             {
               "inputs": [
                 {
-                  "internalType": "uint48",
+                  "internalType": "uint32",
                   "name": "types",
-                  "type": "uint48"
+                  "type": "uint32"
                 },
                 {
                   "internalType": "bytes32[]",

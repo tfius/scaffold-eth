@@ -244,9 +244,9 @@ contract SwarmMail is /*Ownable, ReentrancyGuard,*/ AccessControl  {
 
         // add email
         sender.sentEmails.push(email);
-        sender.sentEmailIds[swarmLocation] = uint48(sender.sentEmails.length);
+        sender.sentEmailIds[swarmLocation] = sender.sentEmails.length;
         receiver.inboxEmails.push(email);
-        receiver.inboxEmailIds[swarmLocation] = uint48(receiver.inboxEmails.length);
+        receiver.inboxEmailIds[swarmLocation] = receiver.inboxEmails.length;
     }
 
     // try to do generif delete from array using ref to array and mapping 
@@ -264,19 +264,19 @@ contract SwarmMail is /*Ownable, ReentrancyGuard,*/ AccessControl  {
         delete ids[location];
     }
 
-    function removeEmails(uint48 types, bytes32[] memory locations) public {
+    function removeEmails(uint32 types, bytes32[] memory locations) public {
         User storage u = users[msg.sender];
         if(types == 1) {
-            for (uint48 i; i < locations.length; i++) {
+            for (uint256 i; i < locations.length; i++) {
                 removeGenericEmail(locations[i], u.inboxEmailIds, u.inboxEmails);
             }
         } else if(types == 0) {
-            for (uint48 i; i < locations.length; i++) {
+            for (uint256 i; i < locations.length; i++) {
                 removeGenericEmail(locations[i], u.sentEmailIds, u.sentEmails);
             }
         }
         else if(types == 2) {
-            for (uint48 i; i < locations.length; i++) {
+            for (uint256 i; i < locations.length; i++) {
                 removeGenericEmail(locations[i], u.lockerEmailIds, u.lockerEmails);
             }
         }
@@ -333,7 +333,7 @@ contract SwarmMail is /*Ownable, ReentrancyGuard,*/ AccessControl  {
         email.swarmLocation = swarmLocation;
 
         sender.lockerEmails.push(email);
-        sender.lockerEmailIds[swarmLocation] = uint48(sender.lockerEmails.length);
+        sender.lockerEmailIds[swarmLocation] = sender.lockerEmails.length;
     }
     /// shared lockers 
     /*
@@ -357,22 +357,23 @@ contract SwarmMail is /*Ownable, ReentrancyGuard,*/ AccessControl  {
         require(u.lockerEmailIds[swarmLocation] != 0, "!exist");
 
         User storage u2 = users[withAddress];
-        require(u2.lockerEmailIds[swarmLocation] == 0, "exists");
-        Email memory email;
+        require(u2.sharedLockerEmailIds[swarmLocation] == 0, "exists");
+        /*Email memory email; 
         email.isEncryption = true;
         email.time = block.timestamp;
         email.from = msg.sender;
         email.to = withAddress;
-        email.swarmLocation = swarmLocation;
-        u2.sharedLockerEmails.push(email);
-        u2.sharedLockerEmailIds[swarmLocation] = uint48(u2.sharedLockerEmails.length);
+        email.swarmLocation = swarmLocation; */
+        //u2.sharedLockerEmails.push(email);
+        u2.sharedLockerEmails.push(u.lockerEmails[u.lockerEmailIds[swarmLocation]]);
+        u2.sharedLockerEmailIds[swarmLocation] = u2.sharedLockerEmails.length;
     }
     function unshareLockerWith(bytes32 swarmLocation, address withAddress) public {
         User storage u = users[msg.sender];
         require(u.lockerEmailIds[swarmLocation] != 0, "!exist");
 
         User storage u2 = users[withAddress];
-        require(u2.lockerEmailIds[swarmLocation] != 0, "!exist");
+        require(u2.sharedLockerEmailIds[swarmLocation] != 0, "!exist");
         // needs to be owner or user that share was made to
         require(u2.lockerEmails[u2.lockerEmailIds[swarmLocation]].from == msg.sender  || 
                 u2.lockerEmails[u2.lockerEmailIds[swarmLocation]].to == msg.sender, "!owner");
