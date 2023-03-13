@@ -266,12 +266,12 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
         <Card>
           <Typography>
             <h5>Not Registred</h5>
-            It appears your account is not registred yet. Please register to send and receive private and encrypted
-            data.
+            It appears your account is not registred yet. Please <Link to="/">register</Link> to send and receive
+            private and encrypted data.
           </Typography>
         </Card>
       )}
-      {smailMail.smail === null && (
+      {isRegistered && smailMail.smail === null && (
         <Card>
           <Typography>
             <h5>Not bonded</h5>

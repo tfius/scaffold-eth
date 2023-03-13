@@ -72,7 +72,7 @@ export function Locker({
     updatingLocker = true;
     const boxCount = await readContracts.SwarmMail.getBoxCount(address);
     console.log("boxCount", boxCount);
-    const mailCount = boxCount.numLockers.toNumber(); // (await readContracts.SwarmMail.getLockerCount(address)).toNumber();
+    const mailCount = boxCount.numLockers.toNumber();
 
     setTotalItems(mailCount);
     var allPages = Math.ceil(mailCount / pageSize);
@@ -85,7 +85,6 @@ export function Locker({
     setStartItem(start + 1);
     setEndItem(start + length);
 
-    //const smails = await readContracts.SwarmMail.getLocker(address);
     const smails = await readContracts.SwarmMail.getEmailRange(address, 2, start, length);
     processSMails(smails);
     //console.log("got smails", mails);
@@ -279,13 +278,14 @@ export function Locker({
         <Card>
           <Typography>
             <h5>Not Registered</h5>
-            It appears your account is not registred yet. Please register to store your encrypted data.
+            It appears your account is not registred yet. Please <Link to="/">register</Link> to store your encrypted
+            data.
           </Typography>
         </Card>
       </>
     );
   }
-  if (smailMail.smail === null) {
+  if (isRegistered && smailMail.smail === null) {
     return (
       <>
         <Card>

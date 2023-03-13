@@ -1696,7 +1696,7 @@
       "chainId": "31337",
       "contracts": {
         "SwarmMail": {
-          "address": "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
+          "address": "0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f",
           "abi": [
             {
               "inputs": [],
@@ -2153,62 +2153,6 @@
                   "internalType": "address",
                   "name": "addr",
                   "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "index",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getInboxAt",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "bool",
-                      "name": "isEncryption",
-                      "type": "bool"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "time",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "from",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "to",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "swarmLocation",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bool",
-                      "name": "signed",
-                      "type": "bool"
-                    }
-                  ],
-                  "internalType": "struct SwarmMail.Email",
-                  "name": "",
-                  "type": "tuple"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "addr",
-                  "type": "address"
                 }
               ],
               "name": "getListedSubs",
@@ -2217,76 +2161,6 @@
                   "internalType": "bytes32[]",
                   "name": "",
                   "type": "bytes32[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "addr",
-                  "type": "address"
-                }
-              ],
-              "name": "getLocker",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "bool",
-                      "name": "isEncryption",
-                      "type": "bool"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "time",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "from",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "to",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "swarmLocation",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bool",
-                      "name": "signed",
-                      "type": "bool"
-                    }
-                  ],
-                  "internalType": "struct SwarmMail.Email[]",
-                  "name": "",
-                  "type": "tuple[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "addr",
-                  "type": "address"
-                }
-              ],
-              "name": "getLockerCount",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -2367,62 +2241,6 @@
             {
               "inputs": [
                 {
-                  "internalType": "address",
-                  "name": "addr",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "index",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getSentAt",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "bool",
-                      "name": "isEncryption",
-                      "type": "bool"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "time",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "from",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "to",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "swarmLocation",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bool",
-                      "name": "signed",
-                      "type": "bool"
-                    }
-                  ],
-                  "internalType": "struct SwarmMail.Email",
-                  "name": "",
-                  "type": "tuple"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
                   "internalType": "bytes32",
                   "name": "subHash",
                   "type": "bytes32"
@@ -2483,9 +2301,9 @@
                       "type": "uint32"
                     },
                     {
-                      "internalType": "uint256",
+                      "internalType": "uint16",
                       "name": "daysValid",
-                      "type": "uint256"
+                      "type": "uint16"
                     }
                   ],
                   "internalType": "struct SwarmMail.Sub",
@@ -2559,9 +2377,9 @@
                       "type": "uint32"
                     },
                     {
-                      "internalType": "uint256",
+                      "internalType": "uint16",
                       "name": "daysValid",
-                      "type": "uint256"
+                      "type": "uint16"
                     }
                   ],
                   "internalType": "struct SwarmMail.Sub",
@@ -2938,9 +2756,9 @@
                       "type": "uint32"
                     },
                     {
-                      "internalType": "uint256",
+                      "internalType": "uint16",
                       "name": "daysValid",
-                      "type": "uint256"
+                      "type": "uint16"
                     }
                   ],
                   "internalType": "struct SwarmMail.Sub[]",
@@ -3034,9 +2852,9 @@
                   "type": "address"
                 },
                 {
-                  "internalType": "uint256",
+                  "internalType": "uint16",
                   "name": "daysValid",
-                  "type": "uint256"
+                  "type": "uint16"
                 }
               ],
               "name": "listSub",
@@ -3379,9 +3197,9 @@
                   "type": "uint32"
                 },
                 {
-                  "internalType": "uint256",
+                  "internalType": "uint16",
                   "name": "daysValid",
-                  "type": "uint256"
+                  "type": "uint16"
                 }
               ],
               "stateMutability": "view",

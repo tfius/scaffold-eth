@@ -85,24 +85,6 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
     //console.log("sub", sub);
     return sub;
   });
-  // const getSubBy = useCallback(async subHash => {
-  //   var sub = await readContracts.SwarmMail.getSubBy(subHash);
-  //   console.log("sub", sub);
-  //   return sub;
-  // });
-  // const getListedSubs = useCallback(async forAddress => {
-  //   var listedSubs = await readContracts.SwarmMail.getListedSubscriptions(forAddress);
-  //   console.log("getListedSubs", listedSubs);
-  // });
-  // const getSubRequests = useCallback(async forAddress => {
-  //   var subRequests = await readContracts.SwarmMail.getSubRequests(forAddress);
-  //   console.log("getSubRequests", subRequests);
-  // });
-  // const getSubItems = useCallback(async forAddress => {
-  //   var subItems = await readContracts.SwarmMail.getSubItems(forAddress);
-  //   console.log("getSubItems", subItems);
-  // });
-
   // A modal with form to collect data for listing a subscription
   // data = json object { title, description, image, price, category, podIndex }
   const listSubTx = useCallback(async (fdpSellerNameHash, data, price, category, podAddress) => {

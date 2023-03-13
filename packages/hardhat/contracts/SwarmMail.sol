@@ -135,7 +135,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     /*function getSentAt(address addr, uint index) public view returns (Email memory) {
         return users[addr].sentEmails[index];
     }*/
-    
+
     function getSubRequestAt(address addr, uint index) public view returns (SubRequest memory) {
         return users[addr].subRequests[index];
     }
@@ -169,7 +169,6 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         // either we  iterate through all items and return only those that are active
         // or we return all items and let the client filter them
         // iterate through active subItems
-        // SubItem[] memory 
         items = new SubItem[](length);
         uint count = 0;
         last = 0; // init to 0
@@ -211,14 +210,11 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         return users[addr].activeBids;
     }
     function getSubRequestByHash(address addr, bytes32 requestHash) public view returns (SubRequest memory) {
-        User storage u = users[addr];
-        return u.subRequests[u.subRequestIds[requestHash]-1];
+        return users[addr].subRequests[users[addr].subRequestIds[requestHash]-1];
     }
     function getSubRequests(address addr) public view returns (SubRequest[] memory) {
         return users[addr].subRequests;
-    }    
-
-
+    }
     function signEmail(bytes32 swarmLocation) public {
         User storage u = users[msg.sender];
         require(u.inboxEmailIds[swarmLocation] != 0, "Message !exist");
@@ -279,7 +275,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         }
     }
 
-    function getGenericRange(uint start, uint length, Email[] memory array) private pure returns (Email[] memory) {
+    function genEmailRange(uint start, uint length, Email[] memory array) private pure returns (Email[] memory) {
         Email[] memory emails = new Email[](length);
         //require(start + length <= array.length, "Out of bounds");
         uint count = 0;
@@ -294,15 +290,13 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     function getEmailRange(address addr, uint types, uint start, uint length) public view returns (Email[] memory messages) {
         User storage u = users[addr];
         if(types == 1) {
-            messages = getGenericRange(start, length, u.inboxEmails);
+            messages = genEmailRange(start, length, u.inboxEmails);
         } else if(types == 0) {
-            messages = getGenericRange(start, length, u.sentEmails);
-        }
-        else if(types == 2) {
-            messages = getGenericRange(start, length, u.lockerEmails);
-        }
-        else if(types == 3) {
-            messages = getGenericRange(start, length, u.sharedLockerEmails);
+            messages = genEmailRange(start, length, u.sentEmails);
+        } else if(types == 2) {
+            messages = genEmailRange(start, length, u.lockerEmails);
+        } else if(types == 3) {
+            messages = genEmailRange(start, length, u.sharedLockerEmails);
         }
     }
 
@@ -315,12 +309,12 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////// @title A title that should describe the contract/interface
     /// Start Locker parts of SwarmMail contract
-    function getLocker(address addr) public view returns (Email[] memory) {
+    /*function getLocker(address addr) public view returns (Email[] memory) {
         return users[addr].lockerEmails;
-    }
-    function getLockerCount(address addr) public view returns (uint) {
+    }*/
+    /*function getLockerCount(address addr) public view returns (uint) {
         return users[addr].lockerEmails.length;
-    }
+    }*/
     function storeLocker(bytes32 swarmLocation) public payable {
         User storage sender = users[msg.sender];
         require(sender.lockerEmailIds[swarmLocation] == 0, "!exist");

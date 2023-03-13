@@ -56,24 +56,6 @@ export function SubBids({ readContracts, writeContracts, tx, userSigner, address
       setActiveBids(activeBids => [...activeBids, activeBid]);
     }
   });
-  /*
-  const getSubRequests = useCallback(async forAddress => {
-    if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
-    var requests = await readContracts.SwarmMail.getSubRequests(forAddress);
-    console.log("getSubRequests", requests);
-    setSubRequests(requests);
-    getSubsForSubRequests(requests);
-  });
-  const getSub = useCallback(async subHash => {
-    return await readContracts.SwarmMail.getSubBy(subHash);
-  });
-  const getSubsForSubRequests = useCallback(async subRequests => {
-    for (let i = 0; i < subRequests.length; i++) {
-      let sub = await getSub(subRequests[i].subHash);
-      console.log("sub", sub);
-      setSubscriptions(subscriptions => [...subscriptions, sub]);
-    }
-  });*/
   useEffect(() => {
     getActiveBids(address);
   }, [address, readContracts]);
