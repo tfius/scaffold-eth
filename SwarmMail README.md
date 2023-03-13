@@ -69,6 +69,7 @@ This structure defines a user object with the following attributes:
 - `addr`, which is the address of the user whose inbox is to be retrieved.
 
 ### Function `getInboxCount(address addr)`
+***deprecated**
 This function returns the length of the inbox of a given user with the address `addr`. The function is a public view function, which means it does not modify the state of the contract and can be called from any address. 
 #### Arguments
 - `addr`, which is the address of the user whose inbox count is to be retrieved.

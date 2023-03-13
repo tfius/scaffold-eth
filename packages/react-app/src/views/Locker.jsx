@@ -69,7 +69,10 @@ export function Locker({
   const updateLocker = useCallback(async () => {
     if (updatingLocker) return;
     updatingLocker = true;
-    const mailCount = (await readContracts.SwarmMail.getLockerCount(address)).toNumber();
+    const boxCount = await readContracts.SwarmMail.getBoxCount(address);
+    console.log("boxCount", boxCount);
+    const mailCount = boxCount.numLockers; // (await readContracts.SwarmMail.getLockerCount(address)).toNumber();
+
     setTotalItems(mailCount);
     var allPages = Math.ceil(mailCount / pageSize);
     setMaxPages(allPages);
@@ -86,6 +89,7 @@ export function Locker({
     processSMails(smails);
     //console.log("got smails", mails);
     updatingLocker = false;
+ 
   });
 
   useEffect(() => {

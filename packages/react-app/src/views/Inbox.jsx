@@ -69,7 +69,10 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     //if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
     if (updatingMails) return;
     updatingMails = true;
-    const mailCount = (await readContracts.SwarmMail.getInboxCount(address)).toNumber();
+    const boxCount = await readContracts.SwarmMail.getBoxCount(address);
+    console.log("boxCount", boxCount);
+    const mailCount = boxCount.numInboxItems.toNumber();
+    //const mailCount = (await readContracts.SwarmMail.getInboxCount(address)).toNumber();
     setTotalItems(mailCount);
 
     var allPages = Math.ceil(mailCount / pageSize);
@@ -87,7 +90,8 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     //const mails = await readContracts.SwarmMail.getInbox(address);
     processSMails(mails);
     //console.log("got smails", mails);
-    updatingMails = false;
+    updatingMails = false; 
+    
   });
 
   useEffect(() => {

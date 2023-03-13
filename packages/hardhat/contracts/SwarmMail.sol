@@ -4,6 +4,17 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
+/*
+uint32		10		4,294,967,295
+uint40		13		1,099,511,627,775
+uint48		15		281,474,976,710,655
+uint56		17		72,057,594,037,927,935
+uint64		20		18,446,744,073,709,551,615
+uint72		22		4,722,366,482,869,645,213,695
+uint80		25		1,208,925,819,614,629,174,706,175
+uint88		27		309,485,009,821,345,068,724,781,055
+uint96		29		79,228,162,514,264,337,593,543,950,335
+*/
 
 
 contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
@@ -45,24 +56,24 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         bytes32 smail;
         // PublicKey pubkey;
         Email[] sentEmails;
-        mapping(bytes32 => uint256) sentEmailIds;
+        mapping(bytes32 => uint48) sentEmailIds;
         Email[] inboxEmails;
-        mapping(bytes32 => uint256) inboxEmailIds;
+        mapping(bytes32 => uint48) inboxEmailIds;
 
         Email[] lockerEmails;
-        mapping(bytes32 => uint256) lockerEmailIds;
+        mapping(bytes32 => uint48) lockerEmailIds;
         Email[] sharedLockerEmails;
-        mapping(bytes32 => uint256) sharedLockerEmailIds;
+        mapping(bytes32 => uint48) sharedLockerEmailIds;
 
         // who wants to subscribe to what
         SubRequest[] subRequests;
-        mapping(bytes32 => uint256) subRequestIds;
+        mapping(bytes32 => uint48) subRequestIds;
         // what is user subscribed to
         SubItem[] subItems;
-        mapping(bytes32 => uint256) subItemIds;
+        mapping(bytes32 => uint48) subItemIds;
 
         ActiveBid[] activeBids;
-        mapping(bytes32 => uint256) activeBidIds;
+        mapping(bytes32 => uint48) activeBidIds;
 
         bytes32[] listedSubs; // everything user listed 
     }
@@ -96,7 +107,6 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         numLockers = users[addr].lockerEmails.length;
         numSharedLockers = users[addr].sharedLockerEmails.length;
     }
-
     function register(bytes32 key, bytes32 smail) public {
         User storage user = users[msg.sender];
         require(user.key == bytes32(0), "Already registered");
@@ -111,12 +121,14 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         return userToPortable[addr];
     }    
 
+    /*
     function getInboxCount(address addr) public view returns (uint) {
         return users[addr].inboxEmails.length;
     }
     function getSentCount(address addr) public view returns (uint) {
         return users[addr].sentEmails.length;
     }
+    */
     function getInboxAt(address addr, uint index) public view returns (Email memory) {
         return users[addr].inboxEmails[index];
     }
@@ -228,18 +240,18 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
 
         // add email
         sender.sentEmails.push(email);
-        sender.sentEmailIds[swarmLocation] = sender.sentEmails.length;
+        sender.sentEmailIds[swarmLocation] = uint48(sender.sentEmails.length);
         receiver.inboxEmails.push(email);
-        receiver.inboxEmailIds[swarmLocation] = receiver.inboxEmails.length;
+        receiver.inboxEmailIds[swarmLocation] = uint48(receiver.inboxEmails.length);
     }
 
     // try to do generif delete from array using ref to array and mapping 
-    function removeGenericEmail(bytes32 location, mapping(bytes32=>uint256) storage ids, Email[] storage array) private {
+    function removeGenericEmail(bytes32 location, mapping(bytes32=>uint48) storage ids, Email[] storage array) private {
         require(ids[location] != 0, "!Req");
 
-        uint256 removeIndex = ids[location] - 1;
+        uint48 removeIndex = ids[location] - 1;
         // remove info
-        uint256 lastIndex = array.length - 1;
+        uint48 lastIndex = uint48(array.length) - 1;
         if (lastIndex != removeIndex) {
             array[removeIndex] = array[lastIndex];
             ids[array[lastIndex].swarmLocation] = removeIndex + 1;
@@ -248,25 +260,25 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         delete ids[location];
     }
 
-    function removeEmails(uint256 types, bytes32[] memory locations) public {
+    function removeEmails(uint48 types, bytes32[] memory locations) public {
         User storage u = users[msg.sender];
         if(types == 1) {
-            for (uint256 i; i < locations.length; i++) {
+            for (uint48 i; i < locations.length; i++) {
                 removeGenericEmail(locations[i], u.inboxEmailIds, u.inboxEmails);
             }
         } else if(types == 0) {
-            for (uint256 i; i < locations.length; i++) {
+            for (uint48 i; i < locations.length; i++) {
                 removeGenericEmail(locations[i], u.sentEmailIds, u.sentEmails);
             }
         }
         else if(types == 2) {
-            for (uint256 i; i < locations.length; i++) {
+            for (uint48 i; i < locations.length; i++) {
                 removeGenericEmail(locations[i], u.lockerEmailIds, u.lockerEmails);
             }
         }
     }
 
-    function getGenericRange(uint start, uint length, Email[] memory array) public pure returns (Email[] memory) {
+    function getGenericRange(uint start, uint length, Email[] memory array) private pure returns (Email[] memory) {
         Email[] memory emails = new Email[](length);
         //require(start + length <= array.length, "Out of bounds");
         uint count = 0;
@@ -308,7 +320,6 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     function getLockerCount(address addr) public view returns (uint) {
         return users[addr].lockerEmails.length;
     }
-   
     function storeLocker(bytes32 swarmLocation) public payable {
         User storage sender = users[msg.sender];
         require(sender.lockerEmailIds[swarmLocation] == 0, "!exist");
@@ -320,9 +331,10 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         email.swarmLocation = swarmLocation;
 
         sender.lockerEmails.push(email);
-        sender.lockerEmailIds[swarmLocation] = sender.lockerEmails.length;
+        sender.lockerEmailIds[swarmLocation] = uint48(sender.lockerEmails.length);
     }
     /// shared lockers 
+    /*
     function getSharedLocker(address addr) public view returns (Email[] memory) {
         return users[addr].sharedLockerEmails;
     }
@@ -337,7 +349,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
             emails[i] = users[addr].sharedLockerEmails[i];
         }
         return emails;
-    }
+    }*/
     function shareLockerWith(bytes32 swarmLocation, address withAddress) public {
         User storage u = users[msg.sender];
         require(u.lockerEmailIds[swarmLocation] != 0, "!exist");
@@ -351,7 +363,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         email.to = withAddress;
         email.swarmLocation = swarmLocation;
         u2.sharedLockerEmails.push(email);
-        u2.sharedLockerEmailIds[swarmLocation] = u2.sharedLockerEmails.length;
+        u2.sharedLockerEmailIds[swarmLocation] = uint48(u2.sharedLockerEmails.length);
     }
     function unshareLockerWith(bytes32 swarmLocation, address withAddress) public {
         User storage u = users[msg.sender];
@@ -387,7 +399,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     }      
 
     struct Category {
-        uint[]     subIdxs;
+        uint48[]     subIdxs;
     }
     mapping(bytes32 => Category) categories; // where is category in categories array
 
@@ -403,7 +415,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         uint32  bids;
         uint32  sells;
         uint32  reports;
-        uint    daysValid;
+        uint16  daysValid;
     }
     Sub[] public  subscriptions;
     mapping(bytes32 => uint256) public subscriptionIds; 
@@ -420,8 +432,8 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         mapping(address => uint256) perSubscriberBalance; // balance per subscriber
         address[] subscribers; 
     }
-
     mapping(bytes32 => SubInfo) subInfos; // where is sub in subscriptions array
+
     function getSubSubscribers(bytes32 subHash) public view returns (address[] memory) {
         return subInfos[subHash].subscribers;
     }
@@ -451,27 +463,21 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     }
     
     // Market to sell encrypted swarmLocation
-    function listSub(bytes32 fdpSellerNameHash, bytes32 dataSwarmLocation, uint price, bytes32 category, address podAddress, uint daysValid) public payable {
+    function listSub(bytes32 fdpSellerNameHash, bytes32 dataSwarmLocation, uint price, bytes32 category, address podAddress, uint16 daysValid) public payable {
         //bytes32 subHash = keccak256(abi.encode(msg.sender, fdpSeller, dataSwarmLocation, price, category, podIndex));
-        bytes32 subHash = keccak256(abi.encode(msg.sender, fdpSellerNameHash, podAddress));// user can list same pod only once
         require(msg.value>=minListingFee, "minFee"); // sent value must be equal to price
-        require(subscriptionIds[subHash] == 0, "SubExists"); // must not exists
         require(daysValid>=1 && daysValid<=365, "daysValid"); // must not exists
+
+        bytes32 subHash = keccak256(abi.encode(msg.sender, fdpSellerNameHash, podAddress));// user can list same pod only once
+        require(subscriptionIds[subHash] == 0, "SubExists"); // must not exists
 
         Sub memory s = Sub(subHash, fdpSellerNameHash, msg.sender, dataSwarmLocation, price, true, 0, 0, 0, 0, daysValid);
         
         subscriptions.push(s);
-        subscriptionIds[subHash] = subscriptions.length; // will point to 1 more than index
-        // add to FairOS subs 
-        // if(fdpSellerNameHash!=bytes32(0)) {
-        //     podSubscriptions.push(s); // TODO check if active is change on both 
-        // } else {
-        //     lockerSubscriptions.push(s); // TODO check if active is change on both
-        // }
-        
+        subscriptionIds[subHash] = uint48(subscriptions.length); // will point to 1 more than index
 
         Category storage c = categories[category];
-        c.subIdxs.push(subscriptions.length - 1); // point to index
+        c.subIdxs.push(uint48(subscriptions.length) - 1); // point to index
 
         User storage seller = users[msg.sender];
         seller.listedSubs.push(subHash);
@@ -501,7 +507,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         sr.requestHash = requestHash;
 
         seller.subRequests.push(sr);
-        seller.subRequestIds[requestHash] = seller.subRequests.length; // +1 of index
+        seller.subRequestIds[requestHash] = uint48(seller.subRequests.length); // +1 of index
         
         inEscrow += msg.value;
 
@@ -511,7 +517,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
 
         User storage buyer = users[msg.sender];
         buyer.activeBids.push(ab);      
-        buyer.activeBidIds[requestHash] = buyer.activeBids.length; // +1 of index
+        buyer.activeBidIds[requestHash] = uint48(buyer.activeBids.length); // +1 of index
     }
 
     // podAddress, seller.address, buyer.address, encryptedSecret
@@ -541,7 +547,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         si.validTill = block.timestamp + (s.daysValid * 86400); //(daysValid * 60*60*24) // days;
 
         buyer.subItems.push(si);
-        buyer.subItemIds[br.subHash] = buyer.subItems.length; // +1 of index (so call subHash -1)
+        buyer.subItemIds[br.subHash] = uint48(buyer.subItems.length); // +1 of index (so call subHash -1)
 
         if(subInfos[br.subHash].perSubscriberBalance[br.buyer]==0) // only add subscriber if not already added
            subInfos[br.subHash].subscribers.push(br.buyer);
@@ -577,12 +583,11 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         User storage u = users[user];
         require(u.activeBidIds[requestHash] != 0, "!ab Req");
 
-        uint256 removeIndex = u.activeBidIds[requestHash] - 1;
-        // replace removeIndex with last item and pop last item
-        uint256 lastIndex = u.activeBids.length - 1;
+        uint256 removeIndex = u.activeBidIds[requestHash] - 1;       
+        uint256 lastIndex = u.activeBids.length - 1; // replace removeIndex with last item and pop last item
         if (lastIndex != removeIndex) {
             u.activeBids[removeIndex] = u.activeBids[lastIndex];
-            u.activeBidIds[u.activeBids[removeIndex].requestHash] = removeIndex + 1;
+            u.activeBidIds[u.activeBids[removeIndex].requestHash] = uint48(removeIndex) + 1;
         }
         u.activeBids.pop();
         delete u.activeBidIds[requestHash];
@@ -606,11 +611,10 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         require(u.subRequestIds[requestHash] != 0, "!Req");
 
         uint256 removeIndex = u.subRequestIds[requestHash] - 1;
-        // replace removeIndex with last item and pop last item
-        uint256 lastIndex = u.subRequests.length - 1;
+        uint256 lastIndex = u.subRequests.length - 1; // replace removeIndex with last item and pop last item
         if (lastIndex != removeIndex) {
             u.subRequests[removeIndex] = u.subRequests[lastIndex];
-            u.subRequestIds[u.subRequests[lastIndex].requestHash] = removeIndex + 1;
+            u.subRequestIds[u.subRequests[lastIndex].requestHash] = uint48(removeIndex) + 1;
         }
         u.subRequests.pop();
         delete u.subRequestIds[requestHash];
