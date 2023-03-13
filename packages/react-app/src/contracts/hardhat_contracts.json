@@ -1696,7 +1696,7 @@
       "chainId": "31337",
       "contracts": {
         "SwarmMail": {
-          "address": "0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f",
+          "address": "0x70e0bA845a1A0F2DA3359C97E0285013525FFC49",
           "abi": [
             {
               "inputs": [],
@@ -2044,9 +2044,9 @@
                 {
                   "components": [
                     {
-                      "internalType": "uint48[]",
+                      "internalType": "uint64[]",
                       "name": "subIdxs",
-                      "type": "uint48[]"
+                      "type": "uint64[]"
                     }
                   ],
                   "internalType": "struct SwarmMail.Category",
