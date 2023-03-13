@@ -129,12 +129,13 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         return users[addr].sentEmails.length;
     }
     */
-    function getInboxAt(address addr, uint index) public view returns (Email memory) {
+    /*function getInboxAt(address addr, uint index) public view returns (Email memory) {
         return users[addr].inboxEmails[index];
-    }
-    function getSentAt(address addr, uint index) public view returns (Email memory) {
+    }*/
+    /*function getSentAt(address addr, uint index) public view returns (Email memory) {
         return users[addr].sentEmails[index];
-    }
+    }*/
+    
     function getSubRequestAt(address addr, uint index) public view returns (SubRequest memory) {
         return users[addr].subRequests[index];
     }
