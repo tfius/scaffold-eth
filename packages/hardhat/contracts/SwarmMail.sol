@@ -129,23 +129,26 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     function getSubRequests(address addr) public view returns (SubRequest[] memory) {
         return users[addr].subRequests;
     }
-    /*
-    function getActiveSubItemsCount(address addr) public view returns (uint) {
+    
+    function getActiveSubItemsCount(address addr, uint start) public view returns (uint) {
         uint count = 0;	
-        for (uint i = 0; i < users[addr].subItems.length; i++) {
+        //for (uint i = start; i < users[addr].subItems.length; i++) {
+        for (uint i = start; i < users[addr].subItems.length; i++) {
             if(block.timestamp <= users[addr].subItems[i].validTill) {
                 ++count;
             }
         }
         return count;
-    } */
-    function getSubItems(address addr, uint start, uint length) public view returns (SubItem[] memory) {
+    }
+
+    function getSubItems(address addr, uint start, uint length) public view returns (SubItem[] memory items, uint last) {
         // either we  iterate through all items and return only those that are active
         // or we return all items and let the client filter them
         // iterate through active subItems
-
-        SubItem[] memory items = new SubItem[](length);
+        // SubItem[] memory 
+        items = new SubItem[](length);
         uint count = 0;
+        last = 0; // init to 0
         
         for (uint i = start; i < users[addr].subItems.length; i++) {
             if(block.timestamp < users[addr].subItems[i].validTill) {
@@ -153,11 +156,12 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
                 {
                    items[count] = users[addr].subItems[i];
                    ++count;
+                   last = i;
                 } else 
                     break;
             }
         }
-        return items;
+        //return items;
     }
     function getSubItemBy(address addr, bytes32 subHash) public view returns (SubItem memory) {
         // check if subHash subItem is active
