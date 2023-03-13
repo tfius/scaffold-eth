@@ -190,12 +190,14 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         return u.subRequests[u.subRequestIds[requestHash]-1];
     }
 
-    function getBoxCount(address addr) public view returns (uint numInboxItems, uint numSentItems, uint numSubRequests, uint numSubItems, uint numActiveBids) {
+    function getBoxCount(address addr) public view returns (uint numInboxItems, uint numSentItems, uint numSubRequests, uint numSubItems, uint numActiveBids, uint numLockers, uint numSharedLockers) {
         numInboxItems = users[addr].inboxEmails.length;
         numSentItems  = users[addr].sentEmails.length;
         numSubRequests = users[addr].subRequests.length;
         numSubItems = users[addr].subItems.length;
         numActiveBids = users[addr].activeBids.length;
+        numLockers = users[addr].lockerEmails.length;
+        numSharedLockers = users[addr].sharedLockerEmails.length;
     }
 
     function getInboxAt(address addr, uint index) public view returns (Email memory) {
