@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 // import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+//import "@openzeppelin/contracts/access/Ownable.sol";
+//import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
 import "@openzeppelin/contracts/access/AccessControl.sol";
 /*
 uint32		10		4,294,967,295
@@ -17,13 +18,19 @@ uint96		29		79,228,162,514,264,337,593,543,950,335
 */
 
 
-contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
+contract SwarmMail is /*Ownable, ReentrancyGuard,*/ AccessControl  {
     // using Strings for uint256;
 
-    struct PublicKey {
+    /*struct PublicKey {
         bytes32 x;
         bytes32 y;
+    }*/ 
+    address public _owner;
+    modifier onlyOwner() {
+        require(_owner == msg.sender, "Ownable: caller is not the owner");
+        _;
     }
+
     struct Email {
         bool isEncryption;
         uint256 time;
@@ -81,6 +88,7 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
     mapping(address => address) userToPortable;    
  
     constructor() {
+        _owner=msg.sender;
     }
 
     receive() external payable {}
@@ -384,11 +392,11 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         return (amount * _fee) / FEE_PRECISION;
     }
     function setFee(uint256 newFee) public  {
-        require(msg.sender==owner(), "!");
+        require(msg.sender==_owner, "!");
         marketFee = newFee; 
     }
     function setListingFee(uint256 newListingFee) public  {
-        require(msg.sender==owner(), "!");
+        require(msg.sender==_owner, "!");
         minListingFee = newListingFee; 
     }      
 
@@ -477,9 +485,9 @@ contract SwarmMail is Ownable, ReentrancyGuard, AccessControl  {
         seller.listedSubs.push(subHash);
 
         feesCollected+=msg.value;
-    }    
-
-    function bidSub(bytes32 subHash, bytes32 fdpBuyerNameHash) public nonReentrant payable {
+    }
+    
+    function bidSub(bytes32 subHash, bytes32 fdpBuyerNameHash) public /*nonReentrant*/ payable {
         // marketplace does not require user to be registred with smail -- TODO on front end and check 
         // require(users[msg.sender].key != bytes32(0), "Not reg"); // user can not receive encrypted data
         require(subscriptionIds[subHash] != 0, "No Sub"); // must exists
