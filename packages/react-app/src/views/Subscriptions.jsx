@@ -66,6 +66,7 @@ export function Subscriptions({
       if (subItems[i].unlockKeyLocation === consts.emptyBatchId) {
         decData.state = "Expired";
       } else {
+        // Is it FairOS enc or NaCl enc?
         // decoding can fail if its fairos sharing
         try {
           var subKeyData = await downloadDataFromBee(subItems[i].unlockKeyLocation);

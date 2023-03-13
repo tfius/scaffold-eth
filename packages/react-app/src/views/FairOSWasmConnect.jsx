@@ -164,9 +164,20 @@ export function FairOSWasmConnect({
     var newTx = await tx(writeContracts.SwarmMail.setPortableAddress(portableAddress));
     await newTx.wait();
   });
+  async function LoginWithWallet() {
+    const portableFDPAddress = await getPortableAddress(address);
+    const signature = await userSigner.signMessage(portableFDPAddress + " will connect with " + address);
+    if (!fairOS) {
+      await ConnectFairOS();
+    }
+    console.log("signature 2", portableFDPAddress, signature, address);
+    LoginWithSignature(portableFDPAddress, signature);
+    // need to get userStat.address from login, which is not available here, we still need to login first into fairOS to get it for what we need username password
+  }
   async function ConnectFairOSWithWallet() {
+    var signature = null; 
     try {
-      const signature = await userSigner.signMessage(login.address + " will connect with " + address);
+      signature = await userSigner.signMessage(login.address + " will connect with " + address);
       console.log("signature 1", login.address, signature, address);
       let resp = await window.connectWallet(username, password, login.address, signature);
       // address expected is from userStat, but it should be from my wallet address, can fail with Signature failed to create user : wallet doesnot match portable account address
@@ -175,34 +186,34 @@ export function FairOSWasmConnect({
     } catch (e) {
       notification.warning({
         message: "Signature",
-        description: "Signature failed " + e.toString(),
+        description: e.toString(),
       });
     }
+
     await SetPortableAccount();
+    await LoginWithSignature(login.address, signature);
   }
+
   async function SetPortableAccount() {
     setIsPortableAddressVisible(true);
     var newTx = await setPortableAddressTx(address, login.address);
     setIsPortableAddressVisible(false);
     setIsConnectVisible(false);
   }
-  async function LoginWithWallet() {
-    const portableFDPAddress = await getPortableAddress(address);
-    const signature = await userSigner.signMessage(portableFDPAddress + " will connect with " + address);
+
+  async function LoginWithSignature(portableAddress, signature) {
     if (!fairOS) {
       await ConnectFairOS();
     }
-    console.log("signature 2", portableFDPAddress, signature, address);
-    // need to get userStat.address from login, which is not available here, we still need to login first into fairOS to get it for what we need username password
-    let resp = await window.walletLogin(portableFDPAddress, signature);
+    let resp = await window.walletLogin(portableAddress, signature);
     var userStat = await window.userStat(resp.sessionId);
-    var hash = await window.getNameHash(resp.sessionId, portableFDPAddress);
+    var hash = await window.getNameHash(resp.sessionId, portableAddress);
 
     var loginObj = {
       user: resp.user,
       sessionId: resp.sessionId,
       address: userStat.address,
-      portableAddress: portableFDPAddress,
+      portableAddress: portableAddress,
       nameHash: hash.namehash,
     };
     setLogin(loginObj);
@@ -223,6 +234,7 @@ export function FairOSWasmConnect({
     setSessionId(loginObj.sessionId);
     await PodList(loginObj.sessionId);
   }
+
   async function PodList(sessionId) {
     setIsPodLoading(true);
     let resp2 = await window.podList(sessionId);

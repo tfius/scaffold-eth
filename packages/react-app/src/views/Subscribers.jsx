@@ -67,8 +67,7 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
   const getSub = useCallback(async subHash => {
     return await readContracts.SwarmMail.getSubBy(subHash);
   });
-  const getSubscribers = useCallback(async (subHash, subscribers) => {
-    var subscribersBalance = [];
+  const getSubscribers = async (subHash, subscribers) => {
     setSubscribers([]);
     setViewSubscribers(true);
     for (let i = 0; i < subscribers.length; i++) {
@@ -80,7 +79,7 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
       };
       setSubscribers(subscribers => [...subscribers, subscriber]);
     }
-  });
+  };
   const getSubsForSubRequests = useCallback(async subHashes => {
     let earned = BigNumber.from("0");
     for (let i = 0; i < subHashes.length; i++) {
@@ -100,10 +99,11 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
     }
     setTotalEarnings(earned);
   });
-  const disableEnableSub = useCallback(async (subHash, newState) => {
+
+  const disableEnableSub = async (sub, subHash, newState) => {
     var tx = await writeContracts.SwarmMail.enableSub(subHash, newState);
     await tx.wait();
-  });
+  };
 
   useEffect(() => {
     if (readContracts === undefined || address === undefined) return;
@@ -156,7 +156,7 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
                       </div>
                     </Tooltip>
                     <Tooltip title={sub.active ? "Disable listing" : "Enable listing"}>
-                      <a onClick={() => disableEnableSub(sub.subHash, !sub.active)}>
+                      <a onClick={() => disableEnableSub(sub, sub.subHash, !sub.active)}>
                         {sub.active ? "Active" : "Disabled"}
                       </a>
                     </Tooltip>

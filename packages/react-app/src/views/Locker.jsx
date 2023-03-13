@@ -36,15 +36,27 @@ export function Locker({
   const [messageCountTrigger, setMessageCountTrigger] = useState(0);
   const [viewMail, _setViewMail] = useState(null);
   const [viewAddress, setViewAddress] = useState(null);
+
+  const [page, setPage] = useState(1);
+  const [maxPages, setMaxPages] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
+  const [startItem, setStartItem] = useState(0);
+  const [endItem, setEndItem] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+
   const setViewMail = async mail => {
     // console.log("onViewMessage", mail);
     _setViewMail(mail);
   };
 
+  /*  
   const onMessageSent = useCallback(async () => {
-    console.log("onMessageSent");
+    console.log("locker onMessageSent");
     updateLocker();
-  }, []);
+  }, []);*/
+  const onMessageSent = async () => {
+    await updateLocker();
+  };
 
   const updateRegistration = useCallback(async () => {
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return; // todo get pub key from ENS
@@ -57,11 +69,38 @@ export function Locker({
   const updateLocker = useCallback(async () => {
     if (updatingLocker) return;
     updatingLocker = true;
-    const mails = await readContracts.SwarmMail.getLocker(address);
-    processSMails(mails);
+    const mailCount = (await readContracts.SwarmMail.getLockerCount(address)).toNumber();
+    setTotalItems(mailCount);
+    var allPages = Math.ceil(mailCount / pageSize);
+    setMaxPages(allPages);
+
+    var length = pageSize;
+    var start = mailCount - page * pageSize;
+    if (start < 0) start = 0;
+    if (start + length > mailCount) length = mailCount - start;
+    setStartItem(start + 1);
+    setEndItem(start + length);
+
+    //const smails = await readContracts.SwarmMail.getLocker(address);
+    const smails = await readContracts.SwarmMail.getEmailRange(address, 2, start, length);
+    processSMails(smails);
     //console.log("got smails", mails);
     updatingLocker = false;
   });
+
+  useEffect(() => {
+    updateLocker();
+  }, [page]);
+
+  const retrieveNewPage = async newPage => {
+    if (newPage < 1) newPage = 1;
+    if (newPage > maxPages) newPage = maxPages;
+    if (newPage !== page) {
+      setMails([]); // clear mails
+      await setPage(newPage);
+    }
+    console.log("retrieveNewPage", newPage);
+  };
 
   const deleteLockerMail = useCallback(async () => {
     if (checked.length === 0) {
@@ -104,9 +143,10 @@ export function Locker({
   };
   const processSMails = async sMails => {
     setIsLoading(true);
-    var existingMails = mails;
     for (let i = 0; i < sMails.length; i++) {
       var s = sMails[i];
+      if (mails.findIndex(m => m.location == s.swarmLocation) != -1) continue; // skip if already existing
+
       var mail = { attachments: [] };
       const data = await downloadDataFromBee(s.swarmLocation); // returns buffer
 
@@ -115,10 +155,8 @@ export function Locker({
         //console.log("data", data, smailMail);
         try {
           var d = JSON.parse(new TextDecoder().decode(data));
-          //console.log("d", d);
           var decRes = EncDec.nacl_decrypt(d, smailMail.smail.substr(2, smailMail.smail.length));
           mail = JSON.parse(decRes);
-          //console.log("decRes", decRes);
         } catch (e) {
           console.error("decrypt", e);
           continue;
@@ -137,8 +175,9 @@ export function Locker({
       mail.sender = s.from;
       mail.signed = s.signed;
       mail.isEncryption = s.isEncryption;
+      setMails(mails => [mail, ...mails]);
       // only add if not existing
-      existingMails.findIndex(m => m.sendTime == mail.sendTime) == -1 ? setMails(mails => [mail, ...mails]) : null;
+      //existingMails.findIndex(m => m.sendTime == mail.sendTime) == -1 ? setMails(mails => [mail, ...mails]) : null;
       //console.log(mail);
     }
     setIsLoading(false);
@@ -191,11 +230,11 @@ export function Locker({
         message.success(`${body.results.length} more items loaded!`);
       });*/
   };
-  const onScroll = e => {
-    if (e.currentTarget.scrollHeight - e.currentTarget.scrollTop === ContainerHeight) {
-      appendData();
-    }
-  };
+  // const onScroll = e => {
+  //   if (e.currentTarget.scrollHeight - e.currentTarget.scrollTop === ContainerHeight) {
+  //     appendData();
+  //   }
+  // };
   const IconText = ({ icon, tooltip, text }) => (
     <Tooltip title={tooltip}>
       {React.createElement(icon)}
@@ -247,6 +286,11 @@ export function Locker({
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
       <h1>Locker</h1>
       <div className="routeSubtitle">Encrypted packages and sharing info</div>
+      <div className="paginationInfo">
+        {startItem}-{endItem} of {totalItems} &nbsp;&nbsp;&nbsp;
+        <a onClick={() => retrieveNewPage(page - 1)}>{"<"}</a>&nbsp;{page}/{maxPages}&nbsp;
+        <a onClick={() => retrieveNewPage(page + 1)}>{">"}</a>
+      </div>
 
       <>
         <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
@@ -331,11 +375,7 @@ export function Locker({
                           onClick={e => onSignMail(mail)}
                           style={{ float: "right", right: "0px", top: "0px", cursor: "pointer" }}
                         >
-                          <IconText
-                            icon={EnterOutlined}
-                            tooltip="Sign statement of acknowledgment"
-                            key="list-vertical-sign-o"
-                          />
+                          <IconText icon={EnterOutlined} tooltip="List locker on data hub" key="list-vertical-sign-o" />
                         </span>
                       )}
                     </div>

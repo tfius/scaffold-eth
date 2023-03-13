@@ -65,8 +65,6 @@ This structure defines a user object with the following attributes:
 - `subItems`: an array of SubItem objects representing the subscriptions of
 
 
-### Function `getInbox(address addr)`
-This function returns an array of Email struct objects representing the inbox of a given user with the address `addr`. The function is a public view function, which means it does not modify the state of the contract and can be called from any address. 
 #### Arguments
 - `addr`, which is the address of the user whose inbox is to be retrieved.
 
@@ -82,9 +80,13 @@ This function returns a range of `Email` struct objects representing the inbox o
 - `start` is the starting index of the range to be retrieved, and 
 - `length` is the length of the range to be retrieved.
 
+### Function `getInbox(address addr)`
+***Deprecated***
+This function returns an array of Email struct objects representing the inbox of a given user with the address `addr`. The function is a public view function, which means it does not modify the state of the contract and can be called from any address. 
 ### Function `getSent(address addr)`
 ***Deprecated***
 This function returns an array of Email struct objects representing the sent messages of a given user with the address `addr`. The function is a public view function, which means it does not modify the state of the contract and can be called from any address. Returned objects are unreadable by sender.
+
 #### Arguments
 - `addr`, which is the address of the user whose sent messages are to be retrieved.
 

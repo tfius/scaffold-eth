@@ -81,7 +81,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
     return category;
   });
   const getSub = useCallback(async subId => {
-    var sub = await readContracts.SwarmMail.getSub(subId);
+    var sub = await readContracts.SwarmMail.getSubByIndex(subId);
     //console.log("sub", sub);
     return sub;
   });
@@ -168,12 +168,15 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
       for (var subId = 0; subId < cat.subIdxs.length; subId++) {
         try {
           var sub = await getSub(cat.subIdxs[subId]); // getting by index is different than getting by hash
-          //console.log("sub", sub);
+          // console.log("sub", sub);
+          //if (sub.active === false) continue; // ignore non active subs
+
           var subData = await downloadDataFromBee(sub.swarmLocation);
           var subscription = JSON.parse(new TextDecoder().decode(subData));
           //console.log("subscription", subscription);
 
           subscription.seller = sub.seller;
+          subscription.active = sub.active;
           subscription.fdpSellerNameHash = sub.fdpSellerNameHash;
           subscription.price = ethers.utils.formatEther(sub.price).toString();
           subscription.priceInWei = sub.price.toString();
@@ -368,17 +371,21 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
                   ></div>
 
                   <br />
-                  <Tooltip
-                    title={
-                      <>
-                        Request to subscribe for {sub.price}⬨ for {sub.daysValid.toString()} days
-                      </>
-                    }
-                  >
-                    <Button style={{ bottom: "5px", position: "absolute" }} onClick={() => onBidSub(sub)}>
-                      {sub.price} ⬨
-                    </Button>
-                  </Tooltip>
+                  <div style={{ bottom: "5px", position: "absolute" }}>
+                    {sub.active ? (
+                      <Tooltip
+                        title={
+                          <>
+                            Request to subscribe for {sub.price}⬨ for {sub.daysValid.toString()} days
+                          </>
+                        }
+                      >
+                        <Button onClick={() => onBidSub(sub)}>{sub.price} ⬨</Button>
+                      </Tooltip>
+                    ) : (
+                      <>Not active</>
+                    )}
+                  </div>
                 </div>
                 <Skeleton loading={false} />
               </Card>

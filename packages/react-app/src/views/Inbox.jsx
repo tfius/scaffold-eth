@@ -25,6 +25,12 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
   const [messageCountTrigger, setMessageCountTrigger] = useState(0);
   const [viewMail, _setViewMail] = useState(null);
   const [viewAddress, setViewAddress] = useState(null);
+  const [page, setPage] = useState(1);
+  const [maxPages, setMaxPages] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
+  const [startItem, setStartItem] = useState(0);
+  const [endItem, setEndItem] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
   const setViewMail = async mail => {
     // console.log("onViewMessage", mail);
     _setViewMail(mail);
@@ -55,19 +61,48 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return; // todo get pub key from ENS
     const data = await readContracts.SwarmMail.getPublicKeys(address);
     setIsRegistered(data.registered);
-    // setKey(data.key);
     if (isRegistered === false && data.registered) updateMails();
   });
+
   var updatingMails = false;
   const updateMails = useCallback(async () => {
     //if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
     if (updatingMails) return;
     updatingMails = true;
-    const mails = await readContracts.SwarmMail.getInbox(address);
+    const mailCount = (await readContracts.SwarmMail.getInboxCount(address)).toNumber();
+    setTotalItems(mailCount);
+
+    var allPages = Math.ceil(mailCount / pageSize);
+    setMaxPages(allPages);
+
+    var length = pageSize;
+    var start = mailCount - page * pageSize;
+    if (start < 0) start = 0;
+    if (start + length > mailCount) length = mailCount - start;
+    setStartItem(start + 1);
+    setEndItem(start + length);
+    //debugger;
+
+    const mails = await readContracts.SwarmMail.getEmailRange(address, 1, start, length);
+    //const mails = await readContracts.SwarmMail.getInbox(address);
     processSMails(mails);
     //console.log("got smails", mails);
     updatingMails = false;
   });
+
+  useEffect(() => {
+    updateMails();
+  }, [page]);
+
+  const retrieveNewPage = async newPage => {
+    if (newPage < 1) newPage = 1;
+    if (newPage > maxPages) newPage = maxPages;
+    if (newPage !== page) {
+      setMails([]); // clear mails
+      await setPage(newPage);
+    }
+    console.log("retrieveNewPage", newPage);
+  };
 
   const deleteMails = useCallback(async () => {
     if (checked.length === 0) {
@@ -110,12 +145,12 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
   };
   const processSMails = async sMails => {
     setIsLoading(true);
-    var existingMails = mails;
     for (let i = 0; i < sMails.length; i++) {
       var s = sMails[i];
       var mail = { attachments: [] };
-      const data = await downloadDataFromBee(s.swarmLocation); // returns buffer
+      if (mails.findIndex(m => m.location === s.swarmLocation) !== -1) continue; // skip if mail already exists
 
+      const data = await downloadDataFromBee(s.swarmLocation); // returns buffer
       // see if mail is encrypted
       if (s.isEncryption === true) {
         //console.log("data", data, smailMail);
@@ -143,12 +178,9 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       mail.sender = s.from;
       mail.signed = s.signed;
       mail.isEncryption = s.isEncryption;
-      // only add if not existing
-      existingMails.findIndex(m => m.sendTime == mail.sendTime) == -1 ? setMails(mails => [mail, ...mails]) : null;
-      //console.log(mail);
+      setMails(mails => [mail, ...mails]);
     }
     setIsLoading(false);
-    //console.log("processedMails", mails);
   };
   const onDownloadFile = async (mail, index, attachment) => {
     setIsLoading(true);
@@ -189,19 +221,19 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     setChecked(e.target.checked ? mails.map(mail => mail.location) : []);
     setCheckAll(e.target.checked);
   };
-  const appendData = () => {
-    /*fetch(fakeDataUrl)
-      .then((res) => res.json())
-      .then((body) => {
-        setData(data.concat(body.results));
-        message.success(`${body.results.length} more items loaded!`);
-      });*/
-  };
-  const onScroll = e => {
-    if (e.currentTarget.scrollHeight - e.currentTarget.scrollTop === ContainerHeight) {
-      appendData();
-    }
-  };
+  // const appendData = () => {
+  //   /*fetch(fakeDataUrl)
+  //     .then((res) => res.json())
+  //     .then((body) => {
+  //       setData(data.concat(body.results));
+  //       message.success(`${body.results.length} more items loaded!`);
+  //     });*/
+  // };
+  // const onScroll = e => {
+  //   if (e.currentTarget.scrollHeight - e.currentTarget.scrollTop === ContainerHeight) {
+  //     appendData();
+  //   }
+  // };
   const IconText = ({ icon, tooltip, text }) => (
     <Tooltip title={tooltip}>
       {React.createElement(icon)}
@@ -220,7 +252,12 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px" }}>
       <h1 style={{ paddingTop: "18px" }}>Inbox</h1>
-      <div className="routeSubtitle">All inbound messages</div>
+      <div className="routeSubtitle">All inbound messages: {totalItems}</div>
+      <div className="paginationInfo">
+        {startItem}-{endItem} of {totalItems} &nbsp;&nbsp;&nbsp;
+        <a onClick={() => retrieveNewPage(page - 1)}>{"<"}</a>&nbsp;{page}/{maxPages}&nbsp;
+        <a onClick={() => retrieveNewPage(page + 1)}>{">"}</a>
+      </div>
       {!isRegistered && (
         <Card>
           <Typography>
@@ -373,6 +410,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
           />
         </Checkbox.Group>
       </>
+
       <>
         <div style={{ marginTop: 20 }}>
           <small style={{ fontSize: 4 }}>{checked.join(", ")} </small>
