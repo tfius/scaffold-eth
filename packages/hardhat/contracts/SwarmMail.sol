@@ -87,7 +87,7 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         _;
     }
 
-    function getPublicKeys(address addr) public view returns (bool registered, bytes32 key, bytes32 smail, address portable) {
+    function getPublicKeys(address addr) public view returns (bool registered, bytes32 key, bytes32 smail/*, address portable*/) {
         registered = users[addr].key != bytes32(0) ;
         key = users[addr].key;
         smail = users[addr].smail;

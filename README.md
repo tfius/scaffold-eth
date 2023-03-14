@@ -169,3 +169,10 @@ yarn deploy
 
 🌍 You need an RPC key for production deployments/Apps, create an [Alchemy](https://www.alchemy.com/) account and replace the value of `ALCHEMY_KEY = xxx` in `packages/react-app/src/constants.js`
 
+### Deployments
+
+Goerli: 
+SwarmMail
+deploying "SwarmMail" (tx: 0x1fa1235227341bd0fd969a403a0c1ae8dd3a2731d37fda4fac114d3cb197cd27)...: deployed at 0x702F3f2746631290bAb217dD7d16601B1Cf8af7F with 2035828 gas
+DataHub
+deploying "DataHub" (tx: 0xf937b826a780758272b68fca9960b480ddd7110bd850185ce3018dfd8d9f7b45)...: deployed at 0x43E6403948be1245f8878fE0f429798762A5d3b8 with 3537470 gas

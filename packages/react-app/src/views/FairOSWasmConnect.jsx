@@ -50,7 +50,7 @@ export function FairOSWasmConnect({
 }) {
   const [listingFee, setListingFee] = useState(ethers.utils.parseEther("0.0001"));
 
-  const [isFairOSVisible, setIsFairOSVisible] = useState(true); // displays FairOS dialog
+  const [isFairOSVisible, setIsFairOSVisible] = useState(false); // displays FairOS dialog
   const [isLoginVisible, setIsLoginVisible] = useState(false); // displays login dialog
   const [isConnectVisible, setIsConnectVisible] = useState(false); // displays connect dialog
   const [isPortableAddressVisible, setIsPortableAddressVisible] = useState(false); // display wait TX for connect dialog

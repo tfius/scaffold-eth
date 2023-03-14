@@ -66,7 +66,8 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+//const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.goerli;
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -87,17 +88,17 @@ function App(props) {
   // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
   // reference './constants.js' for other networks
   const networkOptions = [
-    "localhost",
-    "mainnet",
-    "sapphire",
-    "xdai",
-    "arbitrum",
-    "optimism",
-    "matic",
-    "avalanche",
-    "harmony",
-    "goerli",
-    "testnetSapphire",
+    "localhost", // 0
+    "mainnet", // 1
+    "sapphire", // 2
+    "xdai", // 3
+    "arbitrum", // 4
+    "optimism", // 5
+    "matic", // 6
+    "avalanche", // 7
+    "harmony", // 8
+    "goerli", // 9
+    "testnetSapphire", // 10
     //"rinkeby",
   ];
   const BEENETWORKS = {
@@ -121,7 +122,7 @@ function App(props) {
   const { currentTheme } = useThemeSwitcher();
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
-  const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
+  const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[9]);
 
   const [batchId, setBatchId] = useState(consts.emptyBatchId);
   const [selectedBeeNetwork, _setSelectedBeeNetwork] = useState(beeNetworkOptions[0]);
