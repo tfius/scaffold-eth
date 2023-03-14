@@ -179,7 +179,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       mail.time = s.time;
       mail.checked = false;
       mail.location = s.swarmLocation;
-      mail.sender = s.from;
+      mail.from = s.from;
       mail.signed = s.signed;
       mail.isEncryption = s.isEncryption;
       setMails(mails => [mail, ...mails]);
@@ -317,9 +317,9 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                     <>
                       <Checkbox value={mail.location} style={{ margin: "0rem 1rem 0rem 0rem" }} />
                       {/* <Tooltip title={ {mail.sender}}> */}
-                      <Tooltip title={<AddressSimple address={mail.sender} />}>
+                      <Tooltip title={<AddressSimple address={mail.from} />}>
                         <span>
-                          <Blockies className="mailIdenticon" seed={mail.sender} size="8" />
+                          <Blockies className="mailIdenticon" seed={mail.from} size="8" />
                         </span>
                       </Tooltip>
                       {/* <IconText icon={EditOutlined} tooltip="Sign" key="list-vertical-like-o" />, */}
@@ -340,7 +340,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                         {mail.subject}
                       </strong>
 
-                      <span style={{ margin: "15px", cursor: "pointer" }} onClick={() => setReplyTo(mail.sender)}>
+                      <span style={{ margin: "15px", cursor: "pointer" }} onClick={() => setReplyTo(mail.from)}>
                         <IconText icon={ArrowLeftOutlined} tooltip="Reply" key="list-vertical-reply-o" />
                       </span>
                       {mail.isEncryption === false && (
@@ -437,13 +437,12 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
             <>
               <h3>{viewMail.subject}</h3>{" "}
               <small>
-                {" "}
-                <AddressSimple address={viewMail.sender} />
+                Sender: <AddressSimple address={viewMail.from} />
               </small>
               <span style={{ float: "right", verticalAlignement: "top" }}>
-                <Tooltip title={<AddressSimple address={viewMail.sender} />}>
+                <Tooltip title={<AddressSimple address={viewMail.from} />}>
                   <span>
-                    <Blockies className="mailIdenticon" seed={viewMail.sender} size="4" />
+                    <Blockies className="mailIdenticon" seed={viewMail.from} size="4" />
                   </span>
                 </Tooltip>
               </span>
@@ -470,7 +469,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
             />
           </>
           <br />
-          <Button onClick={() => setReplyTo(viewMail.sender)}>
+          <Button onClick={() => setReplyTo(viewMail.from)}>
             <IconText icon={ArrowLeftOutlined} tooltip="Reply" key="list-vertical-reply-o" />
             &nbsp; Reply
           </Button>{" "}

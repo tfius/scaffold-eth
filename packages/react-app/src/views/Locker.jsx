@@ -175,7 +175,7 @@ export function Locker({
       mail.time = s.time;
       mail.checked = false;
       mail.location = s.swarmLocation;
-      mail.sender = s.from;
+      mail.from = s.from;
       mail.signed = s.signed;
       mail.isEncryption = s.isEncryption;
       setMails(mails => [mail, ...mails]);
@@ -256,7 +256,7 @@ export function Locker({
       subject: locker.subject,
       contents: locker.contents,
       isEncryption: locker.isEncryption,
-      sender: locker.sender,
+      sender: locker.from,
       attachments: locker.attachments,
       location: locker.location,
       ephemeralKey: locker.ephemeralKey,
@@ -347,13 +347,11 @@ export function Locker({
                   avatar={
                     <>
                       <Checkbox value={mail.location} style={{ margin: "0rem 1rem 0rem 0rem" }} />
-                      {/* <Tooltip title={ {mail.sender}}> */}
-                      <Tooltip title={<AddressSimple address={mail.sender} />}>
+                      <Tooltip title={<AddressSimple address={mail.from} />}>
                         <span>
-                          <Blockies className="mailIdenticon" seed={mail.sender} size="8" />
+                          <Blockies className="mailIdenticon" seed={mail.from} size="8" />
                         </span>
                       </Tooltip>
-                      {/* <IconText icon={EditOutlined} tooltip="Sign" key="list-vertical-like-o" />, */}
                     </>
                   }
                   title={

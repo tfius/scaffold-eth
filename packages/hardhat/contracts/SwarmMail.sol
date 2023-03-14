@@ -27,8 +27,12 @@ contract SwarmMail is /*Ownable, ReentrancyGuard,*/ AccessControl  {
     }*/ 
     address public _owner;
     modifier onlyOwner() {
-        require(_owner == msg.sender, "Ownable: caller is not the owner");
+        require(_owner == msg.sender, "Caller not owner");
         _;
+    }
+    function transferOwnership(address newOwner) public onlyOwner {
+        require(newOwner != address(0), "0x?");
+        _owner = newOwner;
     }
 
     struct Email {
@@ -226,9 +230,19 @@ contract SwarmMail is /*Ownable, ReentrancyGuard,*/ AccessControl  {
     function signEmail(bytes32 swarmLocation) public {
         User storage u = users[msg.sender];
         require(u.inboxEmailIds[swarmLocation] != 0, "Message !exist");
+        /*
         Email storage email = u.inboxEmails[u.inboxEmailIds[swarmLocation] - 1];
         require(msg.sender == email.to, "Only receiver can sign");
-        email.signed = true;
+        email.signed = true; */
+
+        Email storage receivedMail = u.inboxEmails[u.inboxEmailIds[swarmLocation] - 1];
+        require(msg.sender == receivedMail.to, "Only receiver can sign");
+        receivedMail.signed = true;
+
+        User storage sender = users[receivedMail.from]; // get sender 
+        Email memory sentMail = sender.sentEmails[sender.sentEmailIds[swarmLocation] - 1]; // has to be in sentEmails
+        //require(msg.sender == sentMail.to, "Only receiver can sign");
+        sentMail.signed = true;
     }
     function sendEmail( address toAddress, bool isEncryption, bytes32 swarmLocation ) public payable {
         User storage receiver = users[toAddress];
