@@ -198,3 +198,19 @@ h3 {
 hr {
   animation: 5s dividerAnimation ease-in infinite;
 }
+
+@keyframes menuItemAnimation{
+  0%{
+    opacity: 0.8;
+  }
+  50%{
+    opacity: 0.99;
+  }
+  100%{
+    opacity: 0.8;
+  }
+}
+
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+  animation: 3s menuItemAnimation ease-in infinite;
+}

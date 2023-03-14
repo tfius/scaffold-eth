@@ -390,7 +390,7 @@ function App(props) {
                 <Link to="/inbox">Inbox</Link>
               </Tooltip>
             </Menu.Item>
-            {smailMail.smail!==null && (
+            {smailMail.smail !== null && (
               <>
                 <Menu.Item key="/locker">
                   <Tooltip title="Encrypt and store your data" placement="right">
@@ -502,6 +502,8 @@ function App(props) {
               </Tooltip>
               {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
             </Menu.Item>
+
+            <Menu.Divider />
 
             <Menu.Item key="/swarmmailcontract">
               <Link to="/swarmmailcontract">
