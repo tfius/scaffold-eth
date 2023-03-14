@@ -1,35 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-// import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-//import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-/*
-uint32		10		4,294,967,295
-uint40		13		1,099,511,627,775
-uint48		15		281,474,976,710,655
-uint56		17		72,057,594,037,927,935
-uint64		20		18,446,744,073,709,551,615
-uint72		22		4,722,366,482,869,645,213,695
-uint80		25		1,208,925,819,614,629,174,706,175
-uint88		27		309,485,009,821,345,068,724,781,055
-uint96		29		79,228,162,514,264,337,593,543,950,335
-*/
+contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    uint256 private constant FEE_PRECISION = 1e5;  
+    uint256 public marketFee = 1000; // 1%
+    uint256 public minListingFee = 1000000 gwei; // min listing fee - 0.0001000 ETH
+    uint256 public feesCollected = 0;
+    uint256 public inEscrow = 0;
+    bytes32 public constant ROLE_REPORTER = keccak256("ROLE_REPORTER");
 
-
-contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
-    struct Email {
-        bool    isEncryption;
-        uint256 time;
-        address from;
-        address to;
-        bytes32 swarmLocation;
-        bool    signed;
-        //bytes uuid;
-    }
-    /*
     // subscription request
     struct SubRequest {
         bytes32 fdpBuyerNameHash;
@@ -47,273 +31,22 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         bytes32 subHash;  // what subscription you are entitled to
         bytes32 unlockKeyLocation; // where is your key
         uint256 validTill; // until it is valid 
-    }*/
+    }
     struct User {
-        bytes32 key;
-        bytes32 smail;
-        // PublicKey pubkey;
-        Email[] sentEmails;
-        mapping(bytes32 => uint256) sentEmailIds;
-        Email[] inboxEmails;
-        mapping(bytes32 => uint256) inboxEmailIds;
+        // who wants to subscribe to what
+        SubRequest[] subRequests;
+        mapping(bytes32 => uint256) subRequestIds;
+        // what is user subscribed to
+        SubItem[] subItems;
+        mapping(bytes32 => uint256) subItemIds;
 
-        Email[] lockerEmails;
-        mapping(bytes32 => uint256) lockerEmailIds;
-        Email[] sharedLockerEmails;
-        mapping(bytes32 => uint256) sharedLockerEmailIds;
+        ActiveBid[] activeBids;
+        mapping(bytes32 => uint256) activeBidIds;
 
-        // // who wants to subscribe to what
-        // SubRequest[] subRequests;
-        // mapping(bytes32 => uint256) subRequestIds;
-        // // what is user subscribed to
-        // SubItem[] subItems;
-        // mapping(bytes32 => uint256) subItemIds;
-
-        // ActiveBid[] activeBids;
-        // mapping(bytes32 => uint256) activeBidIds;
-
-        // bytes32[] listedSubs; // everything user listed 
+        bytes32[] listedSubs; // everything user listed 
     }
     mapping(address => User) users;
-    // mapping(address => address) userToPortable;    
- 
-    constructor() {
-    }
-
-    receive() external payable {}
-
-    modifier isRegistered() { 
-        require(users[msg.sender].key != bytes32(0), "User not registred");
-        _;
-    }
-
-    function getPublicKeys(address addr) public view returns (bool registered, bytes32 key, bytes32 smail, address portable) {
-        registered = users[addr].key != bytes32(0) ;
-        key = users[addr].key;
-        smail = users[addr].smail;
-        //portable = userToPortable[addr];
-    } 
-
-    //  
-    function getUserStats(address addr) public view returns (uint numInboxItems, uint numSentItems, uint numLockers, uint numSharedLockers /* uint numSubRequests, uint numSubItems, uint numActiveBids */) {
-        numInboxItems = users[addr].inboxEmails.length;
-        numSentItems  = users[addr].sentEmails.length;
-        numLockers = users[addr].lockerEmails.length;
-        numSharedLockers = users[addr].sharedLockerEmails.length;
-        /*numSubRequests = users[addr].subRequests.length;
-        numSubItems = users[addr].subItems.length;
-        numActiveBids = users[addr].activeBids.length;*/
-    }
-    function register(bytes32 key, bytes32 smail) public {
-        User storage user = users[msg.sender];
-        require(user.key == bytes32(0), "Already registered");
-        user.key = key;
-        user.smail = smail;
-        //userToPortable[msg.sender] = portable;
-    }
-
-    /*
-    function setPortableAddress(address addr) public {
-        userToPortable[msg.sender] = addr;
-    }
-    function getPortableAddress(address addr) public view returns (address) {
-        return userToPortable[addr];
-    }
-    */    
-
-    /*
-    function getInboxCount(address addr) public view returns (uint) {
-        return users[addr].inboxEmails.length;
-    }
-    function getSentCount(address addr) public view returns (uint) {
-        return users[addr].sentEmails.length;
-    }
-    */
-    /*function getInboxAt(address addr, uint index) public view returns (Email memory) {
-        return users[addr].inboxEmails[index];
-    }*/
-    /*function getSentAt(address addr, uint index) public view returns (Email memory) {
-        return users[addr].sentEmails[index];
-    }*/
-
-
-    /*
-    function getInbox(address addr) public view returns (Email[] memory) {
-        return users[addr].inboxEmails;
-    }
-    function getSent(address addr) public view returns (Email[] memory) {
-        return users[addr].sentEmails;
-    } */
-
-    /*    
-    function getActiveSubItemsCount(address addr, uint start) public view returns (uint) {
-        uint count = 0;	
-        for (uint i = start; i < users[addr].subItems.length; i++) {
-            if(block.timestamp <= users[addr].subItems[i].validTill) {
-                ++count;
-            }
-        }
-        return count;
-    }*/ 
-
-
-    function signEmail(bytes32 swarmLocation) public {
-        User storage u = users[msg.sender];
-        require(u.inboxEmailIds[swarmLocation] != 0, "Message !exist");
-        /*
-        Email storage email = u.inboxEmails[u.inboxEmailIds[swarmLocation] - 1];
-        require(msg.sender == email.to, "Only receiver can sign");
-        email.signed = true; */
-
-        Email storage receivedMail = u.inboxEmails[u.inboxEmailIds[swarmLocation] - 1];
-        require(msg.sender == receivedMail.to, "Only receiver can sign");
-        receivedMail.signed = true;
-
-        User storage sender = users[receivedMail.from]; // get sender 
-        Email memory sentMail = sender.sentEmails[sender.sentEmailIds[swarmLocation] - 1]; // has to be in sentEmails
-        //require(msg.sender == sentMail.to, "Only receiver can sign");
-        sentMail.signed = true;
-    }
-    function sendEmail( address toAddress, bool isEncryption, bytes32 swarmLocation ) public payable {
-        User storage receiver = users[toAddress];
-        require(!isEncryption || receiver.key != bytes32(0), "receiver not registered");
-        User storage sender = users[msg.sender];
-        // create email
-        Email memory email;
-        email.isEncryption = isEncryption;
-        email.time = block.timestamp;
-        email.from = msg.sender;
-        email.to = toAddress;
-        email.swarmLocation = swarmLocation;
-
-        // add email
-        sender.sentEmails.push(email);
-        sender.sentEmailIds[swarmLocation] = sender.sentEmails.length;
-        receiver.inboxEmails.push(email);
-        receiver.inboxEmailIds[swarmLocation] = receiver.inboxEmails.length;
-    }
-
-    // try to do generif delete from array using ref to array and mapping 
-    function removeGenericEmail(bytes32 location, mapping(bytes32=>uint256) storage ids, Email[] storage array) private {
-        require(ids[location] != 0, "!Req");
-
-        uint256 removeIndex = ids[location] - 1;
-        // remove info
-        uint256 lastIndex = array.length - 1;
-        if (lastIndex != removeIndex) {
-            array[removeIndex] = array[lastIndex];
-            ids[array[lastIndex].swarmLocation] = removeIndex + 1;
-        }
-        array.pop();
-        delete ids[location];
-    }
-
-    function removeEmails(uint32 types, bytes32[] memory locations) public {
-        User storage u = users[msg.sender];
-        if(types == 1) {
-            for (uint256 i; i < locations.length; i++) {
-                removeGenericEmail(locations[i], u.inboxEmailIds, u.inboxEmails);
-            }
-        } else if(types == 0) {
-            for (uint256 i; i < locations.length; i++) {
-                removeGenericEmail(locations[i], u.sentEmailIds, u.sentEmails);
-            }
-        }
-        else if(types == 2) {
-            for (uint256 i; i < locations.length; i++) {
-                removeGenericEmail(locations[i], u.lockerEmailIds, u.lockerEmails);
-            }
-        }
-    }
-
-    function genEmailRange(uint start, uint length, Email[] memory array) private pure returns (Email[] memory) {
-        Email[] memory emails = new Email[](length);
-        //require(start + length <= array.length, "Out of bounds");
-        uint count = 0;
-        for(uint i = start; i < start + length; i++)
-        {
-            emails[count] = array[i];
-            ++count;
-        }
-        return emails;
-    }
-
-    function getEmailRange(address addr, uint types, uint start, uint length) public view returns (Email[] memory messages) {
-        User storage u = users[addr];
-        if(types == 1) {
-            messages = genEmailRange(start, length, u.inboxEmails);
-        } else if(types == 0) {
-            messages = genEmailRange(start, length, u.sentEmails);
-        } else if(types == 2) {
-            messages = genEmailRange(start, length, u.lockerEmails);
-        } else if(types == 3) {
-            messages = genEmailRange(start, length, u.sharedLockerEmails);
-        }
-    }
-    function storeLocker(bytes32 swarmLocation) public payable {
-        User storage sender = users[msg.sender];
-        require(sender.lockerEmailIds[swarmLocation] == 0, "!exist");
-        Email memory email;
-        email.isEncryption = true;
-        email.time = block.timestamp;
-        email.from = msg.sender;
-        email.to = msg.sender;
-        email.swarmLocation = swarmLocation;
-
-        sender.lockerEmails.push(email);
-        sender.lockerEmailIds[swarmLocation] = sender.lockerEmails.length;
-    }
-    function shareLockerWith(bytes32 swarmLocation, address withAddress) public {
-        User storage u = users[msg.sender];
-        require(u.lockerEmailIds[swarmLocation] != 0, "!exist");
-
-        User storage u2 = users[withAddress];
-        require(u2.sharedLockerEmailIds[swarmLocation] == 0, "exists");
-        /*Email memory email; 
-        email.isEncryption = true;
-        email.time = block.timestamp;
-        email.from = msg.sender;
-        email.to = withAddress;
-        email.swarmLocation = swarmLocation; */
-        //u2.sharedLockerEmails.push(email);
-        u2.sharedLockerEmails.push(u.lockerEmails[u.lockerEmailIds[swarmLocation]]);
-        u2.sharedLockerEmailIds[swarmLocation] = u2.sharedLockerEmails.length;
-    }
-    function unshareLockerWith(bytes32 swarmLocation, address withAddress) public {
-        User storage u = users[msg.sender];
-        require(u.lockerEmailIds[swarmLocation] != 0, "!exist");
-
-        User storage u2 = users[withAddress];
-        require(u2.sharedLockerEmailIds[swarmLocation] != 0, "!exist");
-        // needs to be owner or user that share was made to
-        require(u2.lockerEmails[u2.lockerEmailIds[swarmLocation]].from == msg.sender  || 
-                u2.lockerEmails[u2.lockerEmailIds[swarmLocation]].to == msg.sender, "!owner");
-
-        removeGenericEmail(swarmLocation, u2.sharedLockerEmailIds, u2.sharedLockerEmails);
-    }
-    // End of Locker parts of SwarmMail contract
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    uint256 public inEscrow = 0;
-/*
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    uint256 private constant FEE_PRECISION = 1e5;  
-    uint256 public marketFee = 1000; // 1%
-    uint256 public minListingFee = 1000000 gwei; // min listing fee - 0.0001000 ETH
-    uint256 public feesCollected = 0;
-    uint256 public inEscrow = 0;
-    bytes32 public constant ROLE_REPORTER = keccak256("ROLE_REPORTER");
-
-    function getFee(uint256 _fee, uint256 amount) public pure returns (uint256) {
-        return (amount * _fee) / FEE_PRECISION;
-    }
-    function setFee(uint256 newFee) public  {
-        require(msg.sender==_owner, "!");
-        marketFee = newFee; 
-    }
-    function setListingFee(uint256 newListingFee) public  {
-        require(msg.sender==_owner, "!");
-        minListingFee = newListingFee; 
-    }      
+    mapping(address => address) userToPortable;    
 
     struct Category {
         uint64[]     subIdxs;
@@ -331,7 +64,7 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         uint256 earned;  
         uint32  bids;
         uint32  sells;
-        uint32  reports; // TODO add method to report for OWNERS
+        uint32  reports; 
         uint16  daysValid;
     }
     Sub[] public  subscriptions;
@@ -341,8 +74,46 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         mapping(address => uint256) perSubscriberBalance; // balance per subscriber
         address[] subscribers; 
     }
-    mapping(bytes32 => SubInfo) subInfos; // where is sub in subscriptions array
+    mapping(bytes32 => SubInfo) subInfos; // where is sub in subscriptions array    
 
+    constructor() {
+    }
+
+    receive() external payable {}
+
+    function getUserStats(address addr) public view returns (uint numSubRequests, uint numSubItems, uint numActiveBids, uint numListedSubs) {
+        numSubRequests = users[addr].subRequests.length;
+        numSubItems = users[addr].subItems.length;
+        numActiveBids = users[addr].activeBids.length;
+        numListedSubs = users[addr].listedSubs.length;
+    }
+    function setPortableAddress(address addr) public {
+        userToPortable[msg.sender] = addr;
+    }
+    function getPortableAddress(address addr) public view returns (address) {
+        return userToPortable[addr];
+    }    
+    function getFee(uint256 _fee, uint256 amount) public pure returns (uint256) {
+        return (amount * _fee) / FEE_PRECISION;
+    }
+    function setFee(uint256 newFee) onlyOwner public  {
+        marketFee = newFee; 
+    }
+    function setListingFee(uint256 newListingFee) onlyOwner public  {
+        minListingFee = newListingFee; 
+    }      
+    function getCategory(bytes32 category) public view returns (Category memory) {
+        return categories[category];
+    }
+    function getSubs() public view returns (Sub[] memory) {
+        return subscriptions;
+    }
+    function getSubByIndex(uint index) public view returns (Sub memory) {
+        return subscriptions[index];
+    }
+    function getSubBy(bytes32 subHash) public view returns (Sub memory) {
+        return subscriptions[subscriptionIds[subHash]-1];
+    }
     function getSubRequestAt(address addr, uint index) public view returns (SubRequest memory) {
         return users[addr].subRequests[index];
     }
@@ -408,18 +179,6 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
     }
     function getSubInfoBalance(bytes32 subHash, address forAddress) public view returns (uint256) {
         return subInfos[subHash].perSubscriberBalance[forAddress];
-    }
-    function getSubs() public view returns (Sub[] memory) {
-        return subscriptions;
-    }
-    function getCategory(bytes32 category) public view returns (Category memory) {
-        return categories[category];
-    }
-    function getSubByIndex(uint index) public view returns (Sub memory) {
-        return subscriptions[index];
-    }
-    function getSubBy(bytes32 subHash) public view returns (Sub memory) {
-        return subscriptions[subscriptionIds[subHash]-1];
     }
     function enableSub(bytes32 subHash, bool active) public {
         require(subscriptionIds[subHash] != 0, "No Sub"); // must exists
@@ -495,7 +254,7 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         buyer.activeBidIds[requestHash] = buyer.activeBids.length; // +1 of index
     }
     // encryptedSecret is podReference encrypited with sharedSecret - podAddress, seller.address, buyer.address, encryptedSecret
-    function sellSub(bytes32 requestHash, bytes32 encryptedKeyLocation) public payable {
+    function sellSub(bytes32 requestHash, bytes32 encryptedKeyLocation) public nonReentrant payable {
         User storage seller = users[msg.sender];
         require(seller.subRequestIds[requestHash] != 0, "No Req");
 
@@ -588,7 +347,6 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         delete u.subRequestIds[requestHash];
         //delete u.subRequests[lastIndex];
     }
-*/
     function fundsBalance() public view returns (uint256) {
         return address(this).balance;
     }    

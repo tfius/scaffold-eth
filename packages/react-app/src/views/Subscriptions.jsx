@@ -49,15 +49,15 @@ export function Subscriptions({
   const [activeSubItems, setActiveSubItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const getSubItems = useCallback(async forAddress => {
-    if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
-    var subItems = await readContracts.SwarmMail.getAllSubItems(forAddress);
+    if (readContracts === undefined || readContracts.DataHub === undefined) return;
+    var subItems = await readContracts.DataHub.getAllSubItems(forAddress);
     //console.log("getSubItems", subItems);
     getSubsItemDetails(subItems);
   });
   const getSubsItemDetails = useCallback(async subItems => {
     setIsLoading(true);
     for (let i = 0; i < subItems.length; i++) {
-      let sub = await readContracts.SwarmMail.getSubBy(subItems[i].subHash);
+      let sub = await readContracts.DataHub.getSubBy(subItems[i].subHash);
       console.log("sub", sub);
       console.log("subItem", subItems[i]);
       var subData = await downloadJsonFromBee(sub.swarmLocation);
@@ -95,7 +95,7 @@ export function Subscriptions({
   }, [address, readContracts]);
 
   //console.log(smailMail);
-  if (smailMail.smail === null)
+  /*if (smailMail.smail === null)
     return (
       <>
         <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
@@ -104,6 +104,7 @@ export function Subscriptions({
         </div>
       </>
     );
+  */
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>

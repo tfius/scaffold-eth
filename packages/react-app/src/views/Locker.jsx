@@ -70,7 +70,7 @@ export function Locker({
   const updateLocker = useCallback(async () => {
     if (updatingLocker) return;
     updatingLocker = true;
-    const boxCount = await readContracts.SwarmMail.getBoxCount(address);
+    const boxCount = await readContracts.SwarmMail.getUserStats(address);
     console.log("boxCount", boxCount);
     const mailCount = boxCount.numLockers.toNumber();
 

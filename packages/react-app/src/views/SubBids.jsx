@@ -40,15 +40,15 @@ export function SubBids({ readContracts, writeContracts, tx, userSigner, address
   const [activeBids, setActiveBids] = useState([]);
 
   const getActiveBids = useCallback(async forAddress => {
-    if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
-    var activeBids = await readContracts.SwarmMail.getActiveBids(forAddress);
+    if (readContracts === undefined || readContracts.DataHub === undefined) return;
+    var activeBids = await readContracts.DataHub.getActiveBids(forAddress);
     console.log("activeBids", activeBids);
     getSubsRequestsFromActiveBids(activeBids);
   });
   const getSubsRequestsFromActiveBids = useCallback(async activeBids => {
     for (let i = 0; i < activeBids.length; i++) {
-      let subReq = await readContracts.SwarmMail.getSubRequestByHash(activeBids[i].seller, activeBids[i].requestHash);
-      let sub = await readContracts.SwarmMail.getSubBy(subReq.subHash);
+      let subReq = await readContracts.DataHub.getSubRequestByHash(activeBids[i].seller, activeBids[i].requestHash);
+      let sub = await readContracts.DataHub.getSubBy(subReq.subHash);
       const subData = await downloadJsonFromBee(sub.swarmLocation);
       let activeBid = { activeBid: activeBids[i], subRequest: subReq, sub: sub, subData: subData };
 
@@ -63,7 +63,7 @@ export function SubBids({ readContracts, writeContracts, tx, userSigner, address
   const onRemoveActiveBid = async activeBid => {
     console.log("onDeleteActiveBid", activeBid);
 
-    var tx = await writeContracts.SwarmMail.removeUserActiveBid(activeBid.requestHash);
+    var tx = await writeContracts.DataHub.removeUserActiveBid(activeBid.requestHash);
     await tx.wait();
   };
 

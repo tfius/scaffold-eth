@@ -172,3 +172,29 @@ h3 {
   animation-duration: 2000ms;
   animation-fill-mode: forwards; 
 }
+
+@keyframes dividerAnimation{
+  0%{
+    opacity: 0.5;
+    margin-right: 25px;
+    border-color:#865eff33;
+  }
+  50%{
+    opacity: 0.9;
+    border-color:#865effff;
+    margin-right: 0px;
+  }
+  100%{
+    opacity: 0.5;
+    margin-right: 25px;
+    border-color:#865eff33;
+  }
+}
+
+.ant-menu > .ant-menu-item-divider {
+  animation: 21s dividerAnimation ease-in infinite;
+}
+
+hr {
+  animation: 5s dividerAnimation ease-in infinite;
+}

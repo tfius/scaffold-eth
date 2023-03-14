@@ -45,7 +45,7 @@ export function FairOSWasmConnect({
   smailMail,
   mainnetProvider,
   setFairOSPods,
-  setSessionId,
+  setFairOSSessionId,
   isWalletConnected,
 }) {
   const [listingFee, setListingFee] = useState(ethers.utils.parseEther("0.0001"));
@@ -73,7 +73,7 @@ export function FairOSWasmConnect({
   const required = [{ required: true }];
 
   async function getPortableAddress(forAddress) {
-    return await readContracts.SwarmMail.getPortableAddress(forAddress);
+    return await readContracts.DataHub.getPortableAddress(forAddress);
   }
 
   const refreshPortableAddress = useCallback(async forAddress => {
@@ -87,27 +87,25 @@ export function FairOSWasmConnect({
   useEffect(async () => {
     if (readContracts != undefined && address != undefined) {
       refreshPortableAddress(address);
-      var listFee = await readContracts.SwarmMail.minListingFee();
+      var listFee = await readContracts.DataHub.minListingFee();
       setListingFee(listFee.toString());
     }
-  }, [readContracts, address, portableAddress]);
+  }, [readContracts, address]);
 
   async function OpenFairOSDialog() {
     refreshPortableAddress(address);
     setIsFairOSVisible(true);
     setIsLoginVisible(false);
     setIsConnectVisible(false);
-    //setLogin(null);
   }
   async function OpenLoginDialog() {
-    //setLogin(null);
-    //setIsFairOSVisible(true);
     setIsLoginVisible(true);
     setIsConnectVisible(false);
   }
 
   async function Logout() {
     setLogin(null);
+    setFairOSSessionId(null);
     OpenFairOSDialog();
     setPodList({ pods: [], sharedPods: [] });
     if (login.sessionId) await window.userLogout(login.sessionId);
@@ -123,7 +121,7 @@ export function FairOSWasmConnect({
       beeNet.rpc, //"http://localhost:9545", // rpc
       "testnet", //targetNetwork.name, //"play or testnet", // network
       targetNetwork.rpcUrl, // "http://localhost:9545", // contract.rpc
-      readContracts.SwarmMail.address, //"0x21a59654176f2689d12E828B77a783072CD26680", // swarm mail contract address
+      readContracts.DataHub.address, //"0x21a59654176f2689d12E828B77a783072CD26680", // swarm mail contract address
     );
     console.log("ConnectFairOS", resp);
     setFairOS(resp);
@@ -161,21 +159,19 @@ export function FairOSWasmConnect({
   }
 
   const setPortableAddressTx = useCallback(async (walletAddress, portableAddress) => {
-    var newTx = await tx(writeContracts.SwarmMail.setPortableAddress(portableAddress));
+    var newTx = await tx(writeContracts.DataHub.setPortableAddress(portableAddress));
     await newTx.wait();
   });
   async function LoginWithWallet() {
     const portableFDPAddress = await getPortableAddress(address);
     const signature = await userSigner.signMessage(portableFDPAddress + " will connect with " + address);
-    if (!fairOS) {
-      await ConnectFairOS();
-    }
+
     console.log("signature 2", portableFDPAddress, signature, address);
     LoginWithSignature(portableFDPAddress, signature);
     // need to get userStat.address from login, which is not available here, we still need to login first into fairOS to get it for what we need username password
   }
   async function ConnectFairOSWithWallet() {
-    var signature = null; 
+    var signature = null;
     try {
       signature = await userSigner.signMessage(login.address + " will connect with " + address);
       console.log("signature 1", login.address, signature, address);
@@ -223,16 +219,15 @@ export function FairOSWasmConnect({
         description: loginObj.address + " INVALID " + loginObj.portableAddress,
       });
     }
-
-    console.log("loginWithWallet", loginObj);
     setIsLoginVisible(false);
+
+    console.log("LoginWithSignature", loginObj);
+    await PodList(loginObj.sessionId);
+
     notification.info({
       message: loginObj.user + " Logged In",
       description: "Logged " + loginObj.address + " -> in through wallet " + address,
     });
-
-    setSessionId(loginObj.sessionId);
-    await PodList(loginObj.sessionId);
   }
 
   async function PodList(sessionId) {
@@ -242,6 +237,7 @@ export function FairOSWasmConnect({
     setPodList(resp2);
     setIsPodLoading(false);
     setFairOSPods(resp2.pods);
+    setFairOSSessionId(sessionId);
   }
 
   async function ListPod(podName) {
@@ -263,7 +259,7 @@ export function FairOSWasmConnect({
       var dataLocation = await uploadDataToBee(JSON.stringify(data), "application/json", Date.now() + ".sub.json");
       console.log("dataLocation", dataLocation);
       var newTx = await tx(
-        writeContracts.SwarmMail.listSub(
+        writeContracts.DataHub.listSub(
           "0x" + fdpSellerNameHash,
           "0x" + dataLocation,
           price,
@@ -306,7 +302,7 @@ export function FairOSWasmConnect({
       {/* <Button onClick={() => ConnectFairOS()}>Connect</Button> */}
       {/* {!isLoginVisible && login != null && <Button onClick={() => Logout()}>Logout FairOS</Button>} */}
       {/* {!isLoginVisible && login == null && ( */}
-      <Button type="primary" onClick={() => OpenFairOSDialog()}>
+      <Button type="primary" style={{ width: "10rem" }} onClick={() => OpenFairOSDialog()}>
         FairOS
       </Button>
       {/* )} */}
@@ -314,7 +310,7 @@ export function FairOSWasmConnect({
       {/* Main FairOS dialog */}
       {isFairOSVisible && (
         <Modal
-          title={<h3>FairOS </h3>}
+          title={<h3>FairOS</h3>}
           footer={null}
           maskClosable={false}
           visible={isFairOSVisible}
@@ -406,7 +402,7 @@ export function FairOSWasmConnect({
           <>
             Signature OK. <br />
             <hr />
-            To access <strong>{username}</strong> through Smail a mapping <br />
+            To access <strong>{username}</strong> through DataHub a mapping <br />
             from: {address}
             <br />
             to:&nbsp;&nbsp;&nbsp;&nbsp; {login.address} <br />
@@ -430,7 +426,7 @@ export function FairOSWasmConnect({
             To register your <strong>{address}</strong> <br /> with <strong>{username}</strong> a signature is needed.{" "}
             <hr />
             This does not bond your address with Smail, only enables you to login into your FairOS account through
-            Smail.
+            DataHub.
           </>
           <br />
           <br />

@@ -28,10 +28,8 @@ import Blockies from "react-blockies";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 import { AddressSimple } from "../components";
 
-import { uploadJsonToBee, uploadDataToBee } from "./../Swarm/BeeService";
+import { uploadJsonToBee, uploadDataToBee } from "../Swarm/BeeService";
 import { categoriesTree, categoryList } from "./categories";
-
-
 
 function getMenuItem(label, key, icon, children, type) {
   return {
@@ -49,7 +47,7 @@ function getMenuItem(label, key, icon, children, type) {
 // Allows to bid on a subscription
 // Allows to sell a subscription - accept a bid
 
-export function Marketplace({ readContracts, writeContracts, tx, userSigner, address, smailMail, mainnetProvider }) {
+export function DataHub({ readContracts, writeContracts, tx, userSigner, address, smailMail, mainnetProvider }) {
   const [menuItems, setMenuItems] = useState([]);
   const [listingFee, setListingFee] = useState(ethers.utils.parseEther("0.0001"));
   const [marketFee, setMarketFee] = useState(0); // 0.5% of the price
@@ -62,26 +60,26 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
   const placeholderImage = "/logo512.png";
 
   const getFees = useCallback(async () => {
-    if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
-    var listFee = await readContracts.SwarmMail.minListingFee();
+    if (readContracts === undefined || readContracts.DataHub === undefined) return;
+    var listFee = await readContracts.DataHub.minListingFee();
     setListingFee(listFee.toString());
-    var marketFee = await readContracts.SwarmMail.marketFee();
+    var marketFee = await readContracts.DataHub.marketFee();
     setMarketFee(marketFee.toNumber() / 1000); // default 0.5% of the price
-    var balanceInContract = await readContracts.SwarmMail.fundsBalance();
+    var balanceInContract = await readContracts.DataHub.fundsBalance();
     setContractBalance(balanceInContract.toString());
-    var balanceInEscrow = await readContracts.SwarmMail.inEscrow();
+    var balanceInEscrow = await readContracts.DataHub.inEscrow();
     setInEscrow(balanceInEscrow.toString());
-    var fees = await readContracts.SwarmMail.feesCollected();
+    var fees = await readContracts.DataHub.feesCollected();
     setFeesCollected(fees.toString());
     //console.log("marketFee", marketFee, "listingFee", listFee);
   });
   const getCategory = useCallback(async categoryHash => {
-    var category = await readContracts.SwarmMail.getCategory(categoryHash);
+    var category = await readContracts.DataHub.getCategory(categoryHash);
     //console.log("category", category);
     return category;
   });
   const getSub = useCallback(async subId => {
-    var sub = await readContracts.SwarmMail.getSubByIndex(subId);
+    var sub = await readContracts.DataHub.getSubByIndex(subId);
     //console.log("sub", sub);
     return sub;
   });
@@ -93,7 +91,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
       var dataLocation = await uploadDataToBee(JSON.stringify(data), "application/json", Date.now() + ".sub.json");
       console.log("dataLocation", dataLocation);
       var newTx = await tx(
-        writeContracts.SwarmMail.listSub(fdpSellerNameHash, "0x" + dataLocation, price, category, podAddress, 10, {
+        writeContracts.DataHub.listSub(fdpSellerNameHash, "0x" + dataLocation, price, category, podAddress, 10, {
           value: listingFee,
         }),
       );
@@ -112,7 +110,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
   });
   const bidSubTx = useCallback(async (subscription, fdpBuyerNameHash) => {
     var newTx = await tx(
-      writeContracts.SwarmMail.bidSub(subscription.subHash, fdpBuyerNameHash, { value: subscription.priceInWei }),
+      writeContracts.DataHub.bidSub(subscription.subHash, fdpBuyerNameHash, { value: subscription.priceInWei }),
     );
     await newTx.wait();
   });
@@ -123,7 +121,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
   // const sellSub = useCallback(async (subRequest, unlockingData) => {
   //   // encrypt data for subRequest.buyer and upload data to swarm
   //   var encryptedKeyLocation = await EncDec.encryptAndUpload(unlockingData, subRequest.buyer);
-  //   var newTx = await tx(writeContracts.SwarmMail.sellSub(subRequest.requestHash, encryptedKeyLocation));
+  //   var newTx = await tx(writeContracts.DataHub.sellSub(subRequest.requestHash, encryptedKeyLocation));
   //   await newTx.wait();
   // });
 
@@ -229,7 +227,7 @@ export function Marketplace({ readContracts, writeContracts, tx, userSigner, add
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
       <div>
-        <Button onClick={() => setOpenListSub(!openListSub)}>List Data</Button> &nbsp;
+        {/* <Button onClick={() => setOpenListSub(!openListSub)}>List Data</Button> &nbsp; */}
         <small>
           Market fee: {marketFee}% &nbsp;Listing fee: {ethers.utils.formatEther(listingFee)}⬨ &nbsp;Escrowed:&nbsp;
           {ethers.utils.formatEther(inEscrow)}⬨&nbsp; Funds: {ethers.utils.formatEther(contractBalance)}⬨ &nbsp;

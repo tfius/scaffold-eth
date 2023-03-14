@@ -60,18 +60,18 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
   const [viewSubscribers, setViewSubscribers] = useState(false);
 
   const getListedSubs = useCallback(async forAddress => {
-    var listedSubs = await readContracts.SwarmMail.getListedSubs(forAddress);
+    var listedSubs = await readContracts.DataHub.getListedSubs(forAddress);
     console.log("listedSubs", listedSubs);
     getSubsForSubRequests(listedSubs);
   });
   const getSub = useCallback(async subHash => {
-    return await readContracts.SwarmMail.getSubBy(subHash);
+    return await readContracts.DataHub.getSubBy(subHash);
   });
   const getSubscribers = async (subHash, subscribers) => {
     setSubscribers([]);
     setViewSubscribers(true);
     for (let i = 0; i < subscribers.length; i++) {
-      var subscriberBalance = await readContracts.SwarmMail.getSubInfoBalance(subHash, subscribers[i]);
+      var subscriberBalance = await readContracts.DataHub.getSubInfoBalance(subHash, subscribers[i]);
       var subscriber = {
         name: subscribers[i],
         balance: ethers.utils.formatEther(subscriberBalance),
@@ -83,7 +83,7 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
   const getSubsForSubRequests = useCallback(async subHashes => {
     let earned = BigNumber.from("0");
     for (let i = 0; i < subHashes.length; i++) {
-      let subSubscribers = await readContracts.SwarmMail.getSubSubscribers(subHashes[i]);
+      let subSubscribers = await readContracts.DataHub.getSubSubscribers(subHashes[i]);
       console.log("subSubscribers", subSubscribers);
       const sub = await getSub(subHashes[i]);
       const subData = await downloadJsonFromBee(sub.swarmLocation);
@@ -101,7 +101,7 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
   });
 
   const disableEnableSub = async (sub, subHash, newState) => {
-    var tx = await writeContracts.SwarmMail.enableSub(subHash, newState);
+    var tx = await writeContracts.DataHub.enableSub(subHash, newState);
     await tx.wait();
   };
 

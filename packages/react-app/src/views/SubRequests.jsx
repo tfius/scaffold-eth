@@ -49,14 +49,14 @@ export function SubRequests({
   //const [subRequests, setSubRequests] = useState([]);
   const [reqSubSubscriptions, setReqSubSubscriptions] = useState([]);
   const getSubRequests = useCallback(async forAddress => {
-    if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
-    var requests = await readContracts.SwarmMail.getSubRequests(forAddress);
+    if (readContracts === undefined || readContracts.DataHub === undefined) return;
+    var requests = await readContracts.DataHub.getSubRequests(forAddress);
     console.log("getSubRequests", requests);
     //setSubRequests(requests);
     getSubsForSubRequests(requests);
   });
   const getSub = useCallback(async subHash => {
-    return await readContracts.SwarmMail.getSubBy(subHash);
+    return await readContracts.DataHub.getSubBy(subHash);
   });
   const getSubsForSubRequests = useCallback(async subRequests => {
     for (let i = 0; i < subRequests.length; i++) {
@@ -75,6 +75,7 @@ export function SubRequests({
     getSubRequests(address);
   }, [address, readContracts]);
 
+  /*
   const getPubKeyFor = async forAddress => {
     const data = await readContracts.SwarmMail.getPublicKeys(forAddress); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
     if (data.registered == false) {
@@ -86,12 +87,13 @@ export function SubRequests({
     var pkRegister = { pk: pk, registered: data.registered };
     console.log("pkRegister", pkRegister);
     return pkRegister;
-  };
+  };*/
+
   const onSellSubRequest = async subRequest => {
     console.log("onSellSubRequest", subRequest);
-    var fdp = { podAddress: "", podIndex: 0 }; // TODO
+    // var fdp = { podAddress: "", podIndex: 0 }; // TODO
     // get receiver pubKey encrypt key upload encrypted then sell sub
-    let receiverPubKey = await getPubKeyFor(subRequest.buyer);
+    // let receiverPubKey = await getPubKeyFor(subRequest.buyer);
     /*
     type ShareInfo struct {
       PodName     string `json:"podName"`
@@ -99,7 +101,7 @@ export function SubRequests({
       Password    string `json:"password"`
       UserAddress string `json:"userAddress"`
      }*/
-    let dataWithKey = { ref: consts.emptyHash, sender: address }; //, podAddress: fdp.podAddress, podIndex: sub.podIndex };
+    // let dataWithKey = { ref: consts.emptyHash, sender: address }; //, podAddress: fdp.podAddress, podIndex: sub.podIndex };
 
     // var encryptedKeyLocationOld = await EncDec.encryptAndUpload(dataWithKey, receiverPubKey.pk);
 
@@ -114,10 +116,10 @@ export function SubRequests({
       subRequest.data.podName,
       "0x" + subscriberNameHash.namehash,
     );
-    debugger;
+    // debugger;
     // window.encryptSubscription
 
-    var tx = await writeContracts.SwarmMail.sellSub(subRequest.requestHash, "0x" + encryptedKeyLocation.reference);
+    var tx = await writeContracts.DataHub.sellSub(subRequest.requestHash, "0x" + encryptedKeyLocation.reference);
     await tx.wait();
     // remove subRequest from
     setReqSubSubscriptions(reqSubSubscriptions.filter(reqSub => reqSub.requestHash !== subRequest.requestHash));

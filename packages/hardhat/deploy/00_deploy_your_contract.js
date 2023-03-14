@@ -15,12 +15,17 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   console.log("deployer", deployer);
 
   console.log('SwarmMail')
-  const swarmMail = await deploy('SwarmMail', {
+  const SwarmMail = await deploy('SwarmMail', {
     from: deployer,
     // args: [dataMarket.address, "DM-C-0"],
     log: true,
   })
-  
+  console.log('DataHub')
+  const DataHub = await deploy('DataHub', {
+    from: deployer,
+    // args: [dataMarket.address, "DM-C-0"],
+    log: true,
+  })
   /*
   // Verify your contracts with Etherscan
   // You don't want to verify on localhost
@@ -32,4 +37,4 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     });
   } */
 }
-module.exports.tags = ['YourContract']
+module.exports.tags = ['SwarmMail', 'DataHub']

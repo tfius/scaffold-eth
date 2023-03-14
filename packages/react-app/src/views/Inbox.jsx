@@ -70,7 +70,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     //if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
     if (updatingMails) return;
     updatingMails = true;
-    const boxCount = await readContracts.SwarmMail.getBoxCount(address);
+    const boxCount = await readContracts.SwarmMail.getUserStats(address);
     console.log("boxCount", boxCount);
     const mailCount = boxCount.numInboxItems.toNumber();
     //const mailCount = (await readContracts.SwarmMail.getInboxCount(address)).toNumber();

@@ -36,7 +36,7 @@ import * as consts from "./views/consts";
 import { Home } from "./views/Home";
 import { Inbox } from "./views/Inbox";
 import { Locker } from "./views/Locker";
-import { Marketplace } from "./views/Marketplace";
+import { DataHub } from "./views/DataHub";
 import { ComposeNewMessage } from "./views/ComposeNewMessage";
 import { SubRequests } from "./views/SubRequests";
 import { SubBids } from "./views/SubBids";
@@ -373,7 +373,7 @@ function App(props) {
           </>
           {/* collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)} */}
           {/* <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }}/> */}
-          <Button style={{ marginLeft: "24px" }} onClick={() => composeNewMail(!isModalVisible)}>
+          <Button style={{ marginLeft: "24px", width: "10rem" }} onClick={() => composeNewMail(!isModalVisible)}>
             Compose
           </Button>
           <Menu
@@ -390,37 +390,78 @@ function App(props) {
                 <Link to="/inbox">Inbox</Link>
               </Tooltip>
             </Menu.Item>
-            <Menu.Item key="/locker">
-              <Tooltip title="Encrypt and store your data" placement="right">
-                <Link to="/locker">Locker</Link>
-              </Tooltip>
-            </Menu.Item>
+            {smailMail.smail!==null && (
+              <>
+                <Menu.Item key="/locker">
+                  <Tooltip title="Encrypt and store your data" placement="right">
+                    <Link to="/locker">Locker</Link>
+                  </Tooltip>
+                </Menu.Item>
+                <Menu.Item key="/smailmailkey" disabled>
+                  <Tooltip title="Registration status">
+                    {smailMail.key ? "wallet" : "no key"}&nbsp;
+                    {smailMail.smail ? "bonded" : "no bond"}
+                  </Tooltip>
+                </Menu.Item>
+              </>
+            )}
 
-            <Menu.Item key="/marketplace">
-              <Tooltip title="View offers, open new listings" placement="right">
-                <Link to="/marketplace">Data Hub</Link>
-              </Tooltip>
-            </Menu.Item>
-            <Menu.Item key="/subscriptions">
-              <Tooltip title="Manage your active buys" placement="right">
-                <Link to="/subscriptions">Subscriptions</Link>
-              </Tooltip>
-            </Menu.Item>
-            <Menu.Item key="/requests">
-              <Tooltip title="Approve bid requests for your listings" placement="right">
-                <Link to="/requests">Requests</Link>
-              </Tooltip>
-            </Menu.Item>
-            <Menu.Item key="/subscribers">
-              <Tooltip title="Manage listings, view subscribers and earnings" placement="right">
-                <Link to="/subscribers">Subscribers</Link>
-              </Tooltip>
-            </Menu.Item>
-            <Menu.Item key="/bids">
-              <Tooltip title="Manage your active bids" placement="right">
-                <Link to="/bids">Bids</Link>
-              </Tooltip>
-            </Menu.Item>
+            {/* {fairOSSessionId != null && <Menu.Divider />} */}
+
+            {web3Modal && web3Modal?.cachedProvider && (
+              <Menu.Item key="/fairOS">
+                <FairOSWasmConnect
+                  selectedBeeNetwork={selectedBeeNetwork}
+                  targetNetwork={targetNetwork}
+                  BEENETWORKS={BEENETWORKS}
+                  batchId={batchId}
+                  readContracts={readContracts}
+                  writeContracts={writeContracts}
+                  userSigner={userSigner}
+                  tx={tx}
+                  address={address}
+                  messageCount={messageCount}
+                  provider={localProvider}
+                  smailMail={smailMail}
+                  setSmailMail={setSmailMail}
+                  setFairOSPods={setFairOSPods}
+                  setFairOSSessionId={setFairOSSessionId}
+                  isWalletConnected={web3Modal && web3Modal?.cachedProvider}
+                />
+              </Menu.Item>
+            )}
+
+            {fairOSSessionId != null && true && (
+              <>
+                <Menu.Divider />
+                <Menu.Item key="/marketplace">
+                  <Tooltip title="View offers, open new listings" placement="right">
+                    <Link to="/marketplace">Data Hub</Link>
+                  </Tooltip>
+                </Menu.Item>
+                <Menu.Item key="/subscriptions">
+                  <Tooltip title="Manage your active buys" placement="right">
+                    <Link to="/subscriptions">Subscriptions</Link>
+                  </Tooltip>
+                </Menu.Item>
+                <Menu.Item key="/requests">
+                  <Tooltip title="Approve bid requests for your listings" placement="right">
+                    <Link to="/requests">Requests</Link>
+                  </Tooltip>
+                </Menu.Item>
+                <Menu.Item key="/subscribers">
+                  <Tooltip title="Manage listings, view subscribers and earnings" placement="right">
+                    <Link to="/subscribers">Subscribers</Link>
+                  </Tooltip>
+                </Menu.Item>
+                <Menu.Item key="/bids">
+                  <Tooltip title="Manage your active bids" placement="right">
+                    <Link to="/bids">Bids</Link>
+                  </Tooltip>
+                </Menu.Item>
+                <Menu.Divider />
+              </>
+            )}
 
             {smailMail.key && smailMail.smail ? (
               <>
@@ -440,21 +481,7 @@ function App(props) {
               //   <Link to="/">Connect</Link>
               // </Menu.Item>
             )}
-            <Menu.Item key="/swarmmail">
-              <Link to="/swarmmail">Contract</Link>
-            </Menu.Item>
-            <Menu.Item key="/smailmailkey" disabled>
-              <Tooltip title="Registration status">
-                {smailMail.key ? "wallet" : "no key"}&nbsp;
-                {smailMail.smail ? "bonded" : "no bond"}
-              </Tooltip>
-            </Menu.Item>
-            <Menu.Item key="/add">
-              <Tooltip title={<Balance address={address} provider={localProvider} price={price} />}>
-                <span>⬨</span>
-              </Tooltip>
-              {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
-            </Menu.Item>
+
             <Menu.Item key="/account">
               <Account
                 minimized
@@ -469,25 +496,22 @@ function App(props) {
                 blockExplorer={blockExplorer}
               />
             </Menu.Item>
-            <Menu.Item key="/fairOS">
-              <FairOSWasmConnect
-                selectedBeeNetwork={selectedBeeNetwork}
-                targetNetwork={targetNetwork}
-                BEENETWORKS={BEENETWORKS}
-                batchId={batchId}
-                readContracts={readContracts}
-                writeContracts={writeContracts}
-                userSigner={userSigner}
-                tx={tx}
-                address={address}
-                messageCount={messageCount}
-                provider={localProvider}
-                smailMail={smailMail}
-                setSmailMail={setSmailMail}
-                setFairOSPods={setFairOSPods}
-                setSessionId={setFairOSSessionId}
-                isWalletConnected={web3Modal && web3Modal?.cachedProvider}
-              />
+            <Menu.Item key="/add">
+              <Tooltip title={<Balance address={address} provider={localProvider} price={price} />}>
+                <span>⬨</span>
+              </Tooltip>
+              {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
+            </Menu.Item>
+
+            <Menu.Item key="/swarmmailcontract">
+              <Link to="/swarmmailcontract">
+                <small>Smail Contract</small>
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="/datahubcontract">
+              <Link to="/datahubcontract">
+                <small>DataHub Contract</small>
+              </Link>
             </Menu.Item>
           </Menu>
           {/* <Balance address={address} provider={localProvider} price={price} /> */}
@@ -543,7 +567,7 @@ function App(props) {
                 />
               </Route>
               <Route exact path="/marketplace">
-                <Marketplace
+                <DataHub
                   readContracts={readContracts}
                   writeContracts={writeContracts}
                   mainnetProvider={mainnetProvider}
@@ -600,9 +624,21 @@ function App(props) {
                 />
               </Route>
 
-              <Route exact path="/swarmmail">
+              <Route exact path="/swarmmailcontract">
                 <Contract
                   name="SwarmMail"
+                  price={price}
+                  signer={userSigner}
+                  provider={localProvider}
+                  address={address}
+                  blockExplorer={blockExplorer}
+                  contractConfig={contractConfig}
+                  messageCount={messageCount}
+                />
+              </Route>
+              <Route exact path="/datahubcontract">
+                <Contract
+                  name="DataHub"
                   price={price}
                   signer={userSigner}
                   provider={localProvider}

@@ -83,6 +83,7 @@ export default function Account({
             // shape="round"
             // size="large"
             onClick={logoutOfWeb3Modal}
+            style={{ width: "10rem" }}
           >
             DISCONNECT
           </Button>
@@ -95,6 +96,7 @@ export default function Account({
             /* type={minimized ? "default" : "primary"}     too many people just defaulting to MM and having a bad time */
             type={"primary"}
             onClick={loadWeb3Modal}
+            style={{ width: "10rem" }}
           >
             CONNECT
           </Button>
