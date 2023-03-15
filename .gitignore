@@ -67,3 +67,4 @@ yarn-error.log*
 
 # doc directory
 /doc
+packages/react-app/build.zip

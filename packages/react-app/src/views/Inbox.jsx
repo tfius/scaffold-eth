@@ -275,7 +275,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
         <Card>
           <Typography>
             <h5>Not bonded</h5>
-            It appears you did not decrypt your Smail. Please go to <Link to="/">register</Link> and decrypt your
+            It appears you did not decrypt your Smail. Please go to <Link to="/">register</Link>.
           </Typography>
         </Card>
       )}
