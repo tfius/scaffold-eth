@@ -63,7 +63,7 @@ export function Home({
   ]);
   const [currentStep, setCurrentStep] = useState(-1);
 
-  const verifyRegistration = useCallback(async () => {
+  const verifyRegistration = useCallback(async askToDecrypt => {
     /*if (readContracts === undefined || readContracts.SwarmMail === undefined) {
       setIsLoading(true);
       return; // todo get pub key from ENS
@@ -92,16 +92,20 @@ export function Home({
         var encryptedSmailKey = await downloadSmailKeyData(data.smail); // download encrypted key
         setNotifyUserToDecryptSmailKey(true);
         setCurrentStep(4);
-        var privateKeySmail = await decryptSmailKey(address, encryptedSmailKey); // decrypt key from metamas
-        if (privateKeySmail !== undefined) {
-          setSmailMail({ key: data.key, smail: privateKeySmail });
-          setCurrentStep(-1);
-          //console.log(key, privateKeySmail);
-        } else
-          notification.warning({
-            message: "Warning",
-            description: "Not decrypted and not bonded",
-          });
+        var privateKeySmail = undefined;
+        if (askToDecrypt === true) {
+          privateKeySmail = await decryptSmailKey(address, encryptedSmailKey); // decrypt key from metamas
+
+          if (privateKeySmail !== undefined) {
+            setSmailMail({ key: data.key, smail: privateKeySmail });
+            setCurrentStep(-1);
+            //console.log(key, privateKeySmail);
+          } else
+            notification.warning({
+              message: "Warning",
+              description: "Not decrypted and not bonded",
+            });
+        }
         //setCurrentStep(-1);
       } catch (err) {
         console.log("err", err);
@@ -118,8 +122,8 @@ export function Home({
   });
 
   useEffect(() => {
-    verifyRegistration();
-  }, [address]); // readContracts, writeContracts,
+    verifyRegistration(false);
+  }, [readContracts, writeContracts, address]); // readContracts, writeContracts,
 
   const registerAccount = async () => {
     setCurrentStep(0);
@@ -170,6 +174,7 @@ export function Home({
     return smailKeyData;
   };
   const decryptSmailKey = async (forAddress, encryptedSmailKeyData) => {
+    // debugger;
     var decryptedSmailKey = await EncDec.MMdecryptMessage(window.ethereum, forAddress, encryptedSmailKeyData);
     //console.log("decryptedSmailKey", decryptedSmailKey);
     // get soc location from ENS, download and decrypt key, and use it here
@@ -184,7 +189,7 @@ export function Home({
       message: "Registered " + address,
       description: `Your public key: ${pubKey}`,
     });
-    await verifyRegistration();
+    await verifyRegistration(true);
   };
 
   if (isLoading) {
@@ -195,6 +200,14 @@ export function Home({
     );
   }
   //console.log(timeline);
+  if (readContracts.DataHub === undefined) {
+    return (
+      <Card>
+        <h2>UNSUPPORTED NETWORK</h2>
+        <Typography>THIS NETWORK IS NOT YET SUPPORTED. PLEASE SWITCH TO SUPPORTED NETWORK.</Typography>
+      </Card>
+    );
+  }
 
   return (
     <div style={{ margin: "auto", width: "100%" }}>
@@ -212,7 +225,7 @@ export function Home({
           {isRegistered == true && smailMail.key === null && (
             <>
               <h2>Confirm decryption of Smail in your Wallet</h2>
-              <Button onClick={() => verifyRegistration()} type="primary">
+              <Button onClick={() => verifyRegistration(true)} type="primary">
                 DECRYPT TO BOND WITH SMAIL
               </Button>
               <br />

@@ -122,7 +122,11 @@ function App(props) {
   const { currentTheme } = useThemeSwitcher();
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
-  const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[9]);
+  const [selectedNetwork, _setSelectedNetwork] = useState(networkOptions[9]);
+  const setSelectedNetwork = network => {
+    console.log("setSelectedNetwork", network);
+    _setSelectedNetwork(network);
+  };
 
   const [batchId, setBatchId] = useState(consts.emptyBatchId);
   const [selectedBeeNetwork, _setSelectedBeeNetwork] = useState(beeNetworkOptions[0]);
@@ -286,6 +290,9 @@ function App(props) {
       //      console.log("💵 yourMainnetDAIBalance", myMainnetDAIBalance);
       console.log("🔐 writeContracts", writeContracts);
     }
+    setFairOSPods([]);
+    setFairOSSessionId(null);
+    setSmailMail({ key: null, smail: null });
   }, [
     mainnetProvider,
     address,
@@ -358,7 +365,8 @@ function App(props) {
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // if(true) return <div></div>
-
+  const isBonded = smailMail.smail !== null;
+  const isFairOsed = fairOSSessionId !== null;
   return (
     <div className="App">
       <Layout style={{ minHeight: "100vh" }}>
@@ -391,21 +399,20 @@ function App(props) {
                 <Link to="/inbox">Inbox</Link>
               </Tooltip>
             </Menu.Item>
-            {smailMail.smail !== null && (
-              <>
-                <Menu.Item key="/locker">
-                  <Tooltip title="Encrypt and store your data" placement="right">
-                    <Link to="/locker">Locker</Link>
-                  </Tooltip>
-                </Menu.Item>
-                <Menu.Item key="/smailmailkey" disabled>
-                  <Tooltip title="Registration status">
-                    {smailMail.key ? "wallet" : "no key"}&nbsp;
-                    {smailMail.smail ? "bonded" : "no bond"}
-                  </Tooltip>
-                </Menu.Item>
-              </>
-            )}
+
+            <>
+              <Menu.Item key="/locker" disabled={!isBonded}>
+                <Tooltip title="Encrypt and store your data" placement="right">
+                  <Link to="/locker">Locker</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Item key="/smailmailkey" disabled>
+                <Tooltip title="Registration status">
+                  {smailMail.key ? "wallet" : "no key"}&nbsp;
+                  {smailMail.smail ? "bonded" : "no bond"}
+                </Tooltip>
+              </Menu.Item>
+            </>
 
             {/* {fairOSSessionId != null && <Menu.Divider />} */}
 
@@ -432,37 +439,35 @@ function App(props) {
               </Menu.Item>
             )}
 
-            {fairOSSessionId != null && true && (
-              <>
-                <Menu.Divider />
-                <Menu.Item key="/marketplace">
-                  <Tooltip title="View offers, open new listings" placement="right">
-                    <Link to="/marketplace">Data Hub</Link>
-                  </Tooltip>
-                </Menu.Item>
-                <Menu.Item key="/subscriptions">
-                  <Tooltip title="Manage your active buys" placement="right">
-                    <Link to="/subscriptions">Subscriptions</Link>
-                  </Tooltip>
-                </Menu.Item>
-                <Menu.Item key="/requests">
-                  <Tooltip title="Approve bid requests for your listings" placement="right">
-                    <Link to="/requests">Requests</Link>
-                  </Tooltip>
-                </Menu.Item>
-                <Menu.Item key="/subscribers">
-                  <Tooltip title="Manage listings, view subscribers and earnings" placement="right">
-                    <Link to="/subscribers">Subscribers</Link>
-                  </Tooltip>
-                </Menu.Item>
-                <Menu.Item key="/bids">
-                  <Tooltip title="Manage your active bids" placement="right">
-                    <Link to="/bids">Bids</Link>
-                  </Tooltip>
-                </Menu.Item>
-                <Menu.Divider />
-              </>
-            )}
+            <>
+              <Menu.Divider />
+              <Menu.Item key="/marketplace" disabled={!isFairOsed}>
+                <Tooltip title="View offers, open new listings" placement="right">
+                  <Link to="/marketplace">Data Hub</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Item key="/subscriptions" disabled={!isFairOsed}>
+                <Tooltip title="Manage your active buys" placement="right">
+                  <Link to="/subscriptions">Subscriptions</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Item key="/requests" disabled={!isFairOsed}>
+                <Tooltip title="Approve bid requests for your listings" placement="right">
+                  <Link to="/requests">Requests</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Item key="/subscribers" disabled={!isFairOsed}>
+                <Tooltip title="Manage listings, view subscribers and earnings" placement="right">
+                  <Link to="/subscribers">Subscribers</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Item key="/bids" disabled={!isFairOsed}>
+                <Tooltip title="Manage your active bids" placement="right">
+                  <Link to="/bids">Bids</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Divider />
+            </>
 
             {smailMail.key && smailMail.smail ? (
               <>

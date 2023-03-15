@@ -201,16 +201,16 @@ hr {
 
 @keyframes menuItemAnimation{
   0%{
-    opacity: 0.8;
+    opacity: 0.7;
   }
   50%{
     opacity: 0.99;
   }
   100%{
-    opacity: 0.8;
+    opacity: 0.7;
   }
 }
 
 .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
-  animation: 3s menuItemAnimation ease-in infinite;
+  animation: 1s menuItemAnimation ease-in infinite;
 }

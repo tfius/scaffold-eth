@@ -77,6 +77,7 @@ export function FairOSWasmConnect({
   }
 
   const refreshPortableAddress = useCallback(async forAddress => {
+    if (readContracts.DataHub === undefined) return null;
     var fdpAddress = await getPortableAddress(address);
     if (fdpAddress === "0x0000000000000000000000000000000000000000") fdpAddress = null;
     setPortableAddress(fdpAddress);
@@ -85,7 +86,7 @@ export function FairOSWasmConnect({
   });
 
   useEffect(async () => {
-    if (readContracts != undefined && address != undefined) {
+    if (readContracts != undefined && address != undefined && readContracts.DataHub != undefined) {
       refreshPortableAddress(address);
       var listFee = await readContracts.DataHub.minListingFee();
       setListingFee(listFee.toString());
