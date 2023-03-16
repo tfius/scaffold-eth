@@ -186,9 +186,7 @@ export function DataHub({ readContracts, writeContracts, tx, userSigner, address
   };
 
   useEffect(() => {
-    //calcCategories();
     getFees();
-    //getCategory("0x" + consts.emptyHash);
   }, [address]);
 
   useEffect(() => {
@@ -216,11 +214,13 @@ export function DataHub({ readContracts, writeContracts, tx, userSigner, address
       root = prevRoot;
     }
     flatten(categoriesTree, flattened, "", mItems, undefined);
-    // console.log("flattened", flattened);
+    console.log("flattened", flattened);
+
     setMenuItems(mItems);
-    setCategories(flattened);
+    setCategories(flattened); // -> this object was dumped to categoriesFlat.js on 16.march.2023
     //
   }, []);
+
   const onImageError = e => {
     e.target.src = window.location.origin + placeholderImage;
   };

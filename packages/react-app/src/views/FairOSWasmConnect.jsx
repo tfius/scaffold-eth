@@ -29,8 +29,9 @@ import MarkdownPreview from "@uiw/react-markdown-preview";
 import { AddressSimple } from "../components";
 
 import { uploadJsonToBee, uploadDataToBee } from "../Swarm/BeeService";
-import { categoriesTree, categoryList } from "./categories";
+//import { categoriesTree, categoryList } from "./categories";
 import * as layouts from "./layouts.js";
+import { categoriesFlat } from "./categoriesFlat.js";
 
 export function FairOSWasmConnect({
   selectedBeeNetwork,
@@ -506,9 +507,10 @@ export function FairOSWasmConnect({
               podAddress={selectedPodAddress}
               sellerNameHash={login.nameHash}
               onListPod={listSubTx}
-              categories={[
-                { label: "Business", value: "0xda4fd9fa774c576c08e67dcb6bb94d647b4bc97f62502f1e2b62c2ba20f879cc" },
-              ]}
+              categories={categoriesFlat}
+              // categories={[
+              //   { label: "Business", value: "0xda4fd9fa774c576c08e67dcb6bb94d647b4bc97f62502f1e2b62c2ba20f879cc" },
+              // ]}
             />
           </Modal>
         </>
