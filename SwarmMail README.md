@@ -3,9 +3,8 @@
 ## Overview
 The code provided defines a set of structures and functions to manage user registration, email management, lockers, shared lockers, subscription requests, and active bids.
 
-
 ## Introduction
-This is a Solidity smart contract. The code defines a data structure to represent a user, which includes their public key, email address, and various lists of emails, subscription requests, active bids, and subscription items.
+The code defines a data structures to represent a user, which includes their public key, email address, and various lists of emails, subscription requests, active bids, and subscription items.
 
 The code also includes a modifier `isRegistered()` that requires that the user is registered before executing a function. There is a function `register()` that allows a user to register with a public key.
 
@@ -91,36 +90,6 @@ This function returns an array of Email struct objects representing the sent mes
 #### Arguments
 - `addr`, which is the address of the user whose sent messages are to be retrieved.
 
-### Function `getSubRequests(address addr)`
-This function returns an array of SubRequest struct objects representing the subscription requests of a given user with the address `addr`. The function is a public view function, which means it does not modify the state of the contract and can be called from any address. 
-#### Arguments
-`addr`, which is the address of the user whose subscription requests are to be retrieved.
-
-### Function `getSubItemsCount(address addr)`
-This function returns the count of active subscription items of a given user with the address `addr`. The function is a public view function, which means it does not modify the state of the contract and can be called from any address. The function takes one argument `addr`, which is the address of the user whose active subscription items count is to be retrieved. An active subscription item is an item whose `validTill` property is greater than the current block timestamp.
-
-### Function `getSubItems(address addr, uint start, uint length)`
-This function returns an array of SubItem struct objects for a given user's active subscriptions. The function takes in three arguments, 
-#### Arguments 
-- `addr` which is the user's address, 
-- `start` which is the starting index of the returned array, and 
-- `length` which is the number of SubItems to be returned.
-
-If the user has no active subscriptions, the function returns an empty array. If the number of requested SubItems exceeds the total active subscriptions, the function returns only the available subscriptions.
-
-Internally, the function iterates through all SubItems in the user's subscription list to check if they are active, and then returns only the active subscriptions within the specified range.
-
-### Function `getSubItemBy(address addr, bytes32 subHash)`
-This function takes two arguments, addr which is the user's address and `subHash` which is the hash of the SubItem struct object to be retrieved. The function returns the SubItem struct object for the given hash if the subscription is active, and throws an error if the subscription is inactive or does not exist.
-
-Internally, the function checks if the SubItem is active by comparing the `validTill` property of the `SubItem` with the current timestamp. If the subscription is active, the function returns the `SubItem`.
-
-### Function `getAllSubItems(address addr)`
-This function returns an array of all the `SubItem` struct objects for a given user, including both `active` and `inactive` subscriptions. The function takes in one argument, 
-#### Arguments 
-`addr` which is the user's address.
-
-Internally, the function iterates through all SubItems in the user's subscription list and sets the `unlockKeyLocation` property to bytes32(0) for active subscriptions and inactive subscriptions. The function then returns the updated array of all `SubItems`.
 
 ### Function `getInboxAt(address addr, uint index)` public view returns (Email memory)
 Returns the Email object located at the given index of the inboxEmails array for the specified addr user.
@@ -133,24 +102,6 @@ Returns the Email object located at the given index of the sentEmails array for 
 #### Arguments 
 - `addr`: The Ethereum address of the user whose sentEmails array is being queried.
 - `index`: The index of the Email object to retrieve from the sentEmails array.
-
-### Function `getSubRequestAt(address addr, uint index)` public view returns (SubRequest memory)
-Returns the `SubRequest` object located at the given index of the subRequests array for the specified addr user.
-#### Arguments 
-- `addr`: The Ethereum address of the user whose subRequests array is being queried.
-- `index`: The index of the SubRequest object to retrieve from the subRequests array.
-
-### Function `getSubItemAt(address addr, uint index)` public view returns (SubItem memory)
-Returns the `SubItem` object located at the given index of the subItems array for the specified addr user.
-#### Arguments 
-- `addr`: The Ethereum address of the user whose subItems array is being queried.
-- `index`: The index of the SubItem object to retrieve from the subItems array.
-
-### Function `getActiveBidAt(address addr, uint index)` public view returns (ActiveBid memory)
-Returns the `ActiveBid` object located at the given index of the activeBids array for the specified addr user.
-#### Arguments 
-- `addr`: The Ethereum address of the user whose activeBids array is being queried.
-- `index`: The index of the `ActiveBid` object to retrieve from the activeBids array.
 
 ### Function `signEmail(bytes32 swarmLocation)` public
 Allows the recipient of an email to sign it by setting the signed flag to true in the corresponding Email object.
@@ -182,9 +133,7 @@ Note that these functions modify the email lists of the user calling the functio
 #### Arguments
 - `types`: The type of emails to be removed. 0 for sent emails, 1 for inbox emails, and 2 for locker emails.
 - `swarmLocations`: An array of the swarmLocation values of the emails to be removed. 
-
 #### Arguments 
-
 
 # Locker and sharing 
 This part of smart contract provides functionality for creating and managing shared lockers.
@@ -223,13 +172,63 @@ Stops sharing a locker with another user.
 - `swarmLocation` - The location of the locker on Swarm.
 - `withAddress` - The address of the user with whom the locker is no longer being shared.
 
-# Marketplace
+# DataHub Marketplace
 The following code defines a smart contract that implements a marketplace for pod subscriptions. It includes several functions for setting and getting the subscription fees, enabling and listing subscriptions, and requesting and allowing access on them.
 
 ## **User MUST be** ##
 - connected with FairOS account 
 - bonded with Smail contract 
 To list pod subscriptions and request access. 
+
+### Function `getSubRequests(address addr)`
+This function returns an array of SubRequest struct objects representing the subscription requests of a given user with the address `addr`. The function is a public view function, which means it does not modify the state of the contract and can be called from any address. 
+#### Arguments
+`addr`, which is the address of the user whose subscription requests are to be retrieved.
+
+### Function `getSubItemsCount(address addr)`
+This function returns the count of active subscription items of a given user with the address `addr`. The function is a public view function, which means it does not modify the state of the contract and can be called from any address. The function takes one argument `addr`, which is the address of the user whose active subscription items count is to be retrieved. An active subscription item is an item whose `validTill` property is greater than the current block timestamp.
+
+### Function `getSubItems(address addr, uint start, uint length)`
+This function returns an array of SubItem struct objects for a given user's active subscriptions. The function takes in three arguments, 
+#### Arguments 
+- `addr` which is the user's address, 
+- `start` which is the starting index of the returned array, and 
+- `length` which is the number of SubItems to be returned.
+
+If the user has no active subscriptions, the function returns an empty array. If the number of requested SubItems exceeds the total active subscriptions, the function returns only the available subscriptions.
+
+Internally, the function iterates through all SubItems in the user's subscription list to check if they are active, and then returns only the active subscriptions within the specified range.
+
+### Function `getSubItemBy(address addr, bytes32 subHash)`
+This function takes two arguments, addr which is the user's address and `subHash` which is the hash of the SubItem struct object to be retrieved. The function returns the SubItem struct object for the given hash if the subscription is active, and throws an error if the subscription is inactive or does not exist.
+
+Internally, the function checks if the SubItem is active by comparing the `validTill` property of the `SubItem` with the current timestamp. If the subscription is active, the function returns the `SubItem`.
+
+### Function `getAllSubItems(address addr)`
+This function returns an array of all the `SubItem` struct objects for a given user, including both `active` and `inactive` subscriptions. The function takes in one argument, 
+#### Arguments 
+`addr` which is the user's address.
+
+Internally, the function iterates through all SubItems in the user's subscription list and sets the `unlockKeyLocation` property to bytes32(0) for active subscriptions and inactive subscriptions. The function then returns the updated array of all `SubItems`.
+
+### Function `getSubRequestAt(address addr, uint index)` public view returns (SubRequest memory)
+Returns the `SubRequest` object located at the given index of the subRequests array for the specified addr user.
+#### Arguments 
+- `addr`: The Ethereum address of the user whose subRequests array is being queried.
+- `index`: The index of the SubRequest object to retrieve from the subRequests array.
+
+### Function `getSubItemAt(address addr, uint index)` public view returns (SubItem memory)
+Returns the `SubItem` object located at the given index of the subItems array for the specified addr user.
+#### Arguments 
+- `addr`: The Ethereum address of the user whose subItems array is being queried.
+- `index`: The index of the SubItem object to retrieve from the subItems array.
+
+### Function `getActiveBidAt(address addr, uint index)` public view returns (ActiveBid memory)
+Returns the `ActiveBid` object located at the given index of the activeBids array for the specified addr user.
+#### Arguments 
+- `addr`: The Ethereum address of the user whose activeBids array is being queried.
+- `index`: The index of the `ActiveBid` object to retrieve from the activeBids array.
+
 
 ### Function `getListedSubs(address addr)` public view returns (bytes32[] memory)
 This function retrieves the list of subscription hashes that the user has listed for sale.
