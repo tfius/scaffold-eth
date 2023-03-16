@@ -65,8 +65,8 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         Email[] lockerEmails;
         mapping(bytes32 => uint256) lockerEmailIds;
         // lockerEmail swarmLocation -> Share[]
-        mapping(bytes32 => Share[]) lockerShares;
-        mapping(bytes32 => mapping(address => uint256)) lockerSharesIds;
+        mapping(bytes32 => Share[]) shares;
+        mapping(bytes32 => mapping(address => uint256)) shareIds;
 
         Email[] sharedLockerEmails;
         mapping(bytes32 => uint256) sharedLockerEmailIds;
@@ -280,16 +280,20 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         User storage u = users[msg.sender];
         require(u.lockerEmailIds[lockerLocation] != 0, "!exist");
 
+        // Share memory share = Share(withAddress, keyLocation, true);
+        // u.lockerShares[lockerLocation].push(share);
+        // u.lockerSharesIds[lockerLocation][withAddress] = u.lockerShares[lockerLocation].length;
+
         // addSharedWith(withAddress, keyLocation);
-        if(u.lockerSharesIds[lockerLocation][withAddress]==0) {
-            Share memory share = Share(withAddress, keyLocation, true);
-            u.lockerShares[lockerLocation].push(share);
-            u.lockerSharesIds[lockerLocation][withAddress] = u.lockerShares[lockerLocation].length;
+        if(u.shareIds[lockerLocation][withAddress]==0) {
+            Share memory share = Share(withAddress, keyLocation, false);
+            u.shares[lockerLocation].push(share);
+            u.shareIds[lockerLocation][withAddress] = u.shares[lockerLocation].length;
         } else {
             // update keyLocation
-            Share storage sr = u.lockerShares[lockerLocation] [u.lockerSharesIds[lockerLocation][withAddress]-1];
+            Share storage sr = u.shares[lockerLocation] [u.shareIds[lockerLocation][withAddress]-1];
             sr.keyLocation = keyLocation;
-        }
+        } 
 
         User storage u2 = users[withAddress];
         require(u2.sharedLockerEmailIds[keyLocation] == 0, "exists");
@@ -306,9 +310,9 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
     function unshareLockerWith(bytes32 lockerLocation, bytes32 keyLocation, address withAddress) public {
         User storage u = users[msg.sender];
         require(u.lockerEmailIds[lockerLocation] != 0, "!exist");
-        require(u.lockerSharesIds[lockerLocation][withAddress] != 0, "!noshare");
+        require(u.shareIds[lockerLocation][withAddress] != 0, "!noshare");
         // you revoked share to withAddress
-        u.lockerShares[lockerLocation][u.lockerSharesIds[lockerLocation][withAddress]-1].revoked = true;
+        u.shares[lockerLocation][u.shareIds[lockerLocation][withAddress]-1].revoked = true;
 
         User storage u2 = users[withAddress];
         require(u2.sharedLockerEmailIds[keyLocation] != 0, "!exist");
@@ -319,14 +323,12 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         removeGenericEmail(keyLocation, u2.sharedLockerEmailIds, u2.sharedLockerEmails);
     }
 
-    function getLockerSharedWith(bytes32 lockerLocation) public view returns (Share[] memory) {
-        User storage u = users[msg.sender];
-        require(u.lockerEmailIds[lockerLocation] != 0, "!exist");
-        return u.lockerShares[lockerLocation];
+    function getLockerShares(address locker, bytes32 lockerLocation) public view returns (Share[] memory) {
+        return users[locker].shares[lockerLocation];
     }
     // End of Locker parts of SwarmMail contract
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    uint256 public inEscrow = 0;
+    //uint256 public inEscrow = 0;
 
 
 /*
@@ -628,7 +630,7 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         return address(this).balance;
     }    
     function fundsTransfer() onlyOwner public payable {
-        payable(msg.sender).transfer((address(this).balance-inEscrow));
+        payable(msg.sender).transfer((address(this).balance));
     }
     function release(address token, uint amount) public virtual {
         SafeERC20.safeTransfer(IERC20(token), owner(), amount);

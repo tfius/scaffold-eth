@@ -37,6 +37,7 @@ export function Locker({
   const [messageCountTrigger, setMessageCountTrigger] = useState(0);
   const [viewMail, _setViewMail] = useState(null);
   const [viewAddress, setViewAddress] = useState(null);
+  const [viewShares, setViewShares] = useState([]);
 
   const [page, setPage] = useState(1);
   const [maxPages, setMaxPages] = useState(1);
@@ -49,7 +50,12 @@ export function Locker({
   const [toAddress, setToAddress] = useState();
 
   const setViewMail = async mail => {
-    // console.log("onViewMessage", mail);
+    console.log("onViewMessage", mail);
+    if (mail !== null) {
+      var data = await readContracts.SwarmMail.getLockerShares(address, mail.location);
+      console.log("onViewMessage", data);
+      setViewShares(data);
+    }
     _setViewMail(mail);
   };
 
@@ -245,6 +251,13 @@ export function Locker({
       console.log(e);
     }
   };
+  const unshareWith = async (lockerLocation, keyLocation, withAddress) => {
+    let newTx = await tx(
+      writeContracts.SwarmMail.unshareLockerWith(lockerLocation, keyLocation, withAddress),
+      //,{ value: cost }),
+      // TODO make method payable
+    );
+  };
   const shareLocker = async locker => {
     //console.log("shareLocker", locker);
     // to convert call this:
@@ -257,8 +270,8 @@ export function Locker({
       subject: locker.subject,
       contents: locker.contents,
       isEncryption: locker.isEncryption,
-      sender: locker.from,
       attachments: locker.attachments,
+      sender: locker.from,
       location: locker.location,
       ephemeralKey: locker.ephemeralKey,
     };
@@ -273,19 +286,24 @@ export function Locker({
       return;
     }
 
-    var smail = JSON.stringify(shareLockerObject);
-    smail = JSON.stringify(EncDec.nacl_encrypt(smail, recipientPubKey));
-    const mailDigest = await uploadDataToBee(smail, "application/octet-stream", Date.now() + ".smail"); // ms-mail.json
+    var mail = JSON.stringify(shareLockerObject);
+    mail = JSON.stringify(EncDec.nacl_encrypt(mail, recipientPubKey));
+    const keyLocation = await uploadDataToBee(mail, "application/octet-stream", Date.now() + ".locker"); // ms-mail.json
 
     var cost = "10000000";
     let newTx = await tx(
-      writeContracts.SwarmMail.shareLockerWith("0x" + mailDigest, toAddress),
+      writeContracts.SwarmMail.shareLockerWith(locker.location, "0x" + keyLocation, toAddress),
       //,{ value: cost }),
       // TODO make method payable
     );
 
-    console.log("shareLocker", locker, ephemeralKey, shareLockerObject, toAddress);
+    console.log("shareLocker", keyLocation, shareLockerObject, toAddress);
     setShowShareAddress(false);
+    setViewMail(null);
+    notification.info({
+      message: "Shared",
+      description: "Recipient can now view your locker",
+    });
   };
 
   if (address === undefined) {
@@ -527,7 +545,7 @@ export function Locker({
                 SHARE
               </Button>
               <br />
-              <i>This will share your locker contents with receiver.</i>
+              <i>This will share your contents with receiver.</i>
             </div>
           ) : (
             <Button onClick={() => setShowShareAddress(true)}>SHARE</Button>
@@ -572,6 +590,32 @@ export function Locker({
                 ))}
               </>
             )}
+          </div>
+
+          <div>
+            {viewShares.length > 0 && (
+              <>
+                <br />
+                <h4>Shared with</h4>
+              </>
+            )}
+            <small>
+              {viewShares.map((s, i) => (
+                <div key={i}>
+                  {s.revoked === false ? (
+                    <Tooltip title={"Click to revoke"}>
+                      <a onClick={() => unshareWith(viewMail.location, s.keyLocation, s.withAddress)}>
+                        {s.withAddress}
+                      </a>
+                    </Tooltip>
+                  ) : (
+                    <Tooltip title={"Revoked"}>
+                      <span style={{ color: "gray" }}>{s.withAddress}</span>
+                    </Tooltip>
+                  )}
+                </div>
+              ))}
+            </small>
           </div>
         </Modal>
       )}
