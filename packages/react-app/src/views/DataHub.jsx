@@ -192,6 +192,7 @@ export function DataHub({ readContracts, writeContracts, tx, userSigner, address
   useEffect(() => {
     var flattened = [];
     var mItems = [];
+    // flates categories and calculates sha values, adds menu items, and dumps flattened to console
     function flatten(data, outputArray, root, itemsArray, parentItem) {
       var prevRoot = root;
       for (var i = 0; i < data.length; i++) {

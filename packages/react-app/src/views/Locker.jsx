@@ -2,16 +2,16 @@ import React, { useState, useEffect, useCallback } from "react";
 
 import { ethers } from "ethers";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
-import { Button, List, Card, Modal, notification, Tooltip, Typography, Spin, Checkbox } from "antd";
+import { Button, List, Card, Modal, notification, Tooltip, Typography, Spin, Checkbox, Input } from "antd";
 import { EnterOutlined, EditOutlined, ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
 
-import { downloadDataFromBee } from "../Swarm/BeeService";
+import { uploadDataToBee, downloadDataFromBee } from "../Swarm/BeeService";
 import * as consts from "./consts";
 import * as EncDec from "../utils/EncDec.js";
 import Blockies from "react-blockies";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 
-import { AddressSimple } from "../components";
+import { AddressSimple, AddressInput } from "../components";
 import { ComposeNewLocker } from "./ComposeNewLocker";
 
 export function Locker({
@@ -44,6 +44,9 @@ export function Locker({
   const [startItem, setStartItem] = useState(0);
   const [endItem, setEndItem] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
+
+  const [showShareAddress, setShowShareAddress] = useState(false);
+  const [toAddress, setToAddress] = useState();
 
   const setViewMail = async mail => {
     // console.log("onViewMessage", mail);
@@ -132,7 +135,6 @@ export function Locker({
   useEffect(() => {
     console.log("messageCount", messageCount, messageCountTrigger);
     if (messageCount > messageCountTrigger && !updatingLocker) updateLocker();
-
     setMessageCountTrigger(messageCount);
   }, [messageCount]);
 
@@ -225,25 +227,24 @@ export function Locker({
     setChecked(e.target.checked ? mails.map(mail => mail.location) : []);
     setCheckAll(e.target.checked);
   };
-  const appendData = () => {
-    /*fetch(fakeDataUrl)
-      .then((res) => res.json())
-      .then((body) => {
-        setData(data.concat(body.results));
-        message.success(`${body.results.length} more items loaded!`);
-      });*/
-  };
-  // const onScroll = e => {
-  //   if (e.currentTarget.scrollHeight - e.currentTarget.scrollTop === ContainerHeight) {
-  //     appendData();
-  //   }
-  // };
   const IconText = ({ icon, tooltip, text }) => (
     <Tooltip title={tooltip}>
       {React.createElement(icon)}
       {text}
     </Tooltip>
   );
+
+  const retrievePubKey = async forAddress => {
+    try {
+      const data = await readContracts.SwarmMail.getPublicKeys(forAddress);
+      const rkey = data.key.substr(2, data.key.length - 1);
+      var pk = Buffer.from(rkey, "hex").toString("base64");
+      if (data.key === "0x0000000000000000000000000000000000000000000000000000000000000000") pk = null;
+      return pk;
+    } catch (e) {
+      console.log(e);
+    }
+  };
   const shareLocker = async locker => {
     //console.log("shareLocker", locker);
     // to convert call this:
@@ -261,7 +262,30 @@ export function Locker({
       location: locker.location,
       ephemeralKey: locker.ephemeralKey,
     };
-    console.log("shareLocker", locker, ephemeralKey, shareLockerObject);
+
+    var recipientPubKey = await retrievePubKey(toAddress);
+    if (recipientPubKey === null) {
+      setShowShareAddress(false);
+      notification.error({
+        message: "Recipient has not registered a public key",
+        description: "Please ask the recipient to first register",
+      });
+      return;
+    }
+
+    var smail = JSON.stringify(shareLockerObject);
+    smail = JSON.stringify(EncDec.nacl_encrypt(smail, recipientPubKey));
+    const mailDigest = await uploadDataToBee(smail, "application/octet-stream", Date.now() + ".smail"); // ms-mail.json
+
+    var cost = "10000000";
+    let newTx = await tx(
+      writeContracts.SwarmMail.shareLockerWith("0x" + mailDigest, toAddress),
+      //,{ value: cost }),
+      // TODO make method payable
+    );
+
+    console.log("shareLocker", locker, ephemeralKey, shareLockerObject, toAddress);
+    setShowShareAddress(false);
   };
 
   if (address === undefined) {
@@ -376,7 +400,7 @@ export function Locker({
                           key="list-vertical-signed-o"
                         />
                       )}
-                      {mail.signed === true ? (
+                      {/* {mail.signed === true ? (
                         <span style={{ float: "right", right: "0px" }}>
                           <IconText
                             icon={EditOutlined}
@@ -391,7 +415,7 @@ export function Locker({
                         >
                           <IconText icon={EnterOutlined} tooltip="List locker on data hub" key="list-vertical-sign-o" />
                         </span>
-                      )}
+                      )} */}
                     </div>
                   }
                   description={
@@ -488,7 +512,27 @@ export function Locker({
             }}
           />
           <br />
-          <Button onClick={() => shareLocker(viewMail)}>SHARE</Button>
+
+          {showShareAddress === true ? (
+            <div>
+              <AddressInput
+                autoFocus
+                ensProvider={mainnetProvider}
+                placeholder="to address"
+                address={toAddress}
+                onChange={setToAddress}
+              />
+              <br />
+              <Button type="primary" onClick={() => shareLocker(viewMail)}>
+                SHARE
+              </Button>
+              <br />
+              <i>This will share your locker contents with receiver.</i>
+            </div>
+          ) : (
+            <Button onClick={() => setShowShareAddress(true)}>SHARE</Button>
+          )}
+
           <div>
             {viewMail.attachments.length > 0 && (
               <>

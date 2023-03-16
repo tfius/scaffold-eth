@@ -194,7 +194,6 @@ export function ComposeNewLocker({
       //   publicKey: new Uint8Array(Buffer.from(ephKey.publicKey, "base64")),
       //   secretKey: new Uint8Array(Buffer.from(ephKey.secretKey, "base64")),
       // };
-
       var smail = JSON.stringify(completeMessage);
 
       // encrypt smail

@@ -20,6 +20,11 @@ uint96		29		79,228,162,514,264,337,593,543,950,335
 
 
 contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
+    struct Share {
+        address withAddress;
+        bytes32 keyLocation;
+        bool    revoked;
+    }
     struct Email {
         bool    isEncryption;
         uint256 time;
@@ -59,6 +64,10 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
 
         Email[] lockerEmails;
         mapping(bytes32 => uint256) lockerEmailIds;
+        // lockerEmail swarmLocation -> Share[]
+        mapping(bytes32 => Share[]) lockerShares;
+        mapping(bytes32 => mapping(address => uint256)) lockerSharesIds;
+
         Email[] sharedLockerEmails;
         mapping(bytes32 => uint256) sharedLockerEmailIds;
 
@@ -73,9 +82,13 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         // mapping(bytes32 => uint256) activeBidIds;
 
         // bytes32[] listedSubs; // everything user listed 
+
+        //address[] contacts;
+        //mapping(address => uint256) contactsIds;
     }
+
     mapping(address => User) users;
-    // mapping(address => address) userToPortable;    
+    // mapping(address => address) userToPortable;
  
     constructor() {
     }
@@ -263,37 +276,59 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         sender.lockerEmails.push(email);
         sender.lockerEmailIds[swarmLocation] = sender.lockerEmails.length;
     }
-    function shareLockerWith(bytes32 swarmLocation, address withAddress) public {
+    function shareLockerWith(bytes32 lockerLocation, bytes32 keyLocation, address withAddress) public {
         User storage u = users[msg.sender];
-        require(u.lockerEmailIds[swarmLocation] != 0, "!exist");
+        require(u.lockerEmailIds[lockerLocation] != 0, "!exist");
+
+        // addSharedWith(withAddress, keyLocation);
+        if(u.lockerSharesIds[lockerLocation][withAddress]==0) {
+            Share memory share = Share(withAddress, keyLocation, true);
+            u.lockerShares[lockerLocation].push(share);
+            u.lockerSharesIds[lockerLocation][withAddress] = u.lockerShares[lockerLocation].length;
+        } else {
+            // update keyLocation
+            Share storage sr = u.lockerShares[lockerLocation] [u.lockerSharesIds[lockerLocation][withAddress]-1];
+            sr.keyLocation = keyLocation;
+        }
 
         User storage u2 = users[withAddress];
-        require(u2.sharedLockerEmailIds[swarmLocation] == 0, "exists");
-        /*Email memory email; 
+        require(u2.sharedLockerEmailIds[keyLocation] == 0, "exists");
+        Email memory email; 
         email.isEncryption = true;
         email.time = block.timestamp;
         email.from = msg.sender;
         email.to = withAddress;
-        email.swarmLocation = swarmLocation; */
+        email.swarmLocation = keyLocation;
         //u2.sharedLockerEmails.push(email);
-        u2.sharedLockerEmails.push(u.lockerEmails[u.lockerEmailIds[swarmLocation]]);
-        u2.sharedLockerEmailIds[swarmLocation] = u2.sharedLockerEmails.length;
+        u2.sharedLockerEmails.push(email); // u.lockerEmails[u.lockerEmailIds[keyLocation]]);
+        u2.sharedLockerEmailIds[keyLocation] = u2.sharedLockerEmails.length;
     }
-    function unshareLockerWith(bytes32 swarmLocation, address withAddress) public {
+    function unshareLockerWith(bytes32 lockerLocation, bytes32 keyLocation, address withAddress) public {
         User storage u = users[msg.sender];
-        require(u.lockerEmailIds[swarmLocation] != 0, "!exist");
+        require(u.lockerEmailIds[lockerLocation] != 0, "!exist");
+        require(u.lockerSharesIds[lockerLocation][withAddress] != 0, "!noshare");
+        // you revoked share to withAddress
+        u.lockerShares[lockerLocation][u.lockerSharesIds[lockerLocation][withAddress]-1].revoked = true;
 
         User storage u2 = users[withAddress];
-        require(u2.sharedLockerEmailIds[swarmLocation] != 0, "!exist");
-        // needs to be owner or user that share was made to
-        require(u2.lockerEmails[u2.lockerEmailIds[swarmLocation]].from == msg.sender  || 
-                u2.lockerEmails[u2.lockerEmailIds[swarmLocation]].to == msg.sender, "!owner");
+        require(u2.sharedLockerEmailIds[keyLocation] != 0, "!exist");
+        // needs to be owner to remove shared locker 
+        require(u2.lockerEmails[u2.lockerEmailIds[keyLocation]].from == msg.sender, "!owner");
+        // u2.lockerEmails[u2.lockerEmailIds[keyLocation]].to == msg.sender
 
-        removeGenericEmail(swarmLocation, u2.sharedLockerEmailIds, u2.sharedLockerEmails);
+        removeGenericEmail(keyLocation, u2.sharedLockerEmailIds, u2.sharedLockerEmails);
+    }
+
+    function getLockerSharedWith(bytes32 lockerLocation) public view returns (Share[] memory) {
+        User storage u = users[msg.sender];
+        require(u.lockerEmailIds[lockerLocation] != 0, "!exist");
+        return u.lockerShares[lockerLocation];
     }
     // End of Locker parts of SwarmMail contract
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     uint256 public inEscrow = 0;
+
+
 /*
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     uint256 private constant FEE_PRECISION = 1e5;  
