@@ -290,10 +290,9 @@ export function Locker({
     mail = JSON.stringify(EncDec.nacl_encrypt(mail, recipientPubKey));
     const keyLocation = await uploadDataToBee(mail, "application/octet-stream", Date.now() + ".locker"); // ms-mail.json
 
-    var cost = "10000000";
+    var cost = "1000000000";
     let newTx = await tx(
-      writeContracts.SwarmMail.shareLockerWith(locker.location, "0x" + keyLocation, toAddress),
-      //,{ value: cost }),
+      writeContracts.SwarmMail.shareLockerWith(locker.location, "0x" + keyLocation, toAddress, { value: cost }),
       // TODO make method payable
     );
 

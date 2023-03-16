@@ -276,9 +276,11 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         sender.lockerEmails.push(email);
         sender.lockerEmailIds[swarmLocation] = sender.lockerEmails.length;
     }
-    function shareLockerWith(bytes32 lockerLocation, bytes32 keyLocation, address withAddress) public {
+    function shareLockerWith(bytes32 lockerLocation, bytes32 keyLocation, address withAddress) public payable {
         User storage u = users[msg.sender];
-        require(u.lockerEmailIds[lockerLocation] != 0, "!exist");
+        // TODO storage fee for locker
+
+        //require(u.lockerEmailIds[lockerLocation] != 0, "!exist");
 
         // Share memory share = Share(withAddress, keyLocation, true);
         // u.lockerShares[lockerLocation].push(share);
