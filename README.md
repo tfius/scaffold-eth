@@ -172,7 +172,5 @@ yarn deploy
 ### Deployments
 
 Goerli: 
-SwarmMail
-deploying "SwarmMail" (tx: 0x1fa1235227341bd0fd969a403a0c1ae8dd3a2731d37fda4fac114d3cb197cd27)...: deployed at 0x702F3f2746631290bAb217dD7d16601B1Cf8af7F with 2035828 gas
-DataHub
-deploying "DataHub" (tx: 0xf937b826a780758272b68fca9960b480ddd7110bd850185ce3018dfd8d9f7b45)...: deployed at 0x43E6403948be1245f8878fE0f429798762A5d3b8 with 3537470 gas
+SwarmMaildeploying "SwarmMail" (tx: 0x981aeaf2ac802ac50fb2e562acf3a58b27c8618de348846fb26894079c259614)...: deployed at 0x4e713E4DdF939CABB6abe53D7783EB3c0AB6AFFc with 2171831 gas
+DataHubdeploying "DataHub" (tx: 0x555a93ad91aeda88384f3513bfe839bc4448ca97e51d0426144af3539d9fe113)...: deployed at 0x1949beB6CC2db0241Dd625dcaC09891DF5c3756b with 3573804 gas
