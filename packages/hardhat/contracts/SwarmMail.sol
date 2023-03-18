@@ -262,7 +262,9 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         } else if(types == 3) {
             messages = genEmailRange(start, length, u.sharedLockerEmails);
         }
+        
     }
+
     function storeLocker(bytes32 swarmLocation) public payable {
         User storage sender = users[msg.sender];
         require(sender.lockerEmailIds[swarmLocation] == 0, "!exist");

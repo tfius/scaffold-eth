@@ -47,13 +47,19 @@ export function SubBids({ readContracts, writeContracts, tx, userSigner, address
   });
   const getSubsRequestsFromActiveBids = useCallback(async activeBids => {
     for (let i = 0; i < activeBids.length; i++) {
-      let subReq = await readContracts.DataHub.getSubRequestByHash(activeBids[i].seller, activeBids[i].requestHash);
-      let sub = await readContracts.DataHub.getSubBy(subReq.subHash);
-      const subData = await downloadJsonFromBee(sub.swarmLocation);
-      let activeBid = { activeBid: activeBids[i], subRequest: subReq, sub: sub, subData: subData };
+      try {
+        console.log("getSubsRequestsFromActiveBids", activeBids[i]);
+        // getActiveBidsByHash
+        let subReq = await readContracts.DataHub.getSubRequestByHash(activeBids[i].seller, activeBids[i].requestHash);
+        let sub = await readContracts.DataHub.getSubBy(subReq.subHash);
+        const subData = await downloadJsonFromBee(sub.swarmLocation);
+        let activeBid = { activeBid: activeBids[i], subRequest: subReq, sub: sub, subData: subData };
 
-      console.log("activeBid", activeBid);
-      setActiveBids(activeBids => [...activeBids, activeBid]);
+        console.log("activeBid", activeBid);
+        setActiveBids(activeBids => [...activeBids, activeBid]);
+      } catch (e) {
+        console.log("error", e);
+      }
     }
   });
   useEffect(() => {

@@ -184,10 +184,10 @@ export function ComposeNewLocker({
       var endTime = Date.now();
       completeMessage.sendTime = endTime;
       // convert from uint8array to base64
-      var publicKey = Buffer.from(ephemeralKey.publicKey).toString("base64");
+      //var publicKey = Buffer.from(ephemeralKey.publicKey).toString("base64");
       var secretKey = Buffer.from(ephemeralKey.secretKey).toString("base64");
 
-      var ephKey = { publicKey, secretKey };
+      var ephKey = { recipientKey, secretKey };
       completeMessage.ephemeralKey = ephKey;
       // to convert call this:
       // var decEphemeralKey = {
@@ -199,6 +199,13 @@ export function ComposeNewLocker({
       // encrypt smail
       smail = JSON.stringify(EncDec.nacl_encrypt_with_key(smail, recipientKey, ephemeralKey));
       fileSize += JSON.stringify(smail).length;
+      /*
+      debugger;
+      // test decryption
+      var ds = JSON.parse(smail);
+      var decSmail = EncDec.nacl_decrypt_with_key(ds, recipientKey, secretKey);
+      console.log("decSmail", decSmail);
+      */
 
       setProgressStatus("Uploading encrypted data ...");
       setProgress(90);

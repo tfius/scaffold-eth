@@ -109,7 +109,7 @@ export function Subscriptions({
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
       <h1>Subscriptions</h1>
-      <div className="routeSubtitle">Manage and see your subscriptions</div>
+      <div className="routeSubtitle">Manage your listings</div>
       {isLoading && <Spin />}
 
       <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>

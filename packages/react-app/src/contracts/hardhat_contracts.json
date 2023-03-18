@@ -1963,7 +1963,7 @@
       "chainId": "31337",
       "contracts": {
         "DataHub": {
-          "address": "0x4c5859f0F772848b2D91F1D83E2Fe57935348029",
+          "address": "0xB0D4afd8879eD9F52b28595d31B441D079B2Ca07",
           "abi": [
             {
               "inputs": [],
@@ -2221,6 +2221,42 @@
                   "internalType": "struct DataHub.ActiveBid[]",
                   "name": "",
                   "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "addr",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "requestHash",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "getActiveBidsByHash",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "seller",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "requestHash",
+                      "type": "bytes32"
+                    }
+                  ],
+                  "internalType": "struct DataHub.ActiveBid",
+                  "name": "",
+                  "type": "tuple"
                 }
               ],
               "stateMutability": "view",
@@ -3337,7 +3373,7 @@
           ]
         },
         "SwarmMail": {
-          "address": "0xcbEAF3BDe82155F56486Fb5a1072cb8baAf547cc",
+          "address": "0x162A433068F51e18b7d13932F27e66a3f99E6890",
           "abi": [
             {
               "inputs": [],
@@ -3855,7 +3891,7 @@
               ],
               "name": "shareLockerWith",
               "outputs": [],
-              "stateMutability": "nonpayable",
+              "stateMutability": "payable",
               "type": "function"
             },
             {

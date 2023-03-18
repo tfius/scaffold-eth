@@ -256,6 +256,25 @@ export function nacl_decrypt(encryptedData, receiverPrivateKey) {
   }
 }
 
+export function nacl_decrypt_with_key(encryptedData, pubKey, privateKey) {
+  try {
+    //var recieverPrivateKeyUint8Array = nacl_decodeHex(receiverPrivateKey);
+    //var recieverEncryptionPrivateKey = nacl.box.keyPair.fromSecretKey(receiverPrivateKey).secretKey;
+    var ephemPrivateKey = nacl.util.decodeBase64(privateKey);
+    var ephemPubKey = nacl.util.decodeBase64(pubKey);
+    //var recieverEncryptionPrivateKey = nacl.box.keyPair.fromSecretKey(ephemPrivateKey).secretKey;
+    // assemble decryption parameters
+    var nonce = nacl.util.decodeBase64(encryptedData.nonce);
+    var ciphertext = nacl.util.decodeBase64(encryptedData.ciphertext);
+    //var ephemPublicKey = nacl.util.decodeBase64(encryptedData.ephemPublicKey);
+    var decryptedMessage = nacl.box.open(ciphertext, nonce, ephemPubKey, ephemPrivateKey);
+    var output = nacl.util.encodeUTF8(decryptedMessage);
+    return output;
+  } catch (e) {
+    console.error("nacl_decrypt", e);
+  }
+}
+
 export async function encryptAndUpload(data, recipientKey) {
   var encryptedData = JSON.stringify(nacl_encrypt(JSON.stringify(data), recipientKey));
   var encryptedDataLocation = await uploadDataToBee(encryptedData, "application/octet-stream", Date.now() + ".data");

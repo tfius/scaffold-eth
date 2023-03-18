@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 
 import { ethers } from "ethers";
-import { Link, Route, Switch, useLocation } from "react-router-dom";
-import { Button, List, Card, Modal, notification, Tooltip, Typography, Spin, Checkbox, Input } from "antd";
+import { Link, Route, useLocation } from "react-router-dom";
+import { Button, List, Card, Modal, notification, Tooltip, Typography, Spin, Checkbox, Input, Switch } from "antd";
 import { EnterOutlined, EditOutlined, ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
 
 import { uploadDataToBee, downloadDataFromBee } from "../Swarm/BeeService";
@@ -48,15 +48,71 @@ export function Locker({
 
   const [showShareAddress, setShowShareAddress] = useState(false);
   const [toAddress, setToAddress] = useState();
+  const [viewSharedItems, setViewSharedItems] = useState(false);
+  const [sharedItems, setSharedItems] = useState([]);
 
   const setViewMail = async mail => {
     console.log("onViewMessage", mail);
     if (mail !== null) {
-      var data = await readContracts.SwarmMail.getLockerShares(address, mail.location);
-      console.log("onViewMessage", data);
-      setViewShares(data);
+      try {
+        var data = await readContracts.SwarmMail.getLockerShares(address, mail.location);
+        console.log("onViewMessage", data);
+        setViewShares(data);
+      } catch (e) {
+        console.log("error", e);
+      }
     }
     _setViewMail(mail);
+  };
+
+  const toggleViewShared = isChecked => {
+    setViewSharedItems(isChecked);
+    if (isChecked) {
+      setSharedItems([]);
+      getSharedItems();
+    }
+  };
+  const getSharedItems = async () => {
+    const boxCount = await readContracts.SwarmMail.getUserStats(address);
+    const numSharedItems = boxCount.numSharedLockers.toNumber();
+    const smails = await readContracts.SwarmMail.getEmailRange(address, 3, 0, numSharedItems);
+    //console.log("getSharedItems smails", smails);
+
+    for (var i = 0; i < smails.length; i++) {
+      // get smail content
+      try {
+        const lockerData = await downloadDataFromBee(smails[i].swarmLocation); // returns buffer
+        var d = JSON.parse(new TextDecoder().decode(lockerData));
+        var decRes = EncDec.nacl_decrypt(d, smailMail.smail.substr(2, smailMail.smail.length));
+        var lockerItem = JSON.parse(decRes);
+        //console.log("lockerItem", lockerItem);
+        //console.log("key", smailMail.smail.substr(2, smailMail.smail.length));
+
+        var secretKey = new Uint8Array(Buffer.from(lockerItem.ephemeralKey.secretKey, "base64"));
+        //var secretKey = Buffer.from(sharedItem.ephemeralKey.secretKey, "base64").toString("hex");
+        //console.log("secretkey", secretKey);
+        // get shared content
+        const sharedData = await downloadDataFromBee(lockerItem.location); // returns buffer
+        var sharedD = JSON.parse(new TextDecoder().decode(sharedData));
+        //console.log("sharedD", sharedD);
+
+        var decSharedRes = EncDec.nacl_decrypt_with_key(
+          sharedD,
+          lockerItem.ephemeralKey.recipientKey,
+          lockerItem.ephemeralKey.secretKey,
+        );
+        //console.log("decSharedRes", decSharedRes);
+        var sharedLocker = {};
+        sharedLocker.sharedMail = lockerItem;
+        sharedLocker.locker = JSON.parse(decSharedRes);
+
+        setSharedItems(sharedItems => [...sharedItems, sharedLocker]);
+      } catch (e) {
+        console.log("error", e);
+      }
+    }
+    //console.log("sharedItems", sharedItems);
+    //setSharedItems(smails);
   };
 
   /*  
@@ -262,15 +318,15 @@ export function Locker({
     //console.log("shareLocker", locker);
     // to convert call this:
     var ephemeralKey = {
-      publicKey: new Uint8Array(Buffer.from(locker.ephemeralKey.publicKey, "base64")),
+      publicKey: new Uint8Array(Buffer.from(locker.ephemeralKey.recipientKey, "base64")),
       secretKey: new Uint8Array(Buffer.from(locker.ephemeralKey.secretKey, "base64")),
     };
 
     const shareLockerObject = {
-      subject: locker.subject,
-      contents: locker.contents,
-      isEncryption: locker.isEncryption,
-      attachments: locker.attachments,
+      //subject: locker.subject,
+      //contents: locker.contents,
+      //isEncryption: locker.isEncryption,
+      //attachments: locker.attachments,
       sender: locker.from,
       location: locker.location,
       ephemeralKey: locker.ephemeralKey,
@@ -351,73 +407,111 @@ export function Locker({
 
       <>
         <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
-          <Checkbox indeterminate={indeterminate} onChange={onCheckAllChange} checked={checkAll} /> &nbsp;
+          <Checkbox
+            indeterminate={indeterminate}
+            onChange={onCheckAllChange}
+            checked={checkAll}
+            disabled={viewSharedItems}
+          />{" "}
+          &nbsp;
           <Tooltip title="Refresh">
-            <Button onClick={() => updateLocker()}>🗘</Button>
+            <Button onClick={() => updateLocker()} disabled={viewSharedItems}>
+              🗘
+            </Button>
           </Tooltip>
           <Tooltip title="Delete">
-            <Button onClick={() => deleteLockerMail()}>🗑</Button>&nbsp;
+            <Button onClick={() => deleteLockerMail()} disabled={viewSharedItems}>
+              🗑
+            </Button>
+            &nbsp;
           </Tooltip>
           <Tooltip title="Delete">
             <Button onClick={() => setIsModalVisible(true)}>Add Data</Button>&nbsp;
           </Tooltip>
+          <Tooltip title="View shared item">
+            <Switch checked={viewSharedItems} onChange={toggleViewShared} />
+          </Tooltip>
           {isLoading && <Spin />}
         </div>
-        <Checkbox.Group
-          style={{ width: "100%" }}
-          value={checked}
-          onChange={checkedValues => {
-            setChecked(checkedValues);
-          }}
-        >
-          {/* // TODO https://ant.design/components/list */}
-          <List
-            itemLayout="horizontal"
-            dataSource={mails}
-            renderItem={mail => (
-              <List.Item style={{ marginBottom: "5px", marginTop: "0px", padding: "0px" }}>
-                <List.Item.Meta
-                  style={{
-                    background: mail.isEncryption ? "#4000ff00" : "#4000ff10",
-                    borderRadius: "5px",
-                    paddingBottom: "5px",
-                    paddingTop: "5px",
-                    paddingRight: "5px",
-                    paddingLeft: "5px",
-                  }}
-                  avatar={
-                    <>
-                      <Checkbox value={mail.location} style={{ margin: "0rem 1rem 0rem 0rem" }} />
-                      <Tooltip title={<AddressSimple address={mail.from} />}>
-                        <span>
-                          <Blockies className="mailIdenticon" seed={mail.from} size="8" />
-                        </span>
-                      </Tooltip>
-                    </>
-                  }
-                  title={
-                    <div
+        {viewSharedItems === true ? (
+          <>
+            <List
+              itemLayout="horizontal"
+              dataSource={sharedItems}
+              renderItem={mail => (
+                <List.Item style={{ marginBottom: "5px", marginTop: "0px", padding: "0px" }}>
+                  <List.Item.Meta
+                    title={
+                      <>
+                        <Tooltip title={<AddressSimple address={mail.sharedMail.sender} placement="right" />}>
+                          {mail.locker.subject}
+                        </Tooltip>
+                      </>
+                    }
+                    description={mail.locker.contents}
+                  />
+                </List.Item>
+              )}
+            />
+            <hr />
+          </>
+        ) : (
+          <>
+            <Checkbox.Group
+              style={{ width: "100%" }}
+              value={checked}
+              onChange={checkedValues => {
+                setChecked(checkedValues);
+              }}
+            >
+              {/* // TODO https://ant.design/components/list */}
+              <List
+                itemLayout="horizontal"
+                dataSource={mails}
+                renderItem={mail => (
+                  <List.Item style={{ marginBottom: "5px", marginTop: "0px", padding: "0px" }}>
+                    <List.Item.Meta
                       style={{
-                        marginTop: "1px",
-                        maxHeight: "1.3rem",
-                        width: "98%",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        overflowWrap: "anywhere",
+                        background: mail.isEncryption ? "#4000ff00" : "#4000ff10",
+                        borderRadius: "5px",
+                        paddingBottom: "5px",
+                        paddingTop: "5px",
+                        paddingRight: "5px",
+                        paddingLeft: "5px",
                       }}
-                    >
-                      <strong style={{ cursor: "pointer" }} onClick={() => setViewMail(mail)}>
-                        {mail.subject}
-                      </strong>
+                      avatar={
+                        <>
+                          <Checkbox value={mail.location} style={{ margin: "0rem 1rem 0rem 0rem" }} />
+                          <Tooltip title={<AddressSimple address={mail.from} />}>
+                            <span>
+                              <Blockies className="mailIdenticon" seed={mail.from} size="8" />
+                            </span>
+                          </Tooltip>
+                        </>
+                      }
+                      title={
+                        <div
+                          style={{
+                            marginTop: "1px",
+                            maxHeight: "1.3rem",
+                            width: "98%",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            overflowWrap: "anywhere",
+                          }}
+                        >
+                          <strong style={{ cursor: "pointer" }} onClick={() => setViewMail(mail)}>
+                            {mail.subject}
+                          </strong>
 
-                      {mail.isEncryption === false && (
-                        <IconText
-                          icon={InfoCircleOutlined}
-                          tooltip="This message is not encrypted"
-                          key="list-vertical-signed-o"
-                        />
-                      )}
-                      {/* {mail.signed === true ? (
+                          {mail.isEncryption === false && (
+                            <IconText
+                              icon={InfoCircleOutlined}
+                              tooltip="This message is not encrypted"
+                              key="list-vertical-signed-o"
+                            />
+                          )}
+                          {/* {mail.signed === true ? (
                         <span style={{ float: "right", right: "0px" }}>
                           <IconText
                             icon={EditOutlined}
@@ -433,57 +527,59 @@ export function Locker({
                           <IconText icon={EnterOutlined} tooltip="List locker on data hub" key="list-vertical-sign-o" />
                         </span>
                       )} */}
-                    </div>
-                  }
-                  description={
-                    <>
-                      <div style={{ maxHeight: "2.7rem", overflow: "hidden" }}>{mail.contents}</div>
-                      <div>
-                        {mail.attachments.length > 0 && (
-                          <>
-                            {mail.attachments.map((a, i) => (
-                              <Tooltip
-                                title={
-                                  <>
-                                    {a.file.path} <br /> <small>{a.file.type}</small>
-                                  </>
-                                }
-                                key={a.digest}
-                              >
-                                <span
-                                  style={{
-                                    cursor: "pointer",
-                                    display: "inline-block",
-                                    border: "1px solid #00000055",
-                                    borderRadius: "5px",
-                                    paddingLeft: "0.2rem",
-                                    width: "150px",
-                                    overflow: "hidden",
-                                    textAlign: "center",
-                                    textOverflow: "ellipsis",
-                                    overflowWrap: "anywhere",
-                                    fontSize: "0.7rem",
-                                    marginRight: "20px",
-                                    marginTop: "3px",
-                                    maxHeight: "1.1rem",
-                                    background: "#88888888",
-                                  }}
-                                  onClick={() => onDownloadFile(mail, i, a)}
-                                >
-                                  {a.file.path}
-                                </span>
-                              </Tooltip>
-                            ))}
-                          </>
-                        )}
-                      </div>
-                    </>
-                  }
-                />
-              </List.Item>
-            )}
-          />
-        </Checkbox.Group>
+                        </div>
+                      }
+                      description={
+                        <>
+                          <div style={{ maxHeight: "2.7rem", overflow: "hidden" }}>{mail.contents}</div>
+                          <div>
+                            {mail.attachments.length > 0 && (
+                              <>
+                                {mail.attachments.map((a, i) => (
+                                  <Tooltip
+                                    title={
+                                      <>
+                                        {a.file.path} <br /> <small>{a.file.type}</small>
+                                      </>
+                                    }
+                                    key={a.digest}
+                                  >
+                                    <span
+                                      style={{
+                                        cursor: "pointer",
+                                        display: "inline-block",
+                                        border: "1px solid #00000055",
+                                        borderRadius: "5px",
+                                        paddingLeft: "0.2rem",
+                                        width: "150px",
+                                        overflow: "hidden",
+                                        textAlign: "center",
+                                        textOverflow: "ellipsis",
+                                        overflowWrap: "anywhere",
+                                        fontSize: "0.7rem",
+                                        marginRight: "20px",
+                                        marginTop: "3px",
+                                        maxHeight: "1.1rem",
+                                        background: "#88888888",
+                                      }}
+                                      onClick={() => onDownloadFile(mail, i, a)}
+                                    >
+                                      {a.file.path}
+                                    </span>
+                                  </Tooltip>
+                                ))}
+                              </>
+                            )}
+                          </div>
+                        </>
+                      }
+                    />
+                  </List.Item>
+                )}
+              />
+            </Checkbox.Group>
+          </>
+        )}
       </>
       {/* <>
         <div style={{ marginTop: 20 }}>

@@ -329,8 +329,12 @@ export function FairOSWasmConnect({
                 <>
                   {podList.pods.length > 0 && (
                     <>
+                      Close will keep FairOS connected.
+                      <br />
+                      Click on pod to list i on Data Hub.
+                      <br />
+                      <br />
                       <h3>Available Pods</h3>
-                      Click on pod to list it in Data Hub.
                       <ul>
                         {podList.pods.map((pod, index) => (
                           <li className="podItem" key={pod + "_" + index} onClick={() => ListPod(pod)}>
@@ -340,12 +344,12 @@ export function FairOSWasmConnect({
                       </ul>
                     </>
                   )}
-
                   <br />
-                  <Button type="primary" onClick={() => Logout()}>
-                    Sign out FairOS
+                  <Button onClick={() => Logout()}>Sign out FairOS</Button>
+                  &nbsp;&nbsp;
+                  <Button type="primary" onClick={() => setIsFairOSVisible(false)}>
+                    Close
                   </Button>
-
                   {/* <br />
                   <br />
                   <h4>Shared Pods</h4>

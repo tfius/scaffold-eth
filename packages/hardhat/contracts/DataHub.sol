@@ -171,6 +171,9 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
     function getSubRequestByHash(address addr, bytes32 requestHash) public view returns (SubRequest memory) {
         return users[addr].subRequests[users[addr].subRequestIds[requestHash]-1];
     }
+    function getActiveBidsByHash(address addr, bytes32 requestHash) public view returns (ActiveBid memory) {
+        return users[addr].activeBids[users[addr].activeBidIds[requestHash]-1];
+    }
     function getSubRequests(address addr) public view returns (SubRequest[] memory) {
         return users[addr].subRequests;
     }
@@ -247,7 +250,7 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
 
         ActiveBid memory ab;
         ab.requestHash = requestHash;
-        ab.seller = msg.sender;
+        ab.seller = s.seller; //msg.sender;
 
         User storage buyer = users[msg.sender];
         buyer.activeBids.push(ab);      

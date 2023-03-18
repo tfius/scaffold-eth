@@ -447,12 +447,12 @@ function App(props) {
                 </Tooltip>
               </Menu.Item>
               <Menu.Item key="/subscriptions" disabled={!isFairOsed}>
-                <Tooltip title="Manage your active buys" placement="right">
+                <Tooltip title="Manage your active listings and subscribers" placement="right">
                   <Link to="/subscriptions">Subscriptions</Link>
                 </Tooltip>
               </Menu.Item>
               <Menu.Item key="/requests" disabled={!isFairOsed}>
-                <Tooltip title="Approve bid requests for your listings" placement="right">
+                <Tooltip title="Approve requests for your listings" placement="right">
                   <Link to="/requests">Requests</Link>
                 </Tooltip>
               </Menu.Item>
