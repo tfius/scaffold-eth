@@ -111,7 +111,7 @@ export function Locker({
         console.log("error", e);
       }
     }
-    //console.log("sharedItems", sharedItems);
+    console.log("sharedItems", sharedItems);
     //setSharedItems(smails);
   };
 
@@ -268,6 +268,28 @@ export function Locker({
       }
     } else {
       saveFileAs(new Blob([data], { type: attachment.file.type }), attachment.file.path);
+    }
+    setIsLoading(false);
+  };
+
+  const onDownloadLockerFile = async (sharedLocker, index, attachment) => {
+    setIsLoading(true);
+    console.log("onDownloadLockerFile", sharedLocker, attachment);
+    const data = await downloadDataFromBee("0x" + attachment.digest); // returns buffer
+    try {
+      var uint8View = new Uint8Array(data);
+      var decoded = new TextDecoder().decode(uint8View);
+      var d = JSON.parse(decoded);
+      var decRes = EncDec.nacl_decrypt_with_key(
+        d,
+        sharedLocker.sharedMail.ephemeralKey.recipientKey,
+        sharedLocker.sharedMail.ephemeralKey.secretKey,
+      ); //
+      var object = JSON.parse(decRes);
+      var blob = new Blob([new Uint8Array(object.binaryData)], { type: attachment.file.type });
+      saveFileAs(blob, attachment.file.path);
+    } catch (e) {
+      console.error("decrypt", e);
     }
     setIsLoading(false);
   };
@@ -448,7 +470,50 @@ export function Locker({
                         </Tooltip>
                       </>
                     }
-                    description={mail.locker.contents}
+                    description={
+                      <>
+                        <div style={{ maxHeight: "2.7rem", overflow: "hidden" }}>{mail.locker.contents}</div>
+                        <div>
+                          {mail.locker.attachments.length > 0 && (
+                            <>
+                              {mail.locker.attachments.map((a, i) => (
+                                <Tooltip
+                                  title={
+                                    <>
+                                      {a.file.path} <br /> <small>{a.file.type}</small>
+                                    </>
+                                  }
+                                  key={a.digest}
+                                >
+                                  <span
+                                    style={{
+                                      cursor: "pointer",
+                                      display: "inline-block",
+                                      border: "1px solid #00000055",
+                                      borderRadius: "5px",
+                                      paddingLeft: "0.2rem",
+                                      width: "150px",
+                                      overflow: "hidden",
+                                      textAlign: "center",
+                                      textOverflow: "ellipsis",
+                                      overflowWrap: "anywhere",
+                                      fontSize: "0.7rem",
+                                      marginRight: "20px",
+                                      marginTop: "3px",
+                                      maxHeight: "1.1rem",
+                                      background: "#88888888",
+                                    }}
+                                    onClick={() => onDownloadLockerFile(mail, i, a)}
+                                  >
+                                    {a.file.path}
+                                  </span>
+                                </Tooltip>
+                              ))}
+                            </>
+                          )}
+                        </div>
+                      </>
+                    }
                   />
                 </List.Item>
               )}
