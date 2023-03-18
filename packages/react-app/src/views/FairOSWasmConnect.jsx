@@ -331,7 +331,7 @@ export function FairOSWasmConnect({
                     <>
                       Close will keep FairOS connected.
                       <br />
-                      Click on pod to list i on Data Hub.
+                      Click on pod to list it on Data Hub.
                       <br />
                       <br />
                       <h3>Available Pods</h3>
