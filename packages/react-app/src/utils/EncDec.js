@@ -36,7 +36,7 @@ export function hexToBase64(hexstring) {
       .map(function (a) {
         return String.fromCharCode(parseInt(a, 16));
       })
-      .join(""),
+      .join("")
   );
 }
 /*
@@ -134,10 +134,10 @@ export async function MMencryptMessage(encryptionPublicKey /* receiver pubKey */
             publicKey: encryptionPublicKey,
             data: messageToEncrypt,
             version: "x25519-xsalsa20-poly1305",
-          }),
+          })
         ),
-        "utf8",
-      ),
+        "utf8"
+      )
     );
   } catch (e) {
     console.error("encryptMessage", e);
@@ -213,7 +213,7 @@ export function generate_ephemeral_key_pair() {
 export function nacl_encrypt(message, receiverPublicKey) {
   try {
     var ephemeralKeyPair = generate_ephemeral_key_pair();
-    return nacl_encrypt_with_key(message, receiverPublicKey, ephemeralKeyPair) 
+    return nacl_encrypt_with_key(message, receiverPublicKey, ephemeralKeyPair);
   } catch (e) {
     console.error("nacl_encrypt", e);
   }
@@ -280,7 +280,6 @@ export async function encryptAndUpload(data, recipientKey) {
   var encryptedDataLocation = await uploadDataToBee(encryptedData, "application/octet-stream", Date.now() + ".data");
   return encryptedDataLocation;
 }
-
 
 export async function calculateSharedSecret(fromPrivateKey, toPublicKey) {
   var publickKey = nacl.scalarMult.base(fromPrivateKey);

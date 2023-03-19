@@ -693,7 +693,6 @@ export const categoriesTree = [
       },
 
       { label: "Health", items: [{ label: "Fitness" }, { label: "Sports" }, { label: "Nutrition" }] },
-      
       {
         label: "Education",
         items: [
@@ -1263,5 +1262,4 @@ export const categoryList = [
     value: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("Video animation intros")),
   },
 ];
-
 
