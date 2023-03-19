@@ -26,6 +26,7 @@ jobs:
           cache: 'yarn'
       - name: Install & Build
         run: |
+          export NODE_OPTIONS="--max-old-space-size=8192"
           yarn install
           yarn react-app:build
       - name: Upload to FairOS
