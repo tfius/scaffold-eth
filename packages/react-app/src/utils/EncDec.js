@@ -36,7 +36,7 @@ export function hexToBase64(hexstring) {
       .map(function (a) {
         return String.fromCharCode(parseInt(a, 16));
       })
-      .join("")
+      .join(""),
   );
 }
 /*
@@ -53,8 +53,7 @@ export const deriveDriveKey = async (seed, dataEncryptionKey) => {
   const driveKey = hkdf(Buffer.from(seed), keyByteLength, { info, hash: keyHash });
   return urlEncodeHashKey(driveKey);
 };
-*/ 
-/*
+
 export const encryptData = async (key, data) => {
   const keyData = Buffer.from(key, "base64");
   const iv = crypto.randomBytes(12);
@@ -134,10 +133,10 @@ export async function MMencryptMessage(encryptionPublicKey /* receiver pubKey */
             publicKey: encryptionPublicKey,
             data: messageToEncrypt,
             version: "x25519-xsalsa20-poly1305",
-          })
+          }),
         ),
-        "utf8"
-      )
+        "utf8",
+      ),
     );
   } catch (e) {
     console.error("encryptMessage", e);
