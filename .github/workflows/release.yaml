@@ -30,7 +30,7 @@ jobs:
           yarn install
           yarn react-app:build
       - name: Upload to FairOS
-        uses: onepeerlabs/fdfs@v0.0.8
+        uses: onepeerlabs/fdfs@v0.0.9
         with:
           version: 0.9.2
           path: packages/react-app/build/*
