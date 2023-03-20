@@ -117,7 +117,6 @@ export function FairOSWasmConnect({
   async function ConnectFairOS() {
     const beeNet = BEENETWORKS[selectedBeeNetwork];
     console.log("wasmConnect", selectedBeeNetwork, targetNetwork, batchId);
-
     let resp = await window.connect(
       beeNet.endpoint, // "http://localhost:1633", // bee endpoint
       batchId, //"51987f7304b419d8aa184d35d46b3cfeb1b00986ad937b3151c7ade699c81338", // stampId
@@ -271,7 +270,7 @@ export function FairOSWasmConnect({
   const listSubTx = useCallback(async (fdpSellerNameHash, data, price, category, podAddress) => {
     try {
       var dataLocation = await uploadDataToBee(JSON.stringify(data), "application/json", Date.now() + ".sub.json");
-      console.log("dataLocation", dataLocation);
+      console.log("dataLocation", dataLocation, "sellerNameHash", fdpSellerNameHash);
       var newTx = await tx(
         writeContracts.DataHub.listSub(
           "0x" + fdpSellerNameHash,
@@ -330,13 +329,11 @@ export function FairOSWasmConnect({
           visible={isFairOSVisible}
           onCancel={() => setIsFairOSVisible(false)}
         >
+          {isPodLoading === true && <Spin />}
           {login != null && (
             <>
               {isPodLoading ? (
-                <>
-                  <Spin />
-                  &nbsp;&nbsp;Please wait...
-                </>
+                <>&nbsp;&nbsp;Please wait...</>
               ) : (
                 <>
                   {podList.pods.length > 0 && (
@@ -451,6 +448,7 @@ export function FairOSWasmConnect({
           <Button type="primary" onClick={() => ConnectFairOSWithWallet()}>
             Connect
           </Button>
+          {isPodLoading === true && <Spin />}
         </Modal>
       )}
       {/* FairOS Login modal window */}
@@ -537,10 +535,12 @@ export function FairOSWasmConnect({
 }
 
 function ListPodModalForm({ podName, podAddress, sellerNameHash, categories, onListPod }) {
+  const [isPodLoading, setIsPodLoading] = useState(false);
   // const formRef = React.createRef();
   const onSendListPod = async values => {
     //listSub(values);
     //console.log("onSend", values);
+    setIsPodLoading(true);
     var data = {
       title: values.title,
       description: values.description,
@@ -553,6 +553,7 @@ function ListPodModalForm({ podName, podAddress, sellerNameHash, categories, onL
     };
     console.log("onSendListPod", data);
     await onListPod(data.sellerNameHash, data, data.price, data.category, data.podAddress);
+    setIsPodLoading(false);
   };
   const onListSubCategoryChange = value => {
     console.log("onCategoryChange", value);
@@ -585,13 +586,17 @@ function ListPodModalForm({ podName, podAddress, sellerNameHash, categories, onL
       <Form.Item name="podAddress" label="Pod Address">
         <Input defaultValue={podAddress} value={podAddress} />
       </Form.Item> */}
-      <Button
-        type="primary"
-        htmlType="submit"
-        style={{ width: "80%", borderRadius: "5px", alignItems: "center", left: "10%" }}
-      >
-        LIST POD
-      </Button>
+      {isPodLoading === false ? (
+        <Button
+          type="primary"
+          htmlType="submit"
+          style={{ width: "80%", borderRadius: "5px", alignItems: "center", left: "10%" }}
+        >
+          LIST POD
+        </Button>
+      ) : (
+        <Spin />
+      )}
     </Form>
   );
 }

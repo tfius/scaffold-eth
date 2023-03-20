@@ -47,13 +47,16 @@ export function SubRequests({
   sessionId,
 }) {
   //const [subRequests, setSubRequests] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [reqSubSubscriptions, setReqSubSubscriptions] = useState([]);
   const getSubRequests = useCallback(async forAddress => {
     if (readContracts === undefined || readContracts.DataHub === undefined) return;
+    setIsLoading(true);
     var requests = await readContracts.DataHub.getSubRequests(forAddress);
     console.log("getSubRequests", requests);
     //setSubRequests(requests);
-    getSubsForSubRequests(requests);
+    await getSubsForSubRequests(requests);
+    setIsLoading(false);
   });
   const getSub = useCallback(async subHash => {
     return await readContracts.DataHub.getSubBy(subHash);
@@ -133,6 +136,8 @@ export function SubRequests({
       <div className="routeSubtitle">All requests to access your listings</div>
 
       <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
+        {isLoading && <Spin />}
+
         <Row>
           {reqSubSubscriptions.map((reqSub, i) => {
             return (

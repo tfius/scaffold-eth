@@ -37,13 +37,16 @@ import { categoryList } from "./categories";
 */
 
 export function SubBids({ readContracts, writeContracts, tx, userSigner, address, smailMail, mainnetProvider }) {
+  const [isLoading, setIsLoading] = useState(false);
   const [activeBids, setActiveBids] = useState([]);
 
   const getActiveBids = useCallback(async forAddress => {
     if (readContracts === undefined || readContracts.DataHub === undefined) return;
+    setIsLoading(true);
     var activeBids = await readContracts.DataHub.getActiveBids(forAddress);
     console.log("activeBids", activeBids);
-    getSubsRequestsFromActiveBids(activeBids);
+    await getSubsRequestsFromActiveBids(activeBids);
+    setIsLoading(false);
   });
   const getSubsRequestsFromActiveBids = useCallback(async activeBids => {
     for (let i = 0; i < activeBids.length; i++) {
@@ -81,6 +84,7 @@ export function SubBids({ readContracts, writeContracts, tx, userSigner, address
       <div className="routeSubtitle">All your active bids</div>
 
       <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
+        {isLoading && <Spin />}
         <Row>
           {activeBids.map((ab, i) => {
             return (

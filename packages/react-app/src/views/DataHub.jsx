@@ -66,6 +66,7 @@ export function DataHub({
   const [categories, setCategories] = useState(categoryList);
   const [subscriptions, setSubscriptions] = useState([]);
   const [openListSub, setOpenListSub] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const placeholderImage = "/logo512.png";
 
   const getFees = useCallback(async () => {
@@ -160,9 +161,7 @@ export function DataHub({
 
     console.log("onBidSub", subscription, fairOSLogin);
     // var hash = await window.getNameHash(fairOSSessionId, userStat.address);
-    console.log();
     // address is fdpBuyerNameHash
-    var fdpBuyerNameHash = null; //"0x" + consts.emptyHash;
     await bidSubTx(subscription, "0x" + fairOSLogin.nameHash); // TODO this must be FDPbuyer address not METAMASK address
   };
 

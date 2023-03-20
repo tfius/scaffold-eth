@@ -53,6 +53,7 @@ const data02 = [
 
 // displays the list of subscribers for a given address
 export function Subscribers({ readContracts, writeContracts, tx, userSigner, address, smailMail, mainnetProvider }) {
+  const [isLoading, setIsLoading] = useState(false);
   const [subscribers, setSubscribers] = useState([]);
   const [subscriptions, setSubscriptions] = useState([]);
   const [totalEarnings, setTotalEarnings] = useState(0);
@@ -60,9 +61,11 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
   const [viewSubscribers, setViewSubscribers] = useState(false);
 
   const getListedSubs = useCallback(async forAddress => {
+    setIsLoading(true);
     var listedSubs = await readContracts.DataHub.getListedSubs(forAddress);
     console.log("listedSubs", listedSubs);
-    getSubsForSubRequests(listedSubs);
+    await getSubsForSubRequests(listedSubs);
+    setIsLoading(false);
   });
   const getSub = useCallback(async subHash => {
     return await readContracts.DataHub.getSubBy(subHash);
@@ -119,6 +122,7 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
       </div>
 
       <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
+        {isLoading && <Spin />}
         <Row>
           {subscriptions.map((sub, i) => {
             return (
