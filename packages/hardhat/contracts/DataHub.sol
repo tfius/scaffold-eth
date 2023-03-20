@@ -36,17 +36,26 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         // who wants to subscribe to what
         SubRequest[] subRequests;
         mapping(bytes32 => uint256) subRequestIds;
-        // what is user subscribed to
-        SubItem[] subItems;
-        mapping(bytes32 => uint256) subItemIds;
 
         ActiveBid[] activeBids;
         mapping(bytes32 => uint256) activeBidIds;
 
+        // what is user subscribed to
+        //SubItem[] subItems;
+        //mapping(bytes32 => uint256) subItemIds;
+        bytes32[] subItemHashes;
+
         bytes32[] listedSubs; // everything user listed 
     }
     mapping(address => User) users;
-    mapping(address => address) userToPortable;    
+    mapping(address => address) userToPortable;
+    // mapping(address => address) portableToUser;
+    mapping(bytes32 => address) nameHashToUser;
+
+    SubItem[] private allSubItems;
+    mapping(bytes32 => uint256) allSubItemIds; 
+     mapping(bytes32 => bytes32[]) nameHashToSubItems; // what nameHash has access to (whomever bought it)
+
 
     struct Category {
         uint64[]     subIdxs;
@@ -83,16 +92,20 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
 
     function getUserStats(address addr) public view returns (uint numSubRequests, uint numSubItems, uint numActiveBids, uint numListedSubs) {
         numSubRequests = users[addr].subRequests.length;
-        numSubItems = users[addr].subItems.length;
+        numSubItems = users[addr].subItemHashes.length;
         numActiveBids = users[addr].activeBids.length;
         numListedSubs = users[addr].listedSubs.length;
     }
     function setPortableAddress(address addr) public {
         userToPortable[msg.sender] = addr;
+        //portableToUser[addr] = msg.sender;
     }
     function getPortableAddress(address addr) public view returns (address) {
         return userToPortable[addr];
     }    
+    // function getUserAddress(address fdpAddress) public view returns (address) {
+    //     return portableToUser[fdpAddress];
+    // }   
     function getFee(uint256 _fee, uint256 amount) public pure returns (uint256) {
         return (amount * _fee) / FEE_PRECISION;
     }
@@ -117,13 +130,14 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
     function getSubRequestAt(address addr, uint index) public view returns (SubRequest memory) {
         return users[addr].subRequests[index];
     }
-    function getSubItemAt(address addr, uint index) public view returns (SubItem memory) {
-        return users[addr].subItems[index];
-    }
     function getActiveBidAt(address addr, uint index) public view returns (ActiveBid memory) {
         return users[addr].activeBids[index];
     }    
-    // todo remove 
+
+    function getSubItemAt(address addr, uint index) public view returns (SubItem memory) {
+        // return users[addr].subItems[index];
+        return allSubItems[allSubItemIds[users[addr].subItemHashes[index]]-1];
+    }
     function getSubItems(address addr, uint start, uint length) public view returns (SubItem[] memory items, uint last) {
         // either we  iterate through all items and return only those that are active
         // or we return all items and let the client filter them
@@ -132,12 +146,12 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         uint count = 0;
         last = 0; // init to 0
         
-        for (uint i = start; i < users[addr].subItems.length; i++) {
-            if(block.timestamp < users[addr].subItems[i].validTill) {
+        for (uint i = start; i < users[addr].subItemHashes.length; i++) {
+            SubItem memory subItem = allSubItems[allSubItemIds[users[addr].subItemHashes[i]]-1];
+            if(block.timestamp < subItem.validTill) {
                 if(count < length)
                 {
-                   items[count] = users[addr].subItems[i];
-                   //items.push(users[addr].subItems[i]);
+                   items[count] = subItem;
                    ++count;
                    last = i;
                 } else 
@@ -146,22 +160,41 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         }
         //return items;
     }
-    function getSubItemBy(address addr, bytes32 subHash) public view returns (SubItem memory) {
+    /*function getSubItemBy(address addr, bytes32 subHash) public view returns (SubItem memory) {
         // check if subHash subItem is active
         require(block.timestamp <= users[addr].subItems[users[addr].subItemIds[subHash]-1].validTill, "SubItem expired");
         return users[addr].subItems[users[addr].subItemIds[subHash]-1];
-    }
+    }*/
     function getAllSubItems(address addr) public view returns (SubItem[] memory) {
         // TODO return non active without keyLockLocation
-        SubItem[] memory items = new SubItem[](users[addr].subItems.length);
-        for (uint i = 0; i < users[addr].subItems.length; i++) {
-            items[i] = users[addr].subItems[i];
+        SubItem[] memory items = new SubItem[](users[addr].subItemHashes.length);
+        for (uint i = 0; i < items.length; i++) {
+            items[i] = allSubItems[allSubItemIds[users[addr].subItemHashes[i]]-1];
             if(block.timestamp > items[i].validTill) {
                 items[i].unlockKeyLocation = bytes32(0);
             }
         }
         return items; //users[addr].subItems;
     }
+    function getAllSubItemsForNameHash(bytes32 nameHash) public view returns (SubItem[] memory) {
+        //User storage u = users[nameHashToUser[nameHash]];
+        // TODO return non active without keyLockLocation
+        uint len = nameHashToSubItems[nameHash].length;
+        SubItem[] memory items = new SubItem[](len);
+        for (uint i = 0; i < len; i++) {
+            items[i] = allSubItems[allSubItemIds[nameHashToSubItems[nameHash][i]]-1];
+            // nameHashToSubItems[nameHash][i];
+            if(block.timestamp > items[i].validTill) {
+                items[i].unlockKeyLocation = bytes32(0);
+            }
+        }
+        return items; //users[addr].subItems;
+    }
+    
+    function getNameHashSubItems(bytes32 nameHash) public view returns (bytes32[] memory) {
+        return nameHashToSubItems[nameHash];
+    }
+
     function getListedSubs(address addr) public view returns (bytes32[] memory) {
         return users[addr].listedSubs;
     }
@@ -256,6 +289,9 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         buyer.activeBids.push(ab);      
         buyer.activeBidIds[requestHash] = buyer.activeBids.length; // +1 of index
     }
+
+   
+
     // encryptedSecret is podReference encrypited with sharedSecret - podAddress, seller.address, buyer.address, encryptedSecret
     function sellSub(bytes32 requestHash, bytes32 encryptedKeyLocation) public nonReentrant payable {
         User storage seller = users[msg.sender];
@@ -276,13 +312,26 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         s.earned += (s.price-fee);
 
         User storage buyer = users[br.buyer];
+        //User storage buyer = users[userToPortable[br.buyer]];
         SubItem memory si;
         si.subHash = br.subHash;
         si.unlockKeyLocation = encryptedKeyLocation;
         si.validTill = block.timestamp + (s.daysValid * 86400); //(daysValid * 60*60*24) // days;
 
-        buyer.subItems.push(si);
-        buyer.subItemIds[br.subHash] = buyer.subItems.length; // +1 of index (so call subHash -1)
+//        buyer.subItems.push(si);
+//        buyer.subItemIds[br.subHash] = buyer.subItems.length; // +1 of index (so call subHash -1)
+
+        bytes32 subItemHash = keccak256(abi.encode(msg.sender, br.buyer, si.subHash, si.validTill, si.unlockKeyLocation)); //, block.timestamp));
+        allSubItems.push(si); 
+        allSubItemIds[subItemHash] = allSubItems.length;
+        buyer.subItemHashes.push(subItemHash);
+
+        nameHashToSubItems[br.fdpBuyerNameHash].push(subItemHash); // point to index
+
+        // user  fdpPortableAddress
+        //BoughtSubItem storage bsi = nameHashToUserItems[br.fdpBuyerNameHash]; 
+        //bsi.subItemIds.push(buyer.subItems.length-1); // point to index
+        //nameHashToUser[br.fdpBuyerNameHash] = br.buyer; // this one gets overwritten if buyer has multiple subs
 
         if(subInfos[br.subHash].perSubscriberBalance[br.buyer]==0) // only add subscriber if not already added
            subInfos[br.subHash].subscribers.push(br.buyer);
@@ -293,6 +342,7 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         removeSubRequest(msg.sender, requestHash); // remove from seller 
         removeActiveBid(br.buyer, requestHash);
     }
+    
     // removes active bids from SubRequests of seller and from Active bids of buyer
     function removeUserActiveBid(bytes32 requestHash) public {
         User storage u = users[msg.sender];
@@ -325,7 +375,7 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         delete u.activeBidIds[requestHash];
     }
     // user can remove subItem from his list if wishes to do so
-    function removeSubItem(uint256 index) private {
+    /*function removeSubItem(uint256 index) private {
         User storage u = users[msg.sender];
         require(index < u.subItems.length, "!Index");
 
@@ -334,7 +384,7 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
             u.subItems[index] = u.subItems[lastIndex];
         }
         u.subItems.pop();
-    }
+    }*/
     // remove subRequest from seller needs to return money to bidder 
     function removeSubRequest(address owner, bytes32 requestHash) private {
         User storage u = users[owner]; //msg.sender];

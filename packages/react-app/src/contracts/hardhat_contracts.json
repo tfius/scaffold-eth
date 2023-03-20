@@ -5,7 +5,7 @@
       "chainId": "5",
       "contracts": {
         "DataHub": {
-          "address": "0x1949beB6CC2db0241Dd625dcaC09891DF5c3756b",
+          "address": "0xBE41b272e3cDe3aeC8fE4a144C5b7cE71D9e6498",
           "abi": [
             {
               "inputs": [],
@@ -344,6 +344,42 @@
               "inputs": [
                 {
                   "internalType": "bytes32",
+                  "name": "nameHash",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "getAllSubItemsForNameHash",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "subHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "unlockKeyLocation",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "validTill",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct DataHub.SubItem[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
                   "name": "category",
                   "type": "bytes32"
                 }
@@ -399,6 +435,25 @@
                 }
               ],
               "name": "getListedSubs",
+              "outputs": [
+                {
+                  "internalType": "bytes32[]",
+                  "name": "",
+                  "type": "bytes32[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "nameHash",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "getNameHashSubItems",
               "outputs": [
                 {
                   "internalType": "bytes32[]",
@@ -637,47 +692,6 @@
                 }
               ],
               "name": "getSubItemAt",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "bytes32",
-                      "name": "subHash",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "unlockKeyLocation",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "validTill",
-                      "type": "uint256"
-                    }
-                  ],
-                  "internalType": "struct DataHub.SubItem",
-                  "name": "",
-                  "type": "tuple"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "addr",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "subHash",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "getSubItemBy",
               "outputs": [
                 {
                   "components": [
@@ -2032,7 +2046,7 @@
       "chainId": "31337",
       "contracts": {
         "DataHub": {
-          "address": "0xB0D4afd8879eD9F52b28595d31B441D079B2Ca07",
+          "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
           "abi": [
             {
               "inputs": [],
@@ -2371,6 +2385,42 @@
               "inputs": [
                 {
                   "internalType": "bytes32",
+                  "name": "nameHash",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "getAllSubItemsForNameHash",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "subHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "unlockKeyLocation",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "validTill",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct DataHub.SubItem[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
                   "name": "category",
                   "type": "bytes32"
                 }
@@ -2426,6 +2476,25 @@
                 }
               ],
               "name": "getListedSubs",
+              "outputs": [
+                {
+                  "internalType": "bytes32[]",
+                  "name": "",
+                  "type": "bytes32[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "nameHash",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "getNameHashSubItems",
               "outputs": [
                 {
                   "internalType": "bytes32[]",
@@ -2664,47 +2733,6 @@
                 }
               ],
               "name": "getSubItemAt",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "bytes32",
-                      "name": "subHash",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "unlockKeyLocation",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "validTill",
-                      "type": "uint256"
-                    }
-                  ],
-                  "internalType": "struct DataHub.SubItem",
-                  "name": "",
-                  "type": "tuple"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "addr",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "subHash",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "getSubItemBy",
               "outputs": [
                 {
                   "components": [
@@ -3442,7 +3470,7 @@
           ]
         },
         "SwarmMail": {
-          "address": "0x162A433068F51e18b7d13932F27e66a3f99E6890",
+          "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
           "abi": [
             {
               "inputs": [],

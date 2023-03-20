@@ -145,6 +145,7 @@ function App(props) {
 
   const [fairOSPods, setFairOSPods] = useState([]);
   const [fairOSSessionId, setFairOSSessionId] = useState(null);
+  const [fairOSLogin, setFairOSLogin] = useState(null);
 
   const location = useLocation();
 
@@ -292,6 +293,7 @@ function App(props) {
     }
     setFairOSPods([]);
     setFairOSSessionId(null);
+    setFairOSLogin(null);
     setSmailMail({ key: null, smail: null });
   }, [
     mainnetProvider,
@@ -434,6 +436,7 @@ function App(props) {
                   setSmailMail={setSmailMail}
                   setFairOSPods={setFairOSPods}
                   setFairOSSessionId={setFairOSSessionId}
+                  setFairOSLogin={setFairOSLogin}
                   isWalletConnected={web3Modal && web3Modal?.cachedProvider}
                 />
               </Menu.Item>
@@ -583,6 +586,7 @@ function App(props) {
                   tx={tx}
                   address={address}
                   smailMail={smailMail}
+                  fairOSLogin={fairOSLogin}
                 />
               </Route>
               <Route exact path="/subscriptions">

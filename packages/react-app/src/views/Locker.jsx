@@ -450,7 +450,7 @@ export function Locker({
           <Tooltip title="Delete">
             <Button onClick={() => setIsModalVisible(true)}>Add Data</Button>&nbsp;
           </Tooltip>
-          <Tooltip title="View shared item">
+          <Tooltip title="View shared items">
             <Switch checked={viewSharedItems} onChange={toggleViewShared} />
           </Tooltip>
           {isLoading && <Spin />}

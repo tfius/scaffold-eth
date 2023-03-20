@@ -48,6 +48,7 @@ export function FairOSWasmConnect({
   setFairOSPods,
   setFairOSSessionId,
   isWalletConnected,
+  setFairOSLogin,
 }) {
   const [listingFee, setListingFee] = useState(ethers.utils.parseEther("0.0001"));
 
@@ -137,7 +138,17 @@ export function FairOSWasmConnect({
     try {
       var resp = await window.login(values.username, values.password);
       var userStat = await window.userStat(resp.sessionId);
-      var loginObj = { user: resp.user, sessionId: resp.sessionId, address: userStat.address };
+      var hash = await window.getNameHash(resp.sessionId, userStat.address);
+
+      var loginObj = {
+        user: resp.user,
+        sessionId: resp.sessionId,
+        address: userStat.address,
+        portableAddress: userStat.address,
+        nameHash: hash.namehash,
+      };
+
+      var loginObj = { user: resp.user, sessionId: resp.sessionId, address: userStat.address, nameHash: hash.namehash };
       setLogin(loginObj);
       console.log("Login", resp, userStat, loginObj);
       // {
@@ -225,6 +236,7 @@ export function FairOSWasmConnect({
 
     console.log("LoginWithSignature", loginObj);
     await PodList(loginObj.sessionId);
+    setFairOSLogin(loginObj);
 
     notification.info({
       message: loginObj.user + " Logged In",

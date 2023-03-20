@@ -124,8 +124,9 @@ export function Subscriptions({
                         {ab.data.description}
                         <br />
                         <br />
-
-                        <a onClick={() => setReplyTo(ab.sub.seller)}>Contact seller</a>
+                        <Tooltip title={<AddressSimple address={ab.sub.seller} ensProvider={mainnetProvider} />}>
+                          <a onClick={() => setReplyTo(ab.sub.seller)}>Contact seller</a>
+                        </Tooltip>
                         <div>Bought for: {ethers.utils.formatEther(ab.data.price)}⬨</div>
 
                         <div>Expires: {new Date(parseInt(ab.validTill.toString()) * 1000).toString()}</div>

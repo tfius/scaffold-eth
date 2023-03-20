@@ -47,7 +47,16 @@ function getMenuItem(label, key, icon, children, type) {
 // Allows to bid on a subscription
 // Allows to sell a subscription - accept a bid
 
-export function DataHub({ readContracts, writeContracts, tx, userSigner, address, smailMail, mainnetProvider }) {
+export function DataHub({
+  readContracts,
+  writeContracts,
+  tx,
+  userSigner,
+  address,
+  smailMail,
+  mainnetProvider,
+  fairOSLogin,
+}) {
   const [menuItems, setMenuItems] = useState([]);
   const [listingFee, setListingFee] = useState(ethers.utils.parseEther("0.0001"));
   const [marketFee, setMarketFee] = useState(0); // 0.5% of the price
@@ -126,6 +135,14 @@ export function DataHub({ readContracts, writeContracts, tx, userSigner, address
   // });
 
   const onListSub = async values => {
+    if (fairOSLogin === null) {
+      notification.error({
+        message: "Error listing subscription",
+        description: "You must be logged in to FairOS to list a subscription.",
+      });
+      return;
+    }
+
     console.log("onListSub", values);
     //var fdpSellerNameHash = "0x" + consts.emptyHash;
     await listSubTx(values.fdpSellerNameHash, values, values.price, values.category, values.podAddress);
@@ -133,10 +150,20 @@ export function DataHub({ readContracts, writeContracts, tx, userSigner, address
   };
 
   const onBidSub = async subscription => {
-    console.log("onBidSub", subscription);
+    if (fairOSLogin === null) {
+      notification.error({
+        message: "Error biding on subscription",
+        description: "You must be logged in to FairOS to bid on a subscription.",
+      });
+      return;
+    }
+
+    console.log("onBidSub", subscription, fairOSLogin);
+    // var hash = await window.getNameHash(fairOSSessionId, userStat.address);
+    console.log();
     // address is fdpBuyerNameHash
-    var fdpBuyerNameHash = "0x" + consts.emptyHash;
-    await bidSubTx(subscription, fdpBuyerNameHash); // TODO this must be FDPbuyer address not METAMASK address
+    var fdpBuyerNameHash = null; //"0x" + consts.emptyHash;
+    await bidSubTx(subscription, "0x" + fairOSLogin.nameHash); // TODO this must be FDPbuyer address not METAMASK address
   };
 
   const onCategoryChange = async values => {
