@@ -18,7 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          ref: ghAction.0
+          ref: subscription-market
       - name: Node
         uses: actions/setup-node@v3
         with:
