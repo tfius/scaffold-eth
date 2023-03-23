@@ -294,7 +294,7 @@ export function FairOSWasmConnect({
       console.log(e);
       notification.error({
         message: "Error listing subscription",
-        description: "You can only list one subscription for a pod.",
+        description: "You can only list one subscription for a pod." + e.message,
       });
     }
   });

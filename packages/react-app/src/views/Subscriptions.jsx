@@ -74,7 +74,7 @@ export function Subscriptions({
           var decRes = EncDec.nacl_decrypt(d, smailMail.smail.substr(2, smailMail.smail.length));
           decData = JSON.parse(decRes);
         } catch (e) {
-          console.log("error subItemDetail", e);
+          console.error("error getSubsItemDetails ", e);
         }
       }
 

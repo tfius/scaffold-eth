@@ -114,7 +114,7 @@ export function SubBids({ readContracts, writeContracts, tx, userSigner, address
                       <br />
                       <i>{ab.subData.description}</i>
                       <br />
-                      from {ab.sub.seller} <br />
+                      from <AddressSimple address={ab.sub.seller} ensProvider={mainnetProvider} /> <br />
                       <br />
                       You can remove this bid if you want to and get back your escrowed funds.
                     </>

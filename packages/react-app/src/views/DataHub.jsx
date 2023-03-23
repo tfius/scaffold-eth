@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { Link, useParams, useHistory } from "react-router-dom";
 
 import { ethers } from "ethers";
 import {
@@ -69,6 +70,11 @@ export function DataHub({
   const [isLoading, setIsLoading] = useState(false);
   const placeholderImage = "/logo512.png";
 
+  const history = useHistory();
+  //debugger;
+  let { cat, sub } = useParams();
+  console.log("params", cat, sub);
+
   const getFees = useCallback(async () => {
     if (readContracts === undefined || readContracts.DataHub === undefined) return;
     var listFee = await readContracts.DataHub.minListingFee();
@@ -119,10 +125,18 @@ export function DataHub({
     }
   });
   const bidSubTx = useCallback(async (subscription, fdpBuyerNameHash) => {
-    var newTx = await tx(
-      writeContracts.DataHub.bidSub(subscription.subHash, fdpBuyerNameHash, { value: subscription.priceInWei }),
-    );
-    await newTx.wait();
+    try {
+      var newTx = await tx(
+        writeContracts.DataHub.bidSub(subscription.subHash, fdpBuyerNameHash, { value: subscription.priceInWei }),
+      );
+      await newTx.wait();
+    } catch (e) {
+      console.log(e);
+      notification.error({
+        message: "Error requesting access to subscription",
+        description: "Maybe you already have an open request to this subscription ?" + e.message,
+      });
+    }
   });
 
   // what is in unlockingData?
@@ -174,13 +188,11 @@ export function DataHub({
       for (var subId = 0; subId < cat.subIdxs.length; subId++) {
         try {
           var sub = await getSub(cat.subIdxs[subId]); // getting by index is different than getting by hash
-          // console.log("sub", sub);
+          console.log("sub", sub);
           //if (sub.active === false) continue; // ignore non active subs
-
           var subData = await downloadDataFromBee(sub.swarmLocation);
           var subscription = JSON.parse(new TextDecoder().decode(subData));
           //console.log("subscription", subscription);
-
           subscription.seller = sub.seller;
           subscription.active = sub.active;
           subscription.fdpSellerNameHash = sub.fdpSellerNameHash;
@@ -193,6 +205,7 @@ export function DataHub({
           subscription.subHash = sub.subHash;
           subscription.daysValid = sub.daysValid;
           subscription.category = categories.find(x => x.value == values[i])?.label;
+          subscription.categoryHash = values[i];
 
           subscription.dataPodName = subscription.podName;
           subscription.dataPodAddress = subscription.podAddress;
@@ -251,8 +264,17 @@ export function DataHub({
   const onImageError = e => {
     e.target.src = window.location.origin + placeholderImage;
   };
+
+  const openDetails = async subscription => {
+    console.log("openDetails", subscription);
+    history.push("/datahub/" + subscription.categoryHash + "/" + subscription.subHash);
+    var subViewDetails = await readContracts.DataHub.getSubBy(subscription.subHash);
+    console.log("subViewDetails", subViewDetails);
+  };
+
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
+      {cat} {sub}
       <div>
         {/* <Button onClick={() => setOpenListSub(!openListSub)}>List Data</Button> &nbsp; */}
         <small>
@@ -294,6 +316,9 @@ export function DataHub({
                 key={i}
                 style={{ width: "26%", maxWidth: "400px", minWidth: "256px", maxHeight: "200px" }}
                 hoverable
+                onClick={() => {
+                  openDetails(sub);
+                }}
               >
                 <img className="podItemLogoImage" src={sub.imageUrl} alt="image" onError={onImageError} />
                 <div key={i}>

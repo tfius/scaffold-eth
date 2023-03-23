@@ -107,25 +107,31 @@ export function SubRequests({
     // let dataWithKey = { ref: consts.emptyHash, sender: address }; //, podAddress: fdp.podAddress, podIndex: sub.podIndex };
 
     // var encryptedKeyLocationOld = await EncDec.encryptAndUpload(dataWithKey, receiverPubKey.pk);
+    // debugger;
 
     if (sessionId === null) {
       notification.error({ message: "Session not started", description: "You need to start a FairOS session first" });
       return;
     }
 
-    var subscriberNameHash = await window.getNameHash(sessionId, subRequest.buyer);
+    // var subscriberNameHash = await window.getNameHash(sessionId, subRequest.buyer);
     var encryptedKeyLocation = await window.encryptSubscription(
       sessionId,
       subRequest.data.podName,
-      "0x" + subscriberNameHash.namehash,
+      subRequest.fdpBuyerNameHash,
+      //"0x" + subscriberNameHash.namehash,
     );
     // debugger;
     // window.encryptSubscription
 
-    var tx = await writeContracts.DataHub.sellSub(subRequest.requestHash, "0x" + encryptedKeyLocation.reference);
-    await tx.wait();
-    // remove subRequest from
-    setReqSubSubscriptions(reqSubSubscriptions.filter(reqSub => reqSub.requestHash !== subRequest.requestHash));
+    try {
+      var tx = await writeContracts.DataHub.sellSub(subRequest.requestHash, "0x" + encryptedKeyLocation.reference);
+      await tx.wait();
+      // remove subRequest from
+      setReqSubSubscriptions(reqSubSubscriptions.filter(reqSub => reqSub.requestHash !== subRequest.requestHash));
+    } catch (e) {
+      notification.error({ message: "Transaction Failed", description: "Rejected " + e.message });
+    }
   };
 
   //const subscribers
@@ -157,7 +163,7 @@ export function SubRequests({
                 <Tooltip
                   title={
                     <>
-                      Allow {reqSub.buyer}
+                      Allow <AddressSimple address={reqSub.buyer} ensProvider={mainnetProvider} />
                       <br />
                       to access pod
                       <br />
