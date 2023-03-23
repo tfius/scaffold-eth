@@ -274,7 +274,7 @@ export function DataHub({
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
-      {cat} {sub}
+      {/* {cat} {sub} */}
       <div>
         {/* <Button onClick={() => setOpenListSub(!openListSub)}>List Data</Button> &nbsp; */}
         <small>
