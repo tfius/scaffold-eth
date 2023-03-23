@@ -149,8 +149,8 @@ function App(props) {
 
   const location = useLocation();
 
-  const setReplyTo = replyTo => {
-    _setReplyTo(replyTo);
+  const setReplyTo = replyToAddress => {
+    _setReplyTo(replyToAddress);
     setIsModalVisible(true);
   };
   const setIsModalVisible = visible => {

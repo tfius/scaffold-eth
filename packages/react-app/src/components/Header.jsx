@@ -5,7 +5,7 @@ import React from "react";
 
 export default function Header() {
   return (
-    <a href="https://mail.fairdatasociety.org" target="_blank" rel="noopener noreferrer">
+    <a href="https://fairdrive.io/" target="_blank" rel="noopener noreferrer">
       <PageHeader title="Smail" subTitle="" style={{ cursor: "pointer" }} />
     </a>
   );

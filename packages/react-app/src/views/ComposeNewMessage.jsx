@@ -31,6 +31,10 @@ class ComposeNewMessageForm extends React.Component {
       recipientEns: null,
     };
   }
+
+  // componentDidMount() {
+  //   onRecepientChange(this.props.recipient);
+  // }
   onSend = async message => {
     //console.log("onFinish", message);
     this.props.loading(true);
@@ -109,6 +113,10 @@ class ComposeNewMessageForm extends React.Component {
             {
               name: ["sender"],
               value: this.props.address,
+            },
+            {
+              name: ["recipient"],
+              value: this.props.recipient,
             },
           ]}
         >
