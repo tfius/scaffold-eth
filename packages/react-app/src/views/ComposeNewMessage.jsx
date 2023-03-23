@@ -3,12 +3,9 @@ import { Button, Card, Typography, Modal, Input, Form, Spin, Progress, Tooltip, 
 import * as consts from "./consts";
 import { uploadDataToBee } from "./../Swarm/BeeService";
 import * as layouts from "./layouts.js";
-
 import * as EncDec from "./../utils/EncDec.js";
-
 import { DropzoneReadFileContents } from "./../Swarm/DropzoneReadFileContents";
 import { useEffect } from "react";
-
 
 const { Meta } = Card;
 const { Text } = Typography;
@@ -30,11 +27,10 @@ class ComposeNewMessageForm extends React.Component {
       isRecipientRegistered: false,
       recipientEns: null,
     };
-  }
 
-  // componentDidMount() {
-  //   onRecepientChange(this.props.recipient);
-  // }
+    this.onRecepientChange(this.props.recipient);
+    //console.log("ComposeNewMessageForm", this.props.recipient);
+  }
   onSend = async message => {
     //console.log("onFinish", message);
     this.props.loading(true);
@@ -59,6 +55,7 @@ class ComposeNewMessageForm extends React.Component {
   };
 
   onRecepientChange = async name => {
+    //console.log("onRecepientChange", name);
     let ensAddress = null;
     let inputNameOrAddress = name;
     if (isENS(name)) {
@@ -82,6 +79,7 @@ class ComposeNewMessageForm extends React.Component {
     var { pk, registered } = await this.props.onRetrieveRecipientPubKey(inputNameOrAddress, false);
     this.setState({ recipientKey: pk });
     this.setState({ isRecipientRegistered: registered });
+    //console.log("onRecepientChange", name, registered);
   };
   onFileUploaded = async (hash, file) => {
     //console.log("file uploaded", hash, file);
@@ -97,6 +95,20 @@ class ComposeNewMessageForm extends React.Component {
   };
 
   render() {
+    let fields = [
+      {
+        name: ["sender"],
+        value: this.props.address,
+      },
+    ];
+
+    // if (this.props.recipient !== "") {
+    //   fields.push({
+    //     name: ["recipient"],
+    //     initialValue: this.props.recipient,
+    //   });
+    // }
+
     var total = this.state.attachments.reduce((a, b) => a + b.file.size, 0);
     var percent = Math.round((total / (5 * 1024 * 1024)) * 100);
     const required = [{ required: true }];
@@ -109,16 +121,11 @@ class ComposeNewMessageForm extends React.Component {
           // name="control-ref"
           onFinish={this.onSend}
           name="composeNewMessage"
-          fields={[
-            {
-              name: ["sender"],
-              value: this.props.address,
-            },
-            {
-              name: ["recipient"],
-              value: this.props.recipient,
-            },
-          ]}
+          fields={fields}
+          initialValues={{
+            sender: this.props.sender,
+            recipient: this.props.recipient,
+          }}
         >
           <Form.Item name="sender" label="Sender">
             <Input disabled />
@@ -130,7 +137,8 @@ class ComposeNewMessageForm extends React.Component {
           )} */}
           <Form.Item name="recipient" label="Recipient" rules={required}>
             <Input
-              defaultValue={this.props.recipient}
+              //defaultValue={this.state.recipient}
+              initialValue={this.state.recipient}
               placeholder="0x address or ENS"
               value={this.state.recepient}
               onChange={e => this.onRecepientChange(e.target.value)}
@@ -224,9 +232,8 @@ export function ComposeNewMessage({
   const [progressStatus, setProgressStatus] = useState("");
   const [senderPkRegister, setSenderPkRegister] = useState(consts.emptyHash);
   const [receiverPkRegister, setReceiverPkRegister] = useState(consts.emptyHash);
-
-  const [senderENS, setSenderENS] = useState(null);
-  const [receiverENS, setReceiverENS] = useState(null);
+  // const [senderENS, setSenderENS] = useState(null);
+  // const [receiverENS, setReceiverENS] = useState(null);
 
   //let senderENS = null;
   //let receiverENS = null;
@@ -243,6 +250,7 @@ export function ComposeNewMessage({
   useEffect(() => {
     const retrieveSenderPubKey = async (address = false) => {
       let senderPubKey = await retrievePubKey(address, true); // get sender public key
+      //console.log("senderPubKey", senderPubKey);
 
       //const ens = useLookupAddress(ensProvider, address);
       //const ensSplit = ens && ens.split(".");
@@ -273,7 +281,7 @@ export function ComposeNewMessage({
 
       return { pk: pk, registered: data.registered };
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
     return { pk: null, registered: false };
   };
@@ -350,7 +358,7 @@ export function ComposeNewMessage({
       // fileSize expects size in bytes
       var pricePerByte = 42 * 8 * 2; // 10000 mio wei per byte
       var cost = Math.floor(fileSize * pricePerByte) + "000000";
-      console.log("cost", cost);
+      //console.log("cost", cost);
       //var cost = "0.001";
 
       setProgressStatus("Waiting for user to sign transaction ...");
@@ -409,7 +417,7 @@ export function ComposeNewMessage({
             recipient={recipient}
             ensProvider={ensProvider}
             senderPkRegister={senderPkRegister}
-            senderENS={senderENS}
+            // senderENS={senderENS}
             // receiverENS={receiverENS}
           />
         )}

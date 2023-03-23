@@ -116,17 +116,23 @@ export function FairOSWasmConnect({
 
   async function ConnectFairOS() {
     const beeNet = BEENETWORKS[selectedBeeNetwork];
-    console.log("wasmConnect", selectedBeeNetwork, targetNetwork, batchId);
-    let resp = await window.connect(
-      beeNet.endpoint, // "http://localhost:1633", // bee endpoint
-      batchId, //"51987f7304b419d8aa184d35d46b3cfeb1b00986ad937b3151c7ade699c81338", // stampId
-      beeNet.rpc, //"http://localhost:9545", // rpc
-      "testnet", //targetNetwork.name, //"play or testnet", // network
-      targetNetwork.rpcUrl, // "http://localhost:9545", // contract.rpc
-      readContracts.DataHub.address, //"0x21a59654176f2689d12E828B77a783072CD26680", // swarm mail contract address
-    );
-    console.log("ConnectFairOS", resp);
-    setFairOS(resp);
+    console.log("wasmConnect", selectedBeeNetwork, targetNetwork, batchId, beeNet);
+    console.log("wasmConnect targetNet", targetNetwork);
+    console.log("wasmConnect    beeNet", beeNet);
+    try {
+      let resp = await window.connect(
+        beeNet.endpoint, // "http://localhost:1633", // bee endpoint
+        batchId, //"51987f7304b419d8aa184d35d46b3cfeb1b00986ad937b3151c7ade699c81338", // stampId
+        beeNet.rpc, //"http://localhost:9545", // rpc
+        "testnet", //targetNetwork.name, //"play or testnet", // network
+        targetNetwork.rpcUrl, // "http://localhost:9545", // contract.rpc
+        readContracts.DataHub.address, //"0x21a59654176f2689d12E828B77a783072CD26680", // swarm mail contract address
+      );
+      console.log("ConnectFairOS", resp);
+      setFairOS(resp);
+    } catch (e) {
+      console.log("ConnectFairOS", e);
+    }
   }
   async function Login(values) {
     setLogin(null);

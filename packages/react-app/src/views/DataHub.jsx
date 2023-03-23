@@ -280,7 +280,7 @@ export function DataHub({
     console.log("subscriptionDetails", subscription);
     return (
       <Modal
-        title={subscription.title}
+        title={<h2>{subscription.title}</h2>}
         visible={subscription != null}
         footer={null}
         onOk={() => {}}

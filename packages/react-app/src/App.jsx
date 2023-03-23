@@ -141,7 +141,7 @@ function App(props) {
   const [messageCount, setMessageCount] = useState(0);
   const [smailMail, setSmailMail] = useState({ key: null, smail: null }); // this has to be defined
   const [replyTo, _setReplyTo] = useState("");
-  const [isModalVisible, _setIsModalVisible] = useState(false);
+  const [isComposeModalVisible, _setIsComposeModalVisible] = useState(false);
 
   const [fairOSPods, setFairOSPods] = useState([]);
   const [fairOSSessionId, setFairOSSessionId] = useState(null);
@@ -151,11 +151,11 @@ function App(props) {
 
   const setReplyTo = replyToAddress => {
     _setReplyTo(replyToAddress);
-    setIsModalVisible(true);
+    setIsComposeModalVisible(true);
   };
-  const setIsModalVisible = visible => {
+  const setIsComposeModalVisible = visible => {
     console.log(visible);
-    _setIsModalVisible(visible);
+    _setIsComposeModalVisible(visible);
   };
   const composeNewMail = () => {
     console.log("compose");
@@ -384,7 +384,7 @@ function App(props) {
           </>
           {/* collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)} */}
           {/* <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }}/> */}
-          <Button style={{ marginLeft: "24px", width: "10rem" }} onClick={() => composeNewMail(!isModalVisible)}>
+          <Button style={{ marginLeft: "24px", width: "10rem" }} onClick={() => composeNewMail(!isComposeModalVisible)}>
             Compose
           </Button>
           <Menu
@@ -668,13 +668,13 @@ function App(props) {
         </Layout>
       </Layout>
 
-      {isModalVisible && (
+      {isComposeModalVisible && (
         <ComposeNewMessage
           readContracts={readContracts}
           writeContracts={writeContracts}
           ensProvider={mainnetProvider}
           address={address}
-          modalControl={setIsModalVisible}
+          modalControl={setIsComposeModalVisible}
           tx={tx}
           onMessageSent={onMessageSent}
           smailMail={smailMail}
