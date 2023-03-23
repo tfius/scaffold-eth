@@ -444,9 +444,9 @@ function App(props) {
 
             <>
               <Menu.Divider />
-              <Menu.Item key="/marketplace" disabled={!isFairOsed}>
+              <Menu.Item key="/datahub" disabled={!isFairOsed}>
                 <Tooltip title="View offers, open new listings" placement="right">
-                  <Link to="/marketplace">Data Hub</Link>
+                  <Link to="/datahub">Data Hub</Link>
                 </Tooltip>
               </Menu.Item>
               <Menu.Item key="/subscriptions" disabled={!isFairOsed}>
@@ -577,18 +577,21 @@ function App(props) {
                   mainnetProvider={mainnetProvider}
                 />
               </Route>
-              <Route exact path="/marketplace">
-                <DataHub
-                  readContracts={readContracts}
-                  writeContracts={writeContracts}
-                  mainnetProvider={mainnetProvider}
-                  userSigner={userSigner}
-                  tx={tx}
-                  address={address}
-                  smailMail={smailMail}
-                  fairOSLogin={fairOSLogin}
-                />
-              </Route>
+              <Route
+                path="/datahub/:cat?/:sub?"
+                children={props => (
+                  <DataHub
+                    readContracts={readContracts}
+                    writeContracts={writeContracts}
+                    mainnetProvider={mainnetProvider}
+                    userSigner={userSigner}
+                    tx={tx}
+                    address={address}
+                    smailMail={smailMail}
+                    fairOSLogin={fairOSLogin}
+                  />
+                )}
+              />
               <Route exact path="/subscriptions">
                 <Subscriptions
                   readContracts={readContracts}
