@@ -67,7 +67,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
 
   var updatingMails = false;
   const updateMails = useCallback(async () => {
-    //if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
+    if (readContracts === undefined || readContracts.SwarmMail === undefined) return;
     if (updatingMails) return;
     updatingMails = true;
     const boxCount = await readContracts.SwarmMail.getUserStats(address);
@@ -159,6 +159,8 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       if (s.isEncryption === true) {
         //console.log("data", data, smailMail);
         try {
+          if (smailMail.smail === null) continue;
+
           var d = JSON.parse(new TextDecoder().decode(data));
           //console.log("d", d);
           var decRes = EncDec.nacl_decrypt(d, smailMail.smail.substr(2, smailMail.smail.length));

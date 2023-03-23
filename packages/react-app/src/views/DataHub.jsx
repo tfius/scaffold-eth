@@ -69,6 +69,7 @@ export function DataHub({
   const [openListSub, setOpenListSub] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const placeholderImage = "/logo512.png";
+  const [viewDetailForSub, setViewDetailForSub] = useState(null);
 
   const history = useHistory();
   //debugger;
@@ -270,7 +271,82 @@ export function DataHub({
     history.push("/datahub/" + subscription.categoryHash + "/" + subscription.subHash);
     var subViewDetails = await readContracts.DataHub.getSubBy(subscription.subHash);
     console.log("subViewDetails", subViewDetails);
+    setViewDetailForSub(subscription);
   };
+
+  // create component to display subscription details
+  function ViewDetailsForSubscription({ subscription }) {
+    if (subscription === null) return null;
+    console.log("subscriptionDetails", subscription);
+    return (
+      <Modal
+        title={subscription.title}
+        visible={subscription != null}
+        footer={null}
+        onOk={() => {}}
+        onCancel={() => {
+          setViewDetailForSub(null);
+        }}
+      >
+        <>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <img
+              src={subscription.imageUrl}
+              style={{ width: "256px", height: "128px", borderRadius: "10px" }}
+              onError={onImageError}
+              alt="subscription"
+            />
+          </div>
+          <MarkdownPreview
+            source={sub.description}
+            style={{ backgroundColor: "transparent", color: "inherit" }}
+            darkMode={true}
+            wrapperElement={{
+              "data-color-mode": "dark",
+            }}
+          />
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <Tooltip title={<>CategoryHash: {subscription.categoryHash}</>}>
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                {" "}
+                <h3>{subscription.category}</h3>
+              </div>
+            </Tooltip>
+
+            <br />
+          </div>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <Tooltip
+              title={
+                <>
+                  FDP Seller NameHash: {subscription.fdpSellerNameHash} <br />
+                </>
+              }
+            >
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>Seller:&nbsp;</div>
+            </Tooltip>
+            <AddressSimple address={subscription.seller} ensProvider={mainnetProvider} />
+            <br />
+          </div>
+
+          {/* <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <h4>{subscription.name}</h4>
+          </div>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <small>{subscription.category}</small>
+          </div> */}
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <br />
+            <br />
+            <small>
+              Price: {subscription.price.toString()}⬨ &nbsp; Bids: {subscription.bids.toString()} &nbsp; Sells:{" "}
+              {subscription.sells.toString()} &nbsp; Reports: {subscription.reports.toString()}
+            </small>
+          </div>
+        </>
+      </Modal>
+    );
+  }
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
@@ -284,6 +360,7 @@ export function DataHub({
         </small>
       </div>
       <br />
+      {setViewDetailForSub != null && <ViewDetailsForSubscription subscription={viewDetailForSub} />}
       <Select
         placeholder="Please select category"
         //defaultValue="General"
