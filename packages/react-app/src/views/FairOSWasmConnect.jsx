@@ -142,20 +142,20 @@ export function FairOSWasmConnect({
     }
     try {
       var resp = await window.login(values.username, values.password);
-      var userStat = await window.userStat(resp.sessionId);
-      var hash = await window.getNameHash(resp.sessionId, userStat.address);
+      //var userStat = await window.userStat(resp.sessionId);
+      //var hash = await window.getNameHash(resp.sessionId, userStat.address);
 
       var loginObj = {
         user: resp.user,
         sessionId: resp.sessionId,
-        address: userStat.address,
-        portableAddress: userStat.address,
-        nameHash: hash.namehash,
+        address: resp.address,
+        portableAddress: resp.address,
+        nameHash: resp.nameHash,
       };
 
-      var loginObj = { user: resp.user, sessionId: resp.sessionId, address: userStat.address, nameHash: hash.namehash };
+      // var loginObj = { user: resp.user, sessionId: resp.sessionId, address: userStat.address, nameHash: hash.namehash };
       setLogin(loginObj);
-      console.log("Login", resp, userStat, loginObj);
+      console.log("Login", resp, loginObj);
       // {
       //   "user": "demotime11",
       //   "sessionId": "anfeayKjs1LkQC9fAW1jiiX74TLcJuOECgNQPWwJuOo="
@@ -220,15 +220,15 @@ export function FairOSWasmConnect({
       await ConnectFairOS();
     }
     let resp = await window.walletLogin(portableAddress, signature);
-    var userStat = await window.userStat(resp.sessionId);
-    var hash = await window.getNameHash(resp.sessionId, portableAddress);
+    //var userStat = await window.userStat(resp.sessionId);
+    //var hash = await window.getNameHash(resp.sessionId, portableAddress);
 
     var loginObj = {
       user: resp.user,
       sessionId: resp.sessionId,
-      address: userStat.address,
+      address: resp.address,
       portableAddress: portableAddress,
-      nameHash: hash.namehash,
+      nameHash: resp.nameHash,
     };
     setLogin(loginObj);
     if (loginObj.address.toString() !== loginObj.portableAddress.toString()) {
