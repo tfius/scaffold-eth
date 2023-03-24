@@ -85,6 +85,7 @@ export function SubBids({ readContracts, writeContracts, tx, userSigner, address
 
       <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
         {isLoading && <Spin />}
+        {activeBids.length === 0 && <h4>You have no bids</h4>}
         <Row>
           {activeBids.map((ab, i) => {
             return (

@@ -143,6 +143,7 @@ export function SubRequests({
 
       <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
         {isLoading && <Spin />}
+        {reqSubSubscriptions.length === 0 && <h4>You have no requests</h4>}
 
         <Row>
           {reqSubSubscriptions.map((reqSub, i) => {

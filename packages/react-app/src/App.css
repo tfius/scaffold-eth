@@ -152,6 +152,10 @@ h3 {
   animation-name: headerAnimation;
   animation-duration: 9000ms;
 }
+h4 {
+  animation-name: headerAnimation;
+  animation-duration: 12000ms;
+}
 
 @keyframes paginationAnimation{
   0%{
