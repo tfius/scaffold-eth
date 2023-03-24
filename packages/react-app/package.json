@@ -1,7 +1,7 @@
 {
   "name": "@scaffold-eth/react-app",
   "version": "1.0.0",
-  "homepage": "./",
+  "homepage": "/public/464fbb8ce96db23dcea3d1667d1c6ab4d3e2a46147dd50d60105dacd93c63ca3",
   "browserslist": {
     "production": [
       ">0.2%",

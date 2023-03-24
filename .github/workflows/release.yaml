@@ -1,0 +1,44 @@
+name: Release
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    branches-ignore:
+      - '**'
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: subscription-market
+      - name: Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+          cache: 'yarn'
+      - name: Install & Build
+        run: |
+          export NODE_OPTIONS="--max-old-space-size=8192"
+          yarn install
+          yarn react-app:build
+      - name: Upload to FairOS
+        uses: onepeerlabs/fdfs@v0.0.9
+        with:
+          version: 0.9.2
+          path: packages/react-app/build/*
+        env:
+          BEE: ${{secrets.BEE}}
+          RPC: ${{secrets.RPC}}
+          STAMP: ${{secrets.STAMP}}
+          USER_NAME: ${{secrets.USER_NAME}}
+          PASSWORD: ${{secrets.PASSWORD}}
+          POD: ${{secrets.POD}}
+          ROOT: ${{secrets.ROOT}}

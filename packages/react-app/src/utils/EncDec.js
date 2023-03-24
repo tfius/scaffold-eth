@@ -53,8 +53,7 @@ export const deriveDriveKey = async (seed, dataEncryptionKey) => {
   const driveKey = hkdf(Buffer.from(seed), keyByteLength, { info, hash: keyHash });
   return urlEncodeHashKey(driveKey);
 };
-*/ 
-/*
+
 export const encryptData = async (key, data) => {
   const keyData = Buffer.from(key, "base64");
   const iv = crypto.randomBytes(12);
@@ -213,7 +212,7 @@ export function generate_ephemeral_key_pair() {
 export function nacl_encrypt(message, receiverPublicKey) {
   try {
     var ephemeralKeyPair = generate_ephemeral_key_pair();
-    return nacl_encrypt_with_key(message, receiverPublicKey, ephemeralKeyPair) 
+    return nacl_encrypt_with_key(message, receiverPublicKey, ephemeralKeyPair);
   } catch (e) {
     console.error("nacl_encrypt", e);
   }
@@ -280,7 +279,6 @@ export async function encryptAndUpload(data, recipientKey) {
   var encryptedDataLocation = await uploadDataToBee(encryptedData, "application/octet-stream", Date.now() + ".data");
   return encryptedDataLocation;
 }
-
 
 export async function calculateSharedSecret(fromPrivateKey, toPublicKey) {
   var publickKey = nacl.scalarMult.base(fromPrivateKey);
