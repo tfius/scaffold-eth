@@ -81,24 +81,25 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
         value: subscriberBalance.div(10000000000).toNumber(),
       };
       setSubscribers(subscribers => [...subscribers, subscriber]);
+      //console.log("subscriber", subscriber);
     }
   };
   const getSubsForSubRequests = useCallback(async subHashes => {
     let earned = BigNumber.from("0");
     for (let i = 0; i < subHashes.length; i++) {
       let subSubscribers = await readContracts.DataHub.getSubSubscribers(subHashes[i]);
-      console.log("subSubscribers", subSubscribers);
+      //console.log("subSubscribers", subSubscribers);
       const sub = await getSub(subHashes[i]);
       const subData = await downloadJsonFromBee(sub.swarmLocation);
       var newSub = {};
       Object.assign(newSub, sub);
       newSub.subscribers = subSubscribers;
       newSub.data = subData;
-
-      console.log("sub", newSub);
+      //console.log("sub", newSub);
       earned = earned.add(sub.earned);
-      console.log("earned", earned.toString());
+      //console.log("earned", earned.toString());
       setSubscriptions(subscriptions => [...subscriptions, newSub]);
+      //console.log("getSubsForSubRequests", newSub);
     }
     setTotalEarnings(earned);
   });

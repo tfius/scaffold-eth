@@ -280,7 +280,11 @@ export function DataHub({
     console.log("subscriptionDetails", subscription);
     return (
       <Modal
-        title={<h2>{subscription.title}</h2>}
+        title={
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <h2>{subscription.title}</h2>
+          </div>
+        }
         visible={subscription != null}
         footer={null}
         onOk={() => {}}
@@ -297,14 +301,16 @@ export function DataHub({
               alt="subscription"
             />
           </div>
-          <MarkdownPreview
-            source={sub.description}
-            style={{ backgroundColor: "transparent", color: "inherit" }}
-            darkMode={true}
-            wrapperElement={{
-              "data-color-mode": "dark",
-            }}
-          />
+          <div style={{ background: "#ffffff05", borderRadius: "5px" }}>
+            <MarkdownPreview
+              source={subscription.description}
+              style={{ backgroundColor: "transparent", color: "inherit" }}
+              darkMode={true}
+              wrapperElement={{
+                "data-color-mode": "dark",
+              }}
+            />
+          </div>
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <Tooltip title={<>CategoryHash: {subscription.categoryHash}</>}>
               <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -328,20 +334,39 @@ export function DataHub({
             <AddressSimple address={subscription.seller} ensProvider={mainnetProvider} />
             <br />
           </div>
-
-          {/* <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <h4>{subscription.name}</h4>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <small>
+              Bids: {subscription.bids.toString()} &nbsp; Sells: {subscription.sells.toString()} &nbsp; Reports:{" "}
+              {subscription.reports.toString()} &nbsp; Days Valid: {subscription.daysValid.toString()} <br />
+            </small>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: "0px",
+              padding: "0px",
+            }}
+          >
+            <small>Price: {subscription.price.toString()}⬨ &nbsp;</small>
+            <br />
+            <br />
           </div>
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <small>{subscription.category}</small>
-          </div> */}
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <br />
-            <br />
-            <small>
-              Price: {subscription.price.toString()}⬨ &nbsp; Bids: {subscription.bids.toString()} &nbsp; Sells:{" "}
-              {subscription.sells.toString()} &nbsp; Reports: {subscription.reports.toString()}
-            </small>
+            {subscription.active ? (
+              <Tooltip
+                title={
+                  <>
+                    Request to subscribe for {subscription.price}⬨ for {subscription.daysValid.toString()} days
+                  </>
+                }
+              >
+                <Button onClick={() => onBidSub(subscription)}>Request Access</Button>
+              </Tooltip>
+            ) : (
+              <>Not active</>
+            )}
           </div>
         </>
       </Modal>
@@ -481,6 +506,10 @@ export function DataHub({
 
                   <br />
                   <div style={{ bottom: "5px", position: "absolute" }}>
+                    {sub.active ? <>Active</> : <>Non active</>}
+                  </div>
+
+                  {/* <div style={{ bottom: "5px", position: "absolute" }}>
                     {sub.active ? (
                       <Tooltip
                         title={
@@ -494,7 +523,7 @@ export function DataHub({
                     ) : (
                       <>Not active</>
                     )}
-                  </div>
+                  </div> */}
                 </div>
                 <Skeleton loading={false} />
               </Card>
