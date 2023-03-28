@@ -51,7 +51,7 @@ export function SubBids({ readContracts, writeContracts, tx, userSigner, address
   const getSubsRequestsFromActiveBids = useCallback(async activeBids => {
     for (let i = 0; i < activeBids.length; i++) {
       try {
-        console.log("getSubsRequestsFromActiveBids", activeBids[i]);
+        // console.log("getSubsRequestsFromActiveBids", activeBids[i]);
         // getActiveBidsByHash
         let subReq = await readContracts.DataHub.getSubRequestByHash(activeBids[i].seller, activeBids[i].requestHash);
         let sub = await readContracts.DataHub.getSubBy(subReq.subHash);
@@ -81,11 +81,15 @@ export function SubBids({ readContracts, writeContracts, tx, userSigner, address
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
       <h1>Your bids</h1>
-      <div className="routeSubtitle">All your active bids</div>
+      <div className="routeSubtitle">All your active access requests</div>
 
       <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
         {isLoading && <Spin />}
-        {activeBids.length === 0 && <h4>You have no bids</h4>}
+        {activeBids.length === 0 && (
+          <Card>
+            <h2>You have no active requests.</h2>
+          </Card>
+        )}
         <Row>
           {activeBids.map((ab, i) => {
             return (
@@ -121,7 +125,13 @@ export function SubBids({ readContracts, writeContracts, tx, userSigner, address
                     </>
                   }
                 >
-                  <Button onClick={() => onRemoveActiveBid(ab.activeBid)}>Remove</Button>
+                  {ab.activeBid.served === false ? (
+                    <>
+                      <Button onClick={() => onRemoveActiveBid(ab.activeBid)}>Remove</Button>
+                    </>
+                  ) : (
+                    <h4>Served</h4>
+                  )}
                 </Tooltip>
               </Card>
             );

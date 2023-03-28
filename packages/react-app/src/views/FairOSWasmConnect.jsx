@@ -182,7 +182,7 @@ export function FairOSWasmConnect({
   });
   async function LoginWithWallet() {
     const portableFDPAddress = await getPortableAddress(address);
-    const signature = await userSigner.signMessage(portableFDPAddress + " will connect with " + address);
+    const signature = await userSigner.signMessage("Connect " + portableFDPAddress + " with " + address);
 
     console.log("signature 2", portableFDPAddress, signature, address);
     LoginWithSignature(portableFDPAddress, signature);
@@ -191,7 +191,7 @@ export function FairOSWasmConnect({
   async function ConnectFairOSWithWallet() {
     var signature = null;
     try {
-      signature = await userSigner.signMessage(login.address + " will connect with " + address);
+      signature = await userSigner.signMessage("Connect " + login.address + " with " + address);
       console.log("signature 1", login.address, signature, address);
       let resp = await window.connectWallet(username, password, login.address, signature);
       // address expected is from userStat, but it should be from my wallet address, can fail with Signature failed to create user : wallet doesnot match portable account address

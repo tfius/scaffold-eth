@@ -17,14 +17,16 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
     // subscription request
     struct SubRequest {
         bytes32 fdpBuyerNameHash;
-        address buyer;
-        bytes32 subHash; //which subscription;
+        bytes32 subHash;     // which subscription;
         bytes32 requestHash; // this is needed when
+        address buyer;
+        bool    served; // default false
     }
     // active Bid
     struct ActiveBid {
-        address seller;
         bytes32 requestHash;
+        address seller;
+        bool    served; // default false
     }
     // subscription items
     struct SubItem {
@@ -297,19 +299,12 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         User storage seller = users[msg.sender];
         require(seller.subRequestIds[requestHash] != 0, "No Req");
 
-        SubRequest memory br = seller.subRequests[seller.subRequestIds[requestHash]-1];
+        SubRequest storage br = seller.subRequests[seller.subRequestIds[requestHash]-1];
+        require(br.served == false, "served"); // must exists
         require(subscriptionIds[br.subHash] != 0, "No Sub"); // must exists
 
         Sub storage s = subscriptions[subscriptionIds[br.subHash]-1]; 
         require(msg.sender==s.seller, "Not Sub Seller"); // sent value must be equal to price
-
-        uint256 fee = getFee(marketFee, s.price);
-        payable(msg.sender).transfer(s.price-fee);
-        inEscrow -= s.price;
-        feesCollected += fee;
-
-        s.sells++;
-        s.earned += (s.price-fee);
 
         User storage buyer = users[br.buyer];
         //User storage buyer = users[userToPortable[br.buyer]];
@@ -318,32 +313,53 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         si.unlockKeyLocation = encryptedKeyLocation;
         si.validTill = block.timestamp + (s.daysValid * 86400); //(daysValid * 60*60*24) // days;
 
-//        buyer.subItems.push(si);
-//        buyer.subItemIds[br.subHash] = buyer.subItems.length; // +1 of index (so call subHash -1)
-
         bytes32 subItemHash = keccak256(abi.encode(msg.sender, br.buyer, si.subHash, si.validTill, si.unlockKeyLocation)); //, block.timestamp));
         allSubItems.push(si); 
         allSubItemIds[subItemHash] = allSubItems.length;
+
         buyer.subItemHashes.push(subItemHash);
-
         nameHashToSubItems[br.fdpBuyerNameHash].push(subItemHash); // point to index
+        
+        ActiveBid storage ab = buyer.activeBids[buyer.activeBidIds[requestHash]-1];
+        ab.served = true; // active bid served
+        br.served = true; // sub request served
+        //removeSubRequest(msg.sender, requestHash); // seller removes request from his list
+        //removeActiveBid(br.buyer, requestHash); // remove activeBid from buyer
 
-        // user  fdpPortableAddress
-        //BoughtSubItem storage bsi = nameHashToUserItems[br.fdpBuyerNameHash]; 
-        //bsi.subItemIds.push(buyer.subItems.length-1); // point to index
-        //nameHashToUser[br.fdpBuyerNameHash] = br.buyer; // this one gets overwritten if buyer has multiple subs
+        // calculate fees and transfer to seller
+        uint256 fee = getFee(marketFee, s.price);
+        uint256 sellerPayout = s.price-fee;
+        payable(msg.sender).transfer(sellerPayout);
+        inEscrow -= s.price;
+        feesCollected += fee;
+
+        s.sells++;
+        s.earned += (sellerPayout);
 
         if(subInfos[br.subHash].perSubscriberBalance[br.buyer]==0) // only add subscriber if not already added
            subInfos[br.subHash].subscribers.push(br.buyer);
 
-        subInfos[br.subHash].perSubscriberBalance[br.buyer] += (s.price-fee);
-
-        // seller removes request from his list
-        removeSubRequest(msg.sender, requestHash); // remove from seller 
-        removeActiveBid(br.buyer, requestHash);
+        subInfos[br.subHash].perSubscriberBalance[br.buyer] += (sellerPayout);
     }
-    
-    // removes active bids from SubRequests of seller and from Active bids of buyer
+
+    function requestAgain(bytes32 requestHash) public nonReentrant payable {
+        User storage buyer = users[msg.sender];
+        ActiveBid storage ab = buyer.activeBids[buyer.activeBidIds[requestHash]-1];
+        require(ab.served == true, "ab served"); 
+        // todo some checks those with sellSub
+        User storage seller = users[ab.seller];
+        SubRequest storage sr = seller.subRequests[seller.subRequestIds[requestHash]-1];
+        require(ab.served == true, "sr served"); // must exists
+
+        Sub memory s = subscriptions[subscriptionIds[sr.subHash]-1];
+        require(msg.value==s.price, "!price"); // sent value must be equal to price
+
+        sr.served = false;
+        ab.served = false;
+        inEscrow += msg.value;
+    }
+
+    // removes active bids from SubRequests of seller and from Active bids of buyer, returns funds to buyer
     function removeUserActiveBid(bytes32 requestHash) public {
         User storage u = users[msg.sender];
         require(u.activeBidIds[requestHash] != 0, "!ab Req");
@@ -356,7 +372,9 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         require(subscriptionIds[br.subHash] != 0, "!sub");
 
         Sub memory s = subscriptions[subscriptionIds[br.subHash]-1];
-        payable(msg.sender).transfer(s.price);
+
+        if(br.served == false && ab.served == false)
+           payable(msg.sender).transfer(s.price);
 
         removeSubRequest(ab.seller, requestHash); // remove from seller 
         removeActiveBid(msg.sender, requestHash);
@@ -374,17 +392,6 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         u.activeBids.pop();
         delete u.activeBidIds[requestHash];
     }
-    // user can remove subItem from his list if wishes to do so
-    /*function removeSubItem(uint256 index) private {
-        User storage u = users[msg.sender];
-        require(index < u.subItems.length, "!Index");
-
-        uint256 lastIndex = u.subItems.length - 1;
-        if (lastIndex != index) {
-            u.subItems[index] = u.subItems[lastIndex];
-        }
-        u.subItems.pop();
-    }*/
     // remove subRequest from seller needs to return money to bidder 
     function removeSubRequest(address owner, bytes32 requestHash) private {
         User storage u = users[owner]; //msg.sender];
@@ -398,8 +405,20 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         }
         u.subRequests.pop();
         delete u.subRequestIds[requestHash];
-        //delete u.subRequests[lastIndex];
     }
+
+    // user can remove subItem from his list if wishes to do so
+    /*function removeSubItem(uint256 index) public {
+        User storage u = users[msg.sender];
+        require(index < u.subItemHashes.length, "!Index");
+
+        uint256 lastIndex = u.subItemHashes.length - 1;
+        if (lastIndex != index) {
+            u.subItemHashes[index] = u.subItemHashes[lastIndex];
+        }
+        u.subItemHashes.pop();
+    }*/
+
     function fundsBalance() public view returns (uint256) {
         return address(this).balance;
     }    

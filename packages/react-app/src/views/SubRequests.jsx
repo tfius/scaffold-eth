@@ -143,7 +143,11 @@ export function SubRequests({
 
       <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
         {isLoading && <Spin />}
-        {reqSubSubscriptions.length === 0 && <h4>You have no requests</h4>}
+        {reqSubSubscriptions.length === 0 && (
+          <Card>
+            <h2>There are no access requests for you ☹</h2>
+          </Card>
+        )}
 
         <Row>
           {reqSubSubscriptions.map((reqSub, i) => {
@@ -175,7 +179,11 @@ export function SubRequests({
                   }
                 >
                   {/* ⬨ */}
-                  <Button onClick={() => onSellSubRequest(reqSub)}>Allow</Button>
+                  {reqSub.served === false ? (
+                    <Button onClick={() => onSellSubRequest(reqSub)}>Allow</Button>
+                  ) : (
+                    <h4>Allowed</h4>
+                  )}
                 </Tooltip>
               </Card>
             );
