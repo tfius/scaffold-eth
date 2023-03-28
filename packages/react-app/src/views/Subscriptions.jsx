@@ -111,7 +111,11 @@ export function Subscriptions({
       <h1>Subscriptions</h1>
       <div className="routeSubtitle">View your subscriptions</div>
       {isLoading && <Spin />}
-
+      {activeSubItems.length === 0 && (
+        <Card>
+          <h2>You have no subscriptions </h2>
+        </Card>
+      )}
       <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
         <Row>
           {activeSubItems.map((ab, i) => {
