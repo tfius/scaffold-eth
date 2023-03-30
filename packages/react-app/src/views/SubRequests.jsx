@@ -15,6 +15,7 @@ import {
   Input,
   Select,
   Skeleton,
+  Switch,
   Row,
   Col,
 } from "antd";
@@ -49,6 +50,8 @@ export function SubRequests({
   //const [subRequests, setSubRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [reqSubSubscriptions, setReqSubSubscriptions] = useState([]);
+  const [viewAllowed, setViewAllowed] = useState(false);
+
   const getSubRequests = useCallback(async forAddress => {
     if (readContracts === undefined || readContracts.DataHub === undefined) return;
     setIsLoading(true);
@@ -134,7 +137,15 @@ export function SubRequests({
     }
   };
 
-  //const subscribers
+  const toggleViewAllowed = isChecked => {
+    setViewAllowed(isChecked);
+    if (isChecked) {
+      // maybe something ?
+      //
+    }
+  };
+
+  const viewSubRequests = reqSubSubscriptions.filter(r => r.served === viewAllowed);
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
@@ -143,14 +154,17 @@ export function SubRequests({
 
       <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
         {isLoading && <Spin />}
+        <div className="paginationInfo" style={{ marginTop: "-35px" }}>
+          Waiting <Switch checked={viewAllowed} onChange={toggleViewAllowed} /> Allowed
+        </div>
+
         {reqSubSubscriptions.length === 0 && (
           <Card>
             <h2>There are no access requests for you ☹</h2>
           </Card>
         )}
-
         <Row>
-          {reqSubSubscriptions.map((reqSub, i) => {
+          {viewSubRequests.map((reqSub, i) => {
             return (
               <Card key={i} style={{ maxWidth: "30%", minWidth: "100px" }}>
                 <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
@@ -162,7 +176,7 @@ export function SubRequests({
                       </>
                     }
                   >
-                    <strong>{reqSub.data.title}</strong>
+                    <h3>{reqSub.data.title}</h3>
                   </Tooltip>
                 </div>
                 <Tooltip
@@ -174,7 +188,7 @@ export function SubRequests({
                       <br />
                       <strong>{reqSub.data.podName}</strong>
                       <br />
-                      for 30 days
+                      for {reqSub.sub.daysValid} days
                     </>
                   }
                 >

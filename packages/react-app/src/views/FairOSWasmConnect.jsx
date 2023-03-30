@@ -273,7 +273,7 @@ export function FairOSWasmConnect({
 
     setIsPodLoading(false);
   }
-  const listSubTx = useCallback(async (fdpSellerNameHash, data, price, category, podAddress) => {
+  const listSubTx = useCallback(async (fdpSellerNameHash, data, price, category, podAddress, duration) => {
     try {
       var dataLocation = await uploadDataToBee(JSON.stringify(data), "application/json", Date.now() + ".sub.json");
       console.log("dataLocation", dataLocation, "sellerNameHash", fdpSellerNameHash);
@@ -284,7 +284,7 @@ export function FairOSWasmConnect({
           price,
           category,
           "0x" + podAddress,
-          30, // days to sell subscription
+          duration, //30, // days to sell subscription
           {
             value: listingFee,
           },
@@ -540,6 +540,18 @@ export function FairOSWasmConnect({
   );
 }
 
+const durations = [
+  // { label: "1 day", value: 1 },
+  // { label: "3 days", value: 3 },
+  // { label: "7 days", value: 7 },
+  // { label: "14 days", value: 14 },
+  { label: "30 days", value: 30 },
+  // { label: "60 days", value: 60 },
+  { label: "90 days", value: 90 },
+  { label: "180 days", value: 180 },
+  // { label: "270 days", value: 270 },
+  { label: "365 days", value: 365 },
+];
 function ListPodModalForm({ podName, podAddress, sellerNameHash, categories, onListPod }) {
   const [isPodLoading, setIsPodLoading] = useState(false);
   // const formRef = React.createRef();
@@ -556,13 +568,17 @@ function ListPodModalForm({ podName, podAddress, sellerNameHash, categories, onL
       podAddress: podAddress,
       podName: podName,
       sellerNameHash: sellerNameHash,
+      duration: values.duration,
     };
     console.log("onSendListPod", data);
-    await onListPod(data.sellerNameHash, data, data.price, data.category, data.podAddress);
+    await onListPod(data.sellerNameHash, data, data.price, data.category, data.podAddress, data.duration);
     setIsPodLoading(false);
   };
   const onListSubCategoryChange = value => {
     console.log("onCategoryChange", value);
+  };
+  const onListDurationChange = value => {
+    console.log("onListDurationChange", value);
   };
   const required = [{ required: true }];
 
@@ -582,6 +598,10 @@ function ListPodModalForm({ podName, podAddress, sellerNameHash, categories, onL
       </Form.Item>
       <Form.Item name="category" label="Category" rules={required}>
         <Select onChange={onListSubCategoryChange} options={categories} />
+      </Form.Item>
+
+      <Form.Item name="duration" label="Duration" rules={required}>
+        <Select onChange={onListDurationChange} options={durations} />
       </Form.Item>
       {/* <Form.Item name="fdpSellerNameHash" label="FDP NameHash">
         <Input defaultValue={sellerNameHash} value={sellerNameHash} />

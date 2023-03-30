@@ -12,6 +12,7 @@ import {
   Spin,
   Checkbox,
   Form,
+  Switch,
   Input,
   Select,
   Skeleton,
@@ -48,6 +49,8 @@ export function Subscriptions({
 }) {
   const [activeSubItems, setActiveSubItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [viewActive, setViewActive] = useState(false);
+
   const getSubItems = useCallback(async forAddress => {
     if (readContracts === undefined || readContracts.DataHub === undefined) return;
     var subItems = await readContracts.DataHub.getAllSubItems(forAddress);
@@ -58,8 +61,8 @@ export function Subscriptions({
     setIsLoading(true);
     for (let i = 0; i < subItems.length; i++) {
       let sub = await readContracts.DataHub.getSubBy(subItems[i].subHash);
-      console.log("sub", sub);
-      console.log("subItem", subItems[i]);
+      //console.log("sub", sub);
+      //console.log("subItem", subItems[i]);
       var subData = await downloadJsonFromBee(sub.swarmLocation);
       var decData = {};
 
@@ -83,11 +86,13 @@ export function Subscriptions({
       item.sub = sub;
       item.data = subData;
       item.keyData = decData;
+      item.active = item.validTill.toString() * 1000 > Date.now();
 
       console.log("getSubsItemDetails", item);
       setActiveSubItems(activeSubItems => [item, ...activeSubItems]);
     }
     setIsLoading(false);
+    //console.log("activeSubItems", activeSubItems)
   });
 
   useEffect(() => {
@@ -105,11 +110,24 @@ export function Subscriptions({
       </>
     );
   */
+  const toggleViewActive = isChecked => {
+    setViewActive(isChecked);
+    if (isChecked) {
+      //setSharedItems([]);
+      //getSharedItems();
+    }
+  };
+
+  const viewSubscriptions = activeSubItems.filter(r => r.active === !viewActive);
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
       <h1>Subscriptions</h1>
       <div className="routeSubtitle">View your subscriptions</div>
+
+      <div className="paginationInfo" style={{ marginTop: "-35px" }}>
+        Active <Switch checked={viewActive} onChange={toggleViewActive} /> Expired
+      </div>
       {isLoading && <Spin />}
       {activeSubItems.length === 0 && (
         <Card>
@@ -118,13 +136,14 @@ export function Subscriptions({
       )}
       <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
         <Row>
-          {activeSubItems.map((ab, i) => {
+          {viewSubscriptions.map((ab, i) => {
             return (
               <Card key={i} style={{ maxWidth: "30%", minWidth: "100px" }}>
                 <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
                   <Tooltip
                     title={
                       <>
+                        <h2>{ab.data.title}</h2>
                         {ab.data.description}
                         <br />
                         <br />
@@ -136,11 +155,11 @@ export function Subscriptions({
                         <div>Expires: {new Date(parseInt(ab.validTill.toString()) * 1000).toString()}</div>
 
                         <br />
-                        <div>{JSON.stringify(ab.keyData)}</div>
+                        {ab.keyData.state === "decrypted" && <div>{JSON.stringify(ab.keyData)}</div>}
                       </>
                     }
                   >
-                    <strong>{ab.data.title}</strong>
+                    <h3>{ab.data.title}</h3>
                   </Tooltip>
                 </div>
                 <div style={{ bottom: "5px", position: "absolute" }}>

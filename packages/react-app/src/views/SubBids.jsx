@@ -16,6 +16,7 @@ import {
   Select,
   Skeleton,
   Row,
+  Switch,
   Col,
 } from "antd";
 import { EnterOutlined, EditOutlined, ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
@@ -39,6 +40,7 @@ import { categoryList } from "./categories";
 export function SubBids({ readContracts, writeContracts, tx, userSigner, address, smailMail, mainnetProvider }) {
   const [isLoading, setIsLoading] = useState(false);
   const [activeBids, setActiveBids] = useState([]);
+  const [viewServed, setViewServed] = useState(false);
 
   const getActiveBids = useCallback(async forAddress => {
     if (readContracts === undefined || readContracts.DataHub === undefined) return;
@@ -70,13 +72,28 @@ export function SubBids({ readContracts, writeContracts, tx, userSigner, address
   }, [address, readContracts]);
 
   const onRemoveActiveBid = async activeBid => {
-    console.log("onDeleteActiveBid", activeBid);
+    //console.log("onDeleteActiveBid", activeBid);
 
-    var tx = await writeContracts.DataHub.removeUserActiveBid(activeBid.requestHash);
-    await tx.wait();
+    try {
+      var tx = await writeContracts.DataHub.removeUserActiveBid(activeBid.requestHash);
+      await tx.wait();
+    } catch (e) {
+      notification.error({
+        message: "Error",
+        description: e.message,
+      });
+    }
   };
 
-  //const subscribers
+  const toggleViewServed = isChecked => {
+    setViewServed(isChecked);
+    if (isChecked) {
+      // maybe something ?
+      //
+    }
+  };
+
+  const viewActiveBids = activeBids.filter(r => r.activeBid.served === viewServed);
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
@@ -85,54 +102,54 @@ export function SubBids({ readContracts, writeContracts, tx, userSigner, address
 
       <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
         {isLoading && <Spin />}
+        <div className="paginationInfo" style={{ marginTop: "-35px" }}>
+          Waiting <Switch checked={viewServed} onChange={toggleViewServed} /> Active
+        </div>
         {activeBids.length === 0 && (
           <Card>
             <h2>You have no active requests.</h2>
           </Card>
         )}
         <Row>
-          {activeBids.map((ab, i) => {
+          {viewActiveBids.map((ab, i) => {
             return (
               <Card key={i} style={{ maxWidth: "30%", minWidth: "100px" }}>
                 <div style={{ textAlign: "left", top: "-15px", position: "relative" }}>
                   <Tooltip
                     title={
                       <>
-                        {ab.subData.description}
-                        <div>List price:{ethers.utils.formatEther(ab.sub.price)}⬨</div>
+                        {ab.subData.description} <hr />
+                        Access to pod <strong> {ab.subData.podName}</strong> <br />
+                        For <strong>{ethers.utils.formatEther(ab.sub.price)}</strong>⬨
+                        {/* <div>List price:{ethers.utils.formatEther(ab.sub.price)}⬨</div> */}
                       </>
                     }
                   >
-                    <strong>{ab.subData.title}</strong>
+                    <h3>{ab.subData.title}</h3>
                   </Tooltip>
-                  <br />
-                  <small> {ab.subData.description}</small>
                 </div>
-                <Tooltip
-                  title={
-                    <>
-                      You are requesting to access <strong> {ab.subData.title}</strong> <br />
-                      Pod <strong> {ab.subData.podName}</strong>
-                      <br />
-                      For <strong>{ethers.utils.formatEther(ab.sub.price)}</strong>⬨
-                      <br />
-                      <br />
-                      <i>{ab.subData.description}</i>
-                      <br />
-                      from <AddressSimple address={ab.sub.seller} ensProvider={mainnetProvider} /> <br />
-                      <br />
-                      You can remove this bid if you want to and get back your escrowed funds.
-                    </>
-                  }
-                >
-                  {ab.activeBid.served === false ? (
-                    <>
-                      <Button onClick={() => onRemoveActiveBid(ab.activeBid)}>Remove</Button>
-                    </>
-                  ) : (
-                    <h4>Served</h4>
-                  )}
-                </Tooltip>
+                {ab.activeBid.served === false ? (
+                  <Tooltip
+                    title={
+                      <>
+                        You are requesting to access <strong> {ab.subData.title}</strong> <br />
+                        Pod <strong> {ab.subData.podName}</strong>
+                        <br />
+                        For <strong>{ethers.utils.formatEther(ab.sub.price)}</strong>⬨
+                        <br />
+                        from <AddressSimple address={ab.sub.seller} ensProvider={mainnetProvider} /> <br />
+                        <br />
+                        You can remove this bid if you want to and get back your escrowed funds.
+                      </>
+                    }
+                  >
+                    <Button onClick={() => onRemoveActiveBid(ab.activeBid)}>Remove</Button>
+                  </Tooltip>
+                ) : (
+                  <Tooltip title="This request has been served. You can resubscribe after expiration">
+                    <h4>Active</h4>
+                  </Tooltip>
+                )}
               </Card>
             );
           })}

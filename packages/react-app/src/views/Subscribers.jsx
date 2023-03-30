@@ -15,6 +15,7 @@ import {
   Input,
   Select,
   Skeleton,
+  Switch,
   Row,
   Col,
 } from "antd";
@@ -59,11 +60,12 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [subTitle, setSubTitle] = useState("");
   const [viewSubscribers, setViewSubscribers] = useState(false);
+  const [viewActive, setViewActive] = useState(false);
 
   const getListedSubs = useCallback(async forAddress => {
     setIsLoading(true);
     var listedSubs = await readContracts.DataHub.getListedSubs(forAddress);
-    console.log("listedSubs", listedSubs);
+    //console.log("listedSubs", listedSubs);
     await getSubsForSubRequests(listedSubs);
     setIsLoading(false);
   });
@@ -95,7 +97,7 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
       Object.assign(newSub, sub);
       newSub.subscribers = subSubscribers;
       newSub.data = subData;
-      //console.log("sub", newSub);
+      console.log("sub", newSub);
       earned = earned.add(sub.earned);
       //console.log("earned", earned.toString());
       setSubscriptions(subscriptions => [...subscriptions, newSub]);
@@ -105,14 +107,31 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
   });
 
   const disableEnableSub = async (sub, subHash, newState) => {
-    var tx = await writeContracts.DataHub.enableSub(subHash, newState);
-    await tx.wait();
-  };
+    try {
+      var tx = await writeContracts.DataHub.enableSub(subHash, newState);
+      await tx.wait();
+    } catch (e) {
+      notification.error({
+        message: "Error",
+        description: e.message,
+      });
+    }
+  }; 
 
   useEffect(() => {
     if (readContracts === undefined || address === undefined) return;
     getListedSubs(address);
   }, [address, readContracts]);
+
+  const toggleViewActive = isChecked => {
+    setViewActive(isChecked);
+    if (isChecked) {
+      //setSharedItems([]);
+      //getSharedItems();
+    }
+  };
+
+  const viewOnlySubscriptions = subscriptions.filter(sub => sub.active === !viewActive);
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
@@ -121,52 +140,57 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
         Manage {subscriptions.length} listings and subscribers. Total earnings:{" "}
         {ethers.utils.formatEther(totalEarnings)}⬨
       </div>
+      <div className="paginationInfo" style={{ marginTop: "-35px" }}>
+        Active <Switch checked={viewActive} onChange={toggleViewActive} /> Disabled
+      </div>
 
       <div style={{ paddingLeft: "6px", paddingTop: "10px", paddingBottom: "10px" }}>
         {isLoading && <Spin />}
         <Row>
-          {subscriptions.map((sub, i) => {
+          {viewOnlySubscriptions.map((sub, i) => {
             return (
               <Card key={i} style={{ maxWidth: "30%", minWidth: "100px" }}>
-                <div>
+                <>
                   <Tooltip title={sub.data.description}>
-                    <strong>{sub.data.title}</strong>
+                    <h3>{sub.data.title}</h3>
+                  </Tooltip>
+                  <Tooltip title={"View subscribers and earnings per subscriber for this listing"}>
+                    <a
+                      onClick={() => {
+                        getSubscribers(sub.subHash, sub.subscribers);
+                        setSubTitle(sub.data.title);
+                      }}
+                    >
+                      Subscribers: {sub.subscribers.length.toString()}
+                    </a>
+                  </Tooltip>
+                  <div>List price:{ethers.utils.formatEther(sub.data.price)}⬨</div>
+                  <Tooltip title={sub.data.description}>
+                    <div>Earned:{ethers.utils.formatEther(sub.earned)}⬨</div>
+                  </Tooltip>
+                  <Tooltip
+                    title={
+                      <div>
+                        Reported: {sub.reports} <br />
+                        PodIndex: {sub.podIndex} <br />
+                      </div>
+                    }
+                  >
+                    <div>
+                      Sold: {sub.sells} Bids: {sub.bids} <br />
+                      Reported: {sub.reports}
+                    </div>
                   </Tooltip>
                   <br />
-                  <small>
-                    <Tooltip title={"View subscribers and earnings per subscriber for this listing"}>
-                      <a
-                        onClick={() => {
-                          getSubscribers(sub.subHash, sub.subscribers);
-                          setSubTitle(sub.data.title);
-                        }}
-                      >
-                        Subscribers: {sub.subscribers.length.toString()}
-                      </a>
-                    </Tooltip>
-                    <div>List price:{ethers.utils.formatEther(sub.data.price)}⬨</div>
-                    <Tooltip title={sub.data.description}>
-                      <div>Earned:{ethers.utils.formatEther(sub.earned)}⬨</div>
-                    </Tooltip>
-                    <Tooltip
-                      title={
-                        <div>
-                          Reported: {sub.reports} <br />
-                          PodIndex: {sub.podIndex} <br />
-                        </div>
-                      }
-                    >
-                      <div>
-                        Sold: {sub.sells} Bids: {sub.bids}
-                      </div>
-                    </Tooltip>
-                    <Tooltip title={sub.active ? "Disable listing" : "Enable listing"}>
-                      <a onClick={() => disableEnableSub(sub, sub.subHash, !sub.active)}>
-                        {sub.active ? "Active" : "Disabled"}
-                      </a>
-                    </Tooltip>
-                  </small>
-                </div>
+                  <Tooltip title={sub.active ? "Disable listing" : "Enable listing"}>
+                    {/* <a onClick={() => disableEnableSub(sub, sub.subHash, !sub.active)}>
+                      {sub.active ? "Active" : "Disabled"}
+                    </a> */}
+                    <Button onClick={() => disableEnableSub(sub, sub.subHash, !sub.active)}>
+                      {sub.active ? "Active" : "Disabled"}
+                    </Button>
+                  </Tooltip>
+                </>
                 {/* <Tooltip
                 title={
                   <>
