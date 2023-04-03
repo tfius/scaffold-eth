@@ -5,15 +5,24 @@ import { Link, Route, Switch, useLocation } from "react-router-dom";
 import { Button, List, Card, Modal, notification, Tooltip, Typography, Spin, Checkbox } from "antd";
 import { EnterOutlined, EditOutlined, ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
 
-import { downloadDataFromBee } from "./../Swarm/BeeService";
+import { downloadDataFromBee } from "../Swarm/BeeService";
 import * as consts from "./consts";
-import * as EncDec from "./../utils/EncDec.js";
+import * as EncDec from "../utils/EncDec.js";
 import Blockies from "react-blockies";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 
-import { AddressSimple } from "./../components";
+import { AddressSimple } from "../components";
 
-export function Inbox({ readContracts, writeContracts, tx, userSigner, address, messageCount, smailMail, setReplyTo }) {
+export function EmailsReceived({
+  readContracts,
+  writeContracts,
+  tx,
+  userSigner,
+  address,
+  messageCount,
+  smailMail,
+  setReplyTo,
+}) {
   const [isRegistered, setIsRegistered] = useState(false);
   // const [key, setKey] = useState(consts.emptyHash);
   // const [publicKey, setPublicKey] = useState({ x: consts.emptyHash, y: consts.emptyHash });
@@ -87,7 +96,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     setEndItem(start + length);
     //debugger;
 
-    const mails = await readContracts.SwarmMail.getEmailRange(address, 3, start, length);
+    const mails = await readContracts.SwarmMail.getEmailRange(address, 0, start, length);
     //const mails = await readContracts.SwarmMail.getInbox(address);
     processSMails(mails);
     //console.log("got smails", mails);
@@ -117,7 +126,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       return;
     }
     console.log("got smails", checked);
-    var newTx = await tx(writeContracts.SwarmMail.removeEmails(1, checked));
+    var newTx = await tx(writeContracts.SwarmMail.removeEmails(0, checked));
     await newTx.wait();
     for (var i = 0; i < checked.length; i++) {
       setMails(mails.filter(m => m.location !== checked[i])); // remove mails with same location
@@ -139,14 +148,14 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     setMessageCountTrigger(messageCount);
   }, [messageCount]);
 
-  // const onSignMail = async mail => {
-  //   let newTx = await tx(writeContracts.SwarmMail.signEmail(mail.location));
-  //   await newTx.wait();
-  //   notification.open({
-  //     message: "You signed " + location,
-  //     description: `Your key: ${pubKey}`,
-  //   });
-  // };
+  const onSignMail = async mail => {
+    let newTx = await tx(writeContracts.SwarmMail.signEmail(mail.location));
+    await newTx.wait();
+    notification.open({
+      message: "You signed " + location,
+      description: `Your key: ${pubKey}`,
+    });
+  };
   const processSMails = async sMails => {
     setIsLoading(true);
     for (let i = 0; i < sMails.length; i++) {
@@ -159,7 +168,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       if (s.isEncryption === true) {
         //console.log("data", data, smailMail);
         try {
-          if (smailMail.smailPrivateKey === null) continue;
+          if (smailMail.smail === null) continue;
 
           var d = JSON.parse(new TextDecoder().decode(data));
           //console.log("d", d);
@@ -257,8 +266,8 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px" }}>
-      <h1 style={{ paddingTop: "18px" }}>Inbox</h1>
-      <div className="routeSubtitle">All inbound unidirectional messages </div>
+      <h1 style={{ paddingTop: "18px" }}>Received</h1>
+      <div className="routeSubtitle">All inbound bi-directional messages</div>
       <div className="paginationInfo">
         {startItem}-{endItem} of {totalItems} &nbsp;&nbsp;&nbsp;
         <a onClick={() => retrieveNewPage(page - 1)}>{"<"}</a>&nbsp;{page}/{maxPages}&nbsp;
@@ -273,7 +282,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
           </Typography>
         </Card>
       )}
-      {isRegistered && smailMail.smailPrivateKey === null && (
+      {isRegistered && smailMail.smail === null && (
         <Card>
           <Typography>
             <h5>Not bonded</h5>
@@ -352,7 +361,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                           key="list-vertical-signed-o"
                         />
                       )}
-                      {/* {mail.signed === true ? (
+                      {mail.signed === true ? (
                         <span style={{ float: "right", right: "0px" }}>
                           <IconText
                             icon={EditOutlined}
@@ -371,7 +380,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                             key="list-vertical-sign-o"
                           />
                         </span>
-                      )} */}
+                      )}
                     </div>
                   }
                   description={
@@ -527,4 +536,85 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
   );
 }
 
-export default Inbox;
+export default EmailsReceived;
+
+// const testMetamaskEncryption = async (receiverPubKey, receiverAddress, messageString) => {
+
+//     // const key = await getPublicKey(window.ethereum, address);
+//     // // key pk in hex( 0x ) 0x form
+//     // const pk = "0x" + Buffer.from(key, "base64").toString("hex");
+
+//     // // get key from hex(0x)
+//     // const rkey = pk.substr(2, pk.length - 1);
+//     // const bkey = Buffer.from(rkey, "hex").toString("base64");
+//     // console.log("Got key", key, pk, "Reverse", rkey, bkey);
+
+//     // const e = await encryptMessage(bkey, "test");
+//     // console.log("Encrypted:", e);
+//     // const d = await decryptMessage(window.ethereum, address, e);
+//     // console.log("Decrypted:", d);
+
+//     const e = await encryptMessage(receiverPubKey, messageString);
+//     console.log("Encrypted:", e);
+//     const d = await decryptMessage(window.ethereum, receiverAddress, e);
+//     console.log("Decrypted:", d);
+//   };
+
+/*
+// const { Meta } = Card;
+// const ethUtil = require("ethereumjs-util");
+// const sigUtil = require("@metamask/eth-sig-util");
+
+// export async function getPublicKey(signer, account) {
+//   try {
+//     // signer = window.ethereum
+//     return await signer.request({
+//       method: "eth_getEncryptionPublicKey",
+//       params: [account],
+//     });
+//   } catch (e) {
+//     return undefined;
+//   }
+// }
+// export async function getECDN(signer, account, ephemeralKey) {
+//   try {
+//     // signer = window.ethereum
+//     return await signer.request({
+//       method: "eth_performECDH",
+//       params: [account],
+//     });
+//   } catch (e) {
+//     return undefined;
+//   }
+// }
+// export async function decryptMessage(signer, accountToDecrypt, encryptedMessage) {
+//   try {
+//     return await signer.request({
+//       method: "eth_decrypt",
+//       params: [encryptedMessage, accountToDecrypt],
+//     });
+//   } catch (e) {
+//     console.error("decryptMessage", e);
+//     return undefined;
+//   }
+// }
+// export async function encryptMessage(encryptionPublicKey , messageToEncrypt) {
+//   try {
+//     return ethUtil.bufferToHex(
+//       Buffer.from(
+//         JSON.stringify(
+//           sigUtil.encrypt({
+//             publicKey: encryptionPublicKey,
+//             data: messageToEncrypt,
+//             version: "x25519-xsalsa20-poly1305",
+//           }),
+//         ),
+//         "utf8",
+//       ),
+//     );
+//   } catch (e) {
+//     console.error("encryptMessage", e);
+//     return undefined;
+//   }
+// }
+*/

@@ -5,15 +5,25 @@ import { Link, Route, Switch, useLocation } from "react-router-dom";
 import { Button, List, Card, Modal, notification, Tooltip, Typography, Spin, Checkbox } from "antd";
 import { EnterOutlined, EditOutlined, ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
 
-import { downloadDataFromBee } from "./../Swarm/BeeService";
+import { downloadDataFromBee } from "../Swarm/BeeService";
 import * as consts from "./consts";
-import * as EncDec from "./../utils/EncDec.js";
+import * as EncDec from "../utils/EncDec.js";
 import Blockies from "react-blockies";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 
-import { AddressSimple } from "./../components";
+import { AddressSimple } from "../components";
 
-export function Inbox({ readContracts, writeContracts, tx, userSigner, address, messageCount, smailMail, setReplyTo }) {
+var keyLookup = {};
+export function EmailsSent({
+  readContracts,
+  writeContracts,
+  tx,
+  userSigner,
+  address,
+  messageCount,
+  smailMail,
+  setReplyTo,
+}) {
   const [isRegistered, setIsRegistered] = useState(false);
   // const [key, setKey] = useState(consts.emptyHash);
   // const [publicKey, setPublicKey] = useState({ x: consts.emptyHash, y: consts.emptyHash });
@@ -37,27 +47,6 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     _setViewMail(mail);
   };
 
-  // get publick key from signer
-  async function getPublicKeyFromSignature(signer) {
-    const ethAddress = await signer.getAddress();
-    const message = "Sign this transaction to enable data transfer. Hash: " + ethers.utils.hashMessage(address);
-    const sig = await signer.signMessage(message);
-    const msgHash = ethers.utils.hashMessage(message);
-    const msgHashBytes = ethers.utils.arrayify(msgHash);
-    // Now you have the digest,
-    const pk = ethers.utils.recoverPublicKey(msgHashBytes, sig);
-    const pubKey = await consts.splitPublicKey(pk);
-    const addr = ethers.utils.recoverAddress(msgHashBytes, sig);
-    // console.log("Got PK", pk, addr);
-    const recoveredAddress = ethers.utils.computeAddress(ethers.utils.arrayify(pk));
-    // Throwing here
-    if (recoveredAddress != ethAddress) {
-      throw Error(`Address recovered do not match, original ${ethAddress} versus computed ${recoveredAddress}`);
-      console.log("error", recoveredAddress, ethAddress);
-    }
-    return { pk, pubKey };
-  }
-
   const updateRegistration = useCallback(async () => {
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return; // todo get pub key from ENS
     const data = await readContracts.SwarmMail.getPublicKeys(address);
@@ -71,8 +60,8 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     if (updatingMails) return;
     updatingMails = true;
     const boxCount = await readContracts.SwarmMail.getUserStats(address);
-    console.log("boxCount", boxCount);
-    const mailCount = boxCount.numInboxItems.toNumber();
+    //console.log("boxCount", boxCount);
+    const mailCount = boxCount.numSentItems.toNumber();
     //const mailCount = (await readContracts.SwarmMail.getInboxCount(address)).toNumber();
     setTotalItems(mailCount);
 
@@ -87,7 +76,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     setEndItem(start + length);
     //debugger;
 
-    const mails = await readContracts.SwarmMail.getEmailRange(address, 3, start, length);
+    const mails = await readContracts.SwarmMail.getEmailRange(address, 1, start, length);
     //const mails = await readContracts.SwarmMail.getInbox(address);
     processSMails(mails);
     //console.log("got smails", mails);
@@ -139,14 +128,14 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     setMessageCountTrigger(messageCount);
   }, [messageCount]);
 
-  // const onSignMail = async mail => {
-  //   let newTx = await tx(writeContracts.SwarmMail.signEmail(mail.location));
-  //   await newTx.wait();
-  //   notification.open({
-  //     message: "You signed " + location,
-  //     description: `Your key: ${pubKey}`,
-  //   });
-  // };
+  const onSignMail = async mail => {
+    let newTx = await tx(writeContracts.SwarmMail.signEmail(mail.location));
+    await newTx.wait();
+    notification.open({
+      message: "You signed " + location,
+      description: `Your key: ${pubKey}`,
+    });
+  };
   const processSMails = async sMails => {
     setIsLoading(true);
     for (let i = 0; i < sMails.length; i++) {
@@ -158,12 +147,29 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       // see if mail is encrypted
       if (s.isEncryption === true) {
         //console.log("data", data, smailMail);
+
+        // console.log("recipientKey", recipientKeys);
+        // const data = await readContracts.SwarmMail.getPublicKeys(address);
         try {
           if (smailMail.smailPrivateKey === null) continue;
 
+          //var decryptWithPrivateKey = keyLookup[s.to];
+          //console.log("shared", keyLookup[s.to], decryptWithPrivateKey);
+          if (keyLookup[s.to] === undefined) {
+            var recipientKeys = await readContracts.SwarmMail.getPublicKeys(s.to);
+            const rkey = recipientKeys.pubKey.substr(2, recipientKeys.pubKey.length - 1);
+            var pubKey = Buffer.from(rkey, "hex").toString("base64");
+            var sharedSecretKey = await EncDec.calculateSharedKey(
+              smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length),
+              pubKey,
+            );
+            keyLookup[s.to] = { pubKey: pubKey, decryptKey: Buffer.from(sharedSecretKey.secretKey).toString("base64") };
+          }
+          var key = keyLookup[s.to];
+
           var d = JSON.parse(new TextDecoder().decode(data));
-          //console.log("d", d);
-          var decRes = EncDec.nacl_decrypt(d, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
+          //console.log("s, d", s, d);
+          var decRes = EncDec.nacl_decrypt_with_key(d, key.pubKey, key.decryptKey);
           mail = JSON.parse(decRes);
           //console.log("decRes", decRes);
         } catch (e) {
@@ -257,8 +263,8 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px" }}>
-      <h1 style={{ paddingTop: "18px" }}>Inbox</h1>
-      <div className="routeSubtitle">All inbound unidirectional messages </div>
+      <h1 style={{ paddingTop: "18px" }}>Sent</h1>
+      <div className="routeSubtitle">All sent bi-directional messages </div>
       <div className="paginationInfo">
         {startItem}-{endItem} of {totalItems} &nbsp;&nbsp;&nbsp;
         <a onClick={() => retrieveNewPage(page - 1)}>{"<"}</a>&nbsp;{page}/{maxPages}&nbsp;
@@ -273,7 +279,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
           </Typography>
         </Card>
       )}
-      {isRegistered && smailMail.smailPrivateKey === null && (
+      {isRegistered && smailMail.smail === null && (
         <Card>
           <Typography>
             <h5>Not bonded</h5>
@@ -352,7 +358,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                           key="list-vertical-signed-o"
                         />
                       )}
-                      {/* {mail.signed === true ? (
+                      {mail.signed === true ? (
                         <span style={{ float: "right", right: "0px" }}>
                           <IconText
                             icon={EditOutlined}
@@ -371,7 +377,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                             key="list-vertical-sign-o"
                           />
                         </span>
-                      )} */}
+                      )}
                     </div>
                   }
                   description={
@@ -527,4 +533,4 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
   );
 }
 
-export default Inbox;
+export default EmailsSent;

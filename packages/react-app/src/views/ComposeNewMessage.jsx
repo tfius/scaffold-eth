@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Card, Typography, Modal, Input, Form, Spin, Progress, Tooltip, notification } from "antd";
+import { Button, Card, Typography, Modal, Input, Form, Spin, Progress, Tooltip, notification, Switch } from "antd";
 import * as consts from "./consts";
 import { uploadDataToBee } from "./../Swarm/BeeService";
 import * as layouts from "./layouts.js";
@@ -26,6 +26,7 @@ class ComposeNewMessageForm extends React.Component {
       recipientKey: null,
       isRecipientRegistered: false,
       recipientEns: null,
+      isOneWay: true,
     };
 
     this.onRecepientChange(this.props.recipient);
@@ -49,6 +50,7 @@ class ComposeNewMessageForm extends React.Component {
       this.state.attachments,
       this.state.recipientKey,
       this.state.recipientKey !== null /*&& this.props.senderPkRegister.registered*/, // if sender is not registered we can still send encrypted data
+      this.state.isOneWay,
     );
     this.props.loading(null);
     this.setState({ isInProgress: false });
@@ -93,6 +95,21 @@ class ComposeNewMessageForm extends React.Component {
   removeAttachment = async attachment => {
     this.setState({ attachments: this.state.attachments.filter(a => a !== attachment) });
   };
+  onOneWayChange(value) {
+    console.log(`switch to ${value}`);
+    this.setState({ isOneWay: value });
+    if (value === true) {
+      notification.info({
+        message: "One-way message",
+        description: "The sender will not be able to read it.",
+      });
+    } else {
+      notification.info({
+        message: "Two-way message",
+        description: "The sender will be able to read it in Sent folder",
+      });
+    }
+  }
 
   render() {
     let fields = [
@@ -151,6 +168,7 @@ class ComposeNewMessageForm extends React.Component {
             <Input.TextArea maxLength={4096} rows={10} autosize={{ minRows: "10", maxRows: "20" }} />
           </Form.Item>
           <DropzoneReadFileContents refObj={this} onAdd={this.addAttachment} />
+
           <Button
             type="primary"
             htmlType="submit"
@@ -160,21 +178,24 @@ class ComposeNewMessageForm extends React.Component {
               ? "SEND"
               : "ENCRYPT AND SEND"}
           </Button>
+          <Form.Item label="" name="isOneWay">
+            <div style={{ textAlign: "center", width: "100%", marginLeft: "30%" }}>
+              TWO-WAY &nbsp;
+              <Switch checked={this.state.isOneWay} onChange={e => this.onOneWayChange(e)} />
+              &nbsp; ONE-WAY
+            </div>
+          </Form.Item>
+
           <div style={{ textAlign: "center", width: "100%", color: "#AA3333" }}>
             <Tooltip title="Sender and Recipient must both be registered to send secure encrypted messages">
               <span>
                 {this.props.senderPkRegister.registered === false && (
                   <>
-                    <br />
                     Sender not registered.
-                  </>
-                )}
-                {this.state.isRecipientRegistered === false && (
-                  <>
                     <br />
-                    Recipient not registered.
                   </>
                 )}
+                {this.state.isRecipientRegistered === false && <>Recipient not registered.</>}
               </span>
             </Tooltip>
           </div>
@@ -263,12 +284,12 @@ export function ComposeNewMessage({
   const retrievePubKey = async (forAddress, isSender = false) => {
     try {
       const data = await readContracts.SwarmMail.getPublicKeys(forAddress); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
-      const rkey = data.key.substr(2, data.key.length - 1);
+      const rkey = data.pubKey.substr(2, data.pubKey.length - 1);
       var pk = Buffer.from(rkey, "hex").toString("base64");
       var pkRegister = { pk: pk, registered: data.registered };
       // console.log("pk", pk);
       if (isSender) {
-        if (smailMail.smail === null) {
+        if (smailMail.smailPrivateKey === null) {
           var notDecrypted = { pk: null, registered: false };
           setSenderPkRegister(notDecrypted);
           // not decrypted
@@ -277,7 +298,7 @@ export function ComposeNewMessage({
         setSenderPkRegister(pkRegister);
       } else setReceiverPkRegister(pkRegister);
       // console.log(isSender ? "sender" : "receiver", data);
-      if (data.key === "0x0000000000000000000000000000000000000000000000000000000000000000") pk = null;
+      if (data.pubKey === "0x0000000000000000000000000000000000000000000000000000000000000000") pk = null;
 
       return { pk: pk, registered: data.registered };
     } catch (e) {
@@ -286,7 +307,15 @@ export function ComposeNewMessage({
     return { pk: null, registered: false };
   };
 
-  const onSendMessage = async (senderAddress, recipientAddress, message, attachments, recipientKey, isEncrypted) => {
+  const onSendMessage = async (
+    senderAddress,
+    recipientAddress,
+    message,
+    attachments,
+    recipientKey,
+    isEncrypted,
+    sendOneWayEmail,
+  ) => {
     setSendingInProgress(true);
     try {
       //let senderPubKey = await retrievePubKey(senderAddress, true); // get sender public key
@@ -309,6 +338,11 @@ export function ComposeNewMessage({
       var fileSize = 0; // bytes
       //console.log("isEncrypted", isEncrypted);
 
+      var sharedSecretKey = await EncDec.calculateSharedKey(
+        smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length),
+        recipientKey,
+      );
+
       setProgressStatus("Uploading attachments...");
       var startTime = Date.now();
       var locations = [];
@@ -322,7 +356,12 @@ export function ComposeNewMessage({
           var binaryData = Array.from(new Uint8Array(a.binaryData));
           var fileObject = { binaryData: binaryData, file: a.file };
           var asString = JSON.stringify(fileObject);
-          var encAttachment = JSON.stringify(EncDec.nacl_encrypt(asString, recipientKey));
+          var encAttachment = { length: 0 };
+          if (sendOneWayEmail) {
+            encAttachment = JSON.stringify(EncDec.nacl_encrypt(asString, recipientKey));
+          } else {
+            encAttachment = JSON.stringify(EncDec.nacl_encrypt_with_key(asString, recipientKey, sharedSecretKey));
+          }
           hash = await uploadDataToBee(encAttachment, "application/octet-stream", "sm" + i);
           var size = encAttachment.length;
           fileSize += size;
@@ -345,7 +384,11 @@ export function ComposeNewMessage({
 
       // encrypt smail
       if (isEncrypted) {
-        smail = JSON.stringify(EncDec.nacl_encrypt(smail, recipientKey));
+        if (sendOneWayEmail) {
+          smail = JSON.stringify(EncDec.nacl_encrypt(smail, recipientKey));
+        } else {
+          smail = JSON.stringify(EncDec.nacl_encrypt_with_key(smail, recipientKey, sharedSecretKey));
+        }
         //console.log("enc smail", smail);
         fileSize += JSON.stringify(smail).length;
       }
@@ -362,12 +405,26 @@ export function ComposeNewMessage({
       //var cost = "0.001";
 
       setProgressStatus("Waiting for user to sign transaction ...");
-      let newTx = await tx(
-        writeContracts.SwarmMail.sendEmail(recipientAddress, isEncrypted, "0x" + mailDigest, {
-          value: cost, // in wei
-          //value: utils.parseEther(cost),
-        }),
-      );
+      var newTx;
+      // sendOneWayEmail
+      debugger;
+
+      if (sendOneWayEmail) {
+        newTx = await tx(
+          writeContracts.SwarmMail.sendOneWayEmail(recipientAddress, isEncrypted, "0x" + mailDigest, {
+            value: cost, // in wei
+            //value: utils.parseEther(cost),
+          }),
+        );
+      } else {
+        newTx = await tx(
+          writeContracts.SwarmMail.sendEmail(recipientAddress, isEncrypted, "0x" + mailDigest, {
+            value: cost, // in wei
+            //value: utils.parseEther(cost),
+          }),
+        );
+      }
+
       setProgress(95);
       setProgressStatus("Waiting for transaction to finish...");
       await newTx.wait();

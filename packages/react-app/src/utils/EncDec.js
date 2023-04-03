@@ -274,6 +274,24 @@ export function nacl_decrypt_with_key(encryptedData, pubKey, privateKey) {
     console.error("nacl_decrypt", e);
   }
 }
+export function nacl_decrypt_with_rawkey(encryptedData, pubKey, privateKey) {
+  try {
+    //var recieverPrivateKeyUint8Array = nacl_decodeHex(receiverPrivateKey);
+    //var recieverEncryptionPrivateKey = nacl.box.keyPair.fromSecretKey(receiverPrivateKey).secretKey;
+    var ephemPrivateKey = nacl.util.decodeBase64(privateKey);
+    var ephemPubKey = nacl.util.decodeBase64(pubKey);
+    //var recieverEncryptionPrivateKey = nacl.box.keyPair.fromSecretKey(ephemPrivateKey).secretKey;
+    // assemble decryption parameters
+    var nonce = nacl.util.decodeBase64(encryptedData.nonce);
+    var ciphertext = nacl.util.decodeBase64(encryptedData.ciphertext);
+    //var ephemPublicKey = nacl.util.decodeBase64(encryptedData.ephemPublicKey);
+    var decryptedMessage = nacl.box.open(ciphertext, nonce, ephemPubKey, ephemPrivateKey);
+    var output = nacl.util.encodeUTF8(decryptedMessage);
+    return output;
+  } catch (e) {
+    console.error("nacl_decrypt", e);
+  }
+}
 
 export async function encryptAndUpload(data, recipientKey) {
   var encryptedData = JSON.stringify(nacl_encrypt(JSON.stringify(data), recipientKey));
@@ -281,9 +299,20 @@ export async function encryptAndUpload(data, recipientKey) {
   return encryptedDataLocation;
 }
 
-
 export async function calculateSharedSecret(fromPrivateKey, toPublicKey) {
-  var publickKey = nacl.scalarMult.base(fromPrivateKey);
-  var sharedSecret = nacl.scalarMult(fromPrivateKey, toPublicKey);
+  var privateKey = nacl_decodeHex(fromPrivateKey);
+  var pubKey = nacl.util.decodeBase64(toPublicKey);
+  //var publickKey = nacl.scalarMult.base(privateKey);
+  var sharedSecret = nacl.scalarMult(privateKey, pubKey);
+  //var sskey = nacl.util.encodeBase64(sharedSecret); // this would be base64 encoded
+  //
+  //var encKey = nacl.box.keyPair.fromSecretKey(sharedSecret)
+  //debugger;
   return sharedSecret;
+}
+
+export async function calculateSharedKey(fromPrivateKey, toPublicKey) {
+  var sharedSecret = await calculateSharedSecret(fromPrivateKey, toPublicKey);
+  var encKey = nacl.box.keyPair.fromSecretKey(sharedSecret);
+  return encKey;
 }

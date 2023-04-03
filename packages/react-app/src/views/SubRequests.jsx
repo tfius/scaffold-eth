@@ -81,20 +81,6 @@ export function SubRequests({
     getSubRequests(address);
   }, [address, readContracts]);
 
-  /*
-  const getPubKeyFor = async forAddress => {
-    const data = await readContracts.SwarmMail.getPublicKeys(forAddress); // useContractReader(readContracts, "SwarmMail", "isAddressRegistered", [address]);
-    if (data.registered == false) {
-      notification.error({ message: "Receiver not registered", description: "You can only sell to registered users" });
-      return;
-    }
-    const rkey = data.key.substr(2, data.key.length - 1);
-    var pk = Buffer.from(rkey, "hex").toString("base64");
-    var pkRegister = { pk: pk, registered: data.registered };
-    console.log("pkRegister", pkRegister);
-    return pkRegister;
-  };*/
-
   const onSellSubRequest = async subRequest => {
     console.log("onSellSubRequest", subRequest);
     // var fdp = { podAddress: "", podIndex: 0 }; // TODO

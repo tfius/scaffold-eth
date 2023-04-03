@@ -143,10 +143,10 @@ export function ComposeNewLocker({
   const retrievePubKey = async forAddress => {
     try {
       const data = await readContracts.SwarmMail.getPublicKeys(forAddress);
-      const rkey = data.key.substr(2, data.key.length - 1);
+      const rkey = data.pubKey.substr(2, data.pubKey.length - 1);
       var pk = Buffer.from(rkey, "hex").toString("base64");
       // console.log(isSender ? "sender" : "receiver", data);
-      if (data.key === "0x0000000000000000000000000000000000000000000000000000000000000000") pk = null;
+      if (data.pubKey === "0x0000000000000000000000000000000000000000000000000000000000000000") pk = null;
       return pk;
     } catch (e) {
       console.log(e);

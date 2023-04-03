@@ -73,23 +73,23 @@ export function Home({
       data = await readContracts.SwarmMail.getPublicKeys(address);
       //console.log("got data", data);
       if (
-        data.key === "0x0000000000000000000000000000000000000000000000000000000000000000" ||
-        data.smail === "0x0000000000000000000000000000000000000000000000000000000000000000"
+        data.pubKey === "0x0000000000000000000000000000000000000000000000000000000000000000" ||
+        data.keyLocation === "0x0000000000000000000000000000000000000000000000000000000000000000"
       ) {
         throw new Error("not registered");
       }
       setIsRegistered(data.registered);
-      setKey(data.key);
+      setKey(data.pubKey);
     } catch (e) {
       setIsLoading(false);
       setIsRegistered(false);
-      setSmailMail({ key: null, smail: null });
+      setSmailMail({ pubKey: null, keyLocation: null, smailPrivateKey: null });
       setCurrentStep(-1);
       return;
     }
-    if (smailMail.key === null) {
+    if (smailMail.pubKey === null) {
       try {
-        var encryptedSmailKey = await downloadSmailKeyData(data.smail); // download encrypted key
+        var encryptedSmailKey = await downloadSmailKeyData(data.keyLocation); // download encrypted key
         setNotifyUserToDecryptSmailKey(true);
         setCurrentStep(4);
         var privateKeySmail = undefined;
@@ -97,7 +97,7 @@ export function Home({
           privateKeySmail = await decryptSmailKey(address, encryptedSmailKey); // decrypt key from metamas
 
           if (privateKeySmail !== undefined) {
-            setSmailMail({ key: data.key, smail: privateKeySmail });
+            setSmailMail({ pubKey: data.key, keyLocation: data.keyLocation, smailPrivateKey: privateKeySmail });
             setCurrentStep(-1);
             //console.log(key, privateKeySmail);
           } else
@@ -113,7 +113,7 @@ export function Home({
           message: "Error",
           description: err.message,
         });
-        setSmailMail({ key: null, smail: null });
+        setSmailMail({ pubKey: null, keyLocation: null, smailPrivateKey: null });
       }
     }
 
@@ -158,7 +158,8 @@ export function Home({
     setCurrentStep(2);
     const tx = await onRegister(fromUrlPubKey, "0x" + keyLocation); // await testMetamaskEncryption(key, address, "text to encrypt");
 
-    setSmailMail({ key: fromUrlPubKey, smail: newPrivateKey });
+    //setSmailMail({ key: fromUrlPubKey, smail: newPrivateKey });
+    setSmailMail({ pubKey: fromUrlPubKey, keyLocation: "0x" + keyLocation, smailPrivateKey: newPrivateKey });
     setIsLoading(false);
   };
 
@@ -212,7 +213,7 @@ export function Home({
   return (
     <div style={{ margin: "auto", width: "100%" }}>
       <>
-        {isRegistered == true && smailMail.key !== null && (
+        {isRegistered == true && smailMail.pubKey !== null && (
           <Card>
             <h2>Hello</h2>
             <Typography>
@@ -222,7 +223,7 @@ export function Home({
         )}
         {/* {notifyUserToDecryptSmailKey && <Card>Confirm decryption of Smail Mail in your Wallet</Card>} */}
         <Card>
-          {isRegistered == true && smailMail.key === null && (
+          {isRegistered == true && smailMail.pubKey === null && (
             <>
               <h2>Confirm decryption of Smail in your Wallet</h2>
               <Button onClick={() => verifyRegistration(true)} type="primary">

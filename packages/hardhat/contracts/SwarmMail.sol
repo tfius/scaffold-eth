@@ -54,13 +54,16 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         uint256 validTill; // until it is valid 
     }*/
     struct User {
-        bytes32 key;
-        bytes32 smail;
+        bytes32 pubKey;
+        bytes32 keyLocation;
         // PublicKey pubkey;
-        Email[] sentEmails;
-        mapping(bytes32 => uint256) sentEmailIds;
         Email[] inboxEmails;
         mapping(bytes32 => uint256) inboxEmailIds;
+        Email[] sentEmails;
+        mapping(bytes32 => uint256) sentEmailIds;
+
+        Email[] oneWayEmails;
+        mapping(bytes32 => uint256) oneWayEmailIds;
 
         Email[] lockerEmails;
         mapping(bytes32 => uint256) lockerEmailIds;
@@ -96,32 +99,33 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
     receive() external payable {}
 
     modifier isRegistered() { 
-        require(users[msg.sender].key != bytes32(0), "User not registred");
+        require(users[msg.sender].pubKey != bytes32(0), "User not registred");
         _;
     }
 
-    function getPublicKeys(address addr) public view returns (bool registered, bytes32 key, bytes32 smail/*, address portable*/) {
-        registered = users[addr].key != bytes32(0) ;
-        key = users[addr].key;
-        smail = users[addr].smail;
+    function getPublicKeys(address addr) public view returns (bool registered, bytes32 pubKey, bytes32 keyLocation/*, address portable*/) {
+        registered = users[addr].pubKey != bytes32(0) ;
+        pubKey = users[addr].pubKey;
+        keyLocation = users[addr].keyLocation;
         //portable = userToPortable[addr];
     } 
 
     //  
-    function getUserStats(address addr) public view returns (uint numInboxItems, uint numSentItems, uint numLockers, uint numSharedLockers /* uint numSubRequests, uint numSubItems, uint numActiveBids */) {
+    function getUserStats(address addr) public view returns (uint numInboxItems, uint numSentItems, uint numLockers, uint numSharedLockers, uint numOneWayItems /* uint numSubRequests, uint numSubItems, uint numActiveBids */) {
         numInboxItems = users[addr].inboxEmails.length;
         numSentItems  = users[addr].sentEmails.length;
         numLockers = users[addr].lockerEmails.length;
         numSharedLockers = users[addr].sharedLockerEmails.length;
+        numOneWayItems = users[addr].oneWayEmails.length;
         /*numSubRequests = users[addr].subRequests.length;
         numSubItems = users[addr].subItems.length;
         numActiveBids = users[addr].activeBids.length;*/
     }
-    function register(bytes32 key, bytes32 smail) public {
+    function register(bytes32 pubKey, bytes32 keyLocation) public {
         User storage user = users[msg.sender];
-        require(user.key == bytes32(0), "Already registered");
-        user.key = key;
-        user.smail = smail;
+        require(user.pubKey == bytes32(0), "Already registered");
+        user.pubKey = pubKey;
+        user.keyLocation = keyLocation;
         //userToPortable[msg.sender] = portable;
     }
 
@@ -189,7 +193,7 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
     }
     function sendEmail( address toAddress, bool isEncryption, bytes32 swarmLocation ) public payable {
         User storage receiver = users[toAddress];
-        require(!isEncryption || receiver.key != bytes32(0), "receiver not registered");
+        require(!isEncryption || receiver.pubKey != bytes32(0), "receiver not registered");
         User storage sender = users[msg.sender];
         // create email
         Email memory email;
@@ -204,6 +208,23 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         sender.sentEmailIds[swarmLocation] = sender.sentEmails.length;
         receiver.inboxEmails.push(email);
         receiver.inboxEmailIds[swarmLocation] = receiver.inboxEmails.length;
+    }
+
+    function sendOneWayEmail( address toAddress, bool isEncryption, bytes32 swarmLocation ) public payable {
+        User storage receiver = users[toAddress];
+        require(!isEncryption || receiver.pubKey != bytes32(0), "receiver not registered");
+        
+        // create email
+        Email memory email;
+        email.isEncryption = isEncryption;
+        email.time = block.timestamp;
+        email.from = msg.sender;
+        email.to = toAddress;
+        email.swarmLocation = swarmLocation;
+
+        // add email
+        receiver.oneWayEmails.push(email);
+        receiver.oneWayEmailIds[swarmLocation] = receiver.oneWayEmails.length;
     }
 
     // try to do generif delete from array using ref to array and mapping 
@@ -223,18 +244,24 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
 
     function removeEmails(uint32 types, bytes32[] memory locations) public {
         User storage u = users[msg.sender];
-        if(types == 1) {
+        if(types == 0) {
             for (uint256 i; i < locations.length; i++) {
                 removeGenericEmail(locations[i], u.inboxEmailIds, u.inboxEmails);
             }
-        } else if(types == 0) {
+        }
+        else if(types == 1) {
             for (uint256 i; i < locations.length; i++) {
                 removeGenericEmail(locations[i], u.sentEmailIds, u.sentEmails);
             }
-        }
+        } 
         else if(types == 2) {
             for (uint256 i; i < locations.length; i++) {
                 removeGenericEmail(locations[i], u.lockerEmailIds, u.lockerEmails);
+            }
+        }
+        else if(types == 3) {
+            for (uint256 i; i < locations.length; i++) {
+                removeGenericEmail(locations[i], u.oneWayEmailIds, u.oneWayEmails);
             }
         }
     }
@@ -245,24 +272,28 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         uint count = 0;
         for(uint i = start; i < start + length; i++)
         {
-            emails[count] = array[i];
-            ++count;
+            if(i<array.length)
+            {
+                emails[count] = array[i];
+                ++count;
+            }
         }
         return emails;
     }
 
     function getEmailRange(address addr, uint types, uint start, uint length) public view returns (Email[] memory messages) {
         User storage u = users[addr];
-        if(types == 1) {
+        if(types == 0) {
             messages = genEmailRange(start, length, u.inboxEmails);
-        } else if(types == 0) {
+        } else if(types == 1) {
             messages = genEmailRange(start, length, u.sentEmails);
         } else if(types == 2) {
             messages = genEmailRange(start, length, u.lockerEmails);
         } else if(types == 3) {
+            messages = genEmailRange(start, length, u.oneWayEmails);
+        } else if(types == 4) {
             messages = genEmailRange(start, length, u.sharedLockerEmails);
         }
-        
     }
 
     function storeLocker(bytes32 swarmLocation) public payable {
@@ -278,17 +309,11 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         sender.lockerEmails.push(email);
         sender.lockerEmailIds[swarmLocation] = sender.lockerEmails.length;
     }
+
     function shareLockerWith(bytes32 lockerLocation, bytes32 keyLocation, address withAddress) public payable {
         User storage u = users[msg.sender];
+
         // TODO storage fee for locker
-
-        //require(u.lockerEmailIds[lockerLocation] != 0, "!exist");
-
-        // Share memory share = Share(withAddress, keyLocation, true);
-        // u.lockerShares[lockerLocation].push(share);
-        // u.lockerSharesIds[lockerLocation][withAddress] = u.lockerShares[lockerLocation].length;
-
-        // addSharedWith(withAddress, keyLocation);
         if(u.shareIds[lockerLocation][withAddress]==0) {
             Share memory share = Share(withAddress, keyLocation, false);
             u.shares[lockerLocation].push(share);

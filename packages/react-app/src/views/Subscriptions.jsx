@@ -74,7 +74,7 @@ export function Subscriptions({
         try {
           var subKeyData = await downloadDataFromBee(subItems[i].unlockKeyLocation);
           var d = JSON.parse(new TextDecoder().decode(subKeyData));
-          var decRes = EncDec.nacl_decrypt(d, smailMail.smail.substr(2, smailMail.smail.length));
+          var decRes = EncDec.nacl_decrypt(d, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
           decData = JSON.parse(decRes);
         } catch (e) {
           console.error("error getSubsItemDetails ", e);
@@ -99,17 +99,6 @@ export function Subscriptions({
     getSubItems(address);
   }, [address, readContracts]);
 
-  //console.log(smailMail);
-  /*if (smailMail.smail === null)
-    return (
-      <>
-        <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
-          <h3>No key for decryption</h3>
-          <Spin />
-        </div>
-      </>
-    );
-  */
   const toggleViewActive = isChecked => {
     setViewActive(isChecked);
     if (isChecked) {

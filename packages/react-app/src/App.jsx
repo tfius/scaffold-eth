@@ -35,6 +35,8 @@ import { useStaticJsonRPC } from "./hooks";
 import * as consts from "./views/consts";
 import { Home } from "./views/Home";
 import { Inbox } from "./views/Inbox";
+import { EmailsSent } from "./views/EmailsSent";
+import { EmailsReceived } from "./views/EmailsReceived";
 import { Locker } from "./views/Locker";
 import { DataHub } from "./views/DataHub";
 import { ComposeNewMessage } from "./views/ComposeNewMessage";
@@ -122,7 +124,7 @@ function App(props) {
   const { currentTheme } = useThemeSwitcher();
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
-  const [selectedNetwork, _setSelectedNetwork] = useState(networkOptions[9]);
+  const [selectedNetwork, _setSelectedNetwork] = useState(networkOptions[0]); // 9 goerli
   const setSelectedNetwork = network => {
     console.log("setSelectedNetwork", network);
     _setSelectedNetwork(network);
@@ -139,7 +141,7 @@ function App(props) {
   //////////////////////////////////////////////////////////////////////////////////////////////////////
   const [isLoading, setIsLoading] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
-  const [smailMail, setSmailMail] = useState({ key: null, smail: null }); // this has to be defined
+  const [smailMail, setSmailMail] = useState({ pubKey: null, keyLocation: null, smailPrivateKey: null }); // this has to be defined
   const [replyTo, _setReplyTo] = useState("");
   const [isComposeModalVisible, _setIsComposeModalVisible] = useState(false);
 
@@ -294,7 +296,7 @@ function App(props) {
     setFairOSPods([]);
     setFairOSSessionId(null);
     setFairOSLogin(null);
-    setSmailMail({ key: null, smail: null });
+    setSmailMail({ pubKey: null, keyLocation: null, smailPrivateKey: null });
   }, [
     mainnetProvider,
     address,
@@ -308,7 +310,7 @@ function App(props) {
 
   useEffect(() => {
     console.log("Address changed to: ", address);
-    setSmailMail({ key: null, smail: null }); // this has to be defined
+    setSmailMail({ pubKey: null, keyLocation: null, smailPrivateKey: null }); // this has to be defined
   }, [address]);
 
   const loadWeb3Modal = useCallback(async () => {
@@ -365,9 +367,9 @@ function App(props) {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+  //{ pubKey: null, keyLocation: null, smailPrivateKey: null }
   // if(true) return <div></div>
-  const isBonded = smailMail.smail !== null;
+  const isBonded = smailMail.smailPrivateKey !== null;
   const isFairOsed = fairOSSessionId !== null;
   return (
     <div className="App">
@@ -393,11 +395,13 @@ function App(props) {
             selectedKeys={[location.pathname]}
           >
             <Menu.Item key="/">
-              <Link to="/">{smailMail.key === null || smailMail.smail == null ? <>Register</> : <>Home</>}</Link>
+              <Link to="/">
+                {smailMail.pubKey === null || smailMail.smailPrivateKey == null ? <>Register</> : <>Home</>}
+              </Link>
             </Menu.Item>
 
             <Menu.Item key="/inbox">
-              <Tooltip title="View received messages" placement="right">
+              <Tooltip title="View one way messages" placement="right">
                 <Link to="/inbox">Inbox</Link>
               </Tooltip>
             </Menu.Item>
@@ -410,11 +414,22 @@ function App(props) {
               </Menu.Item>
               <Menu.Item key="/smailmailkey" disabled>
                 <Tooltip title="Registration status">
-                  {smailMail.key ? "wallet" : "no key"}&nbsp;
-                  {smailMail.smail ? "bonded" : "no bond"}
+                  {smailMail.pubKey ? "wallet" : "no key"}&nbsp;
+                  {smailMail.smailPrivateKey ? "bonded" : "no bond"}
                 </Tooltip>
               </Menu.Item>
             </>
+
+            <Menu.Item key="/received">
+              <Tooltip title="View received messages" placement="right">
+                <Link to="/received">Received</Link>
+              </Tooltip>
+            </Menu.Item>
+            <Menu.Item key="/sent">
+              <Tooltip title="View sent messages" placement="right">
+                <Link to="/sent">Sent</Link>
+              </Tooltip>
+            </Menu.Item>
 
             {/* {fairOSSessionId != null && <Menu.Divider />} */}
 
@@ -472,7 +487,7 @@ function App(props) {
               <Menu.Divider />
             </>
 
-            {smailMail.key && smailMail.smail ? (
+            {smailMail.pubKey && smailMail.smailPrivateKey ? (
               <>
                 {/* /////////////////////////////////////////////////
                 /////////////////////////////////////////////////
@@ -555,6 +570,30 @@ function App(props) {
               </Route>
               <Route exact path="/inbox">
                 <Inbox
+                  readContracts={readContracts}
+                  writeContracts={writeContracts}
+                  userSigner={userSigner}
+                  tx={tx}
+                  address={address}
+                  messageCount={messageCount}
+                  smailMail={smailMail}
+                  setReplyTo={setReplyTo}
+                />
+              </Route>
+              <Route exact path="/sent">
+                <EmailsSent
+                  readContracts={readContracts}
+                  writeContracts={writeContracts}
+                  userSigner={userSigner}
+                  tx={tx}
+                  address={address}
+                  messageCount={messageCount}
+                  smailMail={smailMail}
+                  setReplyTo={setReplyTo}
+                />
+              </Route>
+              <Route exact path="/received">
+                <EmailsReceived
                   readContracts={readContracts}
                   writeContracts={writeContracts}
                   userSigner={userSigner}

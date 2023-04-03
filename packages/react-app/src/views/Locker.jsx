@@ -75,7 +75,7 @@ export function Locker({
   const getSharedItems = async () => {
     const boxCount = await readContracts.SwarmMail.getUserStats(address);
     const numSharedItems = boxCount.numSharedLockers.toNumber();
-    const smails = await readContracts.SwarmMail.getEmailRange(address, 3, 0, numSharedItems);
+    const smails = await readContracts.SwarmMail.getEmailRange(address, 4, 0, numSharedItems);
     //console.log("getSharedItems smails", smails);
 
     for (var i = 0; i < smails.length; i++) {
@@ -83,10 +83,10 @@ export function Locker({
       try {
         const lockerData = await downloadDataFromBee(smails[i].swarmLocation); // returns buffer
         var d = JSON.parse(new TextDecoder().decode(lockerData));
-        var decRes = EncDec.nacl_decrypt(d, smailMail.smail.substr(2, smailMail.smail.length));
+        var decRes = EncDec.nacl_decrypt(d, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
         var lockerItem = JSON.parse(decRes);
         //console.log("lockerItem", lockerItem);
-        //console.log("key", smailMail.smail.substr(2, smailMail.smail.length));
+        //console.log("key", smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
 
         var secretKey = new Uint8Array(Buffer.from(lockerItem.ephemeralKey.secretKey, "base64"));
         //var secretKey = Buffer.from(sharedItem.ephemeralKey.secretKey, "base64").toString("hex");
@@ -128,7 +128,6 @@ export function Locker({
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return; // todo get pub key from ENS
     const data = await readContracts.SwarmMail.getPublicKeys(address);
     setIsRegistered(data.registered);
-    // setKey(data.key);
     if (isRegistered === false && data.registered) updateLocker();
   });
   var updatingLocker = false;
@@ -200,14 +199,14 @@ export function Locker({
     setMessageCountTrigger(messageCount);
   }, [messageCount]);
 
-  const onSignMail = async mail => {
-    let newTx = await tx(writeContracts.SwarmMail.signEmail(mail.location));
-    await newTx.wait();
-    notification.open({
-      message: "You signed " + location,
-      description: `Your key: ${pubKey}`,
-    });
-  };
+  // const onSignMail = async mail => {
+  //   let newTx = await tx(writeContracts.SwarmMail.signEmail(mail.location));
+  //   await newTx.wait();
+  //   notification.open({
+  //     message: "You signed " + location,
+  //     description: `Your key: ${pubKey}`,
+  //   });
+  // };
   const processSMails = async sMails => {
     setIsLoading(true);
     for (let i = 0; i < sMails.length; i++) {
@@ -222,7 +221,7 @@ export function Locker({
         //console.log("data", data, smailMail);
         try {
           var d = JSON.parse(new TextDecoder().decode(data));
-          var decRes = EncDec.nacl_decrypt(d, smailMail.smail.substr(2, smailMail.smail.length));
+          var decRes = EncDec.nacl_decrypt(d, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
           mail = JSON.parse(decRes);
         } catch (e) {
           console.error("decrypt", e);
@@ -259,7 +258,7 @@ export function Locker({
         var uint8View = new Uint8Array(data);
         var decoded = new TextDecoder().decode(uint8View);
         var d = JSON.parse(decoded);
-        var decRes = EncDec.nacl_decrypt(d, smailMail.smail.substr(2, smailMail.smail.length));
+        var decRes = EncDec.nacl_decrypt(d, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
         var object = JSON.parse(decRes);
         var blob = new Blob([new Uint8Array(object.binaryData)], { type: attachment.file.type });
         saveFileAs(blob, attachment.file.path);
@@ -321,9 +320,9 @@ export function Locker({
   const retrievePubKey = async forAddress => {
     try {
       const data = await readContracts.SwarmMail.getPublicKeys(forAddress);
-      const rkey = data.key.substr(2, data.key.length - 1);
+      const rkey = data.pubKey.substr(2, data.pubKey.length - 1);
       var pk = Buffer.from(rkey, "hex").toString("base64");
-      if (data.key === "0x0000000000000000000000000000000000000000000000000000000000000000") pk = null;
+      if (data.pubKey === "0x0000000000000000000000000000000000000000000000000000000000000000") pk = null;
       return pk;
     } catch (e) {
       console.log(e);
@@ -404,7 +403,7 @@ export function Locker({
       </>
     );
   }
-  if (isRegistered && smailMail.smail === null) {
+  if (isRegistered && smailMail.smailPrivateKey === null) {
     return (
       <>
         <Card>
