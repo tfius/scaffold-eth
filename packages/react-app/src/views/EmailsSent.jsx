@@ -136,6 +136,16 @@ export function EmailsSent({
       description: `Your key: ${pubKey}`,
     });
   };
+  const getDecryptKey = async address => {
+    var recipientKeys = await readContracts.SwarmMail.getPublicKeys(address);
+    const rkey = recipientKeys.pubKey.substr(2, recipientKeys.pubKey.length - 1);
+    var pubKey = Buffer.from(rkey, "hex").toString("base64");
+    var sharedSecretKey = await EncDec.calculateSharedKey(
+      smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length),
+      pubKey,
+    );
+    return { pubKey: pubKey, decryptKey: Buffer.from(sharedSecretKey.secretKey).toString("base64") };
+  };
   const processSMails = async sMails => {
     setIsLoading(true);
     for (let i = 0; i < sMails.length; i++) {
@@ -152,18 +162,8 @@ export function EmailsSent({
         // const data = await readContracts.SwarmMail.getPublicKeys(address);
         try {
           if (smailMail.smailPrivateKey === null) continue;
-
-          //var decryptWithPrivateKey = keyLookup[s.to];
-          //console.log("shared", keyLookup[s.to], decryptWithPrivateKey);
           if (keyLookup[s.to] === undefined) {
-            var recipientKeys = await readContracts.SwarmMail.getPublicKeys(s.to);
-            const rkey = recipientKeys.pubKey.substr(2, recipientKeys.pubKey.length - 1);
-            var pubKey = Buffer.from(rkey, "hex").toString("base64");
-            var sharedSecretKey = await EncDec.calculateSharedKey(
-              smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length),
-              pubKey,
-            );
-            keyLookup[s.to] = { pubKey: pubKey, decryptKey: Buffer.from(sharedSecretKey.secretKey).toString("base64") };
+            keyLookup[s.to] = await getDecryptKey(s.to);
           }
           var key = keyLookup[s.to];
 
@@ -188,6 +188,7 @@ export function EmailsSent({
       mail.checked = false;
       mail.location = s.swarmLocation;
       mail.from = s.from;
+      mail.to = s.to;
       mail.signed = s.signed;
       mail.isEncryption = s.isEncryption;
       setMails(mails => [mail, ...mails]);
@@ -203,7 +204,9 @@ export function EmailsSent({
         var uint8View = new Uint8Array(data);
         var decoded = new TextDecoder().decode(uint8View);
         var d = JSON.parse(decoded);
-        var decRes = EncDec.nacl_decrypt(d, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
+        var key = keyLookup[mail.to]; // = await getDecryptKey(s.to);
+        //var decRes = EncDec.nacl_decrypt(d, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
+        var decRes = EncDec.nacl_decrypt_with_key(d, key.pubKey, key.decryptKey);
         var object = JSON.parse(decRes);
         var blob = new Blob([new Uint8Array(object.binaryData)], { type: attachment.file.type });
         saveFileAs(blob, attachment.file.path);
