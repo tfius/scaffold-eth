@@ -97,7 +97,7 @@ export function Home({
           privateKeySmail = await decryptSmailKey(address, encryptedSmailKey); // decrypt key from metamas
 
           if (privateKeySmail !== undefined) {
-            setSmailMail({ pubKey: data.key, keyLocation: data.keyLocation, smailPrivateKey: privateKeySmail });
+            setSmailMail({ pubKey: data.pubKey, keyLocation: data.keyLocation, smailPrivateKey: privateKeySmail });
             setCurrentStep(-1);
             //console.log(key, privateKeySmail);
           } else
@@ -158,7 +158,6 @@ export function Home({
     setCurrentStep(2);
     const tx = await onRegister(fromUrlPubKey, "0x" + keyLocation); // await testMetamaskEncryption(key, address, "text to encrypt");
 
-    //setSmailMail({ key: fromUrlPubKey, smail: newPrivateKey });
     setSmailMail({ pubKey: fromUrlPubKey, keyLocation: "0x" + keyLocation, smailPrivateKey: newPrivateKey });
     setIsLoading(false);
   };
@@ -270,7 +269,11 @@ export function Home({
           )}
           <div>
             <h2>How Smail works</h2>
-            How registration works:
+            You will be asked to decrypt your Smail Wallet every time you visit this page.
+            <hr />
+            <h4>
+              How <strong>registration</strong> works:
+            </h4>
             <ul>
               <li>your public encryption key is requested with which new Smail Wallet is created</li>
               <li>Smail Wallet is encrypted with your MetaMask and uploaded to Swarm</li>
@@ -279,30 +282,48 @@ export function Home({
             </ul>
           </div>
           <div>
-            How sending data works:
+            <h4>
+              How <strong>Inbox</strong> works:
+            </h4>
             <ul>
               <li>Recipient's Smail public Key is retrieved</li>
               <li>New Ephemeral key is created</li>
               <li>Data is packaged, encrypted and uploaded </li>
               <li>A transaction is sent to notify receiver of new data available</li>
-              You don't need to be bonded to send encrypted data, as long as receiver is registered with Smail you will
-              be able to send encrypted data.
+              You don't need to be bonded to send encrypted data as long as receiver is registered with Smail data sent
+              will be encrypted.
             </ul>
-            You will be asked to decrypt your Smail Wallet every time you visit this page. <strong>NOTE: </strong>Only
-            receiver can retrieve and decrypt its contents.
+            <strong>NOTE: </strong>Only receiver can retrieve and decrypt its contents.
+            <br />
+            <br />
+            <h4>
+              How <strong>Received/Sent</strong> works
+            </h4>
+            <ul>
+              <li>Receiver and sender must be registered</li>
+              <li>Shared secret is used to encrypt data</li>
+              <li>Data is packaged, encrypted with shared secret key and uploaded </li>
+              <li>A transaction is sent to notify receiver, sender and receiver can decrypt message</li>
+              Uses Diffie-Hellman key exchange, a shared secret is used as a key to encrypt and decrypt message on both
+              sides.
+            </ul>
+            <strong>NOTE: </strong>
+            Both sender and receiver must be bonded to send encrypted data.
             <hr />
             <h2>BEWARE AND BEHOLD</h2>
             Always check that you are on correct domain and that you are using correct MetaMask account. Scammers could
-            potentially ask you to decrypt Smail Wallet and gain access to your data.
+            potentially ask you to decrypt Smail Wallet and <strong>gain access to your data</strong> but will gain
+            access to your MetaMask account.
           </div>
           <div>
             <br />
             <h2>Pricing</h2>
-            When you send message you pay transaction costs and for storage fees on Swarm network. Data persistence is
-            not guaranteed. Storage fees go to Smail maintainer and are used to buy Bzz tokens to store data for as long
-            as possible. For how long you might ask? Answer to this question is tricky. It depends on market conditions
-            as prices fluctuate when demand increases. If market is willing to pay more for storage, then postage stamps
-            expire sooner and data will be garbage collected.
+            When you send message you pay transaction costs and storage fees on Swarm network. Data persistence is not
+            guaranteed. Storage fees go to Smail maintainer and are used to buy Bzz tokens to store data for as long as
+            possible. For how long you might ask? Answer to this question is tricky. It depends on market conditions as
+            prices fluctuate when demand increases. If market is willing to pay more for storage, then postage stamps
+            expire sooner and data will be garbage collected. You can expect your data to be stored for two to three
+            weeks.
           </div>
           <div>
             <br />

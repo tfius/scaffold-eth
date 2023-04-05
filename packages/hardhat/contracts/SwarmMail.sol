@@ -25,14 +25,18 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         bytes32 keyLocation;
         bool    revoked;
     }
+    /*struct Thread {
+        bytes32  threadHash;
+        Email[]  emails;
+    }*/
     struct Email {
-        bool    isEncryption;
-        uint256 time;
-        address from;
-        address to;
-        bytes32 swarmLocation;
-        bool    signed;
-        //bytes uuid;
+        bool      isEncryption;
+        uint256   time;
+        address   from;
+        address   to;
+        bytes32   swarmLocation;
+        bool      signed;
+        bytes32[] threads; // hashes to threads
     }
     /*
     // subscription request
@@ -67,12 +71,16 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
 
         Email[] lockerEmails;
         mapping(bytes32 => uint256) lockerEmailIds;
-        // lockerEmail swarmLocation -> Share[]
+        
         mapping(bytes32 => Share[]) shares;
         mapping(bytes32 => mapping(address => uint256)) shareIds;
 
         Email[] sharedLockerEmails;
         mapping(bytes32 => uint256) sharedLockerEmailIds;
+
+        //Email[] private threadEmails;
+        bytes32[] threads;
+        //mapping(bytes32 => uint256) threadEmailIds;
 
         // // who wants to subscribe to what
         // SubRequest[] subRequests;
@@ -90,7 +98,10 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         //mapping(address => uint256) contactsIds;
     }
 
-    mapping(address => User) users;
+    Email[] private Threads;
+    mapping(bytes32 => uint256) threadHashIds;
+
+    mapping(address => User) private users;
     // mapping(address => address) userToPortable;
  
     constructor() {
@@ -109,17 +120,13 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         keyLocation = users[addr].keyLocation;
         //portable = userToPortable[addr];
     } 
-
-    //  
-    function getUserStats(address addr) public view returns (uint numInboxItems, uint numSentItems, uint numLockers, uint numSharedLockers, uint numOneWayItems /* uint numSubRequests, uint numSubItems, uint numActiveBids */) {
+    function getUserStats(address addr) public view returns (uint numInboxItems, uint numSentItems, uint numLockers, uint numSharedLockers, uint numOneWayItems, uint numThreads /* uint numSubRequests, uint numSubItems, uint numActiveBids */) {
         numInboxItems = users[addr].inboxEmails.length;
         numSentItems  = users[addr].sentEmails.length;
         numLockers = users[addr].lockerEmails.length;
         numSharedLockers = users[addr].sharedLockerEmails.length;
         numOneWayItems = users[addr].oneWayEmails.length;
-        /*numSubRequests = users[addr].subRequests.length;
-        numSubItems = users[addr].subItems.length;
-        numActiveBids = users[addr].activeBids.length;*/
+        numThreads = users[addr].threads.length;
     }
     function register(bytes32 pubKey, bytes32 keyLocation) public {
         User storage user = users[msg.sender];
@@ -128,6 +135,7 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         user.keyLocation = keyLocation;
         //userToPortable[msg.sender] = portable;
     }
+    
 
     /*
     function setPortableAddress(address addr) public {
@@ -173,24 +181,24 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         return count;
     }*/ 
 
-
-    function signEmail(bytes32 swarmLocation) public {
+    // this will work for inbox / outbox 
+    function signEmail(uint in_types, uint sender_types, bytes32 swarmLocation) public {
         User storage u = users[msg.sender];
-        require(u.inboxEmailIds[swarmLocation] != 0, "Message !exist");
-        /*
-        Email storage email = u.inboxEmails[u.inboxEmailIds[swarmLocation] - 1];
-        require(msg.sender == email.to, "Only receiver can sign");
-        email.signed = true; */
-
-        Email storage receivedMail = u.inboxEmails[u.inboxEmailIds[swarmLocation] - 1];
-        require(msg.sender == receivedMail.to, "Only receiver can sign");
-        receivedMail.signed = true;
-
-        User storage sender = users[receivedMail.from]; // get sender 
-        Email memory sentMail = sender.sentEmails[sender.sentEmailIds[swarmLocation] - 1]; // has to be in sentEmails
-        //require(msg.sender == sentMail.to, "Only receiver can sign");
-        sentMail.signed = true;
+        Email memory e = getEmailByType(u, in_types, swarmLocation); 
+        // require(e.to == msg.sender, "only receiver can sign");
+        
+        if(e.to==msg.sender) { // receiver signs
+            User storage sender = users[e.from]; // get sender
+            Email storage e2 = getEmailByType(sender, sender_types, swarmLocation); 
+            e2.signed = true;
+        }
+        if(e.from==msg.sender) { // sender signs
+            User storage receiver = users[e.from]; // get sender
+            Email storage e2 = getEmailByType(receiver, sender_types, swarmLocation); 
+            e2.signed = true;
+        }
     }
+
     function sendEmail( address toAddress, bool isEncryption, bytes32 swarmLocation ) public payable {
         User storage receiver = users[toAddress];
         require(!isEncryption || receiver.pubKey != bytes32(0), "receiver not registered");
@@ -264,6 +272,12 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
                 removeGenericEmail(locations[i], u.oneWayEmailIds, u.oneWayEmails);
             }
         }
+        // TODO remove threads 
+        /*else if(types == 5) {
+            for (uint256 i; i < locations.length; i++) {
+                removeGenericEmail(locations[i], u.threadEmailIds, u.threadEmails);
+            }
+        }*/
     }
 
     function genEmailRange(uint start, uint length, Email[] memory array) private pure returns (Email[] memory) {
@@ -293,7 +307,9 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
             messages = genEmailRange(start, length, u.oneWayEmails);
         } else if(types == 4) {
             messages = genEmailRange(start, length, u.sharedLockerEmails);
-        }
+        } /*else if(types == 5) {
+            messages = genEmailRange(start, length, u.threadEmails);
+        }*/
     }
 
     function storeLocker(bytes32 swarmLocation) public payable {
@@ -351,12 +367,93 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
 
         removeGenericEmail(keyLocation, u2.sharedLockerEmailIds, u2.sharedLockerEmails);
     }
-
     function getLockerShares(address locker, bytes32 lockerLocation) public view returns (Share[] memory) {
         return users[locker].shares[lockerLocation];
     }
     // End of Locker parts of SwarmMail contract
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    function getEmailByType(User storage u, uint types, bytes32 swarmLocation) private view returns (Email storage e) {
+        if(types == 0) {
+            e = u.inboxEmails[u.inboxEmailIds[swarmLocation]-1];
+            return e;
+        }
+        else if(types == 1) {
+            e = u.sentEmails[u.sentEmailIds[swarmLocation]-1];
+            return e;
+        } 
+        else if(types == 2) {
+            e = u.lockerEmails[u.lockerEmailIds[swarmLocation]-1];
+            return e;
+        }
+        else if(types == 3) {
+            e = u.oneWayEmails[u.oneWayEmailIds[swarmLocation]-1];
+            return e;
+        }
+        /*else if(types == 5) {
+            return e;
+        }*/ 
+        e = Threads[threadHashIds[swarmLocation]-1];
+    }
+
+    function createThread(address to, bytes32 swarmLocation) public
+    {
+        Email memory email; 
+        email.isEncryption = true;
+        email.time = block.timestamp;
+        email.from = msg.sender;
+        email.to = to;
+        email.swarmLocation = swarmLocation;
+
+        User storage sender   = users[msg.sender];
+        User storage receiver = users[to];
+        
+        bytes32 threadHash = keccak256(abi.encode(msg.sender, to, swarmLocation));
+
+        Threads.push(email);
+        sender.threads.push(threadHash);
+        receiver.threads.push(threadHash);
+
+        threadHashIds[threadHash] = Threads.length;
+    }
+
+    function addThread(uint types, bytes32 emailSwarmLocation, address to, bytes32 swarmThreadLocation) public {
+        User  storage sender = users[msg.sender];
+        Email storage e = getEmailByType(sender, types, emailSwarmLocation);
+        require(e.from == msg.sender || e.to == msg.sender, "!owner");
+
+        Email memory email; 
+        email.isEncryption = e.isEncryption;
+        email.time = block.timestamp;
+        email.from = msg.sender;
+        email.to = to;
+        email.swarmLocation = swarmThreadLocation;
+
+        Threads.push(email); 
+        bytes32 threadHash = keccak256(abi.encode(email.from, email.to, swarmThreadLocation));
+        threadHashIds[threadHash] = Threads.length;
+
+        //sender.threadEmailIds[swarmThreadLocation] = Threads.length;
+        //sender.threadEmailIds[threadHash] = Threads.length;
+        e.threads.push(threadHash);
+    }
+
+    function getUserThreads(address addr) public view returns (bytes32[] memory) {
+        return users[addr].threads;
+    }
+
+    function getThreads(bytes32[] memory locations) public view returns (Email[] memory) {
+        Email[] memory messages = new Email[](locations.length);
+        for (uint256 i; i < locations.length; i++) {
+            if(threadHashIds[locations[i]]!=0)
+               messages[i] = (Threads[threadHashIds[locations[i]]-1]);
+        }
+        return messages;
+    }
+
+    function getUserThreadEmails(address addr) public view returns (Email[] memory) {
+        return getThreads(getUserThreads(addr));
+    }
+    
     //uint256 public inEscrow = 0;
 
 

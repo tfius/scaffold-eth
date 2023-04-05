@@ -35,9 +35,11 @@ import { useStaticJsonRPC } from "./hooks";
 import * as consts from "./views/consts";
 import { Home } from "./views/Home";
 import { Inbox } from "./views/Inbox";
+import { Locker } from "./views/Locker";
 import { EmailsSent } from "./views/EmailsSent";
 import { EmailsReceived } from "./views/EmailsReceived";
-import { Locker } from "./views/Locker";
+import { Threads } from "./views/Threads";
+
 import { DataHub } from "./views/DataHub";
 import { ComposeNewMessage } from "./views/ComposeNewMessage";
 import { SubRequests } from "./views/SubRequests";
@@ -143,6 +145,7 @@ function App(props) {
   const [messageCount, setMessageCount] = useState(0);
   const [smailMail, setSmailMail] = useState({ pubKey: null, keyLocation: null, smailPrivateKey: null }); // this has to be defined
   const [replyTo, _setReplyTo] = useState("");
+  const [isOneWay, setIsOneWay] = useState(true);
   const [isComposeModalVisible, _setIsComposeModalVisible] = useState(false);
 
   const [fairOSPods, setFairOSPods] = useState([]);
@@ -151,7 +154,8 @@ function App(props) {
 
   const location = useLocation();
 
-  const setReplyTo = replyToAddress => {
+  const setReplyTo = (replyToAddress, isOneWay) => {
+    setIsOneWay(isOneWay);
     _setReplyTo(replyToAddress);
     setIsComposeModalVisible(true);
   };
@@ -161,7 +165,7 @@ function App(props) {
   };
   const composeNewMail = () => {
     console.log("compose");
-    setReplyTo("");
+    setReplyTo("", true);
   };
 
   /// 📡 What chain are your contracts deployed to?
@@ -405,34 +409,41 @@ function App(props) {
                 <Link to="/inbox">Inbox</Link>
               </Tooltip>
             </Menu.Item>
-
             <>
               <Menu.Item key="/locker" disabled={!isBonded}>
                 <Tooltip title="Encrypt and store your data" placement="right">
                   <Link to="/locker">Locker</Link>
                 </Tooltip>
               </Menu.Item>
+            </>
+            <Menu.Item key="/received" disabled={!isBonded}>
+              <Tooltip title="View received messages" placement="right">
+                <Link to="/received">Received</Link>
+              </Tooltip>
+            </Menu.Item>
+            <Menu.Item key="/sent" disabled={!isBonded}>
+              <Tooltip title="View sent messages" placement="right">
+                <Link to="/sent">Sent</Link>
+              </Tooltip>
+            </Menu.Item>
+            <Menu.Item key="/threads" disabled={!isBonded}>
+              <Tooltip title="View threads" placement="right">
+                <Link to="/threads">Threads</Link>
+              </Tooltip>
+            </Menu.Item>
+
+            <>
               <Menu.Item key="/smailmailkey" disabled>
                 <Tooltip title="Registration status">
+                  {console.log("smailMail", smailMail)}
                   {smailMail.pubKey ? "wallet" : "no key"}&nbsp;
                   {smailMail.smailPrivateKey ? "bonded" : "no bond"}
                 </Tooltip>
               </Menu.Item>
             </>
 
-            <Menu.Item key="/received">
-              <Tooltip title="View received messages" placement="right">
-                <Link to="/received">Received</Link>
-              </Tooltip>
-            </Menu.Item>
-            <Menu.Item key="/sent">
-              <Tooltip title="View sent messages" placement="right">
-                <Link to="/sent">Sent</Link>
-              </Tooltip>
-            </Menu.Item>
-
             {/* {fairOSSessionId != null && <Menu.Divider />} */}
-
+            <Menu.Divider />
             {web3Modal && web3Modal?.cachedProvider && (
               <Menu.Item key="/fairOS">
                 <FairOSWasmConnect
@@ -458,7 +469,6 @@ function App(props) {
             )}
 
             <>
-              <Menu.Divider />
               <Menu.Item key="/datahub" disabled={!isFairOsed}>
                 <Tooltip title="View offers, open new listings" placement="right">
                   <Link to="/datahub">Data Hub</Link>
@@ -578,6 +588,7 @@ function App(props) {
                   messageCount={messageCount}
                   smailMail={smailMail}
                   setReplyTo={setReplyTo}
+                  mainnetProvider={mainnetProvider}
                 />
               </Route>
               <Route exact path="/sent">
@@ -590,6 +601,7 @@ function App(props) {
                   messageCount={messageCount}
                   smailMail={smailMail}
                   setReplyTo={setReplyTo}
+                  mainnetProvider={mainnetProvider}
                 />
               </Route>
               <Route exact path="/received">
@@ -602,10 +614,23 @@ function App(props) {
                   messageCount={messageCount}
                   smailMail={smailMail}
                   setReplyTo={setReplyTo}
+                  mainnetProvider={mainnetProvider}
                 />
               </Route>
               <Route exact path="/locker">
                 <Locker
+                  readContracts={readContracts}
+                  writeContracts={writeContracts}
+                  userSigner={userSigner}
+                  tx={tx}
+                  address={address}
+                  messageCount={messageCount}
+                  smailMail={smailMail}
+                  mainnetProvider={mainnetProvider}
+                />
+              </Route>
+              <Route exact path="/threads">
+                <Threads
                   readContracts={readContracts}
                   writeContracts={writeContracts}
                   userSigner={userSigner}
@@ -718,6 +743,7 @@ function App(props) {
           onMessageSent={onMessageSent}
           smailMail={smailMail}
           recipient={replyTo}
+          isOneWay={isOneWay}
         />
       )}
 

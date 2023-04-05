@@ -22,6 +22,7 @@ export function EmailsReceived({
   messageCount,
   smailMail,
   setReplyTo,
+  mainnetProvider,
 }) {
   const [isRegistered, setIsRegistered] = useState(false);
   // const [key, setKey] = useState(consts.emptyHash);
@@ -149,7 +150,7 @@ export function EmailsReceived({
   }, [messageCount]);
 
   const onSignMail = async mail => {
-    let newTx = await tx(writeContracts.SwarmMail.signEmail(mail.location));
+    let newTx = await tx(writeContracts.SwarmMail.signEmail(0, 1, mail.location)); // sign sentEmail
     await newTx.wait();
     notification.open({
       message: "You signed " + location,
@@ -351,7 +352,7 @@ export function EmailsReceived({
                         {mail.subject}
                       </strong>
 
-                      <span style={{ margin: "15px", cursor: "pointer" }} onClick={() => setReplyTo(mail.from)}>
+                      <span style={{ margin: "15px", cursor: "pointer" }} onClick={() => setReplyTo(mail.from, false)}>
                         <IconText icon={ArrowLeftOutlined} tooltip="Reply" key="list-vertical-reply-o" />
                       </span>
                       {mail.isEncryption === false && (
@@ -448,10 +449,10 @@ export function EmailsReceived({
             <>
               <h3>{viewMail.subject}</h3>{" "}
               <small>
-                Sender: <AddressSimple address={viewMail.from} />
+                Sender: <AddressSimple address={viewMail.from} ensProvider={mainnetProvider} />
               </small>
               <span style={{ float: "right", verticalAlignement: "top" }}>
-                <Tooltip title={<AddressSimple address={viewMail.from} />}>
+                <Tooltip title={<AddressSimple address={viewMail.from} ensProvider={mainnetProvider} />}>
                   <span>
                     <Blockies className="mailIdenticon" seed={viewMail.from} size="4" />
                   </span>
@@ -480,7 +481,7 @@ export function EmailsReceived({
             />
           </>
           <br />
-          <Button onClick={() => setReplyTo(viewMail.from)}>
+          <Button onClick={() => setReplyTo(viewMail.from, false)}>
             <IconText icon={ArrowLeftOutlined} tooltip="Reply" key="list-vertical-reply-o" />
             &nbsp; Reply
           </Button>{" "}

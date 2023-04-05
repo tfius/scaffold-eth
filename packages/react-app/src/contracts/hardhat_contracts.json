@@ -2046,7 +2046,7 @@
       "chainId": "31337",
       "contracts": {
         "DataHub": {
-          "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+          "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
           "abi": [
             {
               "inputs": [],
@@ -3628,6 +3628,52 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "types",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "emailSwarmLocation",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "swarmThreadLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "addThread",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "createThread",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "fundsBalance",
               "outputs": [
@@ -3703,6 +3749,11 @@
                       "internalType": "bool",
                       "name": "signed",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "bytes32[]",
+                      "name": "threads",
+                      "type": "bytes32[]"
                     }
                   ],
                   "internalType": "struct SwarmMail.Email[]",
@@ -3805,6 +3856,62 @@
             {
               "inputs": [
                 {
+                  "internalType": "bytes32[]",
+                  "name": "locations",
+                  "type": "bytes32[]"
+                }
+              ],
+              "name": "getThreads",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bool",
+                      "name": "isEncryption",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "time",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "from",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "to",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "swarmLocation",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "signed",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "bytes32[]",
+                      "name": "threads",
+                      "type": "bytes32[]"
+                    }
+                  ],
+                  "internalType": "struct SwarmMail.Email[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
                   "internalType": "address",
                   "name": "addr",
                   "type": "address"
@@ -3836,6 +3943,86 @@
                   "internalType": "uint256",
                   "name": "numOneWayItems",
                   "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "numThreads",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "addr",
+                  "type": "address"
+                }
+              ],
+              "name": "getUserThreadEmails",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bool",
+                      "name": "isEncryption",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "time",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "from",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "to",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "swarmLocation",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "signed",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "bytes32[]",
+                      "name": "threads",
+                      "type": "bytes32[]"
+                    }
+                  ],
+                  "internalType": "struct SwarmMail.Email[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "addr",
+                  "type": "address"
+                }
+              ],
+              "name": "getUserThreads",
+              "outputs": [
+                {
+                  "internalType": "bytes32[]",
+                  "name": "",
+                  "type": "bytes32[]"
                 }
               ],
               "stateMutability": "view",
@@ -4064,6 +4251,16 @@
             },
             {
               "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "in_types",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "sender_types",
+                  "type": "uint256"
+                },
                 {
                   "internalType": "bytes32",
                   "name": "swarmLocation",

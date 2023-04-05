@@ -26,7 +26,7 @@ class ComposeNewMessageForm extends React.Component {
       recipientKey: null,
       isRecipientRegistered: false,
       recipientEns: null,
-      isOneWay: true,
+      isOneWay: this.props.isOneWay,
     };
 
     this.onRecepientChange(this.props.recipient);
@@ -101,12 +101,12 @@ class ComposeNewMessageForm extends React.Component {
     if (value === true) {
       notification.info({
         message: "One-way message",
-        description: "The sender will not be able to read it.",
+        description: "You will not be able to read message. It's encrypted for the recipient only. Cheaper.",
       });
     } else {
       notification.info({
         message: "Two-way message",
-        description: "The sender will be able to read it in Sent folder",
+        description: "Listed in 'Sent'. You will be able to retrieve and read it. More expensive.",
       });
     }
   }
@@ -246,6 +246,7 @@ export function ComposeNewMessage({
   onMessageSent,
   smailMail,
   recipient,
+  isOneWay,
 }) {
   const [loading, setLoading] = useState(false);
   const [sendingInProgress, setSendingInProgress] = useState(false);
@@ -407,7 +408,7 @@ export function ComposeNewMessage({
       setProgressStatus("Waiting for user to sign transaction ...");
       var newTx;
       // sendOneWayEmail
-      debugger;
+      //debugger;
 
       if (sendOneWayEmail) {
         newTx = await tx(
@@ -474,6 +475,7 @@ export function ComposeNewMessage({
             recipient={recipient}
             ensProvider={ensProvider}
             senderPkRegister={senderPkRegister}
+            isOneWay={isOneWay}
             // senderENS={senderENS}
             // receiverENS={receiverENS}
           />

@@ -14,7 +14,7 @@ import MarkdownPreview from "@uiw/react-markdown-preview";
 import { AddressSimple, AddressInput } from "../components";
 import { ComposeNewLocker } from "./ComposeNewLocker";
 
-export function Locker({
+export function Threads({
   readContracts,
   writeContracts,
   tx,
@@ -419,8 +419,8 @@ export function Locker({
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
-      <h1>Locker</h1>
-      <div className="routeSubtitle">Encrypted packages and sharing info</div>
+      <h1>Threads</h1>
+      <div className="routeSubtitle">All threads your are participating in</div>
       <div className="paginationInfo">
         {startItem}-{endItem} of {totalItems} &nbsp;&nbsp;&nbsp;
         <a onClick={() => retrieveNewPage(page - 1)}>{"<"}</a>&nbsp;{page}/{maxPages}&nbsp;
@@ -800,4 +800,4 @@ export function Locker({
   );
 }
 
-export default Locker;
+export default Threads;

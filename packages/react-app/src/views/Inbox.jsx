@@ -13,7 +13,17 @@ import MarkdownPreview from "@uiw/react-markdown-preview";
 
 import { AddressSimple } from "./../components";
 
-export function Inbox({ readContracts, writeContracts, tx, userSigner, address, messageCount, smailMail, setReplyTo }) {
+export function Inbox({
+  readContracts,
+  writeContracts,
+  tx,
+  userSigner,
+  address,
+  messageCount,
+  smailMail,
+  setReplyTo,
+  mainnetProvider,
+}) {
   const [isRegistered, setIsRegistered] = useState(false);
   // const [key, setKey] = useState(consts.emptyHash);
   // const [publicKey, setPublicKey] = useState({ x: consts.emptyHash, y: consts.emptyHash });
@@ -72,7 +82,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
     updatingMails = true;
     const boxCount = await readContracts.SwarmMail.getUserStats(address);
     console.log("boxCount", boxCount);
-    const mailCount = boxCount.numInboxItems.toNumber();
+    const mailCount = boxCount.numOneWayItems.toNumber();
     //const mailCount = (await readContracts.SwarmMail.getInboxCount(address)).toNumber();
     setTotalItems(mailCount);
 
@@ -117,7 +127,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
       return;
     }
     console.log("got smails", checked);
-    var newTx = await tx(writeContracts.SwarmMail.removeEmails(1, checked));
+    var newTx = await tx(writeContracts.SwarmMail.removeEmails(3, checked));
     await newTx.wait();
     for (var i = 0; i < checked.length; i++) {
       setMails(mails.filter(m => m.location !== checked[i])); // remove mails with same location
@@ -149,6 +159,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
   // };
   const processSMails = async sMails => {
     setIsLoading(true);
+    //debugger;
     for (let i = 0; i < sMails.length; i++) {
       var s = sMails[i];
       var mail = { attachments: [] };
@@ -342,7 +353,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
                         {mail.subject}
                       </strong>
 
-                      <span style={{ margin: "15px", cursor: "pointer" }} onClick={() => setReplyTo(mail.from)}>
+                      <span style={{ margin: "15px", cursor: "pointer" }} onClick={() => setReplyTo(mail.from, true)}>
                         <IconText icon={ArrowLeftOutlined} tooltip="Reply" key="list-vertical-reply-o" />
                       </span>
                       {mail.isEncryption === false && (
@@ -471,7 +482,7 @@ export function Inbox({ readContracts, writeContracts, tx, userSigner, address, 
             />
           </>
           <br />
-          <Button onClick={() => setReplyTo(viewMail.from)}>
+          <Button onClick={() => setReplyTo(viewMail.from, true)}>
             <IconText icon={ArrowLeftOutlined} tooltip="Reply" key="list-vertical-reply-o" />
             &nbsp; Reply
           </Button>{" "}
