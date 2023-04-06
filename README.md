@@ -174,9 +174,9 @@ yarn deploy
 ### Deployments
 
 Goerli: 
-SwarmMaildeploying "SwarmMail" (tx: 0x981aeaf2ac802ac50fb2e562acf3a58b27c8618de348846fb26894079c259614)...: deployed at 0x4e713E4DdF939CABB6abe53D7783EB3c0AB6AFFc with 2171831 gas
-deploying "DataHub" (tx: 0xcce53a7a69ef3a2e65160a66d9324fbf28b512b86b095696c339535f155c2158)...: deployed at 
-0xBE41b272e3cDe3aeC8fE4a144C5b7cE71D9e6498 with 3727672 gas
-
+SwarmMail
+deploying "SwarmMail" (tx: 0x4b50db71ec56f37875c11edd20a520e6edd285ed8ff44be7badc737cedaf5949)...: deployed at 0x32C144cf950E1f3Fa3b96049c10C39995076BCd6 with 3300461 gas
+DataHub
+deploying "DataHub" (tx: 0x6f9de3dcd9eb07518e6fc3d5b2745c395462c48fcf97a283f51c8e47c5b011bc)...: deployed at 0x982d3A3516E08763DEf73485e5762bdBbD932Ce9 with 3981185 gas
 ### Access it
 https://fairos.staging.fairdatasociety.org/public/3d70d86a08a9e6c92e826d16aaec3ee1fbfbcc34decbca977a66d8efb5476464/
