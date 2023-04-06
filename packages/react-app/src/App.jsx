@@ -435,7 +435,7 @@ function App(props) {
             <>
               <Menu.Item key="/smailmailkey" disabled>
                 <Tooltip title="Registration status">
-                  {console.log("smailMail", smailMail)}
+                  {/* {console.log("smailMail", smailMail)} */}
                   {smailMail.pubKey ? "wallet" : "no key"}&nbsp;
                   {smailMail.smailPrivateKey ? "bonded" : "no bond"}
                 </Tooltip>

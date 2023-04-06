@@ -2046,7 +2046,7 @@
       "chainId": "31337",
       "contracts": {
         "DataHub": {
-          "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+          "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
           "abi": [
             {
               "inputs": [],
@@ -3513,7 +3513,7 @@
           ]
         },
         "SwarmMail": {
-          "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
+          "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
           "abi": [
             {
               "inputs": [],
@@ -3652,6 +3652,19 @@
               ],
               "name": "addThread",
               "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "addr",
+                  "type": "address"
+                }
+              ],
+              "name": "blackListAddress",
+              "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
             },
@@ -3670,7 +3683,7 @@
               ],
               "name": "createThread",
               "outputs": [],
-              "stateMutability": "nonpayable",
+              "stateMutability": "payable",
               "type": "function"
             },
             {
@@ -3959,9 +3972,19 @@
                   "internalType": "address",
                   "name": "addr",
                   "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "start",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "length",
+                  "type": "uint256"
                 }
               ],
-              "name": "getUserThreadEmails",
+              "name": "getUserThreadsRange",
               "outputs": [
                 {
                   "components": [
@@ -4004,21 +4027,7 @@
                   "internalType": "struct SwarmMail.Email[]",
                   "name": "",
                   "type": "tuple[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "addr",
-                  "type": "address"
-                }
-              ],
-              "name": "getUserThreads",
-              "outputs": [
+                },
                 {
                   "internalType": "bytes32[]",
                   "name": "",

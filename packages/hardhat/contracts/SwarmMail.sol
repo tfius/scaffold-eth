@@ -102,7 +102,15 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
     mapping(bytes32 => uint256) threadHashIds;
 
     mapping(address => User) private users;
+    // mapping of blacklisted addresses (for spam)
+    mapping(address => mapping(address => bool)) private blackList;
+    //mapping(address => address)
     // mapping(address => address) userToPortable;
+
+    // to do add checkers for blacklisted addresses
+    function blackListAddress(address addr) public {
+        blackList[msg.sender][addr] = true;
+    }
  
     constructor() {
     }
@@ -200,6 +208,8 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
     }
 
     function sendEmail( address toAddress, bool isEncryption, bytes32 swarmLocation ) public payable {
+        require(blackList[toAddress][msg.sender]==false, "denied");
+
         User storage receiver = users[toAddress];
         require(!isEncryption || receiver.pubKey != bytes32(0), "receiver not registered");
         User storage sender = users[msg.sender];
@@ -219,6 +229,8 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
     }
 
     function sendOneWayEmail( address toAddress, bool isEncryption, bytes32 swarmLocation ) public payable {
+        require(blackList[toAddress][msg.sender]==false, "denied");
+
         User storage receiver = users[toAddress];
         require(!isEncryption || receiver.pubKey != bytes32(0), "receiver not registered");
         
@@ -327,6 +339,8 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
     }
 
     function shareLockerWith(bytes32 lockerLocation, bytes32 keyLocation, address withAddress) public payable {
+        require(blackList[withAddress][msg.sender]==false, "denied");
+
         User storage u = users[msg.sender];
 
         // TODO storage fee for locker
@@ -395,8 +409,10 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         e = Threads[threadHashIds[swarmLocation]-1];
     }
 
-    function createThread(address to, bytes32 swarmLocation) public
+    function createThread(address to, bytes32 swarmLocation) public payable
     {
+        require(blackList[to][msg.sender]==false, "denied");
+
         Email memory email; 
         email.isEncryption = true;
         email.time = block.timestamp;
@@ -416,7 +432,7 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         threadHashIds[threadHash] = Threads.length;
     }
 
-    function addThread(uint types, bytes32 emailSwarmLocation, address to, bytes32 swarmThreadLocation) public {
+    function addThread(uint types, bytes32 emailSwarmLocation, address to, bytes32 swarmThreadLocation) public payable {
         User  storage sender = users[msg.sender];
         Email storage e = getEmailByType(sender, types, emailSwarmLocation);
         require(e.from == msg.sender || e.to == msg.sender, "!owner");
@@ -431,28 +447,59 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         Threads.push(email); 
         bytes32 threadHash = keccak256(abi.encode(email.from, email.to, swarmThreadLocation));
         threadHashIds[threadHash] = Threads.length;
-
         //sender.threadEmailIds[swarmThreadLocation] = Threads.length;
         //sender.threadEmailIds[threadHash] = Threads.length;
         e.threads.push(threadHash);
     }
 
-    function getUserThreads(address addr) public view returns (bytes32[] memory) {
-        return users[addr].threads;
-    }
-
     function getThreads(bytes32[] memory locations) public view returns (Email[] memory) {
         Email[] memory messages = new Email[](locations.length);
-        for (uint256 i; i < locations.length; i++) {
+        for (uint256 i=0; i < locations.length; i++) {
             if(threadHashIds[locations[i]]!=0)
-               messages[i] = (Threads[threadHashIds[locations[i]]-1]);
+               messages[i] = Threads[threadHashIds[locations[i]]-1];
         }
         return messages;
     }
 
+    function getUserThreadsRange(address addr, uint start, uint length) public view returns (Email[] memory, bytes32[] memory) {
+        Email[] memory emails = new Email[](length);
+        bytes32[] memory locations = new bytes32[](length);
+        uint count = 0;
+        uint len = users[addr].threads.length;
+        for(uint i = start; i < start + length; i++)
+        {
+            if(i<len)
+            {
+                bytes32 location = users[addr].threads[i];
+                if(threadHashIds[location]!=0)
+                {
+                    emails[count] = Threads[threadHashIds[location]-1];
+                    locations[count] = location;
+                    ++count;
+                }
+            }
+        }
+        return (emails,locations);
+    }
+
+    function removeUserThread(uint idx) public {
+        User storage u = users[msg.sender];
+        uint256 removeIndex = idx;
+        // remove info
+        uint256 lastIndex = u.threads.length - 1;
+        if (lastIndex != removeIndex) {
+            u.threads[removeIndex] = u.threads[lastIndex];
+        }
+        u.threads.pop();
+    }
+    /*
+    function getUserThreads(address addr) public view returns (bytes32[] memory) {
+        return users[addr].threads;
+    }*/
+    /*
     function getUserThreadEmails(address addr) public view returns (Email[] memory) {
         return getThreads(getUserThreads(addr));
-    }
+    }*/ 
     
     //uint256 public inEscrow = 0;
 

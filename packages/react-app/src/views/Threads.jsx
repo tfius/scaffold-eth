@@ -2,7 +2,20 @@ import React, { useState, useEffect, useCallback } from "react";
 
 import { ethers } from "ethers";
 import { Link, Route, useLocation } from "react-router-dom";
-import { Button, List, Card, Modal, notification, Tooltip, Typography, Spin, Checkbox, Input, Switch } from "antd";
+import {
+  Button,
+  List,
+  Card,
+  Modal,
+  notification,
+  Tooltip,
+  Typography,
+  Spin,
+  Checkbox,
+  Input,
+  Switch,
+  Badge,
+} from "antd";
 import { EnterOutlined, EditOutlined, ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
 
 import { uploadDataToBee, downloadDataFromBee } from "../Swarm/BeeService";
@@ -12,7 +25,36 @@ import Blockies from "react-blockies";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 
 import { AddressSimple, AddressInput } from "../components";
-import { ComposeNewLocker } from "./ComposeNewLocker";
+import { ComposeNewThread } from "./ComposeNewThread";
+
+function addAfter(array, index, newItem) {
+  return [...array.slice(0, index), newItem, ...array.slice(index)];
+}
+
+export function ThreadsComponent({ mail, onViewMail }) {
+  if (mail.threadMails.length == null) return null;
+  return (
+    <div style={{ marginLeft: mail.depth * 15 + "px" }}>
+      {mail.threadMails.map(threadMail => (
+        <>
+          <span onClick={() => onViewMail(threadMail)} style={{ cursor: "pointer" }}>
+            {threadMail.contents}{" "}
+          </span>
+          <ThreadsComponent mail={threadMail} onViewMail={onViewMail} />
+        </>
+      ))}
+    </div>
+    // <List
+    //   dataSource={mail.threadMails}
+    //   renderItem={threadMail => (
+    //     <List.Item style={{ marginBottom: "5px", marginTop: "0px", padding: "0px" }}>
+    //       <List.Item.Meta title={<>{threadMail.contents}</>} />
+    //       <ThreadsComponent mail={threadMail} />
+    //     </List.Item>
+    //   )}
+    // />
+  );
+}
 
 export function Threads({
   readContracts,
@@ -26,8 +68,6 @@ export function Threads({
 }) {
   const [isRegistered, setIsRegistered] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  // const [key, setKey] = useState(consts.emptyHash);
-  // const [publicKey, setPublicKey] = useState({ x: consts.emptyHash, y: consts.emptyHash });
   const [mails, setMails] = useState([]);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -49,7 +89,8 @@ export function Threads({
   const [showShareAddress, setShowShareAddress] = useState(false);
   const [toAddress, setToAddress] = useState();
   const [viewSharedItems, setViewSharedItems] = useState(false);
-  const [sharedItems, setSharedItems] = useState([]);
+
+  const [threadReply, setThreadReply] = useState(null);
 
   const setViewMail = async mail => {
     console.log("onViewMessage", mail);
@@ -66,78 +107,30 @@ export function Threads({
   };
 
   const toggleViewShared = isChecked => {
-    setViewSharedItems(isChecked);
+    /*setViewSharedItems(isChecked);
     if (isChecked) {
       setSharedItems([]);
       getSharedItems();
-    }
-  };
-  const getSharedItems = async () => {
-    const boxCount = await readContracts.SwarmMail.getUserStats(address);
-    const numSharedItems = boxCount.numSharedLockers.toNumber();
-    const smails = await readContracts.SwarmMail.getEmailRange(address, 4, 0, numSharedItems);
-    //console.log("getSharedItems smails", smails);
-
-    for (var i = 0; i < smails.length; i++) {
-      // get smail content
-      try {
-        const lockerData = await downloadDataFromBee(smails[i].swarmLocation); // returns buffer
-        var d = JSON.parse(new TextDecoder().decode(lockerData));
-        var decRes = EncDec.nacl_decrypt(d, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
-        var lockerItem = JSON.parse(decRes);
-        //console.log("lockerItem", lockerItem);
-        //console.log("key", smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
-
-        var secretKey = new Uint8Array(Buffer.from(lockerItem.ephemeralKey.secretKey, "base64"));
-        //var secretKey = Buffer.from(sharedItem.ephemeralKey.secretKey, "base64").toString("hex");
-        //console.log("secretkey", secretKey);
-        // get shared content
-        const sharedData = await downloadDataFromBee(lockerItem.location); // returns buffer
-        var sharedD = JSON.parse(new TextDecoder().decode(sharedData));
-        //console.log("sharedD", sharedD);
-
-        var decSharedRes = EncDec.nacl_decrypt_with_key(
-          sharedD,
-          lockerItem.ephemeralKey.recipientKey,
-          lockerItem.ephemeralKey.secretKey,
-        );
-        //console.log("decSharedRes", decSharedRes);
-        var sharedLocker = {};
-        sharedLocker.sharedMail = lockerItem;
-        sharedLocker.locker = JSON.parse(decSharedRes);
-        //sharedLocker.
-
-        setSharedItems(sharedItems => [...sharedItems, sharedLocker]);
-      } catch (e) {
-        console.log("error", e);
-      }
-    }
-    console.log("sharedItems", sharedItems);
-    //setSharedItems(smails);
+    }*/
   };
 
-  /*  
-  const onMessageSent = useCallback(async () => {
-    console.log("locker onMessageSent");
-    updateLocker();
-  }, []);*/
   const onMessageSent = async () => {
-    await updateLocker();
+    await updateThreads();
   };
 
   const updateRegistration = useCallback(async () => {
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return; // todo get pub key from ENS
     const data = await readContracts.SwarmMail.getPublicKeys(address);
     setIsRegistered(data.registered);
-    if (isRegistered === false && data.registered) updateLocker();
+    if (isRegistered === false && data.registered) updateThreads();
   });
   var updatingLocker = false;
-  const updateLocker = useCallback(async () => {
+  const updateThreads = useCallback(async () => {
     if (updatingLocker) return;
     updatingLocker = true;
     const boxCount = await readContracts.SwarmMail.getUserStats(address);
     console.log("boxCount", boxCount);
-    const mailCount = boxCount.numLockers.toNumber();
+    const mailCount = boxCount.numThreads.toNumber();
 
     setTotalItems(mailCount);
     var allPages = Math.ceil(mailCount / pageSize);
@@ -150,14 +143,15 @@ export function Threads({
     setStartItem(start + 1);
     setEndItem(start + length);
 
-    const smails = await readContracts.SwarmMail.getEmailRange(address, 2, start, length);
-    processSMails(smails);
+    const smails = await readContracts.SwarmMail.getUserThreadsRange(address, start, length);
+    //const smails = await readContracts.SwarmMail.getUserThreadEmails(address);
+    processThreadSMails(smails[0], smails[1]);
     //console.log("got smails", mails);
     updatingLocker = false;
   });
 
   useEffect(() => {
-    updateLocker();
+    updateThreads();
   }, [page]);
 
   const retrieveNewPage = async newPage => {
@@ -196,7 +190,7 @@ export function Threads({
 
   useEffect(() => {
     console.log("messageCount", messageCount, messageCountTrigger);
-    if (messageCount > messageCountTrigger && !updatingLocker) updateLocker();
+    if (messageCount > messageCountTrigger && !updatingLocker) updateThreads();
     setMessageCountTrigger(messageCount);
   }, [messageCount]);
 
@@ -208,48 +202,128 @@ export function Threads({
   //     description: `Your key: ${pubKey}`,
   //   });
   // };
-  const processSMails = async sMails => {
+  const getDecryptKey = async forAddress => {
+    var recipientKeys = await readContracts.SwarmMail.getPublicKeys(forAddress);
+    const rkey = recipientKeys.pubKey.substr(2, recipientKeys.pubKey.length - 1);
+    var pubKey = Buffer.from(rkey, "hex").toString("base64");
+    var sharedSecretKey = await EncDec.calculateSharedKey(
+      smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length),
+      pubKey,
+    );
+    //return { pubKey: pubKey, decryptKey: Buffer.from(sharedSecretKey.secretKey).toString("base64") };
+    return { pubKey: pubKey, sharedSecretKey: sharedSecretKey };
+  };
+  const decryptMail = async (s, data) => {
+    var keyTo = await getDecryptKey(s.to);
+    var key = {}; //keyLookup[s.to];
+    if (s.to === address) {
+      key = await getDecryptKey(s.from);
+    } else {
+      key = keyTo; //await getDecryptKey(s.to);
+    }
+
+    var d = JSON.parse(new TextDecoder().decode(data));
+    var decRes = EncDec.nacl_decrypt_with_key(
+      d,
+      keyTo.pubKey,
+      Buffer.from(key.sharedSecretKey.secretKey).toString("base64"),
+    );
+    return JSON.parse(decRes); // returns mail object
+  };
+
+  const processThreadSMails = async (sMails, threadHashes, parentMail) => {
     setIsLoading(true);
+    var idx = -1;
+    if (parentMail) {
+      console.log("parentMail", parentMail);
+      // find parent in existing mails
+      idx = mails.findIndex(m => m.location == parentMail.location);
+      console.log("found parent", idx, parentMail.swarmLocation);
+    }
     for (let i = 0; i < sMails.length; i++) {
       var s = sMails[i];
       if (mails.findIndex(m => m.location == s.swarmLocation) != -1) continue; // skip if already existing
-
       var mail = { attachments: [] };
-      const data = await downloadDataFromBee(s.swarmLocation); // returns buffer
-
-      // see if mail is encrypted
-      if (s.isEncryption === true) {
-        //console.log("data", data, smailMail);
-        try {
-          var d = JSON.parse(new TextDecoder().decode(data));
-          var decRes = EncDec.nacl_decrypt(d, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
-          mail = JSON.parse(decRes);
-        } catch (e) {
-          console.error("decrypt", e);
-          continue;
+      try {
+        const data = await downloadDataFromBee(s.swarmLocation); // returns buffer
+        console.log("smail", s);
+        // see if mail is encrypted
+        if (s.isEncryption === true) {
+          //console.log("data", data, smailMail);
+          try {
+            mail = await decryptMail(s, data);
+          } catch (e) {
+            console.error("decrypt", e);
+            continue;
+          }
+        } else {
+          // do this for non encrypted mails
+          try {
+            mail = JSON.parse(new TextDecoder().decode(data)); //Buffer.from(data).toJSON(); // JSON.parse(data.toString());
+          } catch (e) {
+            console.error("processThreadSMails", e);
+          }
         }
-      } else {
-        // do this for non encrypted mails
-        try {
-          mail = JSON.parse(new TextDecoder().decode(data)); //Buffer.from(data).toJSON(); // JSON.parse(data.toString());
-        } catch (e) {
-          console.error("processSMails", e);
-        }
+      } catch (e) {
+        console.error("processThreadSMails", e);
       }
-      mail.time = s.time;
+      mail.time = s.time.toString();
       mail.checked = false;
       mail.location = s.swarmLocation;
       mail.from = s.from;
+      mail.to = s.to;
       mail.signed = s.signed;
       mail.isEncryption = s.isEncryption;
-      setMails(mails => [mail, ...mails]);
+      mail.threads = s.threads;
+      mail.threadHash = threadHashes[i];
+      mail.threadMails = [];
+      mail.depth = 0;
+      mail.subThreads = 0;
+      if (parentMail) {
+        mail.parentMail = parentMail;
+        mail.depth = parentMail.depth + 1;
+        //parentMail.threadMails.push(mail);
+        parentMail.threadMails = [...parentMail.threadMails, mail];
+        parentMail.subThreads++;
+        if (parentMail.parentMail) parentMail.parentMail.subThreads++;
+        /* if(idx!=-1)
+           newMails = addAfter(newMails, idx, mail); */
+
+        // newMails.unshift(mail);
+        //newMails = addAfter(newMails, idx, mail);
+        //newMails = newMails.splice(idx, 0, mail);
+        //setMails(mails => mails.splice(idx, 0, mail));
+        //setMails(mails => [parentMail, ...mails]);
+        //setMails(addAfter(mails, idx, mail));
+      } else {
+        //setMails(mails => [mail, ...mails]);
+        //newMails.unshift(mail);
+        // setMails(mails => [mail, ...mails]);
+      }
+
+      await setMails(mails => [mail, ...mails]);
+      if (mail.threads.length > 0) await loadThreads(mail);
+
       // only add if not existing
       //existingMails.findIndex(m => m.sendTime == mail.sendTime) == -1 ? setMails(mails => [mail, ...mails]) : null;
       //console.log(mail);
     }
     setIsLoading(false);
+
+    //await setMails(newMails);
+    /*newMails = mails.sort((a, b) => {
+      a.time > b.time ? 1 : -1;
+    });
+    setMails(newMails);*/
+
     //console.log("processedMails", mails);
   };
+  const loadThreads = async sMail => {
+    console.log("loadThreads", sMail);
+    var threads = await readContracts.SwarmMail.getThreads(sMail.threads);
+    if (threads.length > 0) processThreadSMails(threads, sMail.threads, sMail);
+  };
+
   const onDownloadFile = async (mail, index, attachment) => {
     setIsLoading(true);
     //console.log("onDownloadFile", mail, attachment);
@@ -272,26 +346,27 @@ export function Threads({
     setIsLoading(false);
   };
 
-  const onDownloadLockerFile = async (sharedLocker, index, attachment) => {
-    setIsLoading(true);
-    console.log("onDownloadLockerFile", sharedLocker, attachment);
-    const data = await downloadDataFromBee("0x" + attachment.digest); // returns buffer
-    try {
-      var uint8View = new Uint8Array(data);
-      var decoded = new TextDecoder().decode(uint8View);
-      var d = JSON.parse(decoded);
-      var decRes = EncDec.nacl_decrypt_with_key(
-        d,
-        sharedLocker.sharedMail.ephemeralKey.recipientKey,
-        sharedLocker.sharedMail.ephemeralKey.secretKey,
-      ); //
-      var object = JSON.parse(decRes);
-      var blob = new Blob([new Uint8Array(object.binaryData)], { type: attachment.file.type });
-      saveFileAs(blob, attachment.file.path);
-    } catch (e) {
-      console.error("decrypt", e);
-    }
-    setIsLoading(false);
+  const onReplyThread = async (mail, index) => {
+    console.log("onReplyThread", mail, index);
+    var recipientAddress = mail.to;
+    // get recipient key
+    if (mail.to === address) recipientAddress = mail.from;
+
+    //debugger;
+    var key = await getDecryptKey(recipientAddress);
+
+    var completeMessage = { subject: "Reply", contents: threadReply, sendTime: Date.now(), attachments: [] };
+    var asString = JSON.stringify(completeMessage);
+    var smail = JSON.stringify(EncDec.nacl_encrypt_with_key(asString, key.pubKey, key.sharedSecretKey));
+
+    var cost = 10;
+    const mailDigest = await uploadDataToBee(smail, "application/octet-stream", completeMessage.sendTime + ".smail"); // ms-mail.json
+    let newTx = await tx(
+      writeContracts.SwarmMail.addThread(5, /*mail.location*/ mail.threadHash, recipientAddress, "0x" + mailDigest, {
+        value: cost, // in wei
+      }),
+    );
+    await newTx.wait();
   };
 
   const saveFileAs = (blob, filename) => {
@@ -317,71 +392,6 @@ export function Threads({
       {text}
     </Tooltip>
   );
-
-  const retrievePubKey = async forAddress => {
-    try {
-      const data = await readContracts.SwarmMail.getPublicKeys(forAddress);
-      const rkey = data.pubKey.substr(2, data.pubKey.length - 1);
-      var pk = Buffer.from(rkey, "hex").toString("base64");
-      if (data.pubKey === "0x0000000000000000000000000000000000000000000000000000000000000000") pk = null;
-      return pk;
-    } catch (e) {
-      console.log(e);
-    }
-  };
-  const unshareWith = async (lockerLocation, keyLocation, withAddress) => {
-    let newTx = await tx(
-      writeContracts.SwarmMail.unshareLockerWith(lockerLocation, keyLocation, withAddress),
-      //,{ value: cost }),
-      // TODO make method payable
-    );
-  };
-  const shareLocker = async locker => {
-    //console.log("shareLocker", locker);
-    // to convert call this:
-    var ephemeralKey = {
-      publicKey: new Uint8Array(Buffer.from(locker.ephemeralKey.recipientKey, "base64")),
-      secretKey: new Uint8Array(Buffer.from(locker.ephemeralKey.secretKey, "base64")),
-    };
-
-    const shareLockerObject = {
-      //subject: locker.subject,
-      //contents: locker.contents,
-      //isEncryption: locker.isEncryption,
-      //attachments: locker.attachments,
-      sender: locker.from,
-      location: locker.location,
-      ephemeralKey: locker.ephemeralKey,
-    };
-
-    var recipientPubKey = await retrievePubKey(toAddress);
-    if (recipientPubKey === null) {
-      setShowShareAddress(false);
-      notification.error({
-        message: "Recipient has not registered a public key",
-        description: "Please ask the recipient to first register",
-      });
-      return;
-    }
-
-    var mail = JSON.stringify(shareLockerObject);
-    mail = JSON.stringify(EncDec.nacl_encrypt(mail, recipientPubKey));
-    const keyLocation = await uploadDataToBee(mail, "application/octet-stream", Date.now() + ".locker"); // ms-mail.json
-
-    var cost = "1000000000";
-    let newTx = await tx(
-      writeContracts.SwarmMail.shareLockerWith(locker.location, "0x" + keyLocation, toAddress, { value: cost }),
-      // TODO make method payable
-    );
-
-    console.log("shareLocker", keyLocation, shareLockerObject, toAddress);
-    setShowShareAddress(false);
-    setViewMail(null);
-    notification.info({
-      message: "Shared",
-      description: "Recipient can now view your locker",
-    });
-  };
 
   if (address === undefined) {
     return (
@@ -437,7 +447,7 @@ export function Threads({
           />{" "}
           &nbsp;
           <Tooltip title="Refresh">
-            <Button onClick={() => updateLocker()} disabled={viewSharedItems}>
+            <Button onClick={() => updateThreads()} disabled={viewSharedItems}>
               🗘
             </Button>
           </Tooltip>
@@ -448,16 +458,16 @@ export function Threads({
             &nbsp;
           </Tooltip>
           <Tooltip title="Delete">
-            <Button onClick={() => setIsModalVisible(true)}>Add Data</Button>&nbsp;
+            <Button onClick={() => setIsModalVisible(true)}>Create Thread</Button>&nbsp;
           </Tooltip>
-          <Tooltip title="View shared items">
+          {/* <Tooltip title="View Threads For you Only">
             <Switch checked={viewSharedItems} onChange={toggleViewShared} />
-          </Tooltip>
+          </Tooltip> */}
           {isLoading && <Spin />}
         </div>
         {viewSharedItems === true ? (
           <>
-            <List
+            {/* <List
               itemLayout="horizontal"
               dataSource={sharedItems}
               renderItem={mail => (
@@ -468,7 +478,7 @@ export function Threads({
                         <Tooltip title={<AddressSimple address={mail.sharedMail.sender} placement="right" />}>
                           {mail.locker.subject}
                         </Tooltip>
-                        {/* {mail.locker.contents} */}
+                        {mail.locker.contents} 
                       </>
                     }
                     description={
@@ -520,7 +530,7 @@ export function Threads({
                   />
                 </List.Item>
               )}
-            />
+            /> */}
             <hr />
           </>
         ) : (
@@ -535,51 +545,82 @@ export function Threads({
               {/* // TODO https://ant.design/components/list */}
               <List
                 itemLayout="horizontal"
+                style={{ width: "95%" }}
                 dataSource={mails}
                 renderItem={mail => (
-                  <List.Item style={{ marginBottom: "5px", marginTop: "0px", padding: "0px" }}>
-                    <List.Item.Meta
-                      style={{
-                        background: mail.isEncryption ? "#4000ff00" : "#4000ff10",
-                        borderRadius: "5px",
-                        paddingBottom: "5px",
-                        paddingTop: "5px",
-                        paddingRight: "5px",
-                        paddingLeft: "5px",
-                      }}
-                      avatar={
-                        <>
-                          <Checkbox value={mail.location} style={{ margin: "0rem 1rem 0rem 0rem" }} />
-                          <Tooltip title={<AddressSimple address={mail.from} />}>
-                            <span>
-                              <Blockies className="mailIdenticon" seed={mail.from} size="8" />
-                            </span>
-                          </Tooltip>
-                        </>
-                      }
-                      title={
-                        <div
+                  <>
+                    {!mail.parentMail && (
+                      <List.Item style={{ marginBottom: "5px", marginTop: "0px", padding: "0px" }}>
+                        <List.Item.Meta
                           style={{
-                            marginTop: "1px",
-                            maxHeight: "1.3rem",
-                            width: "98%",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            overflowWrap: "anywhere",
+                            background: mail.isEncryption ? "#4000ff00" : "#4000ff10",
+                            borderRadius: "5px",
+                            paddingBottom: "5px",
+                            paddingTop: "5px",
+                            paddingRight: "5px",
+                            paddingLeft: "5px",
                           }}
-                        >
-                          <strong style={{ cursor: "pointer" }} onClick={() => setViewMail(mail)}>
-                            {mail.subject}
-                          </strong>
+                          avatar={
+                            <>
+                              {!mail.parentMail && (
+                                <>
+                                  <Checkbox value={mail.location} style={{ margin: "0rem 1rem 0rem 0rem" }} />
+                                  <Tooltip
+                                    title={
+                                      <>
+                                        From: <AddressSimple address={mail.from} />
+                                      </>
+                                    }
+                                  >
+                                    <span>
+                                      <Blockies className="mailIdenticon" seed={mail.from} size="8" />
+                                    </span>
+                                  </Tooltip>
+                                  <Tooltip
+                                    title={
+                                      <>
+                                        To: <AddressSimple address={mail.to} />
+                                      </>
+                                    }
+                                  >
+                                    <span>
+                                      <Blockies className="mailIdenticon" seed={mail.to} size="8" />
+                                    </span>
+                                  </Tooltip>
+                                </>
+                              )}
+                            </>
+                          }
+                          title={
+                            <div
+                              style={{
+                                marginTop: "1px",
+                                maxHeight: "1.3rem",
+                                width: "98%",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                overflowWrap: "anywhere",
+                              }}
+                            >
+                              {/* <Badge.Ribbon text={mail.threads.length} onClick={() => loadThreads(mail)}> */}
+                              {
+                                /*!mail.parentMail*/ true && (
+                                  <strong style={{ cursor: "pointer" }} onClick={() => setViewMail(mail)}>
+                                    {mail.subject}
+                                  </strong>
+                                )
+                              }
+                              {/* </Badge.Ribbon> */}
 
-                          {mail.isEncryption === false && (
-                            <IconText
-                              icon={InfoCircleOutlined}
-                              tooltip="This message is not encrypted"
-                              key="list-vertical-signed-o"
-                            />
-                          )}
-                          {/* {mail.signed === true ? (
+                              {mail.isEncryption === false && (
+                                <IconText
+                                  icon={InfoCircleOutlined}
+                                  tooltip="This message is not encrypted"
+                                  key="list-vertical-signed-o"
+                                />
+                              )}
+
+                              {/* {mail.signed === true ? (
                         <span style={{ float: "right", right: "0px" }}>
                           <IconText
                             icon={EditOutlined}
@@ -595,54 +636,74 @@ export function Threads({
                           <IconText icon={EnterOutlined} tooltip="List locker on data hub" key="list-vertical-sign-o" />
                         </span>
                       )} */}
-                        </div>
-                      }
-                      description={
-                        <>
-                          <div style={{ maxHeight: "2.7rem", overflow: "hidden" }}>{mail.contents}</div>
-                          <div>
-                            {mail.attachments.length > 0 && (
+                            </div>
+                          }
+                          description={
+                            <>
+                              <div style={{ maxHeight: "2.7rem", overflow: "hidden" }}>{mail.contents}</div>
+                              <div>
+                                {mail.attachments.length > 0 && (
+                                  <>
+                                    {mail.attachments.map((a, i) => (
+                                      <Tooltip
+                                        title={
+                                          <>
+                                            {a.file.path} <br /> <small>{a.file.type}</small>
+                                          </>
+                                        }
+                                        key={a.digest}
+                                      >
+                                        <span
+                                          style={{
+                                            cursor: "pointer",
+                                            display: "inline-block",
+                                            border: "1px solid #00000055",
+                                            borderRadius: "5px",
+                                            paddingLeft: "0.2rem",
+                                            width: "150px",
+                                            overflow: "hidden",
+                                            textAlign: "center",
+                                            textOverflow: "ellipsis",
+                                            overflowWrap: "anywhere",
+                                            fontSize: "0.7rem",
+                                            marginRight: "20px",
+                                            marginTop: "3px",
+                                            maxHeight: "1.1rem",
+                                            background: "#88888888",
+                                          }}
+                                          onClick={() => onDownloadFile(mail, i, a)}
+                                        >
+                                          {a.file.path}
+                                        </span>
+                                      </Tooltip>
+                                    ))}
+                                  </>
+                                )}
+                              </div>
+                              {/* <span onClick={() => loadThreads(mail)}>
+                            Threads: {mail.threads.length} {mail.subThreads} {mail.depth}
+                          </span> */}
                               <>
-                                {mail.attachments.map((a, i) => (
-                                  <Tooltip
-                                    title={
-                                      <>
-                                        {a.file.path} <br /> <small>{a.file.type}</small>
-                                      </>
-                                    }
-                                    key={a.digest}
-                                  >
-                                    <span
-                                      style={{
-                                        cursor: "pointer",
-                                        display: "inline-block",
-                                        border: "1px solid #00000055",
-                                        borderRadius: "5px",
-                                        paddingLeft: "0.2rem",
-                                        width: "150px",
-                                        overflow: "hidden",
-                                        textAlign: "center",
-                                        textOverflow: "ellipsis",
-                                        overflowWrap: "anywhere",
-                                        fontSize: "0.7rem",
-                                        marginRight: "20px",
-                                        marginTop: "3px",
-                                        maxHeight: "1.1rem",
-                                        background: "#88888888",
-                                      }}
-                                      onClick={() => onDownloadFile(mail, i, a)}
-                                    >
-                                      {a.file.path}
-                                    </span>
-                                  </Tooltip>
-                                ))}
+                                <ThreadsComponent mail={mail} onViewMail={setViewMail} />
+
+                                {/* {mail.threadMails.length > 0 && (
+                              <List
+                                dataSource={mail.threadMails}
+                                renderItem={threadMail => (
+                                  <List.Item style={{ marginBottom: "5px", marginTop: "0px", padding: "0px" }}>
+                                    <List.Item.Meta title={<>{threadMail.contents}</>} />
+                                  </List.Item>
+                                )}
+                              />
+                            )} */}
                               </>
-                            )}
-                          </div>
-                        </>
-                      }
-                    />
-                  </List.Item>
+                            </>
+                          }
+                        />
+                        <></>
+                      </List.Item>
+                    )}
+                  </>
                 )}
               />
             </Checkbox.Group>
@@ -693,28 +754,16 @@ export function Threads({
             }}
           />
           <br />
+          <Input.TextArea
+            value={threadReply}
+            onChange={e => setThreadReply(e.target.value)}
+            maxLength={4096}
+            rows={7}
+            autosize={{ minRows: "10", maxRows: "20" }}
+          />
+          <Button onClick={() => onReplyThread(viewMail)}>Reply</Button>
 
-          {showShareAddress === true ? (
-            <div>
-              <AddressInput
-                autoFocus
-                ensProvider={mainnetProvider}
-                placeholder="to address"
-                address={toAddress}
-                onChange={setToAddress}
-              />
-              <br />
-              <Button type="primary" onClick={() => shareLocker(viewMail)}>
-                SHARE
-              </Button>
-              <br />
-              <i>This will share your contents with receiver.</i>
-            </div>
-          ) : (
-            <Button onClick={() => setShowShareAddress(true)}>SHARE</Button>
-          )}
-
-          <div>
+          {/* <div>
             {viewMail.attachments.length > 0 && (
               <>
                 <br />
@@ -753,38 +802,12 @@ export function Threads({
                 ))}
               </>
             )}
-          </div>
-
-          <div>
-            {viewShares.length > 0 && (
-              <>
-                <br />
-                <h4>Shared with</h4>
-              </>
-            )}
-            <small>
-              {viewShares.map((s, i) => (
-                <div key={i}>
-                  {s.revoked === false ? (
-                    <Tooltip title={"Click to revoke"}>
-                      <a onClick={() => unshareWith(viewMail.location, s.keyLocation, s.withAddress)}>
-                        {s.withAddress}
-                      </a>
-                    </Tooltip>
-                  ) : (
-                    <Tooltip title={"Revoked"}>
-                      <span style={{ color: "gray" }}>{s.withAddress}</span>
-                    </Tooltip>
-                  )}
-                </div>
-              ))}
-            </small>
-          </div>
+          </div> */}
         </Modal>
       )}
 
       {isModalVisible && (
-        <ComposeNewLocker
+        <ComposeNewThread
           readContracts={readContracts}
           writeContracts={writeContracts}
           ensProvider={mainnetProvider}
