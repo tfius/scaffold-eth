@@ -91,6 +91,7 @@ export function Threads({
   const [viewSharedItems, setViewSharedItems] = useState(false);
 
   const [threadReply, setThreadReply] = useState(null);
+  const [isReplyInProgess, setIsReplyInProgess] = useState(false);
 
   const setViewMail = async mail => {
     console.log("onViewMessage", mail);
@@ -347,6 +348,7 @@ export function Threads({
   };
 
   const onReplyThread = async (mail, index) => {
+    setIsReplyInProgess(true);
     console.log("onReplyThread", mail, index);
     var recipientAddress = mail.to;
     // get recipient key
@@ -360,13 +362,22 @@ export function Threads({
     var smail = JSON.stringify(EncDec.nacl_encrypt_with_key(asString, key.pubKey, key.sharedSecretKey));
 
     var cost = 10;
-    const mailDigest = await uploadDataToBee(smail, "application/octet-stream", completeMessage.sendTime + ".smail"); // ms-mail.json
-    let newTx = await tx(
-      writeContracts.SwarmMail.addThread(5, /*mail.location*/ mail.threadHash, recipientAddress, "0x" + mailDigest, {
-        value: cost, // in wei
-      }),
-    );
-    await newTx.wait();
+    try {
+      const mailDigest = await uploadDataToBee(smail, "application/octet-stream", completeMessage.sendTime + ".smail"); // ms-mail.json
+      let newTx = await tx(
+        writeContracts.SwarmMail.addThread(5, /*mail.location*/ mail.threadHash, recipientAddress, "0x" + mailDigest, {
+          value: cost, // in wei
+        }),
+      );
+      await newTx.wait();
+      setViewMail(null); // close view
+    } catch (e) {
+      notification.warning({
+        message: "Error",
+        description: e.message,
+      });
+    }
+    setIsReplyInProgess(false);
   };
 
   const saveFileAs = (blob, filename) => {
@@ -761,7 +772,9 @@ export function Threads({
             rows={7}
             autosize={{ minRows: "10", maxRows: "20" }}
           />
-          <Button onClick={() => onReplyThread(viewMail)}>Reply</Button>
+          <Button disabled={isReplyInProgess} onClick={() => onReplyThread(viewMail)}>
+            Reply
+          </Button>
 
           {/* <div>
             {viewMail.attachments.length > 0 && (
