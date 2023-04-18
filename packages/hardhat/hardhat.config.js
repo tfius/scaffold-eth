@@ -27,7 +27,8 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 // Select the network you want to deploy to here:
 //
 //const defaultNetwork = "localhost";
-const defaultNetwork = "goerli";
+//const defaultNetwork = "goerli";
+const defaultNetwork = "zkdatafund";
 
 const mainnetGwei = 21;
 
@@ -296,6 +297,14 @@ module.exports = {
       url: "https://explorer.sapphire.oasis.io",
       gasPrice: 1000000000,
       chainId: 0x5afe,
+      accounts: {
+        mnemonic: mnemonic(),
+      },
+    },
+    zkdatafund: {
+      url: "http://zkevm.dev.datafund.io:8123",
+      gasPrice: 1000000000,
+      chainId: 1001,
       accounts: {
         mnemonic: mnemonic(),
       },

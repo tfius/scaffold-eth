@@ -172,11 +172,20 @@ yarn deploy
 🌍 You need an RPC key for production deployments/Apps, create an [Alchemy](https://www.alchemy.com/) account and replace the value of `ALCHEMY_KEY = xxx` in `packages/react-app/src/constants.js`
 
 ### Deployments
+deployer 0xd27ffA0e47Fca8D3E757B4d2C408169859B8c419
 
 Goerli: 
 SwarmMail
 deploying "SwarmMail" (tx: 0x4b50db71ec56f37875c11edd20a520e6edd285ed8ff44be7badc737cedaf5949)...: deployed at 0x32C144cf950E1f3Fa3b96049c10C39995076BCd6 with 3300461 gas
 DataHub
 deploying "DataHub" (tx: 0x6f9de3dcd9eb07518e6fc3d5b2745c395462c48fcf97a283f51c8e47c5b011bc)...: deployed at 0x982d3A3516E08763DEf73485e5762bdBbD932Ce9 with 3981185 gas
+
+
+zkEVM Datafund
+SwarmMail
+deploying "SwarmMail" (tx: 0xe11258403c2edf6a46a0b79899272f8b7192a97d6e1305820b3dc2fbf4936cad)...: deployed at 0x99e6A44a8Dd93cF3CEbaC00D1B7c5D20A076a0De with 3299519 gas
+DataHub
+deploying "DataHub" (tx: 0x498f9f1f9f936fef7a190ecf30f0d65e6bd53f10fffa7301ee7625b0c2548392)...: deployed at 0xa396CDaD9F09783140845E337DbC55A24cC07c02 with 3980065 gas
+
 ### Access it
 https://fairos.staging.fairdatasociety.org/public/3d70d86a08a9e6c92e826d16aaec3ee1fbfbcc34decbca977a66d8efb5476464/

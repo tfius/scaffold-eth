@@ -205,6 +205,15 @@ export const NETWORKS = {
     rpcUrl: `https://sapphire.oasis.io`,
     gasPrice: 1000000000,
   },
+  zkdatafund: {
+    name: "zkdatafund",
+    color: "#BB55AA",
+    chainId: 1001,
+    //faucet: "https://goerli-faucet.slock.it/",
+    blockExplorer: "http://zkevm.dev.datafund.io:4001/",
+    //rpcUrl: `https://goerli.infura.io/v3/${INFURA_ID}`,
+    rpcUrl: "http://zkevm.dev.datafund.io:8123/",
+  },
 };
 
 export const NETWORK = chainId => {

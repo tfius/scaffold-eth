@@ -271,9 +271,9 @@ export function Home({
             <h2>How Smail works</h2>
             You will be asked to decrypt your Smail Wallet every time you visit this page.
             <hr />
-            <h4>
+            <h3>
               How <strong>registration</strong> works:
-            </h4>
+            </h3>
             <ul>
               <li>your public encryption key is requested with which new Smail Wallet is created</li>
               <li>Smail Wallet is encrypted with your MetaMask and uploaded to Swarm</li>
@@ -282,38 +282,58 @@ export function Home({
             </ul>
           </div>
           <div>
-            <h4>
+            <h3>
               How <strong>Inbox</strong> works:
-            </h4>
+            </h3>
             <ul>
               <li>Recipient's Smail public Key is retrieved</li>
               <li>New Ephemeral key is created</li>
               <li>Data is packaged, encrypted and uploaded </li>
               <li>A transaction is sent to notify receiver of new data available</li>
               You don't need to be bonded to send encrypted data as long as receiver is registered with Smail data sent
-              will be encrypted.
+              will be encrypted. <strong>NOTE: </strong>Only receiver can retrieve and decrypt its contents and create
+              Threads for notes.
             </ul>
-            <strong>NOTE: </strong>Only receiver can retrieve and decrypt its contents.
-            <br />
-            <br />
-            <h4>
+            <h3>
+              How <strong>Locker</strong> works
+            </h3>
+            <ul>
+              <li>Create a locker item with new key</li>
+              <li>Data is encrypted with new key and uploaded </li>
+              <li>You can share your locker with other address by sharing newly created key</li>
+              <li>A transaction is sent to notify receiver, sender and receiver can decrypt message</li>
+              <li>Original creator can share/unshare key</li>
+              All data is encrypted between creator and new key. Threads are encrypted with same key as locker. All who
+              have access to locker item can read its threads.
+            </ul>
+            <h3>
               How <strong>Received/Sent</strong> works
-            </h4>
+            </h3>
             <ul>
               <li>Receiver and sender must be registered</li>
               <li>Shared secret is used to encrypt data</li>
               <li>Data is packaged, encrypted with shared secret key and uploaded </li>
               <li>A transaction is sent to notify receiver, sender and receiver can decrypt message</li>
               Uses Diffie-Hellman key exchange, a shared secret is used as a key to encrypt and decrypt message on both
-              sides.
+              sides. <strong>NOTE: </strong>
+              Both sender and receiver must be bonded to send encrypted data.
             </ul>
-            <strong>NOTE: </strong>
-            Both sender and receiver must be bonded to send encrypted data.
+            <h3>
+              How <strong>Threads</strong> work
+            </h3>
+            <ul>
+              <li>Receiver and sender must be registered</li>
+              <li>Shared secret is used to encrypt data</li>
+              <li>Data is packaged, encrypted with shared secret key and uploaded </li>
+              <li>A transaction is sent to notify receiver, sender and receiver can decrypt message</li>
+              Uses Diffie-Hellman key exchange, a shared secret is used as a key to encrypt and decrypt message on both
+              sides. <strong>NOTE: </strong> Both sender and receiver must be bonded to send encrypted data. If one
+              party deletes a thread, other party will never know.
+            </ul>
             <hr />
             <h2>BEWARE AND BEHOLD</h2>
             Always check that you are on correct domain and that you are using correct MetaMask account. Scammers could
-            potentially ask you to decrypt Smail Wallet and <strong>gain access to your data</strong> but will gain
-            access to your MetaMask account.
+            potentially ask you to decrypt Smail Wallet and <strong>gain access to your data</strong>.
           </div>
           <div>
             <br />
@@ -333,10 +353,10 @@ export function Home({
               <li>if either sender or receiver is not a registered</li>
               <li>Sender's Smail Wallet can not be retrieved or is not decrypted</li>
               <li>Receiver public key can not be retrieved</li>
-              You can read and send unencrypted messages if you are connected and not bonded.
+              You can read and send <strong>unencrypted</strong> messages to Inbox, if you are connected and not bonded.
             </ul>
-            <strong>BEWARE !!! </strong>All unencrypted data and attachements can be retrieved by anyone with the link.
-            If you want to store unencrypted data you can use{" "}
+            <strong>CAUTION !!! All UNENCRYPTED data and attachements that are sent can be retrieved by anyone</strong>{" "}
+            with the link. If you want to store unencrypted data you can use{" "}
             <a href="https://www.ethswarm.org/" target="_blank" rel="noopener noreferrer">
               Swarm
             </a>{" "}

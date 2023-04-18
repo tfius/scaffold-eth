@@ -71,7 +71,9 @@ const { ethers } = require("ethers");
 
 /// 📡 What chain are your contracts deployed to?
 //const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
- const targetNetwork = NETWORKS.goerli;
+// const targetNetwork = NETWORKS.goerli;
+const targetNetwork = NETWORKS.zkdatafund;
+ 
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -106,6 +108,7 @@ function App(props) {
   //   "rinkeby",
   // ];
   const networkOptions = [
+    "zkdatafund", // 9
     "goerli", // 9
   ];
   const BEENETWORKS = {
@@ -240,11 +243,16 @@ function App(props) {
 
   const contractConfig = { deployedContracts: deployedContracts || {}, externalContracts: externalContracts || {} };
 
+  // debugger;
   // Load in your local 📝 contract and read a value from it:
-  const readContracts = useContractLoader(localProvider, contractConfig);
+  // const readContracts = useContractLoader(localProvider, contractConfig);
 
   // If you want to make 🔐 write transactions to your contracts, use the userSigner:
   const writeContracts = useContractLoader(userSigner, contractConfig, localChainId);
+
+  // TODO solve this issue (userContractLoader is not working on zkdatafund)
+  //if had do this since readContracts were not retrieved from zkdatafund (unknown reason)
+  const readContracts = writeContracts;
 
   /*
   // EXTERNAL CONTRACT EXAMPLE:
