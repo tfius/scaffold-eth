@@ -262,7 +262,7 @@ export function Calendar({
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px" }}>
-      <h1 style={{ paddingTop: "18px" }}>Calendar</h1>
+      <h1 style={{ paddingTop: "18px" }}>Calendar {getMonthName(date) + " " + getYear(date)}</h1>
       <h2>
         <a onClick={() => retrieveNewDate(date, -1)}>{"<"}</a>
         &nbsp;&nbsp;
