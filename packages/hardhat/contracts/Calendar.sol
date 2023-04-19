@@ -51,6 +51,8 @@ contract Calendar {
     mapping(address => mapping(uint64 => uint256[])) private _userEvents; // user to date to event index
     Invite[] private _invites;
     mapping(address => mapping(uint64 => uint256[])) private _userInvites; // user to date to invite index
+
+    mapping(address => mapping(address => bool)) private _userAllowList; // allow list per address -> address -> bool
     
     /*  1. The function takes 4 parameters: date, time, duration, swarmLocation.
         2. The first line creates a new Event struct and stores it in the memory variable e. The parameters are passed to the Event struct constructor.
