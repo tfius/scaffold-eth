@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Card, Typography, Modal, Input, Form, Spin, Progress, Tooltip, notification } from "antd";
+import { Button, Card, Typography, Modal, Input, Form, Spin, Progress, notification } from "antd";
 import * as consts from "./consts";
 import { uploadDataToBee } from "../Swarm/BeeService";
 import * as layouts from "./layouts.js";

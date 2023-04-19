@@ -15,18 +15,21 @@ import {
   Input,
   Switch,
   Badge,
+  Form,
 } from "antd";
+import * as layouts from "./layouts.js";
 
 /* Create events and add them to the calendar */
 const eventTemplate = {
-  eventName: "string",
-  description: "string",
-  category: "string",
-  location: "string",
-  participants: ["address"],
-  date: "uint64",
-  duration: "uint64",
-  time: "uint64",
+  eventName: "",
+  description: "",
+  category: "",
+  location: "",
+  color: "",
+  participants: [],
+  date: "",
+  duration: "",
+  time: "",
 };
 
 const dayTemplate = [
@@ -71,6 +74,14 @@ function getDayName(timestamp, locale = "en-US") {
 function getMonthName(timestamp, locale = "en-US") {
   var date = new Date(timestamp * 1000);
   return date.toLocaleDateString(locale, { month: "long" });
+}
+function getMonthDay(timestamp, locale = "en-US") {
+  var date = new Date(timestamp * 1000);
+  return ("0" + date.getDate()).slice(-2);
+}
+function getYear(timestamp, locale = "en-US") {
+  var date = new Date(timestamp * 1000);
+  return "" + date.getFullYear();
 }
 function getTimestampForDay(year, month, day) {
   const date = new Date(year, month - 1, day);
@@ -117,9 +128,11 @@ export function Calendar({
   setReplyTo,
   mainnetProvider,
 }) {
+  const formRef = React.createRef();
   const [events, setEvents] = useState([]);
   const [date, setDate] = useState(Date.now() / 1000);
-  const [event, setEvent] = useState(eventTemplate);
+  const [event, setEvent] = useState(undefined);
+  const [newEvent, setNewEvent] = useState(false);
   //   const [eventDate, setEventDate] = useState("");
   const [eventTime, setEventTime] = useState(Date.now() / 1000);
   //   const [eventDuration, setEventDuration] = useState(30 * 60); // 30 minutes
@@ -160,6 +173,7 @@ export function Calendar({
         date: parseInt(d.date.toString()),
         time: parseInt(eventsFromChain[i].time.toString()),
         duration: parseInt(eventsFromChain[i].duration.toString()),
+        index: i,
       });
     }
     setEvents(data);
@@ -173,28 +187,31 @@ export function Calendar({
   useEffect(() => {
     fetchEvents();
   }, [readContracts, address]);
-  // getTimestampForDay(2021, 1, 1)
-  const createEvent = async (date, time) => {
+  const createNewEvent = async (date, time) => {
     const day = Math.round(getTimestampFromDate(date) + time * 60 * 60);
+    setNewEvent(true);
     setEventTime(day);
     console.log("createEvent", getDateString(day), time);
     var event = {
-      name: "New Event " + getDateString(day),
-      description: "New Event Description",
-      location: "New Event Location",
-      category: "New Event Category",
+      name: "New Event",
+      description: "",
+      location: " " + getDateString(day),
+      category: "Personal",
       participants: [],
       owner: address,
-      ownerName: "New Event Owner Name",
+      ownerName: "",
+      color: "#9999AA",
       date: getTimestampFromDate(date),
       time: time * 60 * 60,
       duration: 60 * 60, // 1h
     };
     setEvent(event);
-    //debugger;
+    console.log("createEvent", event);
+  };
+
+  const createEventTx = async event => {
     // TODO encrypt with smail key data before upload
     const eventDigest = await uploadDataToBee(JSON.stringify(event), "application/octet-stream", date + ".smail"); // ms-mail.json
-    //addEvent(uint64 _date, uint64 _time, uint64 _duration, bytes32 _swarmLocation))
     try {
       const tx = await writeContracts.Calendar.addEvent(
         event.date + "",
@@ -203,17 +220,27 @@ export function Calendar({
         "0x" + eventDigest,
       );
       await tx.wait();
+      await fetchEvents();
     } catch (e) {
       notification.warning({
         message: "Error",
         description: e.message,
-        //placement: "bottomRight", 1330210800
         duration: 6,
       });
     }
-
-    // const tx = await writeContracts.Calendar.createEvent(
-    //   "New Event",
+  };
+  const deleteEventTx = async event => {
+    try {
+      const tx = await writeContracts.Calendar.removeEventByIndex(event.date + "", event.index + "");
+      await tx.wait();
+      await fetchEvents();
+    } catch (e) {
+      notification.warning({
+        message: "Error",
+        description: e.message,
+        duration: 6,
+      });
+    }
   };
   const retrieveNewDate = async (oldDate, days) => {
     setDate(Math.round(oldDate + days * 24 * 60 * 60)); // console.log("date", d);
@@ -222,8 +249,15 @@ export function Calendar({
 
   const viewEvent = async (e, event) => {
     console.log("viewEvent", e, event);
+    setNewEvent(false);
     setEvent(event);
     e.stopPropagation();
+  };
+
+  const onFinish = async values => {
+    console.log("onFinish:", values);
+    if (newEvent === true) createEventTx(values);
+    if (newEvent === false) deleteEventTx(event);
   };
 
   return (
@@ -233,14 +267,18 @@ export function Calendar({
         <a onClick={() => retrieveNewDate(date, -1)}>{"<"}</a>
         &nbsp;&nbsp;
         <a onClick={() => retrieveNewDate(date, +1)}>{">"}</a>
-        &nbsp;&nbsp;{getDayName(date) + " " + getMonthName(date)}&nbsp;&nbsp;
-        <div style={{ float: "right" }}>&nbsp;&nbsp;{getDateString(date)}&nbsp;&nbsp;</div>
+        <Tooltip title={getDateString(date)}>
+          <span>
+            &nbsp;&nbsp;{getDayName(date) + " " + getMonthDay(date)}&nbsp;&nbsp;
+            <div style={{ float: "right", marginRight: "5%" }}>{getMonthName(date) + " " + getYear(date)}</div>
+          </span>
+        </Tooltip>
         {/* <Button onClick={() => createEvent(date)}>Create Event</Button>&nbsp; */}
       </h2>
       <div style={{ marginRight: "5%" }}>
         {dayTemplate.map((day, index) => {
           return (
-            <div key={index} className="hourBox" onClick={() => createEvent(date, day.hour)}>
+            <div key={index} className="hourBox" onClick={() => createNewEvent(date, day.hour)}>
               <span className="hourBoxHeader">{day.time}</span>
               {events.map((event, index) => {
                 if (event.time <= day.hour * 60 * 60 && event.time + event.duration > day.hour * 60 * 60) {
@@ -265,6 +303,94 @@ export function Calendar({
       </div>
 
       {events.length > 0 ? <ul></ul> : <p>No events found for this date.</p>}
+      <div style={{ float: "left" }}>&nbsp;&nbsp;{getDateString(date)}&nbsp;&nbsp;</div>
+
+      {event !== undefined && (
+        <>
+          {true && console.log("event", event)}
+          <Modal
+            title="Event"
+            visible={event !== undefined}
+            footer={null}
+            onOk={() => setEvent(undefined)}
+            onCancel={() => setEvent(undefined)}
+          >
+            <Form
+              {...layouts.layout}
+              ref={formRef}
+              onFinish={onFinish}
+              name={"Event"}
+              initialValues={{
+                name: event.name,
+                description: event.description,
+                location: event.location,
+                category: event.category,
+                participants: event.participants,
+                duration: event.duration,
+                time: event.time,
+                date: event.date,
+                color: event.color,
+                owner: address,
+                ownerName: event.ownerName,
+              }}
+            >
+              <Form.Item name="name" label="Name">
+                <Input initialValue={"test"} />
+              </Form.Item>
+              <Form.Item name="description" label="Description">
+                <Input />
+              </Form.Item>
+              <Form.Item name="location" label="Location">
+                <Input />
+              </Form.Item>
+              <Form.Item name="category" label="Category">
+                <Input />
+              </Form.Item>
+              <div style={{ visibility: "collapse", height: "0px" }}>
+                <Form.Item name="participants" label="Participants">
+                  <Input />
+                </Form.Item>
+                <Form.Item name="duration" label="Duration">
+                  <Input />
+                </Form.Item>
+                <Form.Item name="time" label="Time">
+                  <Input />
+                </Form.Item>
+                <Form.Item name="date" label="Date">
+                  <Input />
+                </Form.Item>
+                <Form.Item name="color" label="Color">
+                  <Input />
+                </Form.Item>
+                <Form.Item name="owner" label="Owner">
+                  <Input />
+                </Form.Item>
+                <Form.Item name="ownerName" label="Owner Name">
+                  <Input />
+                </Form.Item>
+              </div>
+
+              {newEvent === true ? (
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  style={{ width: "80%", borderRadius: "5px", alignItems: "center", left: "10%" }}
+                >
+                  Create Event
+                </Button>
+              ) : (
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  style={{ width: "80%", borderRadius: "5px", alignItems: "center", left: "10%" }}
+                >
+                  Delete Event
+                </Button>
+              )}
+            </Form>
+          </Modal>
+        </>
+      )}
     </div>
   );
 }
