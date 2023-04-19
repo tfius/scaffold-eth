@@ -46,6 +46,7 @@ import { SubRequests } from "./views/SubRequests";
 import { SubBids } from "./views/SubBids";
 import { Subscribers } from "./views/Subscribers";
 import { Subscriptions } from "./views/Subscriptions";
+import { Calendar } from "./views/Calendar";
 
 import { FairOSWasmConnect } from "./views/FairOSWasmConnect";
 
@@ -70,10 +71,9 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-//const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
-// const targetNetwork = NETWORKS.goerli;
-const targetNetwork = NETWORKS.zkdatafund;
- 
+const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+//const targetNetwork = NETWORKS.goerli;
+//const targetNetwork = NETWORKS.zkdatafund;
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -108,6 +108,7 @@ function App(props) {
   //   "rinkeby",
   // ];
   const networkOptions = [
+    "localhost", // 9
     "zkdatafund", // 9
     "goerli", // 9
   ];
@@ -442,6 +443,11 @@ function App(props) {
                 <Link to="/threads">Threads</Link>
               </Tooltip>
             </Menu.Item>
+            <Menu.Item key="/calendar" disabled={!isBonded}>
+              <Tooltip title="View calendar" placement="right">
+                <Link to="/calendar">Calendar</Link>
+              </Tooltip>
+            </Menu.Item>
 
             <>
               <Menu.Item key="/smailmailkey" disabled>
@@ -560,6 +566,11 @@ function App(props) {
                 <small>DataHub Contract</small>
               </Link>
             </Menu.Item>
+            <Menu.Item key="/calendarcontract">
+              <Link to="/calendarcontract">
+                <small>Calendar Contract</small>
+              </Link>
+            </Menu.Item>
           </Menu>
           {/* <Balance address={address} provider={localProvider} price={price} /> */}
         </Sider>
@@ -653,6 +664,23 @@ function App(props) {
                 />
               </Route>
               <Route
+                exact
+                path="/calendar/:address?/:day?"
+                children={props => (
+                  <Calendar
+                    readContracts={readContracts}
+                    writeContracts={writeContracts}
+                    userSigner={userSigner}
+                    tx={tx}
+                    address={address}
+                    messageCount={messageCount}
+                    smailMail={smailMail}
+                    mainnetProvider={mainnetProvider}
+                  />
+                )}
+              />
+
+              <Route
                 path="/datahub/:cat?/:sub?"
                 children={props => (
                   <DataHub
@@ -729,6 +757,18 @@ function App(props) {
               <Route exact path="/datahubcontract">
                 <Contract
                   name="DataHub"
+                  price={price}
+                  signer={userSigner}
+                  provider={localProvider}
+                  address={address}
+                  blockExplorer={blockExplorer}
+                  contractConfig={contractConfig}
+                  messageCount={messageCount}
+                />
+              </Route>
+              <Route exact path="/calendarcontract">
+                <Contract
+                  name="Calendar"
                   price={price}
                   signer={userSigner}
                   provider={localProvider}

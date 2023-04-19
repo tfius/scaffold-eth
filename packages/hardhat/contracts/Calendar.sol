@@ -49,6 +49,7 @@ contract Calendar {
     
     Event[] private _events;
     mapping(address => mapping(uint64 => uint256[])) private _userEvents; // user to date to event index
+
     Invite[] private _invites;
     mapping(address => mapping(uint64 => uint256[])) private _userInvites; // user to date to invite index
 
@@ -62,6 +63,17 @@ contract Calendar {
         Event memory e = Event(_swarmLocation, _time, _duration);
         _events.push(e);
         _userEvents[msg.sender][_date].push(_events.length);
+    }
+
+    function allowAddress(address _address, bool allow) public {
+        _userAllowList[msg.sender][_address] = allow;
+    }
+
+    function addEventForAddress(address _address, uint64 _date, uint64 _time, uint64 _duration, bytes32 _swarmLocation) public {
+        require(_userAllowList[_address][msg.sender], "Not allowed to add event");
+        Event memory e = Event(_swarmLocation, _time, _duration);
+        _events.push(e);
+        _userEvents[_address][_date].push(_events.length);
     }
     /* 1. We use the keyword 'require' to check if the index is valid. 
        2. We use the keyword 'storage' to indicate that we are modifying the existing event. 
@@ -94,7 +106,7 @@ contract Calendar {
     function getEventsByDate(address owner, uint64 _date) public view returns (Event[] memory) {
         Event[] memory events = new Event[](_userEvents[owner][_date].length);
         for (uint256 i=0; i < events.length; i++) {
-            events[i] = _events[_userEvents[owner][_date][i]];
+            events[i] = _events[_userEvents[owner][_date][i]-1];
         }
         return events;
     }
@@ -118,7 +130,7 @@ contract Calendar {
         Event[] memory events = new Event[](totalLength);
         for(uint i = 0; i < _dates.length; i++) {
             for (uint64 j=0; j < _userEvents[owner][_dates[i]].length; j++) {
-                events[c] = _events[_userEvents[owner][_dates[i]][j]];
+                events[c] = _events[_userEvents[owner][_dates[i]][j]-1];
                 c++;
             }
         }
@@ -171,7 +183,7 @@ contract Calendar {
     function getInvitesByDate(address owner, uint64 _date) public view returns (Invite[] memory) {
         Invite[] memory invites = new Invite[](_userInvites[owner][_date].length);
         for (uint256 i=0; i < invites.length; i++) {
-            invites[i] = _invites[_userInvites[owner][_date][i]];
+            invites[i] = _invites[_userInvites[owner][_date][i]-1];
         }
         return invites;
     }
@@ -185,7 +197,7 @@ contract Calendar {
         Invite[] memory invites = new Invite[](totalLength);
         for(uint i = 0; i < _dates.length; i++) {
             for (uint64 j=0; j < _userInvites[owner][_dates[i]].length; j++) {
-                invites[c] = _invites[_userInvites[owner][_dates[i]][j]];
+                invites[c] = _invites[_userInvites[owner][_dates[i]][j]-1];
                 c++;
             }
         }

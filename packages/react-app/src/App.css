@@ -222,3 +222,42 @@ hr {
 .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
   animation: 1s menuItemAnimation ease-in infinite;
 }
+
+.hourBox {
+  animation: 10s menuItemAnimation ease-in infinite;
+  border: #865dff5c 0.1px solid;
+  min-height: 1.3rem;
+  margin-top: 0px;
+  padding: 0px;
+  display: flex;
+  z-index: 1;
+}
+.hourBox :hover {
+  background: #865dffcc;
+}
+.hourBoxHeader {
+  font-size: 0.6rem;
+  float: left;
+  margin-left: 5px;
+  margin-right: 1rem;
+}
+
+.hourBoxEvent {
+  z-index: 10;
+  cursor: pointer;
+  flex: 1;
+  font-size: 0.7rem;
+  margin-right: 0px;
+  margin-left: 3rem;
+  padding-left: 3px;
+  padding-right: 3px;
+  border: #865dffdd 0px solid;
+  background: #865dff31;
+
+}
+.hourBoxEvent:first-child {
+  margin-right: 5px;
+} 
+.hourBoxEventLocation {
+  font-size: 0.5rem;
+}
