@@ -460,7 +460,7 @@ function App(props) {
               </Tooltip>
             </Menu.Item>
             <Menu.Item key="/scheduler" disabled={!isBonded}>
-              <Tooltip title="View scheduler" placement="right">
+              <Tooltip title="Schedule events at other addresses and manage your scheduler settings" placement="right">
                 <Link to="/scheduler">Scheduler</Link>
               </Tooltip>
             </Menu.Item>

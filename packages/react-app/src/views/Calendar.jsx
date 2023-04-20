@@ -72,6 +72,7 @@ export function Calendar({
   mainnetProvider,
 }) {
   const formRef = React.createRef();
+  const [isLoading, setIsLoading] = useState(false);
   const [events, setEvents] = useState([]);
   const [date, setDate] = useState(Date.now() / 1000);
   const [event, setEvent] = useState(undefined);
@@ -153,6 +154,7 @@ export function Calendar({
   };
 
   const createEventTx = async event => {
+    setIsLoading(true);
     // TODO encrypt with smail key data before upload
     const eventDigest = await uploadDataToBee(JSON.stringify(event), "application/octet-stream", date + ".smail"); // ms-mail.json
     try {
@@ -172,8 +174,10 @@ export function Calendar({
         duration: 6,
       });
     }
+    setIsLoading(false);
   };
   const deleteEventTx = async event => {
+    setIsLoading(true);
     try {
       const tx = await writeContracts.Calendar.removeEventByIndex(event.date + "", event.index + "");
       await tx.wait();
@@ -186,6 +190,7 @@ export function Calendar({
         duration: 6,
       });
     }
+    setIsLoading(false);
   };
   const retrieveNewDate = async (oldDate, days) => {
     setDate(Math.round(oldDate + days * 24 * 60 * 60)); // console.log("date", d);
@@ -313,23 +318,28 @@ export function Calendar({
                   <Input />
                 </Form.Item>
               </div>
-
-              {newEvent === true ? (
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  style={{ width: "80%", borderRadius: "5px", alignItems: "center", left: "10%" }}
-                >
-                  Create Event
-                </Button>
+              {isLoading === true ? (
+                <Spin />
               ) : (
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  style={{ width: "80%", borderRadius: "5px", alignItems: "center", left: "10%" }}
-                >
-                  Delete Event
-                </Button>
+                <>
+                  {newEvent === true ? (
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      style={{ width: "80%", borderRadius: "5px", alignItems: "center", left: "10%" }}
+                    >
+                      Create Event
+                    </Button>
+                  ) : (
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      style={{ width: "80%", borderRadius: "5px", alignItems: "center", left: "10%" }}
+                    >
+                      Delete Event
+                    </Button>
+                  )}
+                </>
               )}
             </Form>
           </Modal>
