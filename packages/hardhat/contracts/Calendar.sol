@@ -71,6 +71,11 @@ contract Calendar {
 
     function addEventForAddress(address _address, uint64 _date, uint64 _time, uint64 _duration, bytes32 _swarmLocation) public {
         require(_userAllowList[_address][msg.sender], "Not allowed to add event");
+        require(_duration >= 900, "Duration too small > 900s");
+
+        //uint256 _end = _time + _duration;
+        //require(_end % 86400 == _time % 86400, "Event must start and end on the same day");
+
         Event memory e = Event(_swarmLocation, _time, _duration);
         _events.push(e);
         _userEvents[_address][_date].push(_events.length);
@@ -140,10 +145,10 @@ contract Calendar {
     function isOwnerAvailable(address owner, uint64 _date, uint64 _time, uint64 _duration) public view returns (bool) {
         Event[] memory events = getEventsByDate(owner, _date);
         for (uint256 i=0; i < events.length; i++) {
-            if (events[i].time <= _time && _time < events[i].time + events[i].duration) {
+            if (_time >= events[i].time && _time < events[i].time + events[i].duration) {
                 return false;
             }
-            if (_time <= events[i].time && events[i].time < _time + _duration) {
+            if (_time + _duration > events[i].time && _time + _duration < events[i].time + events[i].duration) {
                 return false;
             }
         }

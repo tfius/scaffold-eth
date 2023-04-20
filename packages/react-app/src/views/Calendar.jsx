@@ -301,10 +301,9 @@ export function Calendar({
           );
         })}
       </div>
-
-      {events.length > 0 ? <ul></ul> : <p>No events found for this date.</p>}
-      <div style={{ float: "left" }}>&nbsp;&nbsp;{getDateString(date)}&nbsp;&nbsp;</div>
-
+      <p>
+        {events.length > 0 ? <>{events.length} events for </> : <>No events found for </>} {getDateString(date)}
+      </p>
       {event !== undefined && (
         <>
           {true && console.log("event", event)}
