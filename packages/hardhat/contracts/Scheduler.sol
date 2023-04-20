@@ -54,6 +54,9 @@ contract Scheduler is Ownable {
     function setFee(uint256 newFee) onlyOwner public  {
         schedulerFee = newFee; 
     }
+    function getUser(address _address) public view returns (User memory) {
+        return users[_address];
+    }
 
     function setBlockAddress(address _address, bool allow) public {
         _userBlockList[msg.sender][_address] = allow;
@@ -79,12 +82,12 @@ contract Scheduler is Ownable {
     }
 
     function scheduleEvent(address _address, uint64 _date, uint64 _time, uint64 _duration, bytes32 _swarmLocation) public payable {
-        require(_userBlockList[_address][msg.sender]==true, "Not allowed to add event");
+        require(_userBlockList[_address][msg.sender]==false, "Not allowed to add event");
         //require(_duration >= 900 && <= 3600, "Duration >15 <60 min");
         require(users[_address].isAway==false, "User is away");
 
         uint256 _end = _time + _duration;
-        require(_end % 86400 == _time % 86400, "Event must start / end same day");
+        require(_end <= 86400, "Event must start / end same day");
 
         if(users[_address].startTime != 0 && users[_address].endTime != 0)
            require(_time >= users[_address].startTime && _time + _duration <= users[_address].endTime, "Event not between start/end");
@@ -166,10 +169,10 @@ contract Scheduler is Ownable {
                 }
             }
             // find if event is inside or overlaps another event
-            if(_time >= events[i].time && _time < events[i].time + events[i].duration) { // start time inside event
+            if(_time > events[i].time && _time < events[i].time + events[i].duration) { // start time inside event
                 return false;
             }
-            if(_time + _duration >= events[i].time && _time + _duration < events[i].time + events[i].duration) { // start time inside event
+            if(_time + _duration > events[i].time && _time + _duration < events[i].time + events[i].duration) { // start time inside event
                 return false;
             }
         }

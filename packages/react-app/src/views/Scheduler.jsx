@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { ethers } from "ethers";
 import { fetchJson } from "ethers/lib/utils";
 import { uploadDataToBee, downloadDataFromBee } from "../Swarm/BeeService";
+import { AddressSimple, AddressInput } from "../components";
 import {
   Button,
   List,
@@ -60,7 +61,7 @@ const dayTemplate = [
   { hour: 23, time: "23:00", events: [] },
 ];
 
-export function Calendar({
+export function Scheduler({
   readContracts,
   writeContracts,
   tx,
@@ -76,27 +77,26 @@ export function Calendar({
   const [date, setDate] = useState(Date.now() / 1000);
   const [event, setEvent] = useState(undefined);
   const [newEvent, setNewEvent] = useState(false);
-  //   const [eventDate, setEventDate] = useState("");
   const [eventTime, setEventTime] = useState(Date.now() / 1000);
-  //   const [eventDuration, setEventDuration] = useState(30 * 60); // 30 minutes
-  //   const [eventParticipants, setEventParticipants] = useState([]);
-  //   const [eventCategory, setEventCategory] = useState("");
-  //   const [eventLocation, setEventLocation] = useState("");
-  //   const [eventDescription, setEventDescription] = useState("");
-  //   const [eventName, setEventName] = useState("");
-  //   const [eventID, setEventID] = useState("");
-  //   const [eventOwner, setEventOwner] = useState("");
-  //   const [eventOwnerName, setEventOwnerName] = useState("");
+  const [schedulerAddress, _setSchedulerAddress] = useState("");
+  const [schedulerUser, setSchedulerUser] = useState({
+    balance: 0,
+    startTime: 0,
+    endTime: 0,
+    isAway: false,
+    payment: 0,
+  });
+  const [isUserValid, setIsUserValid] = useState(false);
 
   const fetchEvents = useCallback(async () => {
-    if (readContracts === undefined || readContracts.Calendar === undefined) return; // todo get pub key from ENS
+    if (readContracts === undefined || readContracts.Scheduler === undefined) return; // todo get pub key from ENS
     //console.log("fetchEvents", address, dtu.getDateString(date), dtu.getTimestampFromDate(date));
-    const data = await readContracts.Calendar.getEventsByDate(address, dtu.getTimestampFromDate(date));
+    const data = await readContracts.Scheduler.getEventsByDate(address, dtu.getTimestampFromDate(date));
     //console.log("data from contracts", data);
     processEvents(data);
   });
   const processEvents = useCallback(async eventsFromChain => {
-    if (readContracts === undefined || readContracts.Calendar === undefined) return; // todo get pub key from ENS
+    if (readContracts === undefined || readContracts.Scheduler === undefined) return; // todo get pub key from ENS
     var data = [];
     for (var i = 0; i < eventsFromChain.length; i++) {
       // TODO decrypt with smail key data before upload
@@ -130,6 +130,7 @@ export function Calendar({
   useEffect(() => {
     fetchEvents();
   }, [readContracts, address]);
+
   const createNewEvent = async (date, time) => {
     const day = Math.round(dtu.getTimestampFromDate(date) + time * 60 * 60);
     setNewEvent(true);
@@ -152,30 +153,58 @@ export function Calendar({
     //console.log("createEvent", event);
   };
 
+  const setSchedulerAddress = async address => {
+    console.log("setSchedulerAddress", address);
+    try {
+      _setSchedulerAddress(address);
+      var user = await readContracts.Scheduler.getUser(address);
+      var u = {
+        balance: user.balance.toString(),
+        startTime: user.startTime.toString(),
+        endTime: user.endTime.toString(),
+        isAway: user.isAway,
+        payment: user.payment.toString(),
+        pricePerS: user.payment,
+        st: user.startTime.toNumber(),
+        et: user.endTime.toNumber(),
+      };
+      console.log("user", u);
+      setSchedulerUser(u);
+      setIsUserValid(true);
+    } catch (e) {
+      console.log("error", e);
+      setIsUserValid(false);
+    }
+  };
+
   const createEventTx = async event => {
+    var txRes;
     // TODO encrypt with smail key data before upload
     const eventDigest = await uploadDataToBee(JSON.stringify(event), "application/octet-stream", date + ".smail"); // ms-mail.json
     try {
-      const tx = await writeContracts.Calendar.addEvent(
+      const tx = await writeContracts.Scheduler.scheduleEvent(
+        schedulerAddress,
         event.date + "",
         event.time + "",
         event.duration + "",
         "0x" + eventDigest,
+        { value: schedulerUser.pricePerS * event.duration },
       );
-      await tx.wait();
+      txRes = await tx.wait();
       setEvent(undefined);
       await fetchEvents();
     } catch (e) {
       notification.warning({
         message: "Error",
-        description: e.message,
+        description: e.message + e.data.message,
         duration: 6,
       });
+      console.log("error", e);
     }
   };
   const deleteEventTx = async event => {
     try {
-      const tx = await writeContracts.Calendar.removeEventByIndex(event.date + "", event.index + "");
+      const tx = await writeContracts.Scheduler.removeEventByIndex(event.date + "", event.index + "");
       await tx.wait();
       setEvent(undefined);
       await fetchEvents();
@@ -207,19 +236,47 @@ export function Calendar({
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px" }}>
-      <h1 style={{ paddingTop: "18px" }}>Calendar {dtu.getMonthName(date) + " " + dtu.getYear(date)}</h1>
+      <h1 style={{ paddingTop: "18px" }}>Scheduler {dtu.getMonthName(date) + " " + dtu.getYear(date)}</h1>
+      <div style={{ width: "50%", float: "left", marginBottom: "10px" }}>
+        <AddressInput
+          placeholder="Scheduler Receiver Address"
+          style={{ width: "50%", float: "left" }}
+          value={schedulerAddress}
+          onChange={e => setSchedulerAddress(e)}
+          ensProvider={mainnetProvider}
+        />
+      </div>
+
       <h2>
+        &nbsp;&nbsp;
         <a onClick={() => retrieveNewDate(date, -1)}>{"<"}</a>
         &nbsp;&nbsp;
-        <a onClick={() => retrieveNewDate(date, +1)}>{">"}</a>
+        <a onClick={() => retrieveNewDate(date, +1)}>{">"}</a>&nbsp;
         <Tooltip title={dtu.getDateString(date)}>
           <span>
-            &nbsp;&nbsp;{dtu.getDayName(date) + " " + dtu.getMonthDay(date)}&nbsp;&nbsp;
-            <div style={{ float: "right", marginRight: "5%" }}>{dtu.getMonthName(date) + " " + dtu.getYear(date)}</div>
+            <div style={{ float: "right", marginRight: "5%" }}>
+              {dtu.getDayName(date) +
+                " " +
+                dtu.getMonthDay(date) +
+                " " +
+                dtu.getMonthName(date) +
+                " " +
+                dtu.getYear(date)}
+            </div>
           </span>
         </Tooltip>
         {/* <Button onClick={() => createEvent(date)}>Create Event</Button>&nbsp; */}
       </h2>
+      <div>
+        {isUserValid === true && (
+          <>
+            {schedulerUser.isAway === true ? "Away" : "Available"}&nbsp; Price: {schedulerUser.payment}/s &nbsp; Start:{" "}
+            {schedulerUser.startTime} &nbsp; End: {schedulerUser.endTime} &nbsp; Balance: {schedulerUser.balance} &nbsp;
+          </>
+        )}
+        <br />
+      </div>
+      <br />
       <div style={{ marginRight: "5%" }}>
         {dayTemplate.map((day, index) => {
           return (

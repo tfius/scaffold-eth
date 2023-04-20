@@ -145,7 +145,7 @@ contract Calendar {
     function isOwnerAvailable(address owner, uint64 _date, uint64 _time, uint64 _duration) public view returns (bool) {
         Event[] memory events = getEventsByDate(owner, _date);
         for (uint256 i=0; i < events.length; i++) {
-            if (_time >= events[i].time && _time < events[i].time + events[i].duration) {
+            if (_time > events[i].time && _time < events[i].time + events[i].duration) {
                 return false;
             }
             if (_time + _duration > events[i].time && _time + _duration < events[i].time + events[i].duration) {

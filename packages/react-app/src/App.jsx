@@ -47,6 +47,7 @@ import { SubBids } from "./views/SubBids";
 import { Subscribers } from "./views/Subscribers";
 import { Subscriptions } from "./views/Subscriptions";
 import { Calendar } from "./views/Calendar";
+import { Scheduler } from "./views/Scheduler";
 
 import { FairOSWasmConnect } from "./views/FairOSWasmConnect";
 
@@ -411,9 +412,19 @@ function App(props) {
             selectedKeys={[location.pathname]}
           >
             <Menu.Item key="/">
-              <Link to="/">
-                {smailMail.pubKey === null || smailMail.smailPrivateKey == null ? <>Register</> : <>Home</>}
-              </Link>
+              <Tooltip
+                title={
+                  <>
+                    Registration:&nbsp;
+                    {smailMail.pubKey ? "wallet" : "no key"}&nbsp;
+                    {smailMail.smailPrivateKey ? "bonded" : "no bond"}
+                  </>
+                }
+              >
+                <Link to="/">
+                  {smailMail.pubKey === null || smailMail.smailPrivateKey == null ? <>Register</> : <>Home</>}
+                </Link>
+              </Tooltip>
             </Menu.Item>
 
             <Menu.Item key="/inbox">
@@ -448,16 +459,21 @@ function App(props) {
                 <Link to="/calendar">Calendar</Link>
               </Tooltip>
             </Menu.Item>
+            <Menu.Item key="/scheduler" disabled={!isBonded}>
+              <Tooltip title="View scheduler" placement="right">
+                <Link to="/scheduler">Scheduler</Link>
+              </Tooltip>
+            </Menu.Item>
 
-            <>
+            {/* <>
               <Menu.Item key="/smailmailkey" disabled>
                 <Tooltip title="Registration status">
-                  {/* {console.log("smailMail", smailMail)} */}
+                  console.log("smailMail", smailMail) 
                   {smailMail.pubKey ? "wallet" : "no key"}&nbsp;
                   {smailMail.smailPrivateKey ? "bonded" : "no bond"}
                 </Tooltip>
               </Menu.Item>
-            </>
+            </> */}
 
             {/* {fairOSSessionId != null && <Menu.Divider />} */}
             <Menu.Divider />
@@ -571,6 +587,11 @@ function App(props) {
                 <small>Calendar Contract</small>
               </Link>
             </Menu.Item>
+            <Menu.Item key="/schedulercontract">
+              <Link to="/schedulercontract">
+                <small>Scheduler Contract</small>
+              </Link>
+            </Menu.Item>
           </Menu>
           {/* <Balance address={address} provider={localProvider} price={price} /> */}
         </Sider>
@@ -679,6 +700,22 @@ function App(props) {
                   />
                 )}
               />
+              <Route
+                exact
+                path="/scheduler/:address?/:day?"
+                children={props => (
+                  <Scheduler
+                    readContracts={readContracts}
+                    writeContracts={writeContracts}
+                    userSigner={userSigner}
+                    tx={tx}
+                    address={address}
+                    messageCount={messageCount}
+                    smailMail={smailMail}
+                    mainnetProvider={mainnetProvider}
+                  />
+                )}
+              />
 
               <Route
                 path="/datahub/:cat?/:sub?"
@@ -769,6 +806,18 @@ function App(props) {
               <Route exact path="/calendarcontract">
                 <Contract
                   name="Calendar"
+                  price={price}
+                  signer={userSigner}
+                  provider={localProvider}
+                  address={address}
+                  blockExplorer={blockExplorer}
+                  contractConfig={contractConfig}
+                  messageCount={messageCount}
+                />
+              </Route>
+              <Route exact path="/schedulercontract">
+                <Contract
+                  name="Scheduler"
                   price={price}
                   signer={userSigner}
                   provider={localProvider}
