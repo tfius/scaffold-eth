@@ -2326,6 +2326,1000 @@
               "type": "receive"
             }
           ]
+        },
+        "Calendar": {
+          "address": "0x74cBc80eAe985292D24eb97B39837c67500b23B9",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "addEvent",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "addEventForAddress",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_swarmLocation",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "_participants",
+                  "type": "address[]"
+                }
+              ],
+              "name": "addInvite",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "allow",
+                  "type": "bool"
+                }
+              ],
+              "name": "allowAddress",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_index",
+                  "type": "uint64"
+                }
+              ],
+              "name": "confirmInvite",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                }
+              ],
+              "name": "getEventsByDate",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    }
+                  ],
+                  "internalType": "struct Calendar.Event[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64[]",
+                  "name": "_dates",
+                  "type": "uint64[]"
+                }
+              ],
+              "name": "getEventsByDates",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    }
+                  ],
+                  "internalType": "struct Calendar.Event[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                }
+              ],
+              "name": "getFreeSlot",
+              "outputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "",
+                  "type": "uint64"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                }
+              ],
+              "name": "getInvitesByDate",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "creator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "date",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "address[]",
+                      "name": "participants",
+                      "type": "address[]"
+                    },
+                    {
+                      "internalType": "address[]",
+                      "name": "accepted",
+                      "type": "address[]"
+                    }
+                  ],
+                  "internalType": "struct Calendar.Invite[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64[]",
+                  "name": "_dates",
+                  "type": "uint64[]"
+                }
+              ],
+              "name": "getInvitesByDates",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "creator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "date",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "address[]",
+                      "name": "participants",
+                      "type": "address[]"
+                    },
+                    {
+                      "internalType": "address[]",
+                      "name": "accepted",
+                      "type": "address[]"
+                    }
+                  ],
+                  "internalType": "struct Calendar.Invite[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                }
+              ],
+              "name": "isOwnerAvailable",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_index",
+                  "type": "uint64"
+                }
+              ],
+              "name": "removeEventByIndex",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_index",
+                  "type": "uint64"
+                }
+              ],
+              "name": "removeInviteByIndex",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_index",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_newTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_newDuration",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "updateEventsByDate",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    }
+                  ],
+                  "internalType": "struct Calendar.Event",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ]
+        },
+        "Scheduler": {
+          "address": "0xB4447212804f6Da0225C042D71F2d434B260a763",
+          "abi": [
+            {
+              "inputs": [],
+              "stateMutability": "nonpayable",
+              "type": "constructor"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "previousOwner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipTransferred",
+              "type": "event"
+            },
+            {
+              "inputs": [],
+              "name": "feesCollected",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "fundsBalance",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "fundsTransfer",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                }
+              ],
+              "name": "getEventsByDate",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "sender",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    }
+                  ],
+                  "internalType": "struct Scheduler.Event[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64[]",
+                  "name": "_dates",
+                  "type": "uint64[]"
+                }
+              ],
+              "name": "getEventsByDates",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "sender",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    }
+                  ],
+                  "internalType": "struct Scheduler.Event[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getFee",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                }
+              ],
+              "name": "getFreeSlot",
+              "outputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "",
+                  "type": "uint64"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                }
+              ],
+              "name": "getPriceForEvent",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                }
+              ],
+              "name": "getUser",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "payment",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "balance",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "isAway",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "startTime",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "endTime",
+                      "type": "uint64"
+                    }
+                  ],
+                  "internalType": "struct Scheduler.User",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                }
+              ],
+              "name": "isOwnerAvailable",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "owner",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "name": "release",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_index",
+                  "type": "uint64"
+                }
+              ],
+              "name": "removeEventByIndex",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "scheduleEvent",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "schedulerFee",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bool",
+                  "name": "_away",
+                  "type": "bool"
+                }
+              ],
+              "name": "setAway",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "allow",
+                  "type": "bool"
+                }
+              ],
+              "name": "setBlockAddress",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "newFee",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setFee",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_paymentPerS",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setPayment",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_startTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_endTime",
+                  "type": "uint64"
+                }
+              ],
+              "name": "setStartEndTime",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "transferOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "stateMutability": "payable",
+              "type": "receive"
+            }
+          ]
         }
       }
     }
@@ -2335,6 +3329,500 @@
       "name": "zkdatafund",
       "chainId": "1001",
       "contracts": {
+        "Calendar": {
+          "address": "0x7Aedf45B82924B2dBF9818c7cAaB6c7557Ba09c0",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "addEvent",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "addEventForAddress",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_swarmLocation",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "_participants",
+                  "type": "address[]"
+                }
+              ],
+              "name": "addInvite",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "allow",
+                  "type": "bool"
+                }
+              ],
+              "name": "allowAddress",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_index",
+                  "type": "uint64"
+                }
+              ],
+              "name": "confirmInvite",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                }
+              ],
+              "name": "getEventsByDate",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    }
+                  ],
+                  "internalType": "struct Calendar.Event[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64[]",
+                  "name": "_dates",
+                  "type": "uint64[]"
+                }
+              ],
+              "name": "getEventsByDates",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    }
+                  ],
+                  "internalType": "struct Calendar.Event[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                }
+              ],
+              "name": "getFreeSlot",
+              "outputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "",
+                  "type": "uint64"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                }
+              ],
+              "name": "getInvitesByDate",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "creator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "date",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "address[]",
+                      "name": "participants",
+                      "type": "address[]"
+                    },
+                    {
+                      "internalType": "address[]",
+                      "name": "accepted",
+                      "type": "address[]"
+                    }
+                  ],
+                  "internalType": "struct Calendar.Invite[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64[]",
+                  "name": "_dates",
+                  "type": "uint64[]"
+                }
+              ],
+              "name": "getInvitesByDates",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "creator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "date",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "address[]",
+                      "name": "participants",
+                      "type": "address[]"
+                    },
+                    {
+                      "internalType": "address[]",
+                      "name": "accepted",
+                      "type": "address[]"
+                    }
+                  ],
+                  "internalType": "struct Calendar.Invite[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                }
+              ],
+              "name": "isOwnerAvailable",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_index",
+                  "type": "uint64"
+                }
+              ],
+              "name": "removeEventByIndex",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_index",
+                  "type": "uint64"
+                }
+              ],
+              "name": "removeInviteByIndex",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_index",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_newTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_newDuration",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "updateEventsByDate",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    }
+                  ],
+                  "internalType": "struct Calendar.Event",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ]
+        },
         "DataHub": {
           "address": "0xa396CDaD9F09783140845E337DbC55A24cC07c02",
           "abi": [
@@ -3781,6 +5269,506 @@
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "transferOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "stateMutability": "payable",
+              "type": "receive"
+            }
+          ]
+        },
+        "Scheduler": {
+          "address": "0x984eae5a25139aA0201Fa92535CFc42Af128401C",
+          "abi": [
+            {
+              "inputs": [],
+              "stateMutability": "nonpayable",
+              "type": "constructor"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "previousOwner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipTransferred",
+              "type": "event"
+            },
+            {
+              "inputs": [],
+              "name": "feesCollected",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "fundsBalance",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "fundsTransfer",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                }
+              ],
+              "name": "getEventsByDate",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "sender",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    }
+                  ],
+                  "internalType": "struct Scheduler.Event[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64[]",
+                  "name": "_dates",
+                  "type": "uint64[]"
+                }
+              ],
+              "name": "getEventsByDates",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "sender",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    }
+                  ],
+                  "internalType": "struct Scheduler.Event[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getFee",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                }
+              ],
+              "name": "getFreeSlot",
+              "outputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "",
+                  "type": "uint64"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                }
+              ],
+              "name": "getPriceForEvent",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                }
+              ],
+              "name": "getUser",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "payment",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "balance",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "isAway",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "startTime",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "endTime",
+                      "type": "uint64"
+                    }
+                  ],
+                  "internalType": "struct Scheduler.User",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                }
+              ],
+              "name": "isOwnerAvailable",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "owner",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "name": "release",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_index",
+                  "type": "uint64"
+                }
+              ],
+              "name": "removeEventByIndex",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "scheduleEvent",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "schedulerFee",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bool",
+                  "name": "_away",
+                  "type": "bool"
+                }
+              ],
+              "name": "setAway",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "allow",
+                  "type": "bool"
+                }
+              ],
+              "name": "setBlockAddress",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "newFee",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setFee",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_paymentPerS",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setPayment",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_startTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_endTime",
+                  "type": "uint64"
+                }
+              ],
+              "name": "setStartEndTime",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {

@@ -179,13 +179,19 @@ SwarmMail
 deploying "SwarmMail" (tx: 0x4b50db71ec56f37875c11edd20a520e6edd285ed8ff44be7badc737cedaf5949)...: deployed at 0x32C144cf950E1f3Fa3b96049c10C39995076BCd6 with 3300461 gas
 DataHub
 deploying "DataHub" (tx: 0x6f9de3dcd9eb07518e6fc3d5b2745c395462c48fcf97a283f51c8e47c5b011bc)...: deployed at 0x982d3A3516E08763DEf73485e5762bdBbD932Ce9 with 3981185 gas
-
+Calendar
+deploying "Calendar" (tx: 0x10504cee4b9040ed643ab2c704d43d6cad6ed2e07de5f01431e5d843441a50f3)...: deployed at 0x74cBc80eAe985292D24eb97B39837c67500b23B9 with 1975517 gas
+Scheduler
+deploying "Scheduler" (tx: 0xdfd39350c9b82b3b6e1a6cdf399bb8ff7a814ab81a301df3cd70a9183af3d998)...: deployed at 0xB4447212804f6Da0225C042D71F2d434B260a763 with 1821357 gas
 
 zkEVM Datafund
 SwarmMail
 deploying "SwarmMail" (tx: 0xe11258403c2edf6a46a0b79899272f8b7192a97d6e1305820b3dc2fbf4936cad)...: deployed at 0x99e6A44a8Dd93cF3CEbaC00D1B7c5D20A076a0De with 3299519 gas
 DataHub
 deploying "DataHub" (tx: 0x498f9f1f9f936fef7a190ecf30f0d65e6bd53f10fffa7301ee7625b0c2548392)...: deployed at 0xa396CDaD9F09783140845E337DbC55A24cC07c02 with 3980065 gas
-
+Calendar
+deploying "Calendar" (tx: 0x013d97ac749771cff5fb4fd20cc2b19d8ec1d43532fea1b2b80cdb6b28d63897)...: deployed at 0x7Aedf45B82924B2dBF9818c7cAaB6c7557Ba09c0 with 1974957 gas
+Scheduler
+deploying "Scheduler" (tx: 0x13a1c075f581814c89f2d6968fa0aed37d13c625e81d82ac96313a4f21739317)...: deployed at 0x984eae5a25139aA0201Fa92535CFc42Af128401C with 1820851 gas
 ### Access it
 https://fairos.staging.fairdatasociety.org/public/3d70d86a08a9e6c92e826d16aaec3ee1fbfbcc34decbca977a66d8efb5476464/
