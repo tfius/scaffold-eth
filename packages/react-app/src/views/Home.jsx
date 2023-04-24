@@ -268,9 +268,12 @@ export function Home({
             </div>
           )}
           <div>
+            <h2>BEWARE AND BEHOLD</h2>
+            Always check that you are on correct domain and that you are using correct MetaMask account. Scammers could
+            potentially ask you to decrypt Smail Wallet and <strong>gain access to your data</strong>.
+            <hr />
             <h2>How Smail works</h2>
             You will be asked to decrypt your Smail Wallet every time you visit this page.
-            <hr />
             <h3>
               How <strong>registration</strong> works:
             </h3>
@@ -330,10 +333,29 @@ export function Home({
               sides. <strong>NOTE: </strong> Both sender and receiver must be bonded to send encrypted data. If one
               party deletes a thread, other party will never know.
             </ul>
+            <h3>
+              <strong>Calendar</strong>
+            </h3>
+            <ul>
+              <li>Add events to your calendar</li>
+              All events are encrypted for owner. And only owner can see details. Other users can see event as{" "}
+              <code>busy</code> only. Uses same encryption techinque as <strong>Locker</strong>.
+            </ul>
+            <h3>
+              <strong>Scheduler</strong>
+            </h3>
+            <ul>
+              <li>You can Schedule an event with another user</li>
+              <li>
+                Schedule owner can define <code>Start</code> and <code>End</code> time and payment per second.
+              </li>
+              <li>The user scheduling the event pays for owners time</li>
+              <li>No overlapping events</li>
+              <li>Can be used for automatic schedulers</li>
+              Others can only see time, duration and who scheduled event. Uses same encryption techinque as{" "}
+              <strong>Threads</strong>.
+            </ul>
             <hr />
-            <h2>BEWARE AND BEHOLD</h2>
-            Always check that you are on correct domain and that you are using correct MetaMask account. Scammers could
-            potentially ask you to decrypt Smail Wallet and <strong>gain access to your data</strong>.
           </div>
           <div>
             <br />
