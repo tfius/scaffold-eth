@@ -34,6 +34,7 @@ import { useStaticJsonRPC } from "./hooks";
 
 import * as consts from "./views/consts";
 import { Home } from "./views/Home";
+import { Help } from "./views/Help";
 import { Inbox } from "./views/Inbox";
 import { Locker } from "./views/Locker";
 import { EmailsSent } from "./views/EmailsSent";
@@ -159,6 +160,7 @@ function App(props) {
   const [fairOSPods, setFairOSPods] = useState([]);
   const [fairOSSessionId, setFairOSSessionId] = useState(null);
   const [fairOSLogin, setFairOSLogin] = useState(null);
+  const [showHelp, setShowHelp] = useState(false);
 
   const location = useLocation();
 
@@ -869,6 +871,10 @@ function App(props) {
       <div style={{ position: "fixed", left: "50%", top: "2%" }}>{isLoading && <Spin size="64" />}</div>
 
       <ThemeSwitch />
+      <div className="main fade-in" style={{ position: "fixed", right: 8, bottom: 40 }}>
+        <Button onClick={() => setShowHelp(!showHelp)}>?</Button>
+      </div>
+      <>{showHelp && <Help onClose={setShowHelp} />}</>
 
       {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
       <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
