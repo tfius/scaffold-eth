@@ -188,7 +188,6 @@ export function Calendar({
       if (smailEnc === "null") throw { message: "Error encrypting event" };
 
       const eventDigest = await uploadDataToBee(smailEnc, "application/octet-stream", date + ".smailcal"); // ms-mail.json
-      debugger;
       const tx = await writeContracts.Calendar.addEvent(
         event.date + "",
         event.time + "",
@@ -201,7 +200,7 @@ export function Calendar({
     } catch (e) {
       notification.warning({
         message: "Error",
-        description: e.message,
+        description: e.message + " " + e.data?.message,
         duration: 6,
       });
     }
@@ -290,7 +289,7 @@ export function Calendar({
         <>
           {/* {true && console.log("event", event)} */}
           <Modal
-            title="Event"
+            title="Calendar Event"
             visible={event !== undefined}
             footer={null}
             onOk={() => setEvent(undefined)}

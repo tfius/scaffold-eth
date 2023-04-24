@@ -20,6 +20,7 @@ import {
 } from "antd";
 import * as layouts from "./layouts.js";
 import * as dtu from "./datetimeutils.js";
+import * as EncDec from "../utils/EncDec.js";
 
 /* Create events and add them to the calendar */
 const eventTemplate = {
@@ -96,29 +97,77 @@ export function Scheduler({
     //console.log("data from contracts", data);
     processEvents(data);
   });
+
+  const getDecryptKey = async forAddress => {
+    var recipientKeys = await readContracts.SwarmMail.getPublicKeys(forAddress);
+    const rkey = recipientKeys.pubKey.substr(2, recipientKeys.pubKey.length - 1);
+    var pubKey = Buffer.from(rkey, "hex").toString("base64");
+    var sharedSecretKey = await EncDec.calculateSharedKey(
+      smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length),
+      pubKey,
+    );
+    //return { pubKey: pubKey, decryptKey: Buffer.from(sharedSecretKey.secretKey).toString("base64") };
+    return { pubKey: pubKey, sharedSecretKey: sharedSecretKey };
+  };
+
+  const decryptSchedulerEvent = async (event, data) => {
+    var keyTo = await getDecryptKey(address);
+    var key = {};
+    if (schedulerAddress === address) {
+      key = await getDecryptKey(event.sender);
+    } else {
+      key = keyTo;
+    }
+
+    //var d = JSON.parse(new TextDecoder().decode(data));
+    var decRes = EncDec.nacl_decrypt_with_key(
+      data,
+      keyTo.pubKey,
+      Buffer.from(key.sharedSecretKey.secretKey).toString("base64"),
+    );
+    return JSON.parse(decRes); // returns event object
+  };
+
   const processEvents = useCallback(async eventsFromChain => {
     if (readContracts === undefined || readContracts.Scheduler === undefined) return; // todo get pub key from ENS
     var data = [];
     for (var i = 0; i < eventsFromChain.length; i++) {
+      //debugger;
       // TODO decrypt with smail key data before upload
       var eventData = await downloadDataFromBee(eventsFromChain[i].location);
-      var decoded = new TextDecoder().decode(new Uint8Array(eventData));
-      var d = JSON.parse(decoded);
-
-      //console.log("eventData", d);
-      data.push({
-        name: d.name,
-        description: d.description,
-        location: d.location,
-        category: d.category,
-        participants: d.participants,
-        owner: d.owner,
-        ownerName: d.ownerName,
-        date: parseInt(d.date.toString()),
-        time: parseInt(eventsFromChain[i].time.toString()),
-        duration: parseInt(eventsFromChain[i].duration.toString()),
-        index: i,
-      });
+      var decoded = JSON.parse(new TextDecoder().decode(new Uint8Array(eventData)));
+      try {
+        var d = await decryptSchedulerEvent(eventsFromChain[i], decoded);
+        //console.log("eventData", d);
+        data.push({
+          name: d.name,
+          description: d.description,
+          location: d.location,
+          category: d.category,
+          participants: d.participants,
+          owner: d.owner,
+          ownerName: d.ownerName,
+          date: parseInt(d.date.toString()),
+          time: parseInt(eventsFromChain[i].time.toString()),
+          duration: parseInt(eventsFromChain[i].duration.toString()),
+          index: i,
+        });
+      } catch (e) {
+        console.log("error decrypting event", e);
+        data.push({
+          name: "Busy",
+          description: "",
+          location: "",
+          category: "",
+          participants: "",
+          owner: "",
+          ownerName: "",
+          date: date.toString(), // parseInt(d.date.toString()), this one could be retrieved
+          time: parseInt(eventsFromChain[i].time.toString()),
+          duration: parseInt(eventsFromChain[i].duration.toString()),
+          index: i,
+        });
+      }
     }
     setEvents(data);
     //console.log("events", eventsFromChain, data);
@@ -131,6 +180,20 @@ export function Scheduler({
   useEffect(() => {
     fetchEvents();
   }, [readContracts, address]);
+
+  const retrievePubKey = async forAddress => {
+    try {
+      const data = await readContracts.SwarmMail.getPublicKeys(forAddress);
+      const rkey = data.pubKey.substr(2, data.pubKey.length - 1);
+      var pk = Buffer.from(rkey, "hex").toString("base64");
+      // console.log(isSender ? "sender" : "receiver", data);
+      if (data.pubKey === "0x0000000000000000000000000000000000000000000000000000000000000000") pk = null;
+      return pk;
+    } catch (e) {
+      console.log(e);
+    }
+    return null;
+  };
 
   const createNewEvent = async (date, time) => {
     const day = Math.round(dtu.getTimestampFromDate(date) + time * 60 * 60);
@@ -180,9 +243,20 @@ export function Scheduler({
 
   const createEventTx = async event => {
     setIsLoading(true);
+
     // TODO encrypt with smail key data before upload
-    const eventDigest = await uploadDataToBee(JSON.stringify(event), "application/octet-stream", date + ".smail"); // ms-mail.json
+
     try {
+      var recipientKey = await retrievePubKey(schedulerAddress);
+      var sharedSecretKey = await EncDec.calculateSharedKey(
+        smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length),
+        recipientKey,
+      );
+
+      var smailEvent = JSON.stringify(event);
+      var smailEventEnc = JSON.stringify(EncDec.nacl_encrypt_with_key(smailEvent, recipientKey, sharedSecretKey));
+      const eventDigest = await uploadDataToBee(smailEventEnc, "application/octet-stream", date + ".smail"); // ms-mail.json
+
       const tx = await writeContracts.Scheduler.scheduleEvent(
         schedulerAddress,
         event.date + "",
@@ -197,7 +271,7 @@ export function Scheduler({
     } catch (e) {
       notification.warning({
         message: "Error",
-        description: e.message + e.data.message,
+        description: e.message + " " + e.data?.message,
         duration: 6,
       });
       console.log("error", e);
@@ -314,7 +388,7 @@ export function Scheduler({
         <>
           {/* {true && console.log("event", event)} */}
           <Modal
-            title="Event"
+            title="Schedule Event"
             visible={event !== undefined}
             footer={null}
             onOk={() => setEvent(undefined)}
