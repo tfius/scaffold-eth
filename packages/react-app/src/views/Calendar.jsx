@@ -19,6 +19,7 @@ import {
 } from "antd";
 import * as layouts from "./layouts.js";
 import * as dtu from "./datetimeutils.js";
+import * as EncDec from "../utils/EncDec.js";
 
 /* Create events and add them to the calendar */
 const eventTemplate = {
@@ -28,6 +29,7 @@ const eventTemplate = {
   location: "",
   color: "",
   participants: [],
+  attachments: [],
   date: "",
   duration: "",
   time: "",
@@ -59,6 +61,10 @@ const dayTemplate = [
   { hour: 22, time: "22:00", events: [] },
   { hour: 23, time: "23:00", events: [] },
 ];
+
+/* 
+ Calendar encrypts data for user only with their smail key and new throw away key. 
+*/
 
 export function Calendar({
   readContracts,
@@ -102,8 +108,9 @@ export function Calendar({
     for (var i = 0; i < eventsFromChain.length; i++) {
       // TODO decrypt with smail key data before upload
       var eventData = await downloadDataFromBee(eventsFromChain[i].location);
-      var decoded = new TextDecoder().decode(new Uint8Array(eventData));
-      var d = JSON.parse(decoded);
+      var decoded = JSON.parse(new TextDecoder().decode(eventData));
+      var decRes = EncDec.nacl_decrypt(decoded, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
+      var d = JSON.parse(decRes);
 
       //console.log("eventData", d);
       data.push({
@@ -131,6 +138,21 @@ export function Calendar({
   useEffect(() => {
     fetchEvents();
   }, [readContracts, address]);
+
+  const retrievePubKey = async forAddress => {
+    try {
+      const data = await readContracts.SwarmMail.getPublicKeys(forAddress);
+      const rkey = data.pubKey.substr(2, data.pubKey.length - 1);
+      var pk = Buffer.from(rkey, "hex").toString("base64");
+      // console.log(isSender ? "sender" : "receiver", data);
+      if (data.pubKey === "0x0000000000000000000000000000000000000000000000000000000000000000") pk = null;
+      return pk;
+    } catch (e) {
+      console.log(e);
+    }
+    return null;
+  };
+
   const createNewEvent = async (date, time) => {
     const day = Math.round(dtu.getTimestampFromDate(date) + time * 60 * 60);
     setNewEvent(true);
@@ -156,8 +178,17 @@ export function Calendar({
   const createEventTx = async event => {
     setIsLoading(true);
     // TODO encrypt with smail key data before upload
-    const eventDigest = await uploadDataToBee(JSON.stringify(event), "application/octet-stream", date + ".smail"); // ms-mail.json
+
     try {
+      var recipientKey = await retrievePubKey(address);
+      var ephemeralKey = EncDec.generate_ephemeral_key_pair();
+      var smailEvent = JSON.stringify(event);
+      //var smailEnc = JSON.stringify(EncDec.nacl_encrypt_with_key(smailEvent, recipientKey, ephemeralKey));
+      var smailEnc = JSON.stringify(EncDec.nacl_encrypt_with_key(smailEvent, recipientKey, ephemeralKey));
+      if (smailEnc === "null") throw { message: "Error encrypting event" };
+
+      const eventDigest = await uploadDataToBee(smailEnc, "application/octet-stream", date + ".smailcal"); // ms-mail.json
+      debugger;
       const tx = await writeContracts.Calendar.addEvent(
         event.date + "",
         event.time + "",
@@ -176,6 +207,7 @@ export function Calendar({
     }
     setIsLoading(false);
   };
+
   const deleteEventTx = async event => {
     setIsLoading(true);
     try {
