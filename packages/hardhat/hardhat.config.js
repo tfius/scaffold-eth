@@ -309,6 +309,22 @@ module.exports = {
         mnemonic: mnemonic(),
       },
     },
+    polygonzkevm: {
+      url: "https://zkevm-rpc.com",
+      gasPrice: 1000000000,
+      chainId: 1101,
+      accounts: {
+        mnemonic: mnemonic(),
+      },
+    },
+    polygonzkevmtestnet: {
+      url: "https://rpc.public.zkevm-test.net",
+      gasPrice: 1000000000,
+      chainId: 1442,
+      accounts: {
+        mnemonic: mnemonic(),
+      },
+    },
   },
   solidity: {
     compilers: [

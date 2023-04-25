@@ -129,7 +129,7 @@ export function Help({
           width: "35%",
           backgroundColor: "#40006675",
           padding: "10px",
-          zIndex: 9999,
+          zIndex: 1,
         }}
       >
         <h2>

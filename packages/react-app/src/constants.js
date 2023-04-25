@@ -207,12 +207,28 @@ export const NETWORKS = {
   },
   zkdatafund: {
     name: "zkdatafund",
-    color: "#BB55AA",
+    color: "#3333AA",
     chainId: 1001,
     //faucet: "https://goerli-faucet.slock.it/",
     blockExplorer: "http://zkevm.dev.datafund.io:4001/",
     //rpcUrl: `https://goerli.infura.io/v3/${INFURA_ID}`,
-    rpcUrl: "http://zkevm.dev.datafund.io:8123/",
+    rpcUrl: "http://zkevm.dev.datafund.io:8123",
+  },
+  polygonzkevm: {
+    name: "polygonzkevm",
+    color: "#9955AA",
+    chainId: 1101,
+    //faucet: "https://goerli-faucet.slock.it/",
+    blockExplorer: "https://zkevm.polygonscan.com/",
+    rpcUrl: "https://zkevm-rpc.com",
+  },
+  polygonzkevmtestnet: {
+    name: "polygonzkevmtestnet",
+    color: "#550088",
+    chainId: 1442,
+    //faucet: "https://goerli-faucet.slock.it/",
+    blockExplorer: "https://testnet-zkevm.polygonscan.com/",
+    rpcUrl: "https://rpc.public.zkevm-test.net",
   },
 };
 
