@@ -76,14 +76,14 @@ const questionList = [
   },
   {
     question: "Why Threads ?",
-    answer: "Threads is a place where you can comunicate with another party in most efficient way.",
+    answer: "Threads is a place where you can comunicate with another party in most efficient and secure way.",
   },
   {
     question: "Why Calendar ?",
-    answer: "Storing your personal data securely but still for others to see your availability.",
+    answer: "Storing your event data securely, while still others can see your availability.",
   },
 
-  { question: "Why Scheduler ?", answer: "Scheduler is a place where you can schedule events with others." },
+  { question: "Why Scheduler ?", answer: "Scheduler is a place where you or AI can schedule events with others." },
   {
     question: "Isn't Scheduler just another Calendar ?",
     answer:
@@ -97,12 +97,12 @@ const questionList = [
   {
     question: "Why incorporating Calendar and Scheduler in Smail ?",
     answer:
-      "To make it easier for you. Calendar is for others to see your availability while of Scheduler as your automatic schedule machine. It's meant for robots and AI to schedule events with you.",
+      "To make it easier for you. Calendar is for others to see your availability while Scheduler is your automatic scheduling machine. It's meant for AI robots to schedule events with you. Also both contracts use Smail techinques to encrypt your data.",
   },
   {
     question: "Why not incorporating Calendar into Scheduler ?",
     answer:
-      "Good idea. It does not make sense to have two different places for the same thing. We will do that in the future. Both contracts expose availability and schedule functions.",
+      "Good idea. It does not make sense to have two different places for the same thing. We will do that in the future. Both contracts expose availability functions and lookup can be done so events do not overlap between your calendar and scheduled.",
   },
 ];
 

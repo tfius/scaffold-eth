@@ -235,9 +235,21 @@ export function Scheduler({
       console.log("user", u);
       setSchedulerUser(u);
       setIsUserValid(true);
+      var recipientKey = await retrievePubKey(address);
+      if (recipientKey === null) {
+        setIsUserValid(false);
+        setEvents([]);
+        notification.info({
+          message: "Scheduler has no public key set.",
+          description: "Scheduler owner is not registered with Smail.",
+        });
+        return;
+      }
+      await fetchEvents();
     } catch (e) {
       console.log("error", e);
       setIsUserValid(false);
+      setEvents([]);
     }
   };
 
