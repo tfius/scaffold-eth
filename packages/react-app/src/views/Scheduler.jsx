@@ -248,12 +248,20 @@ export function Scheduler({
 
     try {
       var recipientKey = await retrievePubKey(schedulerAddress);
+      if (recipientKey === null)
+        throw new Error(
+          schedulerAddress + " Scheduler has no public key set. Scheduler owner is not registered with Smail.",
+        );
+
       var sharedSecretKey = await EncDec.calculateSharedKey(
         smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length),
         recipientKey,
       );
 
-      var smailEvent = JSON.stringify(event);
+      var completeMessage = event;
+      completeMessage.noise = EncDec.generateNoise();
+
+      var smailEvent = JSON.stringify(completeMessage);
       var smailEventEnc = JSON.stringify(EncDec.nacl_encrypt_with_key(smailEvent, recipientKey, sharedSecretKey));
       const eventDigest = await uploadDataToBee(smailEventEnc, "application/octet-stream", date + ".smail"); // ms-mail.json
 

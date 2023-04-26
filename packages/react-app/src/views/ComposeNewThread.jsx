@@ -233,6 +233,8 @@ export function ComposeNewThread({
       var completeMessage = message;
       completeMessage.attachments = locations;
       completeMessage.sendTime = startTime;
+      completeMessage.noise = EncDec.generateNoise();
+      
       var endTime = Date.now();
       completeMessage.sendTime = endTime;
       // convert from uint8array to base64

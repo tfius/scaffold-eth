@@ -182,7 +182,10 @@ export function Calendar({
     try {
       var recipientKey = await retrievePubKey(address);
       var ephemeralKey = EncDec.generate_ephemeral_key_pair();
-      var smailEvent = JSON.stringify(event);
+      var completeMessage = event;
+      completeMessage.noise = EncDec.generateNoise();
+
+      var smailEvent = JSON.stringify(completeMessage);
       //var smailEnc = JSON.stringify(EncDec.nacl_encrypt_with_key(smailEvent, recipientKey, ephemeralKey));
       var smailEnc = JSON.stringify(EncDec.nacl_encrypt_with_key(smailEvent, recipientKey, ephemeralKey));
       if (smailEnc === "null") throw { message: "Error encrypting event" };

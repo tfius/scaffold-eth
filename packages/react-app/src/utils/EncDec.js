@@ -220,6 +220,10 @@ export function nacl_encrypt(message, receiverPublicKey) {
   return null;
 }
 
+export function generateNoise() {
+  return nacl.util.encodeBase64(nacl.randomBytes(1024));
+}
+
 export function nacl_encrypt_with_key(message, receiverPublicKey, ephemeralKeyPair) {
   try {
     var pubKeyUInt8Array = nacl.util.decodeBase64(receiverPublicKey);
