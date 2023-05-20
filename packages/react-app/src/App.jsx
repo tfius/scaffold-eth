@@ -113,6 +113,8 @@ function App(props) {
     "localhost", // 9
     "zkdatafund", // 9
     "goerli", // 9
+    "polygonzkevmtestnet", //
+    "sepolia",
   ];
   const BEENETWORKS = {
     "gateway bee": {

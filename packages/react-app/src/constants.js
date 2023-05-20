@@ -57,6 +57,14 @@ export const NETWORKS = {
     //rpcUrl: `https://goerli.infura.io/v3/${INFURA_ID}`,
     rpcUrl: "https://xdai.dev.fairdatasociety.org/",
   },
+  sepolia: {
+    name: "sepolia",
+    color: "#87ff65",
+    chainId: 11155111,
+    faucet: "https://faucet.sepolia.dev/",
+    blockExplorer: "https://sepolia.etherscan.io/",
+    rpcUrl: `https://sepolia.infura.io/v3/${INFURA_ID}`,
+  },
   xdai: {
     name: "xdai",
     color: "#48a9a6",

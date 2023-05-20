@@ -143,6 +143,11 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         user.keyLocation = keyLocation;
         //userToPortable[msg.sender] = portable;
     }
+    function reset_registration() public {
+        User storage user = users[msg.sender];
+        user.pubKey = bytes32(0);
+        user.keyLocation = bytes32(0);
+    }
     
 
     /*

@@ -26,9 +26,10 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 //
 // Select the network you want to deploy to here:
 //
-const defaultNetwork = "localhost";
+// const defaultNetwork = "localhost";
 // const defaultNetwork = "goerli";
 // const defaultNetwork = "zkdatafund";
+const defaultNetwork = "sepolia";
 
 const mainnetGwei = 21;
 
@@ -145,6 +146,13 @@ module.exports = {
       url: "https://goerli.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", // <---- YOUR INFURA ID! (or it won't work)
       // url: "https://xdai.dev.fairdatasociety.org/",
       //      url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXXXXXXX/eth/goerli", // <---- YOUR MORALIS ID! (not limited to infura)
+      accounts: {
+        mnemonic: mnemonic(),
+      },
+    },
+    sepolia: {
+      url: "https://rpc.sepolia.org",
+      // "https://sepolia.infura.io/v3/INFURA_ID",
       accounts: {
         mnemonic: mnemonic(),
       },
