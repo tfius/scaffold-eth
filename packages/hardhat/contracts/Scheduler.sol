@@ -164,12 +164,13 @@ contract Scheduler is Ownable {
         for (uint256 i=0; i < events.length; i++) {
             if(users[_address].startTime != 0 && users[_address].endTime != 0)
             {
-                if(users[_address].startTime > _time && users[_address].endTime < _time + _duration) {
+                //if(users[_address].startTime > _time && users[_address].endTime < _time + _duration) {
+                if(_time < users[_address].startTime || _time + _duration > users[_address].endTime) {  
                     return false;
                 }
             }
-            // find if event is inside or overlaps another event
-            if(_time > events[i].time && _time < events[i].time + events[i].duration) { // start time inside event
+            // can't start at same time as other event and between event
+            if(_time >= events[i].time && _time < events[i].time + events[i].duration) { // start time inside event
                 return false;
             }
             if(_time + _duration > events[i].time && _time + _duration < events[i].time + events[i].duration) { // start time inside event

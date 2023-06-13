@@ -80,7 +80,7 @@ export function Scheduler({
   const [event, setEvent] = useState(undefined);
   const [newEvent, setNewEvent] = useState(false);
   const [eventTime, setEventTime] = useState(Date.now() / 1000);
-  const [schedulerAddress, _setSchedulerAddress] = useState("");
+  const [schedulerAddress, _setSchedulerAddress] = useState(address);
   const [schedulerUser, setSchedulerUser] = useState({
     balance: 0,
     startTime: 0,
@@ -90,15 +90,16 @@ export function Scheduler({
   });
   const [isUserValid, setIsUserValid] = useState(false);
 
-  const fetchEvents = useCallback(async () => {
+  const fetchEvents = useCallback(async (for_address) => {
     if (readContracts === undefined || readContracts.Scheduler === undefined) return; // todo get pub key from ENS
     //console.log("fetchEvents", address, dtu.getDateString(date), dtu.getTimestampFromDate(date));
-    const data = await readContracts.Scheduler.getEventsByDate(address, dtu.getTimestampFromDate(date));
-    //console.log("data from contracts", data);
+    console.log("fetchEvents", for_address, dtu.getDateString(date), dtu.getTimestampFromDate(date));
+    const data = await readContracts.Scheduler.getEventsByDate(for_address, dtu.getTimestampFromDate(date));
+    console.log("data from contracts", data);
     processEvents(data);
   });
 
-  const getDecryptKey = async forAddress => {
+  const getKeyPair = async forAddress => {
     var recipientKeys = await readContracts.SwarmMail.getPublicKeys(forAddress);
     const rkey = recipientKeys.pubKey.substr(2, recipientKeys.pubKey.length - 1);
     var pubKey = Buffer.from(rkey, "hex").toString("base64");
@@ -111,19 +112,20 @@ export function Scheduler({
   };
 
   const decryptSchedulerEvent = async (event, data) => {
-    var keyTo = await getDecryptKey(address);
-    var key = {};
-    if (schedulerAddress === address) {
-      key = await getDecryptKey(event.sender);
-    } else {
-      key = keyTo;
-    }
-
+    // var keyTo = {}; //await getDecryptKey(address);
+    // var key = {};
+    // if (schedulerAddress !== address) {
+    // } else {
+    //   key = keyTo;
+    // }
+    var key = await getKeyPair(event.sender);
+    var keyTo = await getKeyPair(schedulerAddress);
+    
     //var d = JSON.parse(new TextDecoder().decode(data));
     var decRes = EncDec.nacl_decrypt_with_key(
       data,
-      keyTo.pubKey,
-      Buffer.from(key.sharedSecretKey.secretKey).toString("base64"),
+      key.pubKey,
+      Buffer.from(keyTo.sharedSecretKey.secretKey).toString("base64"),
     );
     return JSON.parse(decRes); // returns event object
   };
@@ -174,11 +176,11 @@ export function Scheduler({
   });
 
   useEffect(() => {
-    fetchEvents();
+    fetchEvents(schedulerAddress);
   }, [date]);
 
   useEffect(() => {
-    fetchEvents();
+    fetchEvents(address);
   }, [readContracts, address]);
 
   const retrievePubKey = async forAddress => {
@@ -245,7 +247,7 @@ export function Scheduler({
         });
         return;
       }
-      await fetchEvents();
+      await fetchEvents(address);
     } catch (e) {
       console.log("error", e);
       setIsUserValid(false);
@@ -269,13 +271,19 @@ export function Scheduler({
         smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length),
         recipientKey,
       );
+      
+      var senderKey = await getKeyPair(address);
+      var receiverKey = await getKeyPair(schedulerAddress);
 
       var completeMessage = event;
       completeMessage.noise = EncDec.generateNoise();
 
       var smailEvent = JSON.stringify(completeMessage);
-      var smailEventEnc = JSON.stringify(EncDec.nacl_encrypt_with_key(smailEvent, recipientKey, sharedSecretKey));
-      const eventDigest = await uploadDataToBee(smailEventEnc, "application/octet-stream", date + ".smail"); // ms-mail.json
+      console.log("smailEvent", smailEvent);
+      var smailEventEnc = JSON.stringify(EncDec.nacl_encrypt_with_key(smailEvent, senderKey.pubKey, receiverKey.sharedSecretKey));
+      const eventDigest = await uploadDataToBee(smailEventEnc, "application/octet-stream", date + ".schedule"); // ms-mail.json
+      console.log("eventDigest", eventDigest);
+
 
       const tx = await writeContracts.Scheduler.scheduleEvent(
         schedulerAddress,
@@ -287,7 +295,7 @@ export function Scheduler({
       );
       await tx.wait();
       setEvent(undefined);
-      await fetchEvents();
+      await fetchEvents(schedulerAddress);
     } catch (e) {
       notification.warning({
         message: "Error",
@@ -304,7 +312,7 @@ export function Scheduler({
       const tx = await writeContracts.Scheduler.removeEventByIndex(event.date + "", event.index + "");
       await tx.wait();
       setEvent(undefined);
-      await fetchEvents();
+      await fetchEvents(schedulerAddress);
     } catch (e) {
       notification.warning({
         message: "Error",

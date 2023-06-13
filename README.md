@@ -1,5 +1,7 @@
 
 
+
+
 # Smail 
 Smail is an email-like system that provides a secure, one-way communication channel for users who are looking for a private and efficient way of exchanging information. Smail's unique features include a locker with sharing capabilities and a marketplace for pod subscriptions, making it an all-in-one platform for managing your email communications.
 
@@ -53,6 +55,7 @@ Each Smail Wallet will be different.
 
 Which means if you send on one network, receiver will get message on that network only.
 
+
 # Why Locker 
 TODO 
 
@@ -62,6 +65,27 @@ TODO
 
 # FairOS WASM
 TODO
+
+## Protocol
+Sample keys (don't use them, they are public)
+1. Get public key from primary wallet (metamask):
+`mmKey public key`: jp/dByt6JVAAVuPfT3Ko1wnOSILrOEux4dkCr2IoXUg=
+2. Create new wallet (new key pair)
+`newPrivateKey`: 0x26b8e759600a408ab826a8103ee6cf32c28ec36096ec326ddcdc22f599f93b9b
+3. Get public key from new wallet
+`encKey` O+EUf8ok6r7ExdCwrflQ6mECTtB1EM4MUQPEIqJK/1E=
+4. Get base64 encoded public key from new wallet
+`fromUrlPubKey` 0x3be1147fca24eabec4c5d0b0adf950ea61024ed07510ce0c5103c422a24aff51
+5. Encrypt new private key with primary wallet (metamask)
+`encryptedKey` 0x7b2276657273696f6e223a227832353531392d7873616c736132302d706f6c7931333035222c226e6f6e6365223a223754522f512f436c4c705058776d67783256576f5a32747479583567345a6d4e222c22657068656d5075626c69634b6579223a224d3234473241657235593475774f42576f4b5657774c365a66673062316b314d737679486977394c436c513d222c2263697068657274657874223a227249526776464a6e5970436c4e6a776f4f47636463773977755a5743657843534c734e46354a6636785950465030716f53454946747a4b33564d4a46596c3148446f4d313448743674666e2b6c73586952637551564f74306f4c694a67544244336868302b486e6f362b6e474c673d3d227d
+
+`encryptedKey` is `newPrivateKey` encrypted with MetaMask and gets stored on Swarm as `application/octet-stream` with `address`.
+
+## Decryption 
+1. Get location of encrypted key from SwarmMail contract
+2. Download encrypted key from Swarm
+3. Decrypt encrypted key with primary wallet (MetaMask)
+4. Use decrypted key to decrypt data  
 
 ###################################################################
 

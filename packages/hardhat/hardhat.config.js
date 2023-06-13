@@ -26,10 +26,10 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 //
 // Select the network you want to deploy to here:
 //
-// const defaultNetwork = "localhost";
+const defaultNetwork = "localhost";
 // const defaultNetwork = "goerli";
 // const defaultNetwork = "zkdatafund";
-const defaultNetwork = "sepolia";
+// const defaultNetwork = "sepolia";
 
 const mainnetGwei = 21;
 

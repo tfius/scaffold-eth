@@ -128,7 +128,7 @@ export function Home({
   const registerAccount = async () => {
     setCurrentStep(0);
     const mmKey = await EncDec.MMgetPublicKey(/*userSigner*/ window.ethereum, address);
-    console.log("mmKey", mmKey);
+    //console.log("#mmKey", mmKey);
     if (mmKey === undefined) {
       notification.warning({
         message: "Error",
@@ -142,6 +142,7 @@ export function Home({
     // username, password, ens, soc, get seed, fdpWallet = fromSeed(seed)
     const newWallet = ethers.Wallet.createRandom();
     const newPrivateKey = newWallet._signingKey().privateKey;
+    //console.log("#newPrivateKey", newPrivateKey);
     // const newPublicKey = newWallet._signingKey().compressedPublicKey;
     //const newCPublicKey = ethers.utils.computePublicKey(newPrivateKey, true);
     // console.log("newPrivateKey", newPrivateKey);
@@ -151,9 +152,10 @@ export function Home({
     const encKey = EncDec.nacl_getEncryptionPublicKey(newPrivateKey);
     // console.log("encKey", encKey);
     const fromUrlPubKey = "0x" + Buffer.from(encKey, "base64").toString("hex");
+    //console.log("#fromUrlPubKey", fromUrlPubKey);
     //console.log("fromUrlPubKey", EncDec.nacl_decodeHex(EncDec.nacl_decodePublicKey(encKey)));
-    //console.log("fromUrlPubKey", fromUrlPubKey);
     var encryptedKey = await EncDec.MMencryptMessage(mmKey, newPrivateKey);
+    //console.log("#encryptedKey", encryptedKey);
     var keyLocation = await uploadSmailKey(encryptedKey); // upload necrypted key
     setCurrentStep(2);
     const tx = await onRegister(fromUrlPubKey, "0x" + keyLocation); // await testMetamaskEncryption(key, address, "text to encrypt");
