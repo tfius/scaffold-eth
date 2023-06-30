@@ -39,6 +39,10 @@ export function hexToBase64(hexstring) {
       .join(""),
   );
 }
+export function base64ToHex(base64string) {
+  return nacl.util.decodeBase64(base64string);
+}
+
 /*
 export async function createRootKey(password) {
   const seed = new Uint16Array(8);

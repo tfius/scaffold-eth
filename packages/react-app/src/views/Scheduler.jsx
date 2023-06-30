@@ -219,11 +219,11 @@ export function Scheduler({
     //console.log("createEvent", event);
   };
 
-  const setSchedulerAddress = async address => {
-    console.log("setSchedulerAddress", address);
+  const setSchedulerAddress = async new_address => {
+    console.log("setSchedulerAddress", new_address);
     try {
-      _setSchedulerAddress(address);
-      var user = await readContracts.Scheduler.getUser(address);
+      _setSchedulerAddress(new_address);
+      var user = await readContracts.Scheduler.getUser(new_address);
       var u = {
         balance: user.balance.toString(),
         startTime: user.startTime.toString(),
@@ -237,7 +237,7 @@ export function Scheduler({
       console.log("user", u);
       setSchedulerUser(u);
       setIsUserValid(true);
-      var recipientKey = await retrievePubKey(address);
+      var recipientKey = await retrievePubKey(new_address);
       if (recipientKey === null) {
         setIsUserValid(false);
         setEvents([]);
@@ -247,7 +247,7 @@ export function Scheduler({
         });
         return;
       }
-      await fetchEvents(address);
+      await fetchEvents(new_address);
     } catch (e) {
       console.log("error", e);
       setIsUserValid(false);
@@ -267,10 +267,10 @@ export function Scheduler({
           schedulerAddress + " Scheduler has no public key set. Scheduler owner is not registered with Smail.",
         );
 
-      var sharedSecretKey = await EncDec.calculateSharedKey(
+      /*var sharedSecretKey = await EncDec.calculateSharedKey(
         smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length),
         recipientKey,
-      );
+      );*/
       
       var senderKey = await getKeyPair(address);
       var receiverKey = await getKeyPair(schedulerAddress);
@@ -279,8 +279,16 @@ export function Scheduler({
       completeMessage.noise = EncDec.generateNoise();
 
       var smailEvent = JSON.stringify(completeMessage);
+      console.log("smailMail", smailMail)
       console.log("smailEvent", smailEvent);
-      var smailEventEnc = JSON.stringify(EncDec.nacl_encrypt_with_key(smailEvent, senderKey.pubKey, receiverKey.sharedSecretKey));
+      console.log("senderKey", senderKey.pubKey);
+      console.log("sharedSecretKey", senderKey.sharedSecretKey);
+      console.log("sharedKey pub", Buffer.from(senderKey.sharedSecretKey.publicKey).toString('hex'));
+      console.log("sharedKey secret", Buffer.from(senderKey.sharedSecretKey.secretKey).toString('hex'));
+      var enc_message = EncDec.nacl_encrypt_with_key(smailEvent, senderKey.pubKey, receiverKey.sharedSecretKey);
+      var smailEventEnc = JSON.stringify(enc_message);
+      console.log("smailEventEnc", smailEventEnc);
+      console.log("enc_message_ephemPublicKey", Buffer.from(EncDec.base64ToHex(enc_message.ephemPublicKey)).toString('hex'));
       const eventDigest = await uploadDataToBee(smailEventEnc, "application/octet-stream", date + ".schedule"); // ms-mail.json
       console.log("eventDigest", eventDigest);
 

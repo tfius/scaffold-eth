@@ -105,7 +105,7 @@ contract Scheduler is Ownable {
             uint256 payout = paymentAmount-fee;
             feesCollected += fee;
             users[_address].balance += payout;
-            payable(msg.sender).transfer(payout);
+            payable(_address).transfer(payout);
         }
     }
 
