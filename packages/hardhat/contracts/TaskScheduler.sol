@@ -115,8 +115,7 @@ contract TaskScheduler is Ownable {
         require(service.isActive==true, "Service not active");
         require(msg.value >= service.price, "Insufficient funds");
 
-        uint absoulutePrice = msg.value - service.price; // 10-1 = 9
-        //uint paymentAmount = msg.value;
+        uint payment = msg.value - service.price; // if user sent more that price return the difference
         
         if(msg.value > 0)
         {
@@ -132,20 +131,17 @@ contract TaskScheduler is Ownable {
             tasks.push(newTask);
             
             emit TaskAdded(msg.sender, tasks.length-1, _data);
-            // if msg.value > price then refund    
-            payable(msg.sender).transfer(absoulutePrice); // refund            
+             
+            if(payment > 0)
+              payable(msg.sender).transfer(payment); // refund            
         }        
     }
 
     // broker takes task from pending tasks
     function takePendingTask(uint pendingTaskId) public returns (Task memory) {
-        // require(pendingTasks[msg.sender].length > 0, "No pending tasks");
-        // uint lastPending = pendingTasks[msg.sender].length-1;
-        //uint taskId = pendingTasks[msg.sender][pendingTaskId];
         Task storage task = tasks[pendingTasks[msg.sender][pendingTaskId]];
         task.takenAt = block.timestamp;
         removePendingTask(msg.sender, pendingTaskId);
-        // pendingTasks[msg.sender].pop(); // no longer pending
         return task;
     }
 
@@ -159,6 +155,7 @@ contract TaskScheduler is Ownable {
         pendingTasks[_broker].pop();
     }
     
+    // when broker completes task funds from escrow are transfered to broker address and task is addwd to completed tasks for task owner
     function completeTask(uint256 _taskId, bytes32 _result) public {
         Task storage task = tasks[_taskId];
         require(task.completedAt == 0, "Task has already been completed");
@@ -213,9 +210,6 @@ contract TaskScheduler is Ownable {
     function contractFees() public view returns (uint256) {
         return feesCollected;
     }
-    // function fundsTransfer() onlyOwner public payable {
-    //     payable(msg.sender).transfer((address(this).balance));
-    // }
     function release(address token, uint amount) public virtual {
         SafeERC20.safeTransfer(IERC20(token), owner(), amount);
     }
