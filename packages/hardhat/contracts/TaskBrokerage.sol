@@ -9,6 +9,8 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 contract TaskBroker is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
+    enum TaskStatus { Pending, Taken, Completed, Disputed }
+
     uint256 public schedulerFee = 1000; // 1%
     uint256 public feesCollected = 0;
     uint256 private constant FEE_PRECISION = 1e5;
@@ -36,6 +38,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         uint256 payment;
         address owner;
         address broker;
+        TaskStatus status;
     }
 
     mapping(address => mapping(address => bool)) public blockList;  
@@ -131,7 +134,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         feesCollected += fee;
         brokers[_forBroker].inEscrow += payout;
 
-        Task memory newTask = Task(lastTaskId, _brokerServiceId,  _data, bytes32(0), block.timestamp, 0, 0, payout, msg.sender, _forBroker);
+        Task memory newTask = Task(lastTaskId, _brokerServiceId,  _data, bytes32(0), block.timestamp, 0, 0, payout, msg.sender, _forBroker, TaskStatus.Pending);
         pendingTasks[_forBroker][lastTaskId] = true;
         tasks[lastTaskId] = newTask;
         lastTaskId++;
@@ -147,7 +150,21 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         require(pendingTasks[msg.sender][taskId], "Task is not pending or does not exist");
         Task storage task = tasks[taskId];
         task.takenAt = block.timestamp;
+        task.status = TaskStatus.Taken;
         delete pendingTasks[msg.sender][taskId];
+    }
+
+        // can take back funds if task has not been completed in 12h
+    function disputeTaks(uint256 _taskId) public  {
+        Task storage task = tasks[_taskId];
+        require(task.owner == msg.sender, "Task can only be disputed by owner");
+        require(task.completedAt == 0, "Task has already been completed");
+        require(task.status != TaskStatus.Disputed, "Task has already been disputed");
+        require(task.takenAt>0 && task.takenAt < block.timestamp + 12 hours, "Task has not been taken");
+
+        task.status = TaskStatus.Disputed;
+        brokers[task.broker].inEscrow -= task.payment; // in escrow
+        payable(task.owner).transfer(task.payment); // release funds to owner
     }
 
     function completeTask(uint256 _taskId, bytes32 _result) public nonReentrant {
@@ -163,6 +180,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         brokers[task.broker].earned += task.payment; // earned 
 
         completedTasks[task.owner][_taskId] = true;
+        task.status = TaskStatus.Completed;
 
         emit TaskCompleted(msg.sender, _taskId, _result);
     }
