@@ -51,7 +51,8 @@ contract TaskScheduler is Ownable {
 
     constructor() {
     }
-    receive() external payable {}
+    /*
+    // receive() external payable {}
     function getFee(uint256 amount) public view returns (uint256) {
         return (amount * schedulerFee) / FEE_PRECISION;
     }
@@ -64,29 +65,30 @@ contract TaskScheduler is Ownable {
     function setAway(bool _away) public {
         brokers[msg.sender].isAway = _away;
     }
-    function getPriceForService(address _address, uint serviceId, uint _duration) public view returns (uint256) {
+    function getPriceForService(uint serviceId, uint _duration) public view returns (uint256) {
         return _duration * services[serviceId].price;
     }
-    function setServicePrice(uint _serviceId, uint _newPrice) public view returns (Service memory) {
+    
+    function setServicePrice(uint _serviceId, uint _newPrice) public returns (Service memory) {
         Service storage service = services[brokers[msg.sender].servicesIndices[_serviceId]-1]; // from services get brokers service
         service.price = _newPrice;
         return service;
     }
-    function setServiceActive(uint _serviceId, bool _isActive) public view returns (Service memory) {
+    function setServiceActive(uint _serviceId, bool _isActive) public returns (Service memory) {
         Service storage service = services[brokers[msg.sender].servicesIndices[_serviceId]-1]; // from services get brokers service
         service.isActive = _isActive;
         return service;
     }
-    function setServiceInfoLocation(uint _serviceId, bytes32 _infoLocation) public view returns (Service memory) {
+    function setServiceInfoLocation(uint _serviceId, bytes32 _infoLocation) public returns (Service memory) {
         Service storage service = services[brokers[msg.sender].servicesIndices[_serviceId]-1]; // from services get brokers service
         service.infoLocation = _infoLocation;
         return service;
-    }
-
+    }*/
+/*
     function getBroker(address _address) public view returns (Broker memory) {
         return brokers[_address];
     }
-    function brokerAddService(bytes32 _infoLocation, uint256 _price) public view returns (Service memory) {
+    function brokerAddService(bytes32 _infoLocation, uint256 _price) public returns (Service memory) {
         Service memory newService = Service(_infoLocation, _price, true);
         services.push(newService);
         brokers[msg.sender].servicesIndices.push(services.length);
@@ -200,7 +202,7 @@ contract TaskScheduler is Ownable {
         return userCompletedTasks;
     }
 
-    function collectFees() onlyOwner public returns () {
+    function collectFees() onlyOwner public  {
         feesCollected = 0;
         payable(msg.sender).transfer(feesCollected); // owner can only collect fees 
     } 
@@ -212,5 +214,5 @@ contract TaskScheduler is Ownable {
     }
     function release(address token, uint amount) public virtual {
         SafeERC20.safeTransfer(IERC20(token), owner(), amount);
-    }
+    }*/
 }
