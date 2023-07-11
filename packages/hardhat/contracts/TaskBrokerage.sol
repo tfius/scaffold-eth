@@ -221,9 +221,33 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         return tasks[_taskId];
     }
 
-    function getPendingTask(address broker, uint256 _taskId) public view returns (Task memory) {
-        require(pendingTasks[broker][_taskId], "Task is not pending or does not exist");
-        return tasks[_taskId];
+    function getPendingTask(uint256 _taskId) public view returns (Task memory) {
+        require(pendingTasks[_taskId].task.taskId != 0, "Task is not pending or does not exist");
+        return pendingTasks[_taskId].task;
+    }
+    
+    function getPendingTasksForBroker(address _broker) public view returns (Task[] memory) {
+        // Calculate the number of tasks for this broker
+        uint256 taskCount = 0;
+        for(uint256 i = 0; i < pendingTaskIds.length; i++) {
+            if(pendingTasks[pendingTaskIds[i]].task.broker == _broker) {
+                taskCount++;
+            }
+        }
+
+        // Create an array to hold the tasks
+        Task[] memory brokerTasks = new Task[](taskCount);
+        
+        // Iterate over all pending tasks again and add the broker's tasks to the array
+        uint256 index = 0;
+        for(uint256 i = 0; i < pendingTaskIds.length; i++) {
+            if(pendingTasks[pendingTaskIds[i]].task.broker == _broker) {
+                brokerTasks[index] = pendingTasks[pendingTaskIds[i]].task;
+                index++;
+            }
+        }
+        
+        return brokerTasks;
     }
 
     function getTask(uint256 _taskId) public view returns (Task memory) {
