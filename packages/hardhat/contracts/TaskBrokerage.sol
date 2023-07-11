@@ -146,15 +146,6 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         }        
     }
 
-    function removeAtIndex(uint256[] storage array, uint256 index) internal {
-        // Check if the index is within the range of our array
-        require(index < array.length, "Index out of bounds");
-        // Move the element to delete to the end of the array
-        array[index] = array[array.length - 1];
-        // Remove the last element from the array
-        array.pop();
-    }
-
     function removeTask(uint256 taskId) internal {
         // Move the last task in the list to the deleted slot
         uint256 lastIndex = pendingTaskIds.length - 1;
@@ -210,12 +201,6 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         emit TaskCompleted(msg.sender, _taskId, _result);
     }
     
-    function collectFees() public onlyOwner {
-        uint256 fees = feesCollected;
-        feesCollected = 0;
-        payable(msg.sender).transfer(fees); // transfer fees to owner
-    }
-
     function getCompletedTask(address owner, uint256 _taskId) public view returns (Task memory) {
         require(completedTasks[owner][_taskId], "Task is not completed or does not exist");
         return tasks[_taskId];
@@ -225,7 +210,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         require(pendingTasks[_taskId].task.taskId != 0, "Task is not pending or does not exist");
         return pendingTasks[_taskId].task;
     }
-    
+
     function getPendingTasksForBroker(address _broker) public view returns (Task[] memory) {
         // Calculate the number of tasks for this broker
         uint256 taskCount = 0;
@@ -236,8 +221,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         }
 
         // Create an array to hold the tasks
-        Task[] memory brokerTasks = new Task[](taskCount);
-        
+        Task[] memory brokerTasks = new Task[](taskCount); 
         // Iterate over all pending tasks again and add the broker's tasks to the array
         uint256 index = 0;
         for(uint256 i = 0; i < pendingTaskIds.length; i++) {
@@ -249,8 +233,49 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         
         return brokerTasks;
     }
+    
+    function getCompletedTasksForAddress(address _address) public view returns (Task[] memory) {
+        // Calculate the number of tasks for this address
+        uint256 taskCount = 0;
+        for(uint256 i = 0; i < tasks.length; i++) {
+            if(tasks[i].owner == _address && tasks[i].status == TaskStatus.Completed) {
+                taskCount++;
+            }
+        }
+
+        // Create an array to hold the tasks
+        Task[] memory completedTasksArray = new Task[](taskCount);
+        
+        // Iterate over all tasks again and add the completed tasks to the array
+        uint256 index = 0;
+        for(uint256 i = 0; i < tasks.length; i++) {
+            if(tasks[i].owner == _address && tasks[i].status == TaskStatus.Completed) {
+                completedTasksArray[index] = tasks[i];
+                index++;
+            }
+        }
+        
+        return completedTasksArray;
+    }
 
     function getTask(uint256 _taskId) public view returns (Task memory) {
         return tasks[_taskId];
     }
+
+    function collectFees() public onlyOwner {
+        uint256 fees = feesCollected;
+        feesCollected = 0;
+        payable(msg.sender).transfer(fees); // transfer fees to owner
+    }
+
+    /*
+    function removeAtIndex(uint256[] storage array, uint256 index) internal {
+        // Check if the index is within the range of our array
+        require(index < array.length, "Index out of bounds");
+        // Move the element to delete to the end of the array
+        array[index] = array[array.length - 1];
+        // Remove the last element from the array
+        array.pop();
+    }*/
+
 }
