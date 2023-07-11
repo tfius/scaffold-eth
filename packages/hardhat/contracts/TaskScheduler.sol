@@ -130,10 +130,10 @@ contract TaskScheduler is Ownable {
             pendingTasks[_forBroker].push(tasks.length); // 0
             tasks.push(newTask);
             
-            emit TaskAdded(msg.sender, tasks.length-1, _data);
+            emit TaskAdded(_forBroker, tasks.length-1, _data);
              
             if(payment > 0)
-              payable(msg.sender).transfer(payment); // refund            
+              payable(_forBroker).transfer(payment); // refund            
         }        
     }
 
