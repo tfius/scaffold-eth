@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// Author: @tfius
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -20,7 +21,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         uint256 earned;          
         uint256 inEscrow;        
         bool    isAway;          
-        uint[] servicesIndices;
+        uint[]  servicesIndices;
     }
     struct Service {
         bytes32 infoLocation;
@@ -40,16 +41,22 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         address broker;
         TaskStatus status;
     }
+    struct TaskStruct {
+        Task task;
+        uint256 index;  // Index in the tasksList
+    }
 
     mapping(address => mapping(address => bool)) public blockList;  
     mapping(address => Broker) public brokers;
     mapping(uint256 => Service) public services;
     mapping(uint256 => Task) public tasks;
-    mapping(address => mapping(uint256 => bool)) public pendingTasks;
+    //mapping(address => mapping(uint256 => bool)) public pendingTasks;
     mapping(address => mapping(uint256 => bool)) public completedTasks;
 
+    mapping(uint256 => TaskStruct) public pendingTasks;
+    uint256[] public pendingTaskIds;
+
     uint256 public lastServiceId = 0;
-    uint256 public lastTaskId = 0;
 
     event TaskAdded(address indexed user, uint256 taskId, bytes32 data);
     event TaskCompleted(address indexed user, uint256 taskId, bytes32 result);
@@ -79,26 +86,18 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         brokers[msg.sender].isAway = _away;
     }
 
-    function getPriceForService(address _address, uint serviceId, uint _duration) public view returns (uint256) {
-        return _duration * services[serviceId].price;
-    }
-
     function getBroker(address _address) public view returns (Broker memory) {
         return brokers[_address];
     }
 
-    // function brokerAddService(bytes32 _infoLocation, uint256 _price) public {
-    //     Service memory newService = Service(_infoLocation, _price, true);
-    //     services[lastServiceId] = newService;
-    //     brokers[msg.sender].servicesIndices[lastServiceId] = true;
-    //     lastServiceId++;
-    // }
-    function brokerAddService(bytes32 _infoLocation, uint256 _price) public returns (uint serviceIndex) {
+    function brokerAddService(bytes32 _infoLocation, uint256 _price) public returns (uint) {
         Service memory newService = Service(_infoLocation, _price, true);
         services[lastServiceId] = newService;
         brokers[msg.sender].servicesIndices.push(lastServiceId);
         lastServiceId++;
+        return lastServiceId - 1;
     }
+
     function brokerUpdateServiceInfo(uint _serviceId, bytes32 _infoLocation, uint _newPrice, bool _isActive) public {
         uint index = brokers[msg.sender].servicesIndices[_serviceId];
         Service storage service = services[index];
@@ -106,6 +105,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         service.price = _newPrice;
         service.isActive = _isActive;
     }
+
     function brokerGetServices(uint _start, uint _length) public view returns (Service[] memory) {
         require(_start + _length <= brokers[msg.sender].servicesIndices.length, "Invalid range");
         Service[] memory _services = new Service[](_length);
@@ -134,33 +134,57 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         feesCollected += fee;
         brokers[_forBroker].inEscrow += payout;
 
-        Task memory newTask = Task(lastTaskId, _brokerServiceId,  _data, bytes32(0), block.timestamp, 0, 0, payout, msg.sender, _forBroker, TaskStatus.Pending);
-        pendingTasks[_forBroker][lastTaskId] = true;
-        tasks[lastTaskId] = newTask;
-        lastTaskId++;
-        
-        emit TaskAdded(msg.sender, lastTaskId - 1, _data);
+        uint256 newTaskId = pendingTaskIds.length;
+        Task memory newTask = Task(newTaskId, _brokerServiceId,  _data, bytes32(0), block.timestamp, 0, 0, payout, msg.sender, _forBroker, TaskStatus.Pending);
+        pendingTasks[newTaskId] = TaskStruct(newTask, newTaskId);
+        pendingTaskIds.push(newTaskId);
+
+        emit TaskAdded(msg.sender, newTaskId, _data);
              
         if(payment > 0) {
             payable(msg.sender).transfer(payment); // refund   
         }        
     }
 
+    function removeAtIndex(uint256[] storage array, uint256 index) internal {
+        // Check if the index is within the range of our array
+        require(index < array.length, "Index out of bounds");
+        // Move the element to delete to the end of the array
+        array[index] = array[array.length - 1];
+        // Remove the last element from the array
+        array.pop();
+    }
+
+    function removeTask(uint256 taskId) internal {
+        // Move the last task in the list to the deleted slot
+        uint256 lastIndex = pendingTaskIds.length - 1;
+        uint256 lastTaskId = pendingTaskIds[lastIndex];
+        pendingTaskIds[pendingTasks[taskId].index] = lastTaskId;
+        pendingTasks[lastTaskId].index = pendingTasks[taskId].index;
+
+        // Delete the task from the map and the list
+        delete pendingTasks[taskId];
+        pendingTaskIds.pop();
+    }
+
     function takePendingTask(uint taskId) public nonReentrant {
-        require(pendingTasks[msg.sender][taskId], "Task is not pending or does not exist");
-        Task storage task = tasks[taskId];
-        task.takenAt = block.timestamp;
-        task.status = TaskStatus.Taken;
-        delete pendingTasks[msg.sender][taskId];
+        require(taskId < pendingTaskIds.length, "Task is not pending or does not exist");
+        require(pendingTasks[taskId].task.broker == msg.sender, "Task is not for caller");
+        // Remove the task from pendingTasks and pendingTaskIds
+        removeTask(taskId);
+        // Update task status
+        tasks[taskId].status = TaskStatus.Taken;
+        tasks[taskId].takenAt = block.timestamp;
     }
 
         // can take back funds if task has not been completed in 12h
-    function disputeTaks(uint256 _taskId) public  {
+    function disputeTaks(uint256 _taskId) public nonReentrant {
         Task storage task = tasks[_taskId];
         require(task.owner == msg.sender, "Task can only be disputed by owner");
         require(task.completedAt == 0, "Task has already been completed");
         require(task.status != TaskStatus.Disputed, "Task has already been disputed");
-        require(task.takenAt>0 && task.takenAt < block.timestamp + 12 hours, "Task has not been taken");
+        require(task.takenAt > 0 && task.takenAt < block.timestamp + 12 hours, "Task has not been taken");
+        require(block.timestamp > task.takenAt + 12 hours, "Task is not yet eligible for dispute");
 
         task.status = TaskStatus.Disputed;
         brokers[task.broker].inEscrow -= task.payment; // in escrow
@@ -170,6 +194,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
     function completeTask(uint256 _taskId, bytes32 _result) public nonReentrant {
         require(tasks[_taskId].broker == msg.sender, "Task can only be completed by owner");
         Task storage task = tasks[_taskId];
+        require(task.status == TaskStatus.Taken, "Task has not been taken");
         require(task.completedAt == 0, "Task has already been completed");
         require(task.takenAt != 0, "Task has not been taken");
         task.completedAt = block.timestamp;
