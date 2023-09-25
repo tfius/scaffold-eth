@@ -119,11 +119,13 @@ export function FairOSWasmConnect({
     console.log("wasmConnect", selectedBeeNetwork, targetNetwork, batchId, beeNet);
     console.log("wasmConnect targetNet", targetNetwork);
     console.log("wasmConnect    beeNet", beeNet);
+    console.log("wasmConnect    readContracts", readContracts);
     try {
+      debugger;
       let resp = await window.connect(
         beeNet.endpoint, // "http://localhost:1633", // bee endpoint
         batchId, //"51987f7304b419d8aa184d35d46b3cfeb1b00986ad937b3151c7ade699c81338", // stampId
-        beeNet.rpc, //"http://localhost:9545", // rpc
+        beeNet.fairOsRpc, //"http://localhost:9545", // rpc
         "testnet", //targetNetwork.name, //"play or testnet", // network
         targetNetwork.rpcUrl, // "http://localhost:9545", // contract.rpc
         readContracts.DataHub.address, //"0x21a59654176f2689d12E828B77a783072CD26680", // swarm mail contract address

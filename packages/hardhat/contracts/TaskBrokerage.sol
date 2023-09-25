@@ -79,9 +79,10 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         brokers[msg.sender].isAway = _away;
     }
 
+    /*
     function getPriceForService(address _address, uint serviceId, uint _duration) public view returns (uint256) {
         return _duration * services[serviceId].price;
-    }
+    }*/
 
     function getBroker(address _address) public view returns (Broker memory) {
         return brokers[_address];
@@ -93,11 +94,12 @@ contract TaskBroker is Ownable, ReentrancyGuard {
     //     brokers[msg.sender].servicesIndices[lastServiceId] = true;
     //     lastServiceId++;
     // }
-    function brokerAddService(bytes32 _infoLocation, uint256 _price) public returns (uint serviceIndex) {
+    function brokerAddService(bytes32 _infoLocation, uint256 _price) public returns (uint) {
         Service memory newService = Service(_infoLocation, _price, true);
         services[lastServiceId] = newService;
         brokers[msg.sender].servicesIndices.push(lastServiceId);
         lastServiceId++;
+        return brokers[msg.sender].servicesIndices.length - 1;
     }
     function brokerUpdateServiceInfo(uint _serviceId, bytes32 _infoLocation, uint _newPrice, bool _isActive) public {
         uint index = brokers[msg.sender].servicesIndices[_serviceId];

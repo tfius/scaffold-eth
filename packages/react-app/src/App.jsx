@@ -122,14 +122,17 @@ function App(props) {
       endpoint: "https://bee-1.fairdatasociety.org",
       downloadUrl: "https://gateway.fairdatasociety.org/bzz/",
       uploadUrl: "https://gateway.fairdatasociety.org/proxy",
-      rpc: "https://xdai.dev.fairdatasociety.org/",
+      fairOsRpc: "https://sepolia.dev.fairdatasociety.org",
+      beeRpc: "https://xdai.dev.fairdatasociety.org/",
+
     },
     "local bee": {
       name: "localhost",
       endpoint: "http://localhost:1633",
       downloadUrl: "http://localhost:1633/bzz/",
       uploadUrl: "http://localhost:1633/proxy",
-      rpc: "https://xdai.fairdatasociety.org/",
+      fairOsRpc: "https://sepolia.dev.fairdatasociety.org",
+      beeRpc: "https://xdai.fairdatasociety.org/",
     },
   };
   const beeNetworkOptions = ["gateway bee", "local bee"];

@@ -338,11 +338,13 @@ export function ComposeNewMessage({
       //var isEncrypted = recipientKey !== null;
       var fileSize = 0; // bytes
       //console.log("isEncrypted", isEncrypted);
-
-      var sharedSecretKey = await EncDec.calculateSharedKey(
-        smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length),
-        recipientKey,
-      );
+      var sharedSecretKey = null;
+      if(isEncrypted) {
+        sharedSecretKey = await EncDec.calculateSharedKey(
+          smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length),
+          recipientKey,
+        );
+      }
 
       setProgressStatus("Uploading attachments...");
       var startTime = Date.now();

@@ -151,7 +151,8 @@ module.exports = {
       },
     },
     sepolia: {
-      url: "https://rpc.sepolia.org",
+      url: "https://sepolia.dev.fairdatasociety.org",
+      //url: "https://rpc.sepolia.org",
       // "https://sepolia.infura.io/v3/INFURA_ID",
       accounts: {
         mnemonic: mnemonic(),
