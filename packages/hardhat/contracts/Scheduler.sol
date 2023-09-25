@@ -24,7 +24,8 @@ contract Scheduler is Ownable {
         address sender;
         bytes32 location; // swarm location
         uint64 time;
-        uint64 duration;       
+        uint64 duration;
+        bytes32 resultLocation;       
     }
 
     struct User {
@@ -44,6 +45,21 @@ contract Scheduler is Ownable {
     mapping(address => User) users;
     mapping(address => mapping(uint64 => uint256[])) private _userEvents; // user to date to event index
     mapping(address => mapping(address => bool)) private _userBlockList;  // block list per address -> address -> bool
+
+    event EventScheduled(
+        address indexed user,
+        uint64 indexed date,
+        uint64 indexed time,
+        uint64 duration,
+        bytes32 swarmLocation
+    );
+
+    event EventCompleted(
+        address indexed user,
+        uint64 indexed date,
+        uint256 indexed index,
+        bytes32 resultLocation
+    );
 
     constructor() {
     }
@@ -76,9 +92,21 @@ contract Scheduler is Ownable {
     }
 
     function addEvent(address _address, uint64 _date, uint64 _time, uint64 _duration, bytes32 _swarmLocation) private {
-        Event memory e = Event(msg.sender, _swarmLocation, _time, _duration);
+        Event memory e = Event(msg.sender, _swarmLocation, _time, _duration, bytes32(0));
         _events.push(e);
         _userEvents[_address][_date].push(_events.length);
+
+        emit EventScheduled(_address, _date, _time, _duration, _swarmLocation);
+
+    }
+
+    function completeEvent(uint64 _date, uint256 _index, bytes32 _resultLocation) public {
+        require(_index < _userEvents[msg.sender][_date].length, "Invalid index");
+
+        Event storage e = _events[_userEvents[msg.sender][_date][_index]];
+        e.resultLocation = _resultLocation;
+
+        emit EventCompleted(msg.sender, _date, _index, _resultLocation);
     }
 
     function scheduleEvent(address _address, uint64 _date, uint64 _time, uint64 _duration, bytes32 _swarmLocation) public payable {
