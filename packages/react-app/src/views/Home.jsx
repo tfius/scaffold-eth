@@ -103,7 +103,7 @@ export function Home({
           } else
             notification.warning({
               message: "Warning",
-              description: "Not decrypted and not bonded",
+              description: "Key was not decrypted from " + data.keyLocation,
             });
         }
         //setCurrentStep(-1);
