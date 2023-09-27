@@ -121,7 +121,7 @@ export function FairOSWasmConnect({
     console.log("wasmConnect    beeNet", beeNet);
     console.log("wasmConnect    readContracts", readContracts);
     try {
-      debugger;
+      //debugger;
       /*
       let resp = await window.connect(
         beeNet.endpoint, // "http://localhost:1633", // bee endpoint
