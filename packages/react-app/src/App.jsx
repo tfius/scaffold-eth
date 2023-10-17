@@ -124,7 +124,6 @@ function App(props) {
       uploadUrl: "https://gateway.fairdatasociety.org/proxy",
       fairOsRpc: "https://sepolia.dev.fairdatasociety.org",
       beeRpc: "https://xdai.dev.fairdatasociety.org/",
-
     },
     "local bee": {
       name: "localhost",
@@ -484,77 +483,79 @@ function App(props) {
 
             {/* {fairOSSessionId != null && <Menu.Divider />} */}
             <Menu.Divider />
-            {web3Modal && web3Modal?.cachedProvider && (
-              <Menu.Item key="/fairOS">
-                <FairOSWasmConnect
-                  selectedBeeNetwork={selectedBeeNetwork}
-                  targetNetwork={targetNetwork}
-                  BEENETWORKS={BEENETWORKS}
-                  batchId={batchId}
-                  readContracts={readContracts}
-                  writeContracts={writeContracts}
-                  userSigner={userSigner}
-                  tx={tx}
-                  address={address}
-                  messageCount={messageCount}
-                  provider={localProvider}
-                  smailMail={smailMail}
-                  setSmailMail={setSmailMail}
-                  setFairOSPods={setFairOSPods}
-                  setFairOSSessionId={setFairOSSessionId}
-                  setFairOSLogin={setFairOSLogin}
-                  isWalletConnected={web3Modal && web3Modal?.cachedProvider}
-                />
-              </Menu.Item>
-            )}
+            <Menu.SubMenu key="submenuDatahub" title="Subscriptions" inlineCollapsed={true} mode="inline">
+              {web3Modal && web3Modal?.cachedProvider && (
+                <Menu.Item key="/fairOS">
+                  <FairOSWasmConnect
+                    selectedBeeNetwork={selectedBeeNetwork}
+                    targetNetwork={targetNetwork}
+                    BEENETWORKS={BEENETWORKS}
+                    batchId={batchId}
+                    readContracts={readContracts}
+                    writeContracts={writeContracts}
+                    userSigner={userSigner}
+                    tx={tx}
+                    address={address}
+                    messageCount={messageCount}
+                    provider={localProvider}
+                    smailMail={smailMail}
+                    setSmailMail={setSmailMail}
+                    setFairOSPods={setFairOSPods}
+                    setFairOSSessionId={setFairOSSessionId}
+                    setFairOSLogin={setFairOSLogin}
+                    isWalletConnected={web3Modal && web3Modal?.cachedProvider}
+                  />
+                </Menu.Item>
+              )}
 
-            <>
-              <Menu.Item key="/datahub" disabled={!isFairOsed}>
-                <Tooltip title="View offers, open new listings" placement="right">
-                  <Link to="/datahub">Data Hub</Link>
-                </Tooltip>
-              </Menu.Item>
-              <Menu.Item key="/subscriptions" disabled={!isFairOsed}>
-                <Tooltip title="Manage your active listings and subscribers" placement="right">
-                  <Link to="/subscriptions">Subscriptions</Link>
-                </Tooltip>
-              </Menu.Item>
-              <Menu.Item key="/requests" disabled={!isFairOsed}>
-                <Tooltip title="Approve requests for your listings" placement="right">
-                  <Link to="/requests">Requests</Link>
-                </Tooltip>
-              </Menu.Item>
-              <Menu.Item key="/subscribers" disabled={!isFairOsed}>
-                <Tooltip title="Manage listings, view subscribers and earnings" placement="right">
-                  <Link to="/subscribers">Subscribers</Link>
-                </Tooltip>
-              </Menu.Item>
-              <Menu.Item key="/bids" disabled={!isFairOsed}>
-                <Tooltip title="Manage your active bids" placement="right">
-                  <Link to="/bids">Bids</Link>
-                </Tooltip>
-              </Menu.Item>
-              <Menu.Divider />
-            </>
-
-            {smailMail.pubKey && smailMail.smailPrivateKey ? (
               <>
-                {/* /////////////////////////////////////////////////
+                <Menu.Item key="/datahub" disabled={!isFairOsed}>
+                  <Tooltip title="View offers, open new listings" placement="right">
+                    <Link to="/datahub">Data Hub</Link>
+                  </Tooltip>
+                </Menu.Item>
+                <Menu.Item key="/subscriptions" disabled={!isFairOsed}>
+                  <Tooltip title="Manage your active listings and subscribers" placement="right">
+                    <Link to="/subscriptions">Subscriptions</Link>
+                  </Tooltip>
+                </Menu.Item>
+                <Menu.Item key="/requests" disabled={!isFairOsed}>
+                  <Tooltip title="Approve requests for your listings" placement="right">
+                    <Link to="/requests">Requests</Link>
+                  </Tooltip>
+                </Menu.Item>
+                <Menu.Item key="/subscribers" disabled={!isFairOsed}>
+                  <Tooltip title="Manage listings, view subscribers and earnings" placement="right">
+                    <Link to="/subscribers">Subscribers</Link>
+                  </Tooltip>
+                </Menu.Item>
+                <Menu.Item key="/bids" disabled={!isFairOsed}>
+                  <Tooltip title="Manage your active bids" placement="right">
+                    <Link to="/bids">Bids</Link>
+                  </Tooltip>
+                </Menu.Item>
+                <Menu.Divider />
+              </>
+
+              {smailMail.pubKey && smailMail.smailPrivateKey ? (
+                <>
+                  {/* /////////////////////////////////////////////////
                 /////////////////////////////////////////////////
                 // all debug */}
-                {/* <Menu.Item key="/sent">
+                  {/* <Menu.Item key="/sent">
                   <Link to="/sent">Sent</Link>
                 </Menu.Item>
                 <Menu.Item key="/contacts">
                   <Link to="/contacts">Contacts</Link>
                 </Menu.Item> */}
-              </>
-            ) : (
-              <></>
-              // <Menu.Item key="/connect">
-              //   <Link to="/">Connect</Link>
-              // </Menu.Item>
-            )}
+                </>
+              ) : (
+                <></>
+                // <Menu.Item key="/connect">
+                //   <Link to="/">Connect</Link>
+                // </Menu.Item>
+              )}
+            </Menu.SubMenu>
 
             <Menu.Item key="/account">
               <Account
@@ -577,28 +578,25 @@ function App(props) {
               {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
             </Menu.Item>
 
-            <Menu.Divider />
-
-            <Menu.Item key="/swarmmailcontract">
-              <Link to="/swarmmailcontract">
-                <small>Smail Contract</small>
-              </Link>
-            </Menu.Item>
-            <Menu.Item key="/datahubcontract">
-              <Link to="/datahubcontract">
-                <small>DataHub Contract</small>
-              </Link>
-            </Menu.Item>
-            <Menu.Item key="/calendarcontract">
-              <Link to="/calendarcontract">
-                <small>Calendar Contract</small>
-              </Link>
-            </Menu.Item>
-            <Menu.Item key="/schedulercontract">
-              <Link to="/schedulercontract">
-                <small>Scheduler Contract</small>
-              </Link>
-            </Menu.Item>
+            {/* <Menu.Divider /> */}
+            <Menu.SubMenu key="submenuContracts" title="Contracts" inlineCollapsed={true} mode="inline">
+              <Menu.Item key="/swarmmailcontract">
+                <Link to="/swarmmailcontract">Smail Contract</Link>
+              </Menu.Item>
+              <Menu.Item key="/datahubcontract">
+                <Link to="/datahubcontract">DataHub Contract</Link>
+              </Menu.Item>
+              <Menu.Item key="/calendarcontract">
+                <Link to="/calendarcontract">Calendar Contract</Link>
+              </Menu.Item>
+              <Menu.Item key="/schedulercontract">
+                <Link to="/schedulercontract">Scheduler Contract</Link>
+              </Menu.Item>
+              <Menu.Item key="/taskbrokeragecontract">
+                <Link to="/taskbrokeragecontract">TaskBrokerage Contract</Link>
+              </Menu.Item>
+            </Menu.SubMenu>
+            {/* </SubMenu> */}
           </Menu>
           {/* <Balance address={address} provider={localProvider} price={price} /> */}
         </Sider>
@@ -825,6 +823,18 @@ function App(props) {
               <Route exact path="/schedulercontract">
                 <Contract
                   name="Scheduler"
+                  price={price}
+                  signer={userSigner}
+                  provider={localProvider}
+                  address={address}
+                  blockExplorer={blockExplorer}
+                  contractConfig={contractConfig}
+                  messageCount={messageCount}
+                />
+              </Route>
+              <Route exact path="/taskbrokeragecontract">
+                <Contract
+                  name="TaskBrokerage"
                   price={price}
                   signer={userSigner}
                   provider={localProvider}
