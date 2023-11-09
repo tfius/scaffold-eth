@@ -38,6 +38,18 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     // args: [dataMarket.address, "DM-C-0"],
     log: true,
   })
+  console.log('TaskBroker')
+  const TaskBroker = await deploy('TaskBroker', {
+    from: deployer,
+    // args: [dataMarket.address, "DM-C-0"],
+    log: true,
+  })
+  console.log('SocialGraph')
+  const SocialGraph = await deploy('SocialGraph', {
+    from: deployer,
+    // args: [dataMarket.address, "DM-C-0"],
+    log: true,
+  })
   /*
   // Verify your contracts with Etherscan
   // You don't want to verify on localhost

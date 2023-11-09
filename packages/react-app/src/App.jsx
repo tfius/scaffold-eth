@@ -5,7 +5,7 @@ import "antd/dist/antd.css";
 import { useContractLoader, useGasPrice, useUserProviderAndSigner } from "eth-hooks";
 import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
 import React, { useCallback, useEffect, useState } from "react";
-import { Link, Route, Switch, useLocation } from "react-router-dom";
+import { Link, BrowserRouter as Router, Route, Switch, useLocation } from "react-router-dom";
 import { useThemeSwitcher } from "react-css-theme-switcher";
 
 import "./App.css";
@@ -49,7 +49,7 @@ import { Subscribers } from "./views/Subscribers";
 import { Subscriptions } from "./views/Subscriptions";
 import { Calendar } from "./views/Calendar";
 import { Scheduler } from "./views/Scheduler";
-
+import { SocialGraph } from "./socyomat/SocialGraph";
 import { FairOSWasmConnect } from "./views/FairOSWasmConnect";
 
 const { ethers } = require("ethers");
@@ -396,101 +396,238 @@ function App(props) {
   const isFairOsed = fairOSSessionId !== null;
   return (
     <div className="App">
-      <Layout style={{ minHeight: "100vh" }}>
-        <Sider theme={currentTheme} style={{ position: "fixed", height: "100vh", left: 0, top: 0, bottom: 0 }}>
-          <>
-            <AppHeader />
-            <NetworkDisplay
-              NETWORKCHECK={NETWORKCHECK}
-              localChainId={localChainId}
-              selectedChainId={selectedChainId}
-              targetNetwork={targetNetwork}
-            />
-          </>
-          {/* collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)} */}
-          {/* <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }}/> */}
-          <Button style={{ marginLeft: "24px", width: "10rem" }} onClick={() => composeNewMail(!isComposeModalVisible)}>
-            Compose
-          </Button>
-          <Menu
-            mode="inline"
-            style={{ textAlign: "left", height: "100%", borderRight: 0 }}
-            selectedKeys={[location.pathname]}
-          >
-            <Menu.Item key="/">
-              <Tooltip
-                title={
-                  <>
-                    Registration:&nbsp;
-                    {smailMail.pubKey ? "wallet" : "no key"}&nbsp;
-                    {smailMail.smailPrivateKey ? "bonded" : "no bond"}
-                  </>
-                }
-              >
-                <Link to="/">
-                  {smailMail.pubKey === null || smailMail.smailPrivateKey == null ? <>Register</> : <>Home</>}
-                </Link>
-              </Tooltip>
-            </Menu.Item>
-
-            <Menu.Item key="/inbox">
-              <Tooltip title="View one way messages" placement="right">
-                <Link to="/inbox">Inbox</Link>
-              </Tooltip>
-            </Menu.Item>
+      <Router>
+        <Layout style={{ minHeight: "100vh" }}>
+          <Sider theme={currentTheme} style={{ position: "fixed", height: "100vh", left: 0, top: 0, bottom: 0 }}>
             <>
+              <AppHeader />
+              <NetworkDisplay
+                NETWORKCHECK={NETWORKCHECK}
+                localChainId={localChainId}
+                selectedChainId={selectedChainId}
+                targetNetwork={targetNetwork}
+              />
+            </>
+            {/* collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)} */}
+            {/* <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }}/> */}
+            <Button
+              style={{ marginLeft: "24px", width: "10rem" }}
+              onClick={() => composeNewMail(!isComposeModalVisible)}
+            >
+              Compose
+            </Button>
+            <Menu
+              mode="inline"
+              style={{ textAlign: "left", height: "100%", borderRight: 0 }}
+              selectedKeys={[location.pathname]}
+            >
+              <Menu.Item key="/">
+                <Tooltip
+                  title={
+                    <>
+                      Registration:&nbsp;
+                      {smailMail.pubKey ? "wallet" : "no key"}&nbsp;
+                      {smailMail.smailPrivateKey ? "bonded" : "no bond"}
+                    </>
+                  }
+                >
+                  <Link to="/">
+                    {smailMail.pubKey === null || smailMail.smailPrivateKey == null ? <>Register</> : <>Home</>}
+                  </Link>
+                </Tooltip>
+              </Menu.Item>
+
+              <Menu.Item key="/sociomat">
+                <Tooltip title="Social interaction network" placement="right">
+                  <Link to="/sociomat">Sociomat</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Item key="/inbox">
+                <Tooltip title="View one way messages" placement="right">
+                  <Link to="/inbox">Inbox</Link>
+                </Tooltip>
+              </Menu.Item>
               <Menu.Item key="/locker" disabled={!isBonded}>
                 <Tooltip title="Encrypt and store your data" placement="right">
                   <Link to="/locker">Locker</Link>
                 </Tooltip>
               </Menu.Item>
-            </>
-            <Menu.Item key="/received" disabled={!isBonded}>
-              <Tooltip title="View received messages" placement="right">
-                <Link to="/received">Received</Link>
-              </Tooltip>
-            </Menu.Item>
-            <Menu.Item key="/sent" disabled={!isBonded}>
-              <Tooltip title="View sent messages" placement="right">
-                <Link to="/sent">Sent</Link>
-              </Tooltip>
-            </Menu.Item>
-            <Menu.Item key="/threads" disabled={!isBonded}>
-              <Tooltip title="View threads" placement="right">
-                <Link to="/threads">Threads</Link>
-              </Tooltip>
-            </Menu.Item>
-            <Menu.Item key="/calendar" disabled={!isBonded}>
-              <Tooltip title="View calendar" placement="right">
-                <Link to="/calendar">Calendar</Link>
-              </Tooltip>
-            </Menu.Item>
-            <Menu.Item key="/scheduler" disabled={!isBonded}>
-              <Tooltip title="Schedule events at other addresses and manage your scheduler settings" placement="right">
-                <Link to="/scheduler">Scheduler</Link>
-              </Tooltip>
-            </Menu.Item>
+              <Menu.Item key="/received" disabled={!isBonded}>
+                <Tooltip title="View received messages" placement="right">
+                  <Link to="/received">Received</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Item key="/sent" disabled={!isBonded}>
+                <Tooltip title="View sent messages" placement="right">
+                  <Link to="/sent">Sent</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Item key="/threads" disabled={!isBonded}>
+                <Tooltip title="View threads" placement="right">
+                  <Link to="/threads">Threads</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Item key="/calendar" disabled={!isBonded}>
+                <Tooltip title="View calendar" placement="right">
+                  <Link to="/calendar">Calendar</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Item key="/scheduler" disabled={!isBonded}>
+                <Tooltip
+                  title="Schedule events at other addresses and manage your scheduler settings"
+                  placement="right"
+                >
+                  <Link to="/scheduler">Scheduler</Link>
+                </Tooltip>
+              </Menu.Item>
 
-            {/* <>
+              {/* <>
               <Menu.Item key="/smailmailkey" disabled>
                 <Tooltip title="Registration status">
-                  console.log("smailMail", smailMail) 
+                  console.log("smailMail", smailMail)
                   {smailMail.pubKey ? "wallet" : "no key"}&nbsp;
                   {smailMail.smailPrivateKey ? "bonded" : "no bond"}
                 </Tooltip>
               </Menu.Item>
             </> */}
 
-            {/* {fairOSSessionId != null && <Menu.Divider />} */}
-            <Menu.Divider />
-            <Menu.SubMenu key="submenuDatahub" title="Subscriptions" inlineCollapsed={true} mode="inline">
-              {web3Modal && web3Modal?.cachedProvider && (
-                <Menu.Item key="/fairOS">
-                  <FairOSWasmConnect
-                    selectedBeeNetwork={selectedBeeNetwork}
-                    targetNetwork={targetNetwork}
-                    BEENETWORKS={BEENETWORKS}
-                    batchId={batchId}
+              {/* {fairOSSessionId != null && <Menu.Divider />} */}
+              <Menu.Divider />
+              <Menu.SubMenu key="submenuDatahub" title="Subscriptions" inlineCollapsed={true} mode="inline">
+                {web3Modal && web3Modal?.cachedProvider && (
+                  <Menu.Item key="/fairOS">
+                    <FairOSWasmConnect
+                      selectedBeeNetwork={selectedBeeNetwork}
+                      targetNetwork={targetNetwork}
+                      BEENETWORKS={BEENETWORKS}
+                      batchId={batchId}
+                      readContracts={readContracts}
+                      writeContracts={writeContracts}
+                      userSigner={userSigner}
+                      tx={tx}
+                      address={address}
+                      messageCount={messageCount}
+                      provider={localProvider}
+                      smailMail={smailMail}
+                      setSmailMail={setSmailMail}
+                      setFairOSPods={setFairOSPods}
+                      setFairOSSessionId={setFairOSSessionId}
+                      setFairOSLogin={setFairOSLogin}
+                      isWalletConnected={web3Modal && web3Modal?.cachedProvider}
+                    />
+                  </Menu.Item>
+                )}
+
+                <>
+                  <Menu.Item key="/datahub" disabled={!isFairOsed}>
+                    <Tooltip title="View offers, open new listings" placement="right">
+                      <Link to="/datahub">Data Hub</Link>
+                    </Tooltip>
+                  </Menu.Item>
+                  <Menu.Item key="/subscriptions" disabled={!isFairOsed}>
+                    <Tooltip title="Manage your active listings and subscribers" placement="right">
+                      <Link to="/subscriptions">Subscriptions</Link>
+                    </Tooltip>
+                  </Menu.Item>
+                  <Menu.Item key="/requests" disabled={!isFairOsed}>
+                    <Tooltip title="Approve requests for your listings" placement="right">
+                      <Link to="/requests">Requests</Link>
+                    </Tooltip>
+                  </Menu.Item>
+                  <Menu.Item key="/subscribers" disabled={!isFairOsed}>
+                    <Tooltip title="Manage listings, view subscribers and earnings" placement="right">
+                      <Link to="/subscribers">Subscribers</Link>
+                    </Tooltip>
+                  </Menu.Item>
+                  <Menu.Item key="/bids" disabled={!isFairOsed}>
+                    <Tooltip title="Manage your active bids" placement="right">
+                      <Link to="/bids">Bids</Link>
+                    </Tooltip>
+                  </Menu.Item>
+                  <Menu.Divider />
+                </>
+
+                {smailMail.pubKey && smailMail.smailPrivateKey ? (
+                  <>
+                    {/* /////////////////////////////////////////////////
+                /////////////////////////////////////////////////
+                // all debug */}
+                    {/* <Menu.Item key="/sent">
+                  <Link to="/sent">Sent</Link>
+                </Menu.Item>
+                <Menu.Item key="/contacts">
+                  <Link to="/contacts">Contacts</Link>
+                </Menu.Item> */}
+                  </>
+                ) : (
+                  <></>
+                  // <Menu.Item key="/connect">
+                  //   <Link to="/">Connect</Link>
+                  // </Menu.Item>
+                )}
+              </Menu.SubMenu>
+
+              <Menu.Item key="/account">
+                <Account
+                  minimized
+                  address={address}
+                  localProvider={localProvider}
+                  userSigner={userSigner}
+                  mainnetProvider={mainnetProvider}
+                  price={price}
+                  web3Modal={web3Modal}
+                  loadWeb3Modal={loadWeb3Modal}
+                  logoutOfWeb3Modal={logoutOfWeb3Modal}
+                  blockExplorer={blockExplorer}
+                />
+              </Menu.Item>
+              <Menu.Item key="/add">
+                <Tooltip title={<Balance address={address} provider={localProvider} price={price} />}>
+                  <span>⬨</span>
+                </Tooltip>
+                {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
+              </Menu.Item>
+
+              {/* <Menu.Divider /> */}
+              <Menu.SubMenu key="submenuContracts" title="Contracts" inlineCollapsed={true} mode="inline">
+                <Menu.Item key="/swarmmailcontract">
+                  <Link to="/swarmmailcontract">Smail Contract</Link>
+                </Menu.Item>
+                <Menu.Item key="/datahubcontract">
+                  <Link to="/datahubcontract">DataHub Contract</Link>
+                </Menu.Item>
+                <Menu.Item key="/calendarcontract">
+                  <Link to="/calendarcontract">Calendar Contract</Link>
+                </Menu.Item>
+                <Menu.Item key="/schedulercontract">
+                  <Link to="/schedulercontract">Scheduler Contract</Link>
+                </Menu.Item>
+                <Menu.Item key="/taskbrokercontract">
+                  <Link to="/taskbrokercontract">TaskBrokere Contract</Link>
+                </Menu.Item>
+                <Menu.Item key="/socialgraphcontract">
+                  <Link to="/socialgraphcontract">SocialGraph Contract</Link>
+                </Menu.Item>
+              </Menu.SubMenu>
+              {/* </SubMenu> */}
+            </Menu>
+            {/* <Balance address={address} provider={localProvider} price={price} /> */}
+          </Sider>
+          <Layout style={{ padding: "0px 0px 0px 0px", marginLeft: 200 }}>
+            <Content
+              style={{
+                padding: 0,
+                margin: 0,
+                minHeight: 280,
+                width: "100%",
+                overflow: "initial",
+                // background: "#000000",
+              }}
+            >
+              {/* <Router> */}
+              <Switch>
+                <Route exact path="/">
+                  <Home
                     readContracts={readContracts}
                     writeContracts={writeContracts}
                     userSigner={userSigner}
@@ -498,202 +635,52 @@ function App(props) {
                     address={address}
                     messageCount={messageCount}
                     provider={localProvider}
+                    web3Modal={web3Modal}
                     smailMail={smailMail}
                     setSmailMail={setSmailMail}
-                    setFairOSPods={setFairOSPods}
-                    setFairOSSessionId={setFairOSSessionId}
-                    setFairOSLogin={setFairOSLogin}
-                    isWalletConnected={web3Modal && web3Modal?.cachedProvider}
                   />
-                </Menu.Item>
-              )}
-
-              <>
-                <Menu.Item key="/datahub" disabled={!isFairOsed}>
-                  <Tooltip title="View offers, open new listings" placement="right">
-                    <Link to="/datahub">Data Hub</Link>
-                  </Tooltip>
-                </Menu.Item>
-                <Menu.Item key="/subscriptions" disabled={!isFairOsed}>
-                  <Tooltip title="Manage your active listings and subscribers" placement="right">
-                    <Link to="/subscriptions">Subscriptions</Link>
-                  </Tooltip>
-                </Menu.Item>
-                <Menu.Item key="/requests" disabled={!isFairOsed}>
-                  <Tooltip title="Approve requests for your listings" placement="right">
-                    <Link to="/requests">Requests</Link>
-                  </Tooltip>
-                </Menu.Item>
-                <Menu.Item key="/subscribers" disabled={!isFairOsed}>
-                  <Tooltip title="Manage listings, view subscribers and earnings" placement="right">
-                    <Link to="/subscribers">Subscribers</Link>
-                  </Tooltip>
-                </Menu.Item>
-                <Menu.Item key="/bids" disabled={!isFairOsed}>
-                  <Tooltip title="Manage your active bids" placement="right">
-                    <Link to="/bids">Bids</Link>
-                  </Tooltip>
-                </Menu.Item>
-                <Menu.Divider />
-              </>
-
-              {smailMail.pubKey && smailMail.smailPrivateKey ? (
-                <>
-                  {/* /////////////////////////////////////////////////
-                /////////////////////////////////////////////////
-                // all debug */}
-                  {/* <Menu.Item key="/sent">
-                  <Link to="/sent">Sent</Link>
-                </Menu.Item>
-                <Menu.Item key="/contacts">
-                  <Link to="/contacts">Contacts</Link>
-                </Menu.Item> */}
-                </>
-              ) : (
-                <></>
-                // <Menu.Item key="/connect">
-                //   <Link to="/">Connect</Link>
-                // </Menu.Item>
-              )}
-            </Menu.SubMenu>
-
-            <Menu.Item key="/account">
-              <Account
-                minimized
-                address={address}
-                localProvider={localProvider}
-                userSigner={userSigner}
-                mainnetProvider={mainnetProvider}
-                price={price}
-                web3Modal={web3Modal}
-                loadWeb3Modal={loadWeb3Modal}
-                logoutOfWeb3Modal={logoutOfWeb3Modal}
-                blockExplorer={blockExplorer}
-              />
-            </Menu.Item>
-            <Menu.Item key="/add">
-              <Tooltip title={<Balance address={address} provider={localProvider} price={price} />}>
-                <span>⬨</span>
-              </Tooltip>
-              {address ? <AddressSimple address={address} ensProvider={mainnetProvider} /> : "Connecting..."}
-            </Menu.Item>
-
-            {/* <Menu.Divider /> */}
-            <Menu.SubMenu key="submenuContracts" title="Contracts" inlineCollapsed={true} mode="inline">
-              <Menu.Item key="/swarmmailcontract">
-                <Link to="/swarmmailcontract">Smail Contract</Link>
-              </Menu.Item>
-              <Menu.Item key="/datahubcontract">
-                <Link to="/datahubcontract">DataHub Contract</Link>
-              </Menu.Item>
-              <Menu.Item key="/calendarcontract">
-                <Link to="/calendarcontract">Calendar Contract</Link>
-              </Menu.Item>
-              <Menu.Item key="/schedulercontract">
-                <Link to="/schedulercontract">Scheduler Contract</Link>
-              </Menu.Item>
-              <Menu.Item key="/taskbrokeragecontract">
-                <Link to="/taskbrokeragecontract">TaskBrokerage Contract</Link>
-              </Menu.Item>
-            </Menu.SubMenu>
-            {/* </SubMenu> */}
-          </Menu>
-          {/* <Balance address={address} provider={localProvider} price={price} /> */}
-        </Sider>
-        <Layout style={{ padding: "0px 0px 0px 0px", marginLeft: 200 }}>
-          <Content
-            style={{
-              padding: 0,
-              margin: 0,
-              minHeight: 280,
-              width: "100%",
-              overflow: "initial",
-              // background: "#000000",
-            }}
-          >
-            <Switch>
-              <Route exact path="/">
-                <Home
-                  readContracts={readContracts}
-                  writeContracts={writeContracts}
-                  userSigner={userSigner}
-                  tx={tx}
-                  address={address}
-                  messageCount={messageCount}
-                  provider={localProvider}
-                  web3Modal={web3Modal}
-                  smailMail={smailMail}
-                  setSmailMail={setSmailMail}
-                />
-              </Route>
-              <Route exact path="/inbox">
-                <Inbox
-                  readContracts={readContracts}
-                  writeContracts={writeContracts}
-                  userSigner={userSigner}
-                  tx={tx}
-                  address={address}
-                  messageCount={messageCount}
-                  smailMail={smailMail}
-                  setReplyTo={setReplyTo}
-                  mainnetProvider={mainnetProvider}
-                />
-              </Route>
-              <Route exact path="/sent">
-                <EmailsSent
-                  readContracts={readContracts}
-                  writeContracts={writeContracts}
-                  userSigner={userSigner}
-                  tx={tx}
-                  address={address}
-                  messageCount={messageCount}
-                  smailMail={smailMail}
-                  setReplyTo={setReplyTo}
-                  mainnetProvider={mainnetProvider}
-                />
-              </Route>
-              <Route exact path="/received">
-                <EmailsReceived
-                  readContracts={readContracts}
-                  writeContracts={writeContracts}
-                  userSigner={userSigner}
-                  tx={tx}
-                  address={address}
-                  messageCount={messageCount}
-                  smailMail={smailMail}
-                  setReplyTo={setReplyTo}
-                  mainnetProvider={mainnetProvider}
-                />
-              </Route>
-              <Route exact path="/locker">
-                <Locker
-                  readContracts={readContracts}
-                  writeContracts={writeContracts}
-                  userSigner={userSigner}
-                  tx={tx}
-                  address={address}
-                  messageCount={messageCount}
-                  smailMail={smailMail}
-                  mainnetProvider={mainnetProvider}
-                />
-              </Route>
-              <Route exact path="/threads">
-                <Threads
-                  readContracts={readContracts}
-                  writeContracts={writeContracts}
-                  userSigner={userSigner}
-                  tx={tx}
-                  address={address}
-                  messageCount={messageCount}
-                  smailMail={smailMail}
-                  mainnetProvider={mainnetProvider}
-                />
-              </Route>
-              <Route
-                exact
-                path="/calendar/:address?/:day?"
-                children={props => (
-                  <Calendar
+                </Route>
+                <Route path="/inbox">
+                  <Inbox
+                    readContracts={readContracts}
+                    writeContracts={writeContracts}
+                    userSigner={userSigner}
+                    tx={tx}
+                    address={address}
+                    messageCount={messageCount}
+                    smailMail={smailMail}
+                    setReplyTo={setReplyTo}
+                    mainnetProvider={mainnetProvider}
+                  />
+                </Route>
+                <Route path="/sent">
+                  <EmailsSent
+                    readContracts={readContracts}
+                    writeContracts={writeContracts}
+                    userSigner={userSigner}
+                    tx={tx}
+                    address={address}
+                    messageCount={messageCount}
+                    smailMail={smailMail}
+                    setReplyTo={setReplyTo}
+                    mainnetProvider={mainnetProvider}
+                  />
+                </Route>
+                <Route path="/received">
+                  <EmailsReceived
+                    readContracts={readContracts}
+                    writeContracts={writeContracts}
+                    userSigner={userSigner}
+                    tx={tx}
+                    address={address}
+                    messageCount={messageCount}
+                    smailMail={smailMail}
+                    setReplyTo={setReplyTo}
+                    mainnetProvider={mainnetProvider}
+                  />
+                </Route>
+                <Route path="/locker">
+                  <Locker
                     readContracts={readContracts}
                     writeContracts={writeContracts}
                     userSigner={userSigner}
@@ -703,13 +690,9 @@ function App(props) {
                     smailMail={smailMail}
                     mainnetProvider={mainnetProvider}
                   />
-                )}
-              />
-              <Route
-                exact
-                path="/scheduler/:address?/:day?"
-                children={props => (
-                  <Scheduler
+                </Route>
+                <Route path="/threads">
+                  <Threads
                     readContracts={readContracts}
                     writeContracts={writeContracts}
                     userSigner={userSigner}
@@ -719,13 +702,70 @@ function App(props) {
                     smailMail={smailMail}
                     mainnetProvider={mainnetProvider}
                   />
-                )}
-              />
+                </Route>
+                <Route
+                  path="/calendar/:address?/:day?"
+                  children={props => (
+                    <Calendar
+                      readContracts={readContracts}
+                      writeContracts={writeContracts}
+                      userSigner={userSigner}
+                      tx={tx}
+                      address={address}
+                      messageCount={messageCount}
+                      smailMail={smailMail}
+                      mainnetProvider={mainnetProvider}
+                    />
+                  )}
+                />
+                <Route
+                  path="/scheduler/:address?/:day?"
+                  children={props => (
+                    <Scheduler
+                      readContracts={readContracts}
+                      writeContracts={writeContracts}
+                      userSigner={userSigner}
+                      tx={tx}
+                      address={address}
+                      messageCount={messageCount}
+                      smailMail={smailMail}
+                      mainnetProvider={mainnetProvider}
+                    />
+                  )}
+                />
+                <Route
+                  path="/sociomat"
+                  children={props => (
+                    <SocialGraph
+                      readContracts={readContracts}
+                      writeContracts={writeContracts}
+                      userSigner={userSigner}
+                      tx={tx}
+                      address={address}
+                      messageCount={messageCount}
+                      smailMail={smailMail}
+                      mainnetProvider={mainnetProvider}
+                    />
+                  )}
+                />
 
-              <Route
-                path="/datahub/:cat?/:sub?"
-                children={props => (
-                  <DataHub
+                <Route
+                  path="/datahub/:cat?/:sub?"
+                  children={props => (
+                    <DataHub
+                      readContracts={readContracts}
+                      writeContracts={writeContracts}
+                      mainnetProvider={mainnetProvider}
+                      userSigner={userSigner}
+                      tx={tx}
+                      address={address}
+                      smailMail={smailMail}
+                      fairOSLogin={fairOSLogin}
+                    />
+                  )}
+                />
+                <Route exact path="/subscriptions">
+                  <Subscriptions
                     readContracts={readContracts}
                     writeContracts={writeContracts}
                     mainnetProvider={mainnetProvider}
@@ -733,121 +773,135 @@ function App(props) {
                     tx={tx}
                     address={address}
                     smailMail={smailMail}
-                    fairOSLogin={fairOSLogin}
+                    setReplyTo={setReplyTo}
                   />
-                )}
-              />
-              <Route exact path="/subscriptions">
-                <Subscriptions
-                  readContracts={readContracts}
-                  writeContracts={writeContracts}
-                  mainnetProvider={mainnetProvider}
-                  userSigner={userSigner}
-                  tx={tx}
-                  address={address}
-                  smailMail={smailMail}
-                  setReplyTo={setReplyTo}
-                />
-              </Route>
-              <Route exact path="/requests">
-                <SubRequests
-                  readContracts={readContracts}
-                  writeContracts={writeContracts}
-                  mainnetProvider={mainnetProvider}
-                  userSigner={userSigner}
-                  tx={tx}
-                  address={address}
-                  smailMail={smailMail}
-                  sessionId={fairOSSessionId}
-                />
-              </Route>
-              <Route exact path="/subscribers">
-                <Subscribers
-                  readContracts={readContracts}
-                  writeContracts={writeContracts}
-                  mainnetProvider={mainnetProvider}
-                  userSigner={userSigner}
-                  tx={tx}
-                  address={address}
-                  smailMail={smailMail}
-                />
-              </Route>
-              <Route exact path="/bids">
-                <SubBids
-                  readContracts={readContracts}
-                  writeContracts={writeContracts}
-                  mainnetProvider={mainnetProvider}
-                  userSigner={userSigner}
-                  tx={tx}
-                  address={address}
-                  smailMail={smailMail}
-                />
-              </Route>
+                </Route>
+                <Route exact path="/requests">
+                  <SubRequests
+                    readContracts={readContracts}
+                    writeContracts={writeContracts}
+                    mainnetProvider={mainnetProvider}
+                    userSigner={userSigner}
+                    tx={tx}
+                    address={address}
+                    smailMail={smailMail}
+                    sessionId={fairOSSessionId}
+                  />
+                </Route>
+                <Route exact path="/subscribers">
+                  <Subscribers
+                    readContracts={readContracts}
+                    writeContracts={writeContracts}
+                    mainnetProvider={mainnetProvider}
+                    userSigner={userSigner}
+                    tx={tx}
+                    address={address}
+                    smailMail={smailMail}
+                  />
+                </Route>
+                <Route exact path="/bids">
+                  <SubBids
+                    readContracts={readContracts}
+                    writeContracts={writeContracts}
+                    mainnetProvider={mainnetProvider}
+                    userSigner={userSigner}
+                    tx={tx}
+                    address={address}
+                    smailMail={smailMail}
+                  />
+                </Route>
 
-              <Route exact path="/swarmmailcontract">
-                <Contract
-                  name="SwarmMail"
-                  price={price}
-                  signer={userSigner}
-                  provider={localProvider}
-                  address={address}
-                  blockExplorer={blockExplorer}
-                  contractConfig={contractConfig}
-                  messageCount={messageCount}
-                />
-              </Route>
-              <Route exact path="/datahubcontract">
-                <Contract
-                  name="DataHub"
-                  price={price}
-                  signer={userSigner}
-                  provider={localProvider}
-                  address={address}
-                  blockExplorer={blockExplorer}
-                  contractConfig={contractConfig}
-                  messageCount={messageCount}
-                />
-              </Route>
-              <Route exact path="/calendarcontract">
-                <Contract
-                  name="Calendar"
-                  price={price}
-                  signer={userSigner}
-                  provider={localProvider}
-                  address={address}
-                  blockExplorer={blockExplorer}
-                  contractConfig={contractConfig}
-                  messageCount={messageCount}
-                />
-              </Route>
-              <Route exact path="/schedulercontract">
-                <Contract
-                  name="Scheduler"
-                  price={price}
-                  signer={userSigner}
-                  provider={localProvider}
-                  address={address}
-                  blockExplorer={blockExplorer}
-                  contractConfig={contractConfig}
-                  messageCount={messageCount}
-                />
-              </Route>
-              <Route exact path="/taskbrokeragecontract">
-                <Contract
-                  name="TaskBrokerage"
-                  price={price}
-                  signer={userSigner}
-                  provider={localProvider}
-                  address={address}
-                  blockExplorer={blockExplorer}
-                  contractConfig={contractConfig}
-                  messageCount={messageCount}
-                />
-              </Route>
-            </Switch>
-          </Content>
+                <Route exact path="/swarmmailcontract">
+                  <Contract
+                    name="SwarmMail"
+                    price={price}
+                    signer={userSigner}
+                    provider={localProvider}
+                    address={address}
+                    blockExplorer={blockExplorer}
+                    contractConfig={contractConfig}
+                    messageCount={messageCount}
+                  />
+                </Route>
+                <Route exact path="/datahubcontract">
+                  <Contract
+                    name="DataHub"
+                    price={price}
+                    signer={userSigner}
+                    provider={localProvider}
+                    address={address}
+                    blockExplorer={blockExplorer}
+                    contractConfig={contractConfig}
+                    messageCount={messageCount}
+                  />
+                </Route>
+                <Route exact path="/calendarcontract">
+                  <Contract
+                    name="Calendar"
+                    price={price}
+                    signer={userSigner}
+                    provider={localProvider}
+                    address={address}
+                    blockExplorer={blockExplorer}
+                    contractConfig={contractConfig}
+                    messageCount={messageCount}
+                  />
+                </Route>
+                <Route exact path="/schedulercontract">
+                  <Contract
+                    name="Scheduler"
+                    price={price}
+                    signer={userSigner}
+                    provider={localProvider}
+                    address={address}
+                    blockExplorer={blockExplorer}
+                    contractConfig={contractConfig}
+                    messageCount={messageCount}
+                  />
+                </Route>
+                <Route exact path="/taskbrokeragecontract">
+                  <Contract
+                    name="TaskBrokerage"
+                    price={price}
+                    signer={userSigner}
+                    provider={localProvider}
+                    address={address}
+                    blockExplorer={blockExplorer}
+                    contractConfig={contractConfig}
+                    messageCount={messageCount}
+                  />
+                </Route>
+
+                <Route exact path="/taskbrokercontract">
+                  <Contract
+                    name="TaskBroker"
+                    price={price}
+                    signer={userSigner}
+                    provider={localProvider}
+                    address={address}
+                    blockExplorer={blockExplorer}
+                    contractConfig={contractConfig}
+                    messageCount={messageCount}
+                  />
+                </Route>
+                <Route exact path="/socialgraphcontract">
+                  <Contract
+                    name="SocialGraph"
+                    price={price}
+                    signer={userSigner}
+                    provider={localProvider}
+                    address={address}
+                    blockExplorer={blockExplorer}
+                    contractConfig={contractConfig}
+                    messageCount={messageCount}
+                  />
+                </Route>
+              </Switch>
+              {/* </Router> */}
+            </Content>
+          </Layout>
         </Layout>
-      </Layout>
+      </Router>
 
       {isComposeModalVisible && (
         <ComposeNewMessage

@@ -143,7 +143,7 @@ export function Inbox({
   }, [address]);
 
   useEffect(() => {
-    console.log("messageCount", messageCount, messageCountTrigger);
+    // console.log("messageCount", messageCount, messageCountTrigger);
     if (messageCount > messageCountTrigger && !updatingMails) updateMails();
 
     setMessageCountTrigger(messageCount);

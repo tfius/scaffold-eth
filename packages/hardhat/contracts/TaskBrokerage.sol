@@ -12,7 +12,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
 
     enum TaskStatus { Pending, Taken, Completed, Disputed }
 
-    uint256 public schedulerFee = 1000; // 1%
+    uint256 public schedulerFee = 1000; // 1%yar
     uint256 public feesCollected = 0;
     uint256 private constant FEE_PRECISION = 1e5;
 

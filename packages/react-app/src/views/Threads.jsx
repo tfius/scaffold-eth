@@ -468,7 +468,7 @@ export function Threads({
             </Button>
             &nbsp;
           </Tooltip>
-          <Tooltip title="Delete">
+          <Tooltip title="Create new thread">
             <Button onClick={() => setIsModalVisible(true)}>Create Thread</Button>&nbsp;
           </Tooltip>
           {/* <Tooltip title="View Threads For you Only">

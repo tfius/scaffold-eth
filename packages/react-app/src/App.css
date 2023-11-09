@@ -65,6 +65,68 @@ body {
   animation-delay: 0s, 1s; /* add this */
   animation-timing-function: ease-in, ease-in-out;  
 }
+.post-card-body {
+  z-index: 0;
+  padding-left: 5px;
+  padding-right: 1px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  border-radius: 1px;
+  background: linear-gradient(-45deg, #9500ff05, #4000ff15, #9500ff05, #4000ff05);
+  background-size: 200% 200%;
+  border-color: rgba(130, 68, 132, 0.473);
+  border-style: solid;
+  border-width: 0px 1px 1px 1px; /* top, right, bottom, left */
+
+  animation-name: fadeInFromNone, appGradient;
+  animation-duration: 1s, 42s;
+  animation-iteration-count: 1, infinite;
+  animation-delay: 0s, 1s; /* add this */
+  animation-timing-function: ease-in, ease-in-out;  
+  transition: filter 0.5s ease-out;
+  filter: grayscale(50%);
+}
+
+.post-card-body:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+  filter: grayscale(0);
+}
+
+
+
+.post-layout {
+  z-index: 2;
+  display: flex;
+  margin-right: 5px;
+}
+.post-blockie {
+  display: block;
+  min-width: 32px;
+  width: 32px;
+  height: 32px;
+  margin: 5px 5px;
+  border-radius: 16px;
+  overflow: hidden;
+  
+  filter: grayscale(50%);
+  transition: filter 0.5s ease-out;
+}
+.post-blockie:hover {
+  opacity: 1; 
+  filter: grayscale(0);
+}
+.post-creator {
+  display: flex;
+  padding: 8px 0px 8px 0px; 
+}
+.post-text {
+  display: block;
+}
+.post-footer {
+  display: flex;
+  padding-top: 4px;
+  justify-content: right;
+}
 
 iframe {
   visibility: hidden;
