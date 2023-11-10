@@ -65,13 +65,25 @@ body {
   animation-delay: 0s, 1s; /* add this */
   animation-timing-function: ease-in, ease-in-out;  
 }
+.ant-btn {
+  border-radius: 20px;
+}
+.user-card-body {
+  background: linear-gradient(-45deg, #a025f910, #4000ff10, #9500ff10, #4000ff10);
+  background-size: 100% 100%;
+  border-color: rgba(130, 68, 132, 0.473);
+  border-style: solid;
+  border-width: 1px 1px 1px 1px; /* top, right, bottom, left */
+  border-radius: 15px;
+}
+
 .post-card-body {
   z-index: 0;
   padding-left: 5px;
   padding-right: 1px;
   padding-top: 1px;
   padding-bottom: 1px;
-  border-radius: 1px;
+  border-radius: 8px;
   background: linear-gradient(-45deg, #9500ff05, #4000ff15, #9500ff05, #4000ff05);
   background-size: 200% 200%;
   border-color: rgba(130, 68, 132, 0.473);
@@ -85,6 +97,17 @@ body {
   animation-timing-function: ease-in, ease-in-out;  
   transition: filter 0.5s ease-out;
   filter: grayscale(50%);
+}
+.post-input-body {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-style: solid;
+  border-width: 1px 1px 1px 1px; /* top, right, bottom, left */
+  border-radius: 8px;
+  max-width: 70%;
+  display: flex;
+
+  animation-name: fadeInFromNone, appGradient;
 }
 
 .post-card-body:hover {

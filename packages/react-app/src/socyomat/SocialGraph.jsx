@@ -26,10 +26,12 @@ import CreatePost from "./CreatePost";
 //require("@tensorflow/tfjs");
 //const toxicity = require("@tensorflow-models/toxicity");
 
-import { Spin, Collapse, Card, Layout, Menu, Tooltip } from "antd";
+import { Spin, Collapse, Card, Layout, Menu, Tooltip, Input } from "antd";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
 import { load } from "@tensorflow-models/toxicity";
 import { DisplayMessages } from "./DisplayMessages";
+import { DisplayUserStats } from "./DisplayUserStats";
+import { add } from "@tensorflow/tfjs-core/dist/engine";
 const { Header, Content, Footer, Sider } = Layout;
 //import Sider from "antd/lib/layout/Sider";
 //import { Footer } from "antd/lib/layout/layout";
@@ -38,7 +40,16 @@ const { Panel } = Collapse;
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
-
+function createBigNumberArray(start, length) {
+  const array = [];
+  let current = BigNumber.from(start);
+  for (let i = 0; i < length; i++) {
+    array.push(current);
+    current = current.add(1);
+  }
+  return array;
+}
+/*
 function MyDropzone({ ref, onAdd }) {
   const onDrop = useCallback(acceptedFiles => {
     console.log(ref, onAdd, acceptedFiles);
@@ -64,7 +75,7 @@ function MyDropzone({ ref, onAdd }) {
       <p>Drag 'n' drop some files here, or click to select files</p>
     </div>
   );
-}
+}*/
 class CreatePostComponent extends React.Component {
   formRef = React.createRef();
   constructor(props) {
@@ -83,46 +94,58 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
   let history = useHistory();
   const [loading, setLoading] = useState(false);
   const loaderRef = useRef(null);
-  const [userStats, setUserStats] = useState({}); // [userId, followersCount, followingCount, postsCount
+  const [isPostModalVisible, setIsPostModalVisible] = useState(false);
+  const [userStats, setUserStats] = useState(null); // [userId, followersCount, followingCount, postsCount
   const [todayIndex, setTodayIndex] = useState(0);
   const [postIds, setPostIds] = useState([]);
   const [posts, setPosts] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [messagesStack, setMessagesStack] = useState([]);
+  const [messagesStackPos, setMessagesStackPos] = useState(0);
   const [users, setUsers] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
   const [interactions, setInteractions] = useState([]); // [postId, userId, interactionType
   const [startItem, setStartItem] = useState(0);
-  const [itemsCount, setItemsCount] = useState(10);
-  const [pageSize, setPageSize] = useState(10);
+  const [itemsCount, setItemsCount] = useState(0);
+  const [pageSize, setPageSize] = useState(15);
   const [totalItems, setTotalItems] = useState(0);
   const [retrivalFunction, setRetrivalFunction] = useState(null);
+  const [messageToComment, setMessageToComment] = useState(null);
   // let { userId } = useParams();
   // let { postId } = useParams();
   // let { tag } = useParams();
   // let { mention } = useParams();
   // let { location } = useLocation();
 
-  const fetchNextPostsIds = useCallback(async () => {
-    console.log("fetchNextPostsIds", todayIndex.toString(), startItem, itemsCount);
+  // const fetchNextPostsIds = useCallback(async () => {
+  //   console.log("fetchNextPostsIds", todayIndex.toString(), startItem, itemsCount);
 
-    console.log("fetchNextPostsIds", startItem, itemsCount, todaysPostsCount);
-  }, [todayIndex, startItem]);
+  //   console.log("fetchNextPostsIds", startItem, itemsCount, todaysPostsCount);
+  // }, [todayIndex, startItem]);
 
   const handleObserver = useCallback(
     entries => {
       const target = entries[0];
       if (target.isIntersecting) {
-        console.log("retrivalFunction", loading, retrivalFunction != 0, totalItems.toString(), startItem);
+        console.log(
+          "retrivalFunction",
+          loading,
+          retrivalFunction != 0,
+          totalItems.toString(),
+          startItem.toString(),
+          totalItems.toString(),
+        );
         sleep(1000);
         if (loading === false && retrivalFunction !== null) {
+          /*
           if (startItem + itemsCount < totalItems) {
             setStartItem(startItem + itemsCount);
             console.log("setStartItem", startItem + itemsCount);
           } else {
             console.log("above totalItems", startItem + itemsCount, totalItems);
           }
-
+          */
           /*if (startItem + itemsCount >= totalItems) {
             //var newStart = totalItems - itemsCount;
             // setItemsCount(totalItems - newStart);
@@ -138,7 +161,6 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     },
     [retrivalFunction, loading, startItem, itemsCount, totalItems, todayIndex],
   );
-
   // Setting up the Intersection Observer
   useEffect(() => {
     const option = {
@@ -154,29 +176,44 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     };
   }, [handleObserver, startItem, itemsCount]);
 
-  const fetchUserStats = useCallback(async () => {
-    setLoading(true);
-    const userStats = await readContracts.SocialGraph.getUserStats(address);
-    setUserStats(userStats);
-    setLoading(false);
-    console.log("userStats", userStats);
-  }, [readContracts]);
+  const fetchUserStats = useCallback(
+    async forAddress => {
+      if (address === undefined) return;
+      if (!forAddress) forAddress = address;
+      setLoading(true);
+      try {
+        const userStats = await readContracts.SocialGraph.getUserStats(forAddress);
+        setUserStats(userStats);
+      } catch (e) {
+        console.log("error", e);
+        console.log("userStats", forAddress, userStats);
+      }
+      setLoading(false);
+
+      return userStats;
+    },
+    [readContracts],
+  );
   const fetchTodayIndex = useCallback(async () => {
     setLoading(true);
     const dayIdx = await readContracts.SocialGraph.getTodayIndex();
+    const todaysPostsCount = await readContracts.SocialGraph.getDayStats(dayIdx);
+    setTotalItems(todaysPostsCount);
+    setStartItem(todaysPostsCount - pageSize >= 0 ? todaysPostsCount - pageSize : 0);
+    setItemsCount(pageSize);
     setTodayIndex(dayIdx);
     setLoading(false);
-    console.log("dayIndex", dayIdx.toNumber());
+    console.log("dayIndex", dayIdx.toNumber(), "todaysPostsCount", todaysPostsCount.toNumber());
   }, [readContracts]);
   const fetchPostIdsPerDay = useCallback(async () => {
     console.log("fetchPostIdsPerDay", todayIndex.toString(), startItem, itemsCount);
-    //const todaysPostsCount = await readContracts.SocialGraph.getDaysPostsCount(todayIndex);
-    //setTotalItems(todaysPostsCount);
-
-    //console.log("fetchPostIdsPerDay", day.toString(), start, count);
     setLoading(true);
-    //const todaysPostsCount = await readContracts.SocialGraph.getDaysPostsCount(todayIndex);
+    const todaysPostsCount = await readContracts.SocialGraph.getDayStats(todayIndex);
     try {
+      if (startItem + itemsCount > todaysPostsCount) {
+        //setStartItem(todaysPostsCount - itemsCount);
+        console.log("above todaysPostsCount", startItem + itemsCount, todaysPostsCount);
+      }
       const postsIdxs = await readContracts.SocialGraph.getPostsPerDay(todayIndex, startItem, itemsCount);
       setPostIds(postsIdxs); // will triger fetchPosts
       console.log("postsIdxs", postsIdxs);
@@ -184,7 +221,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
       console.log("error", e);
     }
     setLoading(false);
-  }, [todayIndex, startItem]);
+  }, [todayIndex]);
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     console.log("got postIds", postIds);
@@ -196,6 +233,8 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
         postsEx.push({ ...postsInfo[i], postId: postIds[i] });
         //postsInfo[i].postId = postIds[i];
       }
+      // sort posts by timestamp
+      //postsEx = postsEx.sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
       setPosts(postsEx); // will trigger fetchMessages
       console.log("posts", postsEx);
     } catch (e) {
@@ -210,22 +249,43 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     for (var i = 0; i < posts.length; i++) {
       try {
         const p = posts[i];
+        // check to see if postId is already in messages
+        if (messages.filter(m => m.contentPosition === p.contentPosition).length > 0) continue;
         const data = await downloadDataFromBee(p.contentPosition);
         var m = JSON.parse(new TextDecoder().decode(data));
         var mp = { ...m, ...p };
         // console.log("message", mp);
         // add only if post.contentPosition does not exist in messages before
-        if (messages.filter(m => m.contentPosition === mp.contentPosition).length === 0) msgs.push(mp);
+        //if (messages.filter(m => m.contentPosition === mp.contentPosition).length === 0) msgs.push(mp);
         // debugger;
       } catch (e) {
         console.log("error", e);
       }
     }
+    // sort messages by timestamp
+    //msgs = msgs.sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
+
     //setMessages(msgs);
     // append msg to messages
-    setMessages(messages => [...messages, ...msgs]);
+    setMessages(messages => [...msgs, ...messages]);
     setLoading(false);
     console.log("messages", msgs);
+  });
+  const fetchLatest = useCallback(async () => {
+    setLoading(true);
+    var lenght = pageSize;
+    const allPosts = await readContracts.SocialGraph.postCount();
+
+    const start = allPosts - pageSize >= 0 ? allPosts - pageSize : 0;
+    lenght = start + pageSize < allPosts ? pageSize : allPosts - start; // length can be more than pageSize + start
+    console.log("fetchLatest todaysPostsCount", allPosts.toString(), start, lenght);
+    try {
+      //const posts_latest = await readContracts.SocialGraph.getPosts(start, lenght);
+      setPosts(posts_latest);
+    } catch (e) {
+      console.log("error", e);
+    }
+    setLoading(false);
   });
 
   useEffect(() => {
@@ -237,12 +297,13 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
   useEffect(() => {
     if (todayIndex == 0) return;
     console.log("todayIndex changed", todayIndex.toString());
-    fetchPostIdsPerDay();
-    //fetchPostIdsPerDay(todayIndex, 5, 3);
+    //fetchPostIdsPerDay();
   }, [todayIndex]);
-  useEffect(() => {
+
+  /*useEffect(() => {
     fetchPostIdsPerDay();
-  }, [startItem, itemsCount]);
+  }, [startItem, itemsCount]);*/
+
   useEffect(() => {
     if (postIds.length == 0) return;
     console.log("postIds changed", postIds.length);
@@ -264,6 +325,8 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     const fetchData = async () => {
       try {
         const response = await updateDailyPostsCount(todayIndex);
+        //const usrStats = await fetchUserStats(userStats?.userdata?.userAddress);
+        //setUserStats(usrStats);
       } catch (error) {}
       if (!isCancelled) {
         setTimeout(fetchData, 13000); // Schedule the next call
@@ -280,6 +343,12 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
   function useQuery() {
     return new URLSearchParams(location.search);
   }
+  const onPostCreated = async (text, attachments, tags, atStrings, hashStrings) => {
+    setMessageToComment(null);
+    setIsPostModalVisible(false);
+    await fetchLatest();
+    await fetchUserStats();
+  };
   const onLoadPosts = async () => {
     let query = useQuery();
     let mention = query.get("mention");
@@ -291,41 +360,70 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     let pageLen;
     //console.log("query", query);
     //let { mention } = useParams();
-    console.log("location", mention, tag, userId, postId);
+    console.log("location", mention, tag, userId, postId, cat, topic);
     if (mention) {
       // get posts with mention
       //console.log("mention", mention);
       var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("@" + mention)).toString();
-      var maxCount = await readContracts.SocialGraph.getMentionsStats(hash);
+      var { tags, mentions, topics, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
+      var maxCount = mentions;
       var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
       const postIdxs = await readContracts.SocialGraph.getPostIdsWithMentions(hash, start, pageSize);
+      await pushMessagesOnStack();
       setPostIds(postIdxs);
     }
     if (tag) {
       // get posts with tag
       //console.log("tag", tag);
-
       var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("#" + tag)).toString();
-      var maxCount = await readContracts.SocialGraph.getTagsStats(hash);
+      var { tags, mentions, topics, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
+      var maxCount = tags;
       var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
       const postIdxs = await readContracts.SocialGraph.getPostIdsWithTags(hash, start, pageSize);
+      await pushMessagesOnStack();
       setPostIds(postIdxs);
     }
     if (cat) {
       // get posts with tag
       //console.log("tag", tag);
       var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("!" + cat)).toString();
-      var maxCount = await readContracts.SocialGraph.getCategoryStats(hash);
+      var { tags, mentions, topics, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
+      var maxCount = categories;
       var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
       const postIdxs = await readContracts.SocialGraph.getPostIdsWithCategory(hash, start, pageSize);
       setPostIds(postIdxs);
     }
     if (userId) {
       var userStats = await readContracts.SocialGraph.getUserStats(userId);
+      console.log("userStats", userStats);
+      var maxCount = userStats.posts_count;
+      var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
+      const posted = await readContracts.SocialGraph.getPostsFromUser(userId, start, pageSize);
+      await pushMessagesOnStack();
+      setPosts(posted);
     }
+  };
+  const pushMessagesOnStack = async () => {
+    var stack = messagesStack;
+    stack.push(messages);
+    setMessagesStack(stack);
+    setMessages([]);
+    console.log("pushMessagesOnStack", stack.length, stack);
+  };
+  const popMessagesStack = async () => {
+    var lastStack = messagesStack[messagesStack.length - 1];
+    setMessagesStack(messagesStack.slice(0, messagesStack.length - 1));
+    setMessages(lastStack);
+  };
+
+  // when action to comment is clicked
+  const onOpenToComment = async messageToComment => {
+    setMessageToComment(messageToComment);
+    setIsPostModalVisible(true);
   };
   const GoHome = async () => {
     console.log("GoHome");
+    await fetchLatest();
     //console.log(postId, userId, tag, mention);
   };
   const GoExplore = async () => {
@@ -353,15 +451,38 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
-      <h1>Posts {loading && <Spin />}</h1>
-
-      <div className="routeSubtitle">
-        Posts {todayIndex.toString()} {messages.length}{" "}
-      </div>
+      <h1>
+        {messagesStack.length > 0 && (
+          <span onClick={() => popMessagesStack()} style={{ cursor: "pointer" }}>
+            🡄
+          </span>
+        )}{" "}
+        Posts {loading && <Spin />}
+      </h1>
 
       <Layout>
         <Content>
-          <CreatePost readContracts={readContracts} writeContracts={writeContracts} address={address} tx={tx} />
+          <div className="routeSubtitle">
+            <div className="post-card-body post-input-body" onClick={() => setIsPostModalVisible(true)}>
+              What is happening ? {todayIndex.toString()} {messages.length}{" "}
+            </div>
+          </div>
+          <CreatePost
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            address={address}
+            tx={tx}
+            onCreatePost={onPostCreated}
+            postToCommentOn={messageToComment}
+            isOpen={isPostModalVisible}
+            setIsOpen={setIsPostModalVisible}
+          />
+          {userStats !== null && userStats !== undefined ? (
+            <DisplayUserStats userStats={userStats} ensProvider={ensProvider} />
+          ) : (
+            <h3>Seems you didn't post anything yet.</h3>
+          )}
+
           <DisplayMessages
             messages={messages}
             tx={tx}
@@ -370,6 +491,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
             ensProvider={ensProvider}
             history={history}
             onNotifyClick={onLoadPosts}
+            onComment={onOpenToComment}
           />
           <div ref={loaderRef}>
             <small>... {totalItems.toString()}</small>
@@ -390,9 +512,10 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
           }}
         >
           <Menu mode="inline" defaultSelectedKeys={["1"]}>
+            <Input placeholder="Search" style={{ width: "98%" }} />
             <Menu.Item key="1" icon={<UserOutlined />}>
               <span to="#" onClick={() => GoHome()}>
-                Home
+                Latest
               </span>
             </Menu.Item>
             <Menu.Item key="2" icon={<VideoCameraOutlined />}>

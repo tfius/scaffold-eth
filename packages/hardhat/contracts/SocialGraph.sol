@@ -69,36 +69,26 @@ contract SocialGraph {
     // leaderboard per user with most engaging posts
     mapping(address => mapping(uint => uint)) public postIndexInLeaderboard; // Maps post ID to its index in the leaderboard array
     uint constant MAX_LEADERBOARD_LENGTH = 20;
-    mapping(address => uint[]) public leaderboards; // Maps user ID to an array of post IDs
+    // mapping(address => uint[]) public leaderboards; // Maps user ID to an array of post IDs
     // mapping to prevent double counting of likes and shares
     mapping(address => mapping(uint => uint)) public isPostLiked;
     mapping(address => mapping(uint => uint)) public isPostShared;
 
-    function getUserStats(address user) public view returns (uint following_count, uint followers_count, uint engagedWith_count, uint posts_count, uint interactions_count, uint leaderboard_count) {
+    function getUserStats(address user) public view returns (uint following_count, uint followers_count, uint engagedWith_count, uint posts_count, uint interactions_count, uint leaderboard_count,
+                                                             User memory userdata) {
         require(users[user].userAddress != address(0), "No user");
-        return (following[user].length, followers[user].length, engagedWith[user].length, userPosts[user].length, userInteractions[user].length, users[user].leaderboard.length);
+        return (following[user].length, followers[user].length, engagedWith[user].length, userPosts[user].length, userInteractions[user].length, users[user].leaderboard.length, 
+                users[user]);
     }
     function getPostStats(uint postId) public view returns (uint likeCount, uint commentCount, uint shareCount, uint totalEngagement, uint interactions_count, uint comments_count) {
         require(postId < postCount, "No post");
         return (posts[postId].likeCount, posts[postId].commentCount, posts[postId].shareCount, posts[postId].totalEngagement, postInteractions[postId].length, postComments[postId].length);
     }
-    function getCategoryStats(bytes32 category) public view returns (uint posts_count) {
-        return postsWithCategory[category].length;
+    function getInfoOn(bytes32 any) public view returns (uint tags, uint mentions, uint topics, uint categories) {
+        return (postsWithTag[any].length, postsWithMention[any].length, postsWithTopic[any].length, postsWithCategory[any].length);
     }
-    function getTagsStats(bytes32 tag) public view returns (uint posts_count) {
-        return postsWithTag[tag].length;
-    }
-    function getMentionsStats(bytes32 mention) public view returns (uint post_count) {
-        return postsWithMention[mention].length;
-    }
-    function getTopicStats(bytes32 topic) public view returns (uint posts_count) {
-        return postsWithTopic[topic].length;
-    }
-    function getDayStats(uint dayIndex) public view returns(uint) {
-        return postsByDay[dayIndex].length;
-    }
-    function getDailyUserStats(uint dayIndex) public view returns(uint) {
-        return usersByDay[dayIndex].length;
+    function getDayStats(uint dayIndex) public view returns(uint, uint) {
+        return (postsByDay[dayIndex].length, usersByDay[dayIndex].length);
     }
     // internal function to rebuild users leaderboard
     function engageWithPost(address postCreator, uint postId) private {
@@ -316,19 +306,6 @@ contract SocialGraph {
         interactWith(postId, InteractionType.Bookmark, msg.sender);
         return userBookmarks[msg.sender].length - 1;
     }
-    /*
-    function updateMetadata(uint postId, bytes32[] memory tags, bytes32[] memory mentions, bytes32 category) public {
-        require(postId < postCount, "No post");
-        require(msg.sender == posts[postId].creator, "Not creator");
-        Post storage post = posts[postId];
-        post.metadata = Metadata(tags, mentions, category);
-        for(uint i = 0; i < tags.length; i++) {
-            postsWithTag[tags[i]].push(postId);
-        }
-        for(uint i = 0; i < mentions.length; i++) {
-            postsWithMention[mentions[i]].push(postId);
-        }
-    }*/
     function updateContentAnalysis(uint postId, uint sentimentScore, bytes32 mainTopic) public {
         require(postId < postCount, "No post");
         require(msg.sender == posts[postId].creator, "Not creator");
@@ -377,58 +354,50 @@ contract SocialGraph {
     }    
     function getPosts(uint start, uint length) public view returns (Post[] memory){
         require(start < postCount, "Start out");
-        require(start + length < postCount, "End out");
+        //require(start + length < postCount, "End out");
+        if(start + length > postCount) {
+           length = postCount - start;
+        }
         Post[] memory result = new Post[](length);
         for(uint i = 0; i < length; i++) {
             result[i] = posts[start + i];
         }
         return result;
     }
-    function getPostsFromUser(address user, uint start, uint length) public view returns (Post[] memory){
-        require(users[user].userAddress != address(0), "User does not exist");
-        require(start < userPosts[user].length, "Start index out of bounds");
+    function getPostsFromUser(address user, uint start, uint length) public view returns (uint[] memory){
+        require(users[user].userAddress != address(0), "No user");
+        require(start < userPosts[user].length, "Start out");
         //require(start + length < userPosts[user].length, "End index out of bounds");
         if(start + length > userPosts[user].length) {
            length = userPosts[user].length - start;
         }
-        Post[] memory result = new Post[](length);
+        uint[] memory result = new uint[](length);
         for(uint i = 0; i < length; i++) {
-            result[i] = posts[userPosts[user][start + i]];
+            result[i] = userPosts[user][start + i]; //result[i] = posts[userPosts[user][start + i]];
         }
         return result;
     }
-    // get last n posts from user
-    /*function getLastNPostsFrom(address user, uint n) public view returns (Post[] memory) {
-        require(users[user].userAddress != address(0), "User does not exist");
-        uint flength = userPosts[user].length;
-        uint gth = n > flength ? flength : n;
-        uint startIdx = flength > gth ? flength - n : 0;
-        Post[] memory result = new Post[](gth);
-        for(uint i = startIdx; i < gth; i++) {
-            result[i] = posts[userPosts[user][i]];
-        }
-        return result;
-    }*/
     // get last post from addresses (users)
-    function getLastPostFromAddresses(address[] memory arr) public view returns (Post[] memory){ 
-        Post[] memory result = new Post[](arr.length);
+    function getLastPostFromAddresses(address[] memory arr) public view returns (uint[] memory){ 
+        uint[] memory result = new uint[](arr.length);
         for(uint i = 0; i < arr.length; i++) {
             if(users[arr[i]].userAddress != address(0))
                if(userPosts[arr[i]].length > 0)
-                  result[i] = posts[userPosts[arr[i]][userPosts[arr[i]].length - 1]];
+                  result[i] = userPosts[arr[i]][userPosts[arr[i]].length - 1];
+                  //result[i] = posts[userPosts[arr[i]][userPosts[arr[i]].length - 1]];
         }
         return result;
     }
-    function getPostComments(uint postId, uint start, uint length) public view returns (Post[] memory){
+    function getPostComments(uint postId, uint start, uint length) public view returns (uint[] memory){
         require(postId < postCount, "No post");
         require(start < postComments[postId].length, "Start out");
         //require(start + length < postComments[postId].length, "End index out of bounds");
         if(start + length > postComments[postId].length) {
            length = postComments[postId].length - start;
         }
-        Post[] memory result = new Post[](length);
+        uint[] memory result = new uint[](length);
         for(uint i = 0; i < length; i++) {
-            result[i] = posts[postComments[postId][start + i]];
+            result[i] = postComments[postId][start + i]; //result[i] = posts[postComments[postId][start + i]];
         }
         return result;
     }
@@ -456,11 +425,11 @@ contract SocialGraph {
         return getUsers(followers[user], start, length);
     }
     function getFollowing(address user, uint start, uint length) public view returns (User[] memory) {
-        require(users[user].userAddress != address(0), "User does not exist");
+        require(users[user].userAddress != address(0), "No User");
         return getUsers(following[user], start, length);
     }
     function getEngagedWith(address user, uint start, uint length) public view returns (User[] memory) {
-        require(users[user].userAddress != address(0), "User does not exist");
+        require(users[user].userAddress != address(0), "No User");
         return getUsers(engagedWith[user], start, length);
     }
     function getLeaderboard(address user) public view returns(uint[] memory) {
@@ -514,7 +483,6 @@ contract SocialGraph {
            return getStohastic(engagedWith[user], topN);
         }
     }
-
     function getRecentPostsFrom(address[] memory fromUsers, uint count) public view returns (uint[] memory) {
         uint[] memory recentPosts = new uint[](count);
         uint index = 0;
@@ -532,7 +500,6 @@ contract SocialGraph {
         }
         return recentPosts;
     }
-
     function getPostsFromLeaderboard(address user, uint count) public view returns (uint[] memory) {
         require(users[user].userAddress != address(0), "No user");
         uint[] memory leaderboardPosts = new uint[](users[user].leaderboard.length);

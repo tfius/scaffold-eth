@@ -339,7 +339,7 @@ export function ComposeNewMessage({
       var fileSize = 0; // bytes
       //console.log("isEncrypted", isEncrypted);
       var sharedSecretKey = null;
-      if(isEncrypted) {
+      if (isEncrypted) {
         sharedSecretKey = await EncDec.calculateSharedKey(
           smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length),
           recipientKey,

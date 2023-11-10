@@ -1,41 +1,12 @@
-// main component for SocialGraph contract visualization
-import React, { useState, useCallback, useEffect, useRef } from "react";
-import { useHistory } from "react-router-dom";
-import { useDropzone } from "react-dropzone";
-import { uploadDataToBee, downloadDataFromBee } from "../Swarm/BeeService";
+// main component for SocialGraph message display
+import React from "react";
 import Blockies from "react-blockies";
 import { AddressSimple } from "../components";
-import {
-  AppstoreOutlined,
-  BarChartOutlined,
-  CloudOutlined,
-  ShopOutlined,
-  StarTwoTone,
-  TeamOutlined,
-  UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
-} from "@ant-design/icons";
+import { Collapse, Layout, Tooltip } from "antd";
+import { formatNumber, timeAgo } from "../views/datetimeutils";
 
-import CreatePost from "./CreatePost";
-
-import { Spin, Collapse, Card, Layout, Menu, Tooltip } from "antd";
-import { Link } from "react-router-dom/cjs/react-router-dom.min";
-import { load } from "@tensorflow-models/toxicity";
 const { Header, Content, Footer, Sider } = Layout;
-//import Sider from "antd/lib/layout/Sider";
-//import { Footer } from "antd/lib/layout/layout";
 const { Panel } = Collapse;
-
-function formatNumber(num) {
-  if (num < 1000) {
-    return num.toString(); // Return the number as is if it's less than 1000
-  } else if (num < 1000000) {
-    return (num / 1000).toFixed(1) + "k"; // Convert to 'k' for thousands
-  } else {
-    return (num / 1000000).toFixed(1) + "M"; // Convert to 'M' for millions
-  }
-}
 
 const TextWithLinks = ({ text }) => {
   // Function to convert @mentions and #hashtags into clickable links
@@ -170,7 +141,16 @@ const TextInteractive = ({ text, onMentionClick, onHashtagClick, onUrlClick }) =
   return <div style={{ whiteSpace: "pre-wrap" }}>{parseText(text)}</div>;
 };
 
-export function DisplayMessages({ messages, tx, writeContracts, readContracts, ensProvider, history, onNotifyClick }) {
+export function DisplayMessages({
+  messages,
+  tx,
+  writeContracts,
+  readContracts,
+  ensProvider,
+  history,
+  onNotifyClick,
+  onComment,
+}) {
   const handleMentionClick = mention => {
     console.log(`Mention clicked: ${mention}`);
     history.push("/sociomat?mention=" + mention.substring(1));
@@ -218,7 +198,8 @@ export function DisplayMessages({ messages, tx, writeContracts, readContracts, e
   };
   const comment = async message => {
     console.log("comment", message);
-    var newTx = await tx(writeContracts.SocialGraph.comment(message.postId, commentContentLocation));
+    // var newTx = await tx(writeContracts.SocialGraph.comment(message.postId, commentContentLocation));
+    onComment(message);
     //await newTx.wait();
   };
   const bookmark = async message => {
@@ -228,18 +209,18 @@ export function DisplayMessages({ messages, tx, writeContracts, readContracts, e
   };
 
   return (
-    <div style={{ width: "55%" }}>
+    <div style={{ width: "70%" }}>
       {messages.map((p, i) => {
         return (
           <div key={i} style={{ width: "100%" }} className="post-card-body">
             <div className="post-layout">
-              <div className="post-blockie" onClick={() => handleUserClick(p)}>
+              <div className="post-blockie" style={{ cursor: "pointer" }} onClick={() => handleUserClick(p)}>
                 <Blockies seed={p.creator.toLowerCase()} size={16} scale={2} />
               </div>
               <div className="post-text">
                 <div className="post-creator">
-                  {/* <Link to={"/profile/" + p.creator}>{p.creator}</Link> */}
                   <AddressSimple address={p.creator} ensProvider={ensProvider} />
+                  <small>&nbsp; · {timeAgo(p.sendTime)}</small>
                 </div>
                 {/* <Card key={i} style={{ width: "100%" }} className="post-card-body"> */}
                 {/* <Panel header={p.message} key={i}> */}

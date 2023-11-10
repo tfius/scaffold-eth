@@ -138,7 +138,7 @@ export function Help({
         <div style={{ overflowY: "scroll", height: "95%" }}>
           {questionList.map((item, index) => {
             return (
-              <Card>
+              <Card key={index}>
                 <h3>{item.question}</h3>
                 {item.answer}
               </Card>

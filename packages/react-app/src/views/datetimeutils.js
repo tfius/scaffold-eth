@@ -55,3 +55,36 @@ export function getDurationString(duration) {
   var m = duration / 60;
   return `${m}`;
 }
+// format number with postfix
+export function formatNumber(num) {
+  if (num < 1000) {
+    return num.toString(); // Return the number as is if it's less than 1000
+  } else if (num < 1000000) {
+    return (num / 1000).toFixed(1) + "k"; // Convert to 'k' for thousands
+  } else {
+    return (num / 1000000).toFixed(1) + "M"; // Convert to 'M' for millions
+  }
+}
+export function timeAgo(timestamp) {
+  const now = new Date().getTime();
+  const diff = now - timestamp;
+
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const years = Math.floor(days / 365);
+
+  if (seconds < 60) {
+    return `${seconds} secs`;
+  } else if (minutes < 60) {
+    return `${minutes} mins`;
+  } else if (hours < 24) {
+    return `${hours} h`;
+  } else if (days < 365) {
+    return `${days} days`;
+  }
+  else {
+    return `${years} years`;
+  }
+}

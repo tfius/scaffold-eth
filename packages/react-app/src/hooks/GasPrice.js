@@ -4,6 +4,7 @@ import { useState } from "react";
 
 export default function useGasPrice(targetNetwork, speed) {
   const [gasPrice, setGasPrice] = useState();
+  /*
   const loadGasPrice = async () => {
     if (targetNetwork.hasOwnProperty("gasPrice")) {
       setGasPrice(targetNetwork.gasPrice);
@@ -20,6 +21,7 @@ export default function useGasPrice(targetNetwork, speed) {
     }
   };
 
-  usePoller(loadGasPrice, 39999);
+  usePoller(loadGasPrice, 90000);
+  */
   return gasPrice;
 }
