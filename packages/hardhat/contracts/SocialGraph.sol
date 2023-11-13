@@ -17,7 +17,7 @@ contract SocialGraph {
         uint post; // post id
         InteractionType interactionType;
     }
-    enum InteractionType { Follow, Like, Comment, Share, Bookmark }
+    enum InteractionType { Follow, Like, Share, Comment, Bookmark }
     struct Metadata {
     //    bytes32[] tags; // sha256 hash of the tag
     //    bytes32[] mentions; // sha256 hash of the mentions (address)
@@ -68,7 +68,7 @@ contract SocialGraph {
 
     // leaderboard per user with most engaging posts
     mapping(address => mapping(uint => uint)) public postIndexInLeaderboard; // Maps post ID to its index in the leaderboard array
-    uint constant MAX_LEADERBOARD_LENGTH = 20;
+    uint constant MAX_LEADERBOARD_LENGTH = 10;
     // mapping(address => uint[]) public leaderboards; // Maps user ID to an array of post IDs
     // mapping to prevent double counting of likes and shares
     mapping(address => mapping(uint => uint)) public isPostLiked;
@@ -144,6 +144,7 @@ contract SocialGraph {
     }
     // internal function to interact with post
     function interactWith(uint postId, InteractionType interactionType, address engagingUserAddress) private returns (uint) {
+        require(postId < postCount, "No post");
         User storage engagingUser = users[engagingUserAddress];
         User storage engagedUser = users[posts[postId].creator];
         
@@ -159,32 +160,25 @@ contract SocialGraph {
         if(engagementScoreBetweenUsers[msg.sender][post.creator] == 0) {
            engagedWith[msg.sender].push(post.creator); // add if not engaged before
         }
+        uint score = uint(interactionType) + 1; // Assigning a weight of 1 for likes
+
+        engagingUser.engagementScore += score; // Assigning a weight of 1 for interactions
+        engagedUser.engagementScore += score; // Assigning a weight of 2 for interactions
+        post.totalEngagement += score; // Assigning a weight of 1 for likes
+        engagementScoreBetweenUsers[msg.sender][post.creator] += score;
 
         // Update engagement metrics
         if (interactionType == InteractionType.Like) {
             post.likeCount++;
-            post.totalEngagement += 1; // Assigning a weight of 1 for likes
-            engagementScoreBetweenUsers[msg.sender][post.creator] += 1;
-            engagingUser.engagementScore += 1; // Assigning a weight of 1 for interactions
-            engagedUser.engagementScore += 2; // Assigning a weight of 2 for interactions
+            isPostLiked[msg.sender][postId] = 1;
         } else if (interactionType == InteractionType.Comment) {
             post.commentCount++;
-            post.totalEngagement += 2; // Assigning a weight of 2 for comments
-            engagementScoreBetweenUsers[msg.sender][post.creator] += 5;
-            engagingUser.engagementScore += 5; // Assigning a weight of 4 for interactions
-            engagedUser.engagementScore += 4; // Assigning a weight of 3 for interactions
         } else if (interactionType == InteractionType.Share) {
             post.shareCount++;
-            post.totalEngagement += 3; // Assigning a weight of 3 for shares
-            engagementScoreBetweenUsers[msg.sender][post.creator] += 3;
-            engagingUser.engagementScore += 3; // Assigning a weight of 3 for interactions
-            engagedUser.engagementScore += 4; // Assigning a weight of 4 for interactions
+            isPostShared[msg.sender][postId] = 1;
             userPosts[engagingUserAddress].push(postId);
         } else if (interactionType == InteractionType.Bookmark) {
-            post.totalEngagement += 3; // Assigning a weight of 3 for shares
-            engagementScoreBetweenUsers[msg.sender][post.creator] += 3;
-            engagingUser.engagementScore += 3; // Assigning a weight of 3 for interactions
-            engagedUser.engagementScore += 4; // Assigning a weight of 4 for interactions
+            userBookmarks[msg.sender].push(postId);
         }
         uint dayIndex = getTodayIndex();
          
@@ -228,20 +222,14 @@ contract SocialGraph {
         }
     }
     function like(uint postId) public {
-        require(postId < postCount, "No post");
         require(users[msg.sender].userAddress != address(0), "No user");
-        require(isPostLiked[msg.sender][postId] == 0, "liked");
-        
+        require(isPostLiked[msg.sender][postId] == 0, "liked");       
         interactWith(postId, InteractionType.Like, msg.sender);
-        isPostLiked[msg.sender][postId] = 1;
     }
     function share(uint postId) public {
-        require(postId < postCount, "No post");
         require(users[msg.sender].userAddress != address(0), "No user");
         require(isPostShared[msg.sender][postId] == 0, "shared");
-
-        interactWith(postId, InteractionType.Share, msg.sender);
-        isPostShared[msg.sender][postId] = 1;
+        interactWith(postId, InteractionType.Share, msg.sender);       
     }    
     function createPost(bytes32 content, bytes32[] memory tags, bytes32[] memory mentions, bytes32 category) public returns (uint){
         uint dayIndex = getTodayIndex();
@@ -267,7 +255,6 @@ contract SocialGraph {
             contentAnalysis: ContentAnalysis(0, 0x0)
         });
 
-
         userPosts[msg.sender].push(postCount);
         posts[postCount] = post;
         if(users[msg.sender].dayIndex<dayIndex) // add user to usersByDay
@@ -288,22 +275,13 @@ contract SocialGraph {
         return postCount - 1;
     }    
     function comment(uint postId, bytes32 content, bytes32[] memory tags, bytes32[] memory mentions, bytes32 category) public returns (uint){
-        require(postId < postCount, "No Post");
         uint newPostId = createPost(content, tags, mentions, category); 
 
-        Post storage post = posts[postId];
-        post.commentCount++;
-        post.totalEngagement += 2; // Assigning a weight of 2 for comments
-        postComments[postId].push(postCount);
-
-        //User storage engagingUser = users[msg.sender];
-        //engagingUser.engagementScore += 5; // assigning a weight of 5 for commenting
-        interactWith(postId, InteractionType.Comment, msg.sender);
-        
+        postComments[postId].push(newPostId);
+        interactWith(postId, InteractionType.Comment, msg.sender);        
         return newPostId;
     }
     function bookmark(uint postId) public returns (uint){
-        require(postId < postCount, "No post");
         require(users[msg.sender].userAddress != address(0), "No user");
         
         userBookmarks[msg.sender].push(postId);
