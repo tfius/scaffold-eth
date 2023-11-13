@@ -106,7 +106,6 @@ body {
   border-radius: 8px;
   max-width: 70%;
   display: flex;
-
   animation-name: fadeInFromNone, appGradient;
 }
 
@@ -115,8 +114,12 @@ body {
   filter: grayscale(0);
 }
 
-
-
+.user-layout {
+  justify-content: left;
+  z-index: 2;
+  display: flex;
+  margin-right: 5px;
+}
 .post-layout {
   z-index: 2;
   display: flex;
@@ -140,7 +143,7 @@ body {
 }
 .post-creator {
   display: flex;
-  padding: 8px 0px 8px 0px; 
+  padding: 10px 0px 8px 0px; 
 }
 .post-text {
   display: block;

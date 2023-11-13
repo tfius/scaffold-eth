@@ -1,11 +1,12 @@
 // main component for SocialGraph contract visualization
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { ethers } from "ethers";
+import { ethers, BigNumber } from "ethers";
 import { useDropzone } from "react-dropzone";
 import { uploadDataToBee, downloadDataFromBee } from "../Swarm/BeeService";
 import { useParams } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import * as pako from "pako";
 
 import {
   AppstoreOutlined,
@@ -30,6 +31,7 @@ import { Spin, Collapse, Card, Layout, Menu, Tooltip, Input } from "antd";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
 import { load } from "@tensorflow-models/toxicity";
 import { DisplayMessages } from "./DisplayMessages";
+import { DisplayUser } from "./DisplayUser";
 import { DisplayUserStats } from "./DisplayUserStats";
 import { add } from "@tensorflow/tfjs-core/dist/engine";
 const { Header, Content, Footer, Sider } = Layout;
@@ -76,19 +78,6 @@ function MyDropzone({ ref, onAdd }) {
     </div>
   );
 }*/
-class CreatePostComponent extends React.Component {
-  formRef = React.createRef();
-  constructor(props) {
-    super(props);
-    this.state = {
-      text: "",
-      attachments: [],
-      tags: [],
-      atStrings: [],
-      hashStrings: [],
-    };
-  }
-}
 
 export function SocialGraph({ readContracts, writeContracts, address, tx, ensProvider }) {
   let history = useHistory();
@@ -252,11 +241,16 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
         // check to see if postId is already in messages
         if (messages.filter(m => m.contentPosition === p.contentPosition).length > 0) continue;
         const data = await downloadDataFromBee(p.contentPosition);
-        var m = JSON.parse(new TextDecoder().decode(data));
+        // const s = new TextDecoder().decode(data);
+        const decompressedString = pako.inflate(data, { to: "string" });
+        //
+        //var m = JSON.parse(new TextDecoder().decode(decompressedString));
+        var m = JSON.parse(decompressedString);
         var mp = { ...m, ...p };
         // console.log("message", mp);
         // add only if post.contentPosition does not exist in messages before
-        //if (messages.filter(m => m.contentPosition === mp.contentPosition).length === 0) msgs.push(mp);
+        //if (messages.filter(m => m.contentPosition === mp.contentPosition).length === 0)
+        msgs.push(mp);
         // debugger;
       } catch (e) {
         console.log("error", e);
@@ -278,10 +272,11 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
 
     const start = allPosts - pageSize >= 0 ? allPosts - pageSize : 0;
     lenght = start + pageSize < allPosts ? pageSize : allPosts - start; // length can be more than pageSize + start
-    console.log("fetchLatest todaysPostsCount", allPosts.toString(), start, lenght);
+    var idxs = createBigNumberArray(start, lenght); //this just gets latest post ids
+    console.log("fetchLatest todaysPostsCount", allPosts.toString(), start, lenght, idxs);
     try {
-      //const posts_latest = await readContracts.SocialGraph.getPosts(start, lenght);
-      setPosts(posts_latest);
+      // const posts_latest = await readContracts.SocialGraph.getPostsWith(idxs);
+      setPostIds(idxs);
     } catch (e) {
       console.log("error", e);
     }
@@ -357,6 +352,9 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     let postId = query.get("postId");
     let cat = query.get("cat");
     let topic = query.get("topic");
+    let followersFor = query.get("followers");
+    let followingFor = query.get("following");
+    let engaged = query.get("engaged");
     let pageLen;
     //console.log("query", query);
     //let { mention } = useParams();
@@ -396,11 +394,36 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     if (userId) {
       var userStats = await readContracts.SocialGraph.getUserStats(userId);
       console.log("userStats", userStats);
+      setUserStats(userStats);
       var maxCount = userStats.posts_count;
       var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-      const posted = await readContracts.SocialGraph.getPostsFromUser(userId, start, pageSize);
+      const postIdxs = await readContracts.SocialGraph.getPostsFromUser(userId, start, pageSize);
       await pushMessagesOnStack();
-      setPosts(posted);
+      setPostIds(postIdxs);
+    }
+    if (followersFor) {
+      var userStats = await readContracts.SocialGraph.getUserStats(followersFor);
+      setUserStats(userStats);
+      var maxCount = userStats.followers_count;
+      var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
+      const gotUsers = await readContracts.SocialGraph.getFollowers(followersFor, start, pageSize);
+      setUsers(gotUsers);
+    }
+    if (followingFor) {
+      var userStats = await readContracts.SocialGraph.getUserStats(followingFor);
+      setUserStats(userStats);
+      var maxCount = userStats.following_count;
+      var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
+      const gotUsers = await readContracts.SocialGraph.getFollowing(followingFor, start, pageSize);
+      setUsers(gotUsers);
+    }
+    if (engaged) {
+      var userStats = await readContracts.SocialGraph.getUserStats(engaged);
+      setUserStats(userStats);
+      var maxCount = userStats.engagedWith_count;
+      var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
+      const gotUsers = await readContracts.SocialGraph.getFollowing(getEngagedWith, start, pageSize);
+      setUsers(gotUsers);
     }
   };
   const pushMessagesOnStack = async () => {
@@ -478,7 +501,22 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
             setIsOpen={setIsPostModalVisible}
           />
           {userStats !== null && userStats !== undefined ? (
-            <DisplayUserStats userStats={userStats} ensProvider={ensProvider} />
+            <>
+              <DisplayUser
+                userdata={userStats.userdata}
+                ensProvider={ensProvider}
+                currentAddress={address}
+                history={history}
+                onNotifyClick={onLoadPosts}
+              />
+              <DisplayUserStats
+                userStats={userStats}
+                ensProvider={ensProvider}
+                currentAddress={address}
+                history={history}
+                onNotifyClick={onLoadPosts}
+              />
+            </>
           ) : (
             <h3>Seems you didn't post anything yet.</h3>
           )}
@@ -493,8 +531,11 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
             onNotifyClick={onLoadPosts}
             onComment={onOpenToComment}
           />
+          {users.map((u, i) => {
+            <DisplayUser userData={u} ensProvider={ensProvider} currentAddress={address} />;
+          })}
           <div ref={loaderRef}>
-            <small>... {totalItems.toString()}</small>
+            <small>... Total:{totalItems.toString()}</small>
           </div>
         </Content>
 

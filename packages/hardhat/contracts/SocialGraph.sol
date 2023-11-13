@@ -19,8 +19,8 @@ contract SocialGraph {
     }
     enum InteractionType { Follow, Like, Comment, Share, Bookmark }
     struct Metadata {
-        bytes32[] tags; // sha256 hash of the tag
-        bytes32[] mentions; // sha256 hash of the mentions (address)
+    //    bytes32[] tags; // sha256 hash of the tag
+    //    bytes32[] mentions; // sha256 hash of the mentions (address)
         bytes32 category; // sha256 hash of the category
     }
     struct ContentAnalysis {
@@ -74,6 +74,9 @@ contract SocialGraph {
     mapping(address => mapping(uint => uint)) public isPostLiked;
     mapping(address => mapping(uint => uint)) public isPostShared;
 
+    function getRelations(address user, address other) public view returns (uint engagement_to_other, uint engagement_to_user, uint user_following_other, uint user_follower_other, uint other_following_user, uint other_follower_user) {
+        return (engagementScoreBetweenUsers[user][other], engagementScoreBetweenUsers[other][user], isFollowing[user][other], isFollower[user][other], isFollowing[other][user], isFollower[other][user]);
+    }
     function getUserStats(address user) public view returns (uint following_count, uint followers_count, uint engagedWith_count, uint posts_count, uint interactions_count, uint leaderboard_count,
                                                              User memory userdata) {
         require(users[user].userAddress != address(0), "No user");
@@ -204,8 +207,8 @@ contract SocialGraph {
         delete isFollowing[msg.sender][who_following];
     }
     function follow(address user, bool isFollow) public {
-        require(users[user].userAddress != address(0), "User does not exist");
-        require(users[msg.sender].userAddress != address(0), "Your user does not exist");
+        require(users[user].userAddress != address(0), "No User");
+        require(users[msg.sender].userAddress != address(0), "You have no user");
         if(isFollow) {
             users[msg.sender].engagementScore += 4; // assigning a weight of 4 for following
             if(isFollowing[msg.sender][user]==0) {
@@ -259,7 +262,8 @@ contract SocialGraph {
             commentCount: 0,
             shareCount: 0,
             totalEngagement: 0,
-            metadata: Metadata(tags, mentions, category),
+            metadata: Metadata(category),
+            //metadata: Metadata(tags, mentions, category),
             contentAnalysis: ContentAnalysis(0, 0x0)
         });
 
@@ -292,8 +296,8 @@ contract SocialGraph {
         post.totalEngagement += 2; // Assigning a weight of 2 for comments
         postComments[postId].push(postCount);
 
-        User storage engagingUser = users[msg.sender];
-        engagingUser.engagementScore += 5; // assigning a weight of 5 for commenting
+        //User storage engagingUser = users[msg.sender];
+        //engagingUser.engagementScore += 5; // assigning a weight of 5 for commenting
         interactWith(postId, InteractionType.Comment, msg.sender);
         
         return newPostId;
@@ -434,7 +438,7 @@ contract SocialGraph {
     }
     function getLeaderboard(address user) public view returns(uint[] memory) {
         require(users[user].userAddress != address(0), "No user");
-        return users[user].leaderboard;
+        return users[user].leaderboard; // returns post ids
     }
     // get engagements scores for others from user
     function getEngagementScores(address user, address[] memory others) public view returns (User[] memory, uint[] memory, uint[] memory) {
@@ -513,31 +517,6 @@ contract SocialGraph {
         }
         return leaderboardPosts;
     }
-    /*
-    function generateFeed(address user, uint count, uint user_type) public view returns (Post[] memory) {
-        require(users[user].userAddress != address(0), "No user");
-        
-        uint[] memory recentPosts = getRecentPostsFrom(followers[user], count);
-        
-        // Sort the posts based on engagement and recency
-        for (uint i = 0; i < recentPosts.length; i++) {
-            for (uint j = i + 1; j < recentPosts.length; j++) {
-                if (posts[recentPosts[i]].totalEngagement < posts[recentPosts[j]].totalEngagement) {
-                    uint temp = recentPosts[i];
-                    recentPosts[i] = recentPosts[j];
-                    recentPosts[j] = temp;
-                }
-            }
-        }
-
-        // Fetch the posts
-        Post[] memory feed = new Post[](count);
-        for (uint i = 0; i < count && i < recentPosts.length; i++) {
-            feed[i] = posts[recentPosts[i]];
-        }
-
-        return feed;
-    }*/
     function getPostIdsWithCategory(bytes32 category, uint start, uint length) public view returns(uint[] memory) {
         require(start < postsWithCategory[category].length, "Start index out of bounds");
         //require(start + length <= postsWithCategory[category].length, "Requested range exceeds post count");
@@ -608,4 +587,44 @@ contract SocialGraph {
 
         return latestPosts;
     }
+    function getUsersPerDay(uint dayIndex, uint start, uint length) public view returns(address[] memory) {
+        if(start + length > usersByDay[dayIndex].length) {
+           length = usersByDay[dayIndex].length - start;
+        }
+
+        address[] memory latestUsers = new address[](length);
+        uint currentIndex = 0;
+        for (uint i = 0; i < length; i++) {
+            latestUsers[currentIndex] = usersByDay[dayIndex][start+i];
+            currentIndex++;
+        }
+
+        return latestUsers;
+    }
+
+    /*
+    function generateFeed(address user, uint count, uint user_type) public view returns (Post[] memory) {
+        require(users[user].userAddress != address(0), "No user");
+        
+        uint[] memory recentPosts = getRecentPostsFrom(followers[user], count);
+        
+        // Sort the posts based on engagement and recency
+        for (uint i = 0; i < recentPosts.length; i++) {
+            for (uint j = i + 1; j < recentPosts.length; j++) {
+                if (posts[recentPosts[i]].totalEngagement < posts[recentPosts[j]].totalEngagement) {
+                    uint temp = recentPosts[i];
+                    recentPosts[i] = recentPosts[j];
+                    recentPosts[j] = temp;
+                }
+            }
+        }
+
+        // Fetch the posts
+        Post[] memory feed = new Post[](count);
+        for (uint i = 0; i < count && i < recentPosts.length; i++) {
+            feed[i] = posts[recentPosts[i]];
+        }
+
+        return feed;
+    }*/
 }

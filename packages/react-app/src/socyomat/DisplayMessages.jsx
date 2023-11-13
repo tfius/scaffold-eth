@@ -188,13 +188,13 @@ export function DisplayMessages({
   const share = async message => {
     console.log("share", message);
     var newTx = await tx(writeContracts.SocialGraph.share(message.postId));
-    //await newTx.wait();
+    await newTx.wait();
   };
   const like = async message => {
     console.log("like", message);
     await getUpdateMessage(message);
     var newTx = await tx(writeContracts.SocialGraph.like(message.postId));
-    //await newTx.wait();
+    await newTx.wait();
   };
   const comment = async message => {
     console.log("comment", message);
@@ -205,7 +205,7 @@ export function DisplayMessages({
   const bookmark = async message => {
     console.log("bookmark", message);
     var newTx = await tx(writeContracts.SocialGraph.bookmark(message.postId));
-    //await newTx.wait();
+    await newTx.wait();
   };
 
   return (
@@ -214,9 +214,11 @@ export function DisplayMessages({
         return (
           <div key={i} style={{ width: "100%" }} className="post-card-body">
             <div className="post-layout">
-              <div className="post-blockie" style={{ cursor: "pointer" }} onClick={() => handleUserClick(p)}>
-                <Blockies seed={p.creator.toLowerCase()} size={16} scale={2} />
-              </div>
+              <Tooltip title="View user">
+                <div className="post-blockie" style={{ cursor: "pointer" }} onClick={() => handleUserClick(p)}>
+                  <Blockies seed={p.creator.toLowerCase()} size={16} scale={2} />
+                </div>
+              </Tooltip>
               <div className="post-text">
                 <div className="post-creator">
                   <AddressSimple address={p.creator} ensProvider={ensProvider} />

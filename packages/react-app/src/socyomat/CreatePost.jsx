@@ -6,6 +6,7 @@ import { uploadDataToBee, downloadDataFromBee } from "../Swarm/BeeService";
 import { DropzoneReadFileContents } from "../Swarm/DropzoneReadFileContents";
 import Dropzone from "react-dropzone";
 import { useDropzone } from "react-dropzone";
+import * as pako from "pako";
 
 //import tf from "@tensorflow/tfjs";
 import * as tf from "@tensorflow/tfjs-core";
@@ -16,7 +17,7 @@ import "@tensorflow/tfjs-backend-cpu";
 import { CollapseProps } from "antd";
 //require("@tensorflow/tfjs");
 //const toxicity = require("@tensorflow-models/toxicity");
-import { hyperplanesX } from "./hyperplanes_16";
+import { hyperplanesX } from "./hyperplanes_64";
 var HYPER = null;
 
 import {
@@ -250,11 +251,12 @@ export default function CreatePost({
     for (var i = 0; i < attachments.length; i++) {
       var a = attachments[i];
       hash = await uploadDataToBee(a.binaryData, a.file.type, a.file.name);
+      locations.push({ file: a.file, digest: hash });
     }
 
     var postData = {
       message: text,
-      attachments: attachments,
+      attachments: locations, //only digests as pointers to where files are stored
       tags: tgs,
       ats: ats,
       sender: address,
@@ -267,12 +269,13 @@ export default function CreatePost({
       parentPost: postToCommentOn ? postToCommentOn.postId : null,
     };
 
-    //embeddings.print();
-    var m = JSON.stringify(postData);
-    const contentsLocation = await uploadDataToBee(m, "application/json", "post.json");
-    console.log(contentsLocation, postData);
-
     try {
+      //embeddings.print();
+      var m = JSON.stringify(postData);
+      const compressed = pako.deflate(new TextEncoder().encode(m));
+      const contentsLocation = await uploadDataToBee(compressed, "application/zip+json", "post.zip");
+      console.log(contentsLocation, postData);
+
       if (postToCommentOn != null) {
         var newTx = await tx(
           writeContracts.SocialGraph.comment(

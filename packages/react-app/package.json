@@ -54,6 +54,7 @@
     "graphql": "^15.3.0",
     "isomorphic-fetch": "^3.0.0",
     "node-watch": "^0.7.1",
+    "pako": "^2.1.0",
     "postcss": "^8.2.6",
     "qrcode.react": "^1.0.0",
     "rc-virtual-list": "^3.4.13",
