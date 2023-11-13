@@ -1,0 +1,61 @@
+.rolling-text-container {
+overflow: hidden;
+position: relative;
+height: 2rem; /* Adjust as per the text size */
+width: 100%;
+}
+
+.rolling-text-item {
+position: absolute;
+width: 100%;
+transition: transform 0.5s ease-in-out;
+transform: translateY(100%);
+opacity: 0;
+}
+
+.rolling-text-item.active {
+transform: translateY(0);
+opacity: 1;
+}
+
+.rolling-letter-container {
+display: inline-block;
+}
+
+.rolling-letter {
+display: inline-block;
+transition: transform 0.3s ease, opacity 0.3s ease;
+transform: translateY(-100%);
+opacity: 0;
+}
+
+.rolling-letter.active {
+transform: translateY(0);
+opacity: 1;
+}
+
+@keyframes move-text-color {
+    0% {
+      bottom: -1.5rem;
+      opacity: 0;
+    }
+    
+    50% {
+      bottom: 0.2rem;
+    }
+  
+    100% {
+      bottom: 0;
+      opacity: 1;      
+    }
+  }
+
+.rolling-span { 
+    position: relative;
+    bottom: -1.5rem;
+    opacity: 0;
+    animation: move-text-color 1.75s forwards;
+}
+.rolling-span:nth-child(2n) { 
+    animation: move-text-color 1.75s forwards;
+}

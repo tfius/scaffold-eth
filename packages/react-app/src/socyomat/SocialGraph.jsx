@@ -20,6 +20,29 @@ import {
   VideoCameraOutlined,
 } from "@ant-design/icons";
 
+const questions = [
+  "What's happening?",
+  "What's going on?",
+  "What's the news?",
+  "What's the latest?",
+  "What's the latest news?",
+  "What's the latest on this?",
+  "Explain what is occurring?",
+  "Explain what is happening?",
+  "Explain what is going on?",
+  "Explain what is the news?",
+  "What's unfolding right now?",
+  "Tell me what is happening?",
+  "What is the situation at this moment?",
+  "Why is all this happening?",
+  "What is the current situation?",
+  "How did things get to this point?",
+  "Is there a reason for change?",
+  "Clarify the current events?",
+  "What is the current state of affairs?",
+  "What is the play?",
+];
+
 //import tf from "@tensorflow/tfjs";
 //import * as tf from "@tensorflow/tfjs";
 //import "@tensorflow/tfjs-backend-cpu";
@@ -30,6 +53,7 @@ import CreatePost from "./CreatePost";
 import { Spin, Collapse, Card, Layout, Menu, Tooltip, Input } from "antd";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
 import { load } from "@tensorflow-models/toxicity";
+import { RollingText } from "./RollingText";
 import { DisplayMessages } from "./DisplayMessages";
 import { DisplayUser } from "./DisplayUser";
 import { DisplayUserStats } from "./DisplayUserStats";
@@ -487,7 +511,11 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
         <Content>
           <div className="routeSubtitle">
             <div className="post-card-body post-input-body" onClick={() => setIsPostModalVisible(true)}>
-              What is happening ? {todayIndex.toString()} {messages.length}{" "}
+              <h3>
+                <RollingText textArray={questions} interval={50000} />
+                {userStats !== null && userStats !== undefined ? null : <> Seems you didn't post anything yet. </>}
+                {/* {questions[Math.floor(Math.random() * questions.length)]} */}
+              </h3>
             </div>
           </div>
           <CreatePost
@@ -517,9 +545,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
                 onNotifyClick={onLoadPosts}
               />
             </>
-          ) : (
-            <h3>Seems you didn't post anything yet.</h3>
-          )}
+          ) : null}
 
           <DisplayMessages
             messages={messages}
@@ -535,7 +561,9 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
             <DisplayUser userData={u} ensProvider={ensProvider} currentAddress={address} />;
           })}
           <div ref={loaderRef}>
-            <small>... Total:{totalItems.toString()}</small>
+            <small>
+              ... Messages:{messages.length} Total:{totalItems.toString()} Day:{todayIndex.toString()}
+            </small>
           </div>
         </Content>
 
