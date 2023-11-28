@@ -29,8 +29,13 @@ export function DisplayUser({
     //onNotifyClick();
   };
   const follow = async userAddress => {
-    console.log("follow", message);
-    //var newTx = await writeContracts.SocialGraph.follow(userAddress);
+    console.log("follow", userAddress);
+    // var newTx = await writeContracts.SocialGraph.follow(userAddress);
+    let newTx = await tx(
+      writeContracts.SocialGraph.follow(userAddress, {
+        value: cost, // in wei
+      }),
+    );
     await newTx.wait();
   };
   const checkFollowing = useCallback(async () => {
@@ -85,10 +90,11 @@ export function DisplayUser({
                 </span>
               </small>
               <Button
+                type="primary"
                 style={{ maxHeight: "1.5em", paddingTop: "0px", marginTop: "0px", borderRadius: "10px" }}
-                onClick={() => follow(user.userAddress)}
+                onClick={() => follow(userdata?.userAddress)}
               >
-                <span style={{ fontSize: "0.7em", padding: "0px" }}>Follow</span>
+                <span style={{ fontSize: "1.0em", padding: "0px" }}>Follow</span>
               </Button>
             </div>
           </div>

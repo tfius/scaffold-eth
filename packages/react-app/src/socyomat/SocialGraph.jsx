@@ -558,47 +558,47 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
   const loadUserPosts = async userStats => {
     var maxCount = userStats.posts_count;
     var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-    const postIdxs = await readContracts.SocialGraph.getPostsFromUser(user, start, pageSize);
-    return postIdxs, userStats;
+    const postIdxs = await readContracts.SocialGraph.getPostsFromUser(userStats.userdata.userAddress, start, pageSize);
+    return postIdxs;
   };
 
-  const loadPostsFrom = async (mention, tag, cat, token, topics, userId) => {
+  const loadPostsFrom = async (mention, tag, cat, token, topic, userId) => {
     var postIndices = [];
     if (mention) {
       try {
         const postIdxs = await loadMention("@" + mention);
-        postIndices.push(postIdxs);
+        postIndices = [...postIndices, ...postIdxs];
       } catch (e) {}
     }
     if (tag) {
       try {
         const postIdxs = await loadTag("#" + tag);
-        postIndices.push(postIdxs);
+        postIndices = [...postIndices, ...postIdxs];
       } catch (e) {}
     }
     if (cat) {
       try {
         const postIdxs = await loadCategory("!" + cat);
-        postIndices.push(postIdxs);
+        postIndices = [...postIndices, ...postIdxs];
       } catch (e) {}
     }
     if (token) {
       try {
         const postIdxs = await loadToken("$" + token);
-        postIndices.push(postIdxs);
+        postIndices = [...postIndices, ...postIdxs];
       } catch (e) {}
     }
     if (topic) {
       try {
         const postIdxs = await loadTopic("!" + topic);
-        postIndices.push(postIdxs);
+        postIndices = [...postIndices, ...postIdxs];
       } catch (e) {}
     }
     if (userId) {
       try {
         const stats = await loadUserStats(userId);
-        const postIdxs = loadUserPosts(stats);
-        postIndices.push(postIdxs);
+        const postIdxs = await loadUserPosts(stats);
+        postIndices = [...postIndices, ...postIdxs];
       } catch (e) {}
     }
     return postIndices;
@@ -626,7 +626,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
 
     if (userId) {
       const stats = await loadUserStats(userId);
-      setUserStats(userStats);
+      setUserStats(stats);
     }
     if (followersFor) {
       const stats = await loadUserStats(userId);
@@ -781,6 +781,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
                 currentAddress={address}
                 history={history}
                 onNotifyClick={onLoadPosts}
+                tx={tx}
               />
               <DisplayUserStats
                 userStats={userStats}
