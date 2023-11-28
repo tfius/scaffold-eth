@@ -116,12 +116,14 @@ export function FairOSWasmConnect({
 
   async function ConnectFairOS() {
     const beeNet = BEENETWORKS[selectedBeeNetwork];
-    console.log("wasmConnect", selectedBeeNetwork, targetNetwork, batchId, beeNet);
-    console.log("wasmConnect targetNet", targetNetwork);
-    console.log("wasmConnect    beeNet", beeNet);
-    console.log("wasmConnect    readContracts", readContracts);
+    // console.log("wasmConnect", selectedBeeNetwork, targetNetwork, batchId, beeNet);
+    console.log("connect beeEndpoint", beeNet.endpoint);
+    console.log("connect stampId", batchId);
+    console.log("connect network", beeNet.fairOsRpc);
+    console.log("connect subRPC", targetNetwork.rpcUrl);
+    console.log("connect subAddr", readContracts.DataHub.address);
+
     try {
-      //debugger;
       /*
       let resp = await window.connect(
         beeNet.endpoint, // "http://localhost:1633", // bee endpoint
@@ -131,15 +133,18 @@ export function FairOSWasmConnect({
         targetNetwork.rpcUrl, // "http://localhost:9545", // contract.rpc
         readContracts.DataHub.address, //"0x21a59654176f2689d12E828B77a783072CD26680", // swarm mail contract address
       );*/
-      // connect(beeEndpoint, stampId, rpc, network)
       let resp = await window.connect(
         beeNet.endpoint, // "http://localhost:1633", // bee endpoint
         batchId, //"51987f7304b419d8aa184d35d46b3cfeb1b00986ad937b3151c7ade699c81338", // stampId
         beeNet.fairOsRpc, //"http://localhost:9545", // rpc
         "testnet", //targetNetwork.name, //"play or testnet", // network
-        //targetNetwork.rpcUrl, // "http://localhost:9545", // contract.rpc
-        //readContracts.DataHub.address, //"0x21a59654176f2689d12E828B77a783072CD26680", // swarm mail contract address
+        targetNetwork.rpcUrl, // "http://localhost:9545", // contract.rpc
+        readContracts.DataHub.address, //"0x21a59654176f2689d12E828B77a783072CD26680", // swarm mail contract address
       );
+
+      //ConnectFairOS not enough arguments. "connect(beeEndpoint, stampId, rpc, network)" or
+      //"connect(beeEndpoint, stampId, rpc, network, subRpc, subContractAddress)"
+
       console.log("ConnectFairOS", resp);
       setFairOS(resp);
     } catch (e) {

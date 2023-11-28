@@ -4,6 +4,11 @@ pragma solidity ^0.8.0;
 // This contract tracks the social graph of users, users can create posts and interact with other users posts
 // 
 
+// peer to peer shared content for payment
+// paywall for following (post points to locker hash)
+// pay for post -> post (think about it)
+// creator pod 
+
 contract SocialGraph {
     struct User {
         address userAddress;
@@ -11,13 +16,14 @@ contract SocialGraph {
         uint    engagementScore;
         uint    dayIndex;	
         uint[]  leaderboard; // contains indices of posts in posts array
+        uint    priceForFollow; // price for following
     }
     struct Interaction {
         address from; // user id
         uint post; // post id
         InteractionType interactionType;
     }
-    enum InteractionType { Follow, Like, Share, Comment, Bookmark }
+    enum InteractionType { Post, Follow, Like, Share, Comment, Bookmark }
     struct Metadata {
     //    bytes32[] tags; // sha256 hash of the tag
     //    bytes32[] mentions; // sha256 hash of the mentions (address)
@@ -45,7 +51,7 @@ contract SocialGraph {
     mapping(uint => Post) public posts;
     uint public postCount;
     Interaction[] public interactions;
-    //uint public interactionsCount;
+    uint public interactionsCount;
     mapping(address => uint[]) public userPosts; // user posts 
     mapping(address => uint[]) public userInteractions; // user interactions
     mapping(address => uint[]) public userBookmarks; // user bookmarks - posts
@@ -63,6 +69,7 @@ contract SocialGraph {
     mapping(bytes32 => uint[]) public postsWithTag; // mapping of posts with tags
     mapping(bytes32 => uint[]) public postsWithCategory; // mapping of posts with category
     mapping(bytes32 => uint[]) public postsWithMention; // mapping of posts with mentions
+    mapping(bytes32 => uint[]) public postsWithTokens; // mapping of posts with tokens
     mapping(uint => uint[]) public postsByDay; // Map each day to an array of posts
     mapping(uint => address[]) public usersByDay; // map most active users per day
 
@@ -73,6 +80,7 @@ contract SocialGraph {
     // mapping to prevent double counting of likes and shares
     mapping(address => mapping(uint => uint)) public isPostLiked;
     mapping(address => mapping(uint => uint)) public isPostShared;
+    // add option to follow only for payment 
 
     function getRelations(address user, address other) public view returns (uint engagement_to_other, uint engagement_to_user, uint user_following_other, uint user_follower_other, uint other_following_user, uint other_follower_user) {
         return (engagementScoreBetweenUsers[user][other], engagementScoreBetweenUsers[other][user], isFollowing[user][other], isFollower[user][other], isFollowing[other][user], isFollower[other][user]);
@@ -87,8 +95,8 @@ contract SocialGraph {
         require(postId < postCount, "No post");
         return (posts[postId].likeCount, posts[postId].commentCount, posts[postId].shareCount, posts[postId].totalEngagement, postInteractions[postId].length, postComments[postId].length);
     }
-    function getInfoOn(bytes32 any) public view returns (uint tags, uint mentions, uint topics, uint categories) {
-        return (postsWithTag[any].length, postsWithMention[any].length, postsWithTopic[any].length, postsWithCategory[any].length);
+    function getInfoOn(bytes32 any) public view returns (uint tags, uint mentions, uint topics, uint tokens, uint categories) {
+        return (postsWithTag[any].length, postsWithMention[any].length, postsWithTopic[any].length, postsWithTokens[any].length, postsWithCategory[any].length);
     }
     function getDayStats(uint dayIndex) public view returns(uint, uint) {
         return (postsByDay[dayIndex].length, usersByDay[dayIndex].length);
@@ -148,33 +156,34 @@ contract SocialGraph {
         User storage engagingUser = users[engagingUserAddress];
         User storage engagedUser = users[posts[postId].creator];
         
-        Post storage post = posts[postId];
+        Post storage new_post = posts[postId];
         Interaction memory interaction = Interaction({
             from: msg.sender,
             post: postId,
             interactionType: interactionType
         });
+        //interactionsCount=interactions.length;
         interactions.push(interaction);
-        postInteractions[postId].push(interactions.length - 1);
-        userInteractions[msg.sender].push(interactions.length - 1);
-        if(engagementScoreBetweenUsers[msg.sender][post.creator] == 0) {
-           engagedWith[msg.sender].push(post.creator); // add if not engaged before
+        postInteractions[postId].push(interactionsCount);
+        userInteractions[msg.sender].push(interactionsCount);
+        if(engagementScoreBetweenUsers[msg.sender][new_post.creator] == 0) {
+           engagedWith[msg.sender].push(new_post.creator); // add if not engaged before
         }
         uint score = uint(interactionType) + 1; // Assigning a weight of 1 for likes
 
         engagingUser.engagementScore += score; // Assigning a weight of 1 for interactions
         engagedUser.engagementScore += score; // Assigning a weight of 2 for interactions
-        post.totalEngagement += score; // Assigning a weight of 1 for likes
-        engagementScoreBetweenUsers[msg.sender][post.creator] += score;
+        new_post.totalEngagement += score; // Assigning a weight of 1 for likes
+        engagementScoreBetweenUsers[msg.sender][new_post.creator] += score;
 
         // Update engagement metrics
         if (interactionType == InteractionType.Like) {
-            post.likeCount++;
+            new_post.likeCount++;
             isPostLiked[msg.sender][postId] = 1;
         } else if (interactionType == InteractionType.Comment) {
-            post.commentCount++;
+            new_post.commentCount++;
         } else if (interactionType == InteractionType.Share) {
-            post.shareCount++;
+            new_post.shareCount++;
             isPostShared[msg.sender][postId] = 1;
             userPosts[engagingUserAddress].push(postId);
         } else if (interactionType == InteractionType.Bookmark) {
@@ -185,11 +194,26 @@ contract SocialGraph {
         usersByDay[dayIndex].push(engagingUserAddress);
         engagingUser.timestamp = block.timestamp;
 
-        engageWithPost(post.creator, postId);
+        engageWithPost(new_post.creator, postId);
+        interactionsCount++;
         return interactions.length - 1;
     }
+    function createUser() private {
+        users[msg.sender] = User({
+            userAddress: msg.sender,
+            timestamp: block.timestamp,
+            engagementScore: 2,
+            dayIndex: 0,
+            leaderboard: new uint[](0),
+            priceForFollow: 0
+        });
+    }  
+    function setPriceToFollow(uint price) public {
+        require(users[msg.sender].userAddress != address(0), "No user");
+        users[msg.sender].priceForFollow = price;
+    }
     function unfollow(address who_following) private {
-        require(isFollowing[msg.sender][who_following] > 0, "You are not following this user");
+        require(isFollowing[msg.sender][who_following] > 0, "Not following this user");
         uint index = isFollowing[msg.sender][who_following] - 1;
         address[] storage followingArray = following[msg.sender];
         // Move the last element into the place to delete
@@ -200,9 +224,15 @@ contract SocialGraph {
         // Remove the unfollowed user from isFollowing
         delete isFollowing[msg.sender][who_following];
     }
-    function follow(address user, bool isFollow) public {
-        require(users[user].userAddress != address(0), "No User");
-        require(users[msg.sender].userAddress != address(0), "You have no user");
+    function follow(address user, bool isFollow) public payable {
+        //require(users[user].userAddress != address(0), "No User");
+        //require(users[msg.sender].userAddress != address(0), "You have no user");
+        require(msg.sender != user, "Can't follow yourself");
+        require(msg.value >= users[user].priceForFollow, "Not enough funds");
+        if(users[msg.sender].userAddress == address(0)) {
+            createUser();
+        }
+
         if(isFollow) {
             users[msg.sender].engagementScore += 4; // assigning a weight of 4 for following
             if(isFollowing[msg.sender][user]==0) {
@@ -214,6 +244,15 @@ contract SocialGraph {
                isFollower[user][msg.sender] = followers[user].length;
             }
             engagementScoreBetweenUsers[msg.sender][user] += 100;
+            // transfer value to user
+            if(users[user].priceForFollow>0)
+            {
+              uint fee = users[user].priceForFollow / 10; // 10% fee  
+              payable(users[user].userAddress).transfer(users[user].priceForFollow-fee);             
+              payable(msg.sender).transfer(msg.value - users[user].priceForFollow); // send rest to user
+            }
+            //transfer(msg.sender, user, users[user].priceForFollow);
+            //transfer(msg.sender, user, users[user].priceForFollow);
         } else {
             engagementScoreBetweenUsers[msg.sender][user] = 1; // nullify engagement between users
             if(isFollowing[msg.sender][user] > 0) {
@@ -222,27 +261,28 @@ contract SocialGraph {
         }
     }
     function like(uint postId) public {
-        require(users[msg.sender].userAddress != address(0), "No user");
+        //require(users[msg.sender].userAddress != address(0), "No user");
+        if(users[msg.sender].userAddress == address(0)) {
+            createUser();
+        }
         require(isPostLiked[msg.sender][postId] == 0, "liked");       
         interactWith(postId, InteractionType.Like, msg.sender);
     }
     function share(uint postId) public {
-        require(users[msg.sender].userAddress != address(0), "No user");
+        //require(users[msg.sender].userAddress != address(0), "No user");
+        if(users[msg.sender].userAddress == address(0)) {
+            createUser();
+        }
         require(isPostShared[msg.sender][postId] == 0, "shared");
         interactWith(postId, InteractionType.Share, msg.sender);       
-    }    
-    function createPost(bytes32 content, bytes32[] memory tags, bytes32[] memory mentions, bytes32 category) public returns (uint){
+    }
+      
+    function createPost(bytes32 content, bytes32[] memory tags, bytes32[] memory mentions, bytes32[] memory tokens, bytes32 category) private returns (uint){
         uint dayIndex = getTodayIndex();
         if(users[msg.sender].userAddress == address(0)) {
-            users[msg.sender] = User({
-                userAddress: msg.sender,
-                timestamp: block.timestamp,
-                engagementScore: 2,
-                dayIndex: 0,
-                leaderboard: new uint[](0)
-            });
+            createUser();
         }
-        Post memory post = Post({
+        Post memory new_post = Post({
             creator: msg.sender,
             timestamp: block.timestamp,
             contentPosition: content,
@@ -256,7 +296,7 @@ contract SocialGraph {
         });
 
         userPosts[msg.sender].push(postCount);
-        posts[postCount] = post;
+        posts[postCount] = new_post;
         if(users[msg.sender].dayIndex<dayIndex) // add user to usersByDay
         {
            usersByDay[dayIndex].push(msg.sender);
@@ -269,20 +309,32 @@ contract SocialGraph {
         for(uint i = 0; i < mentions.length; i++) {
             postsWithMention[mentions[i]].push(postCount);
         }
+        for(uint i = 0; i < tokens.length; i++) {
+            postsWithTokens[tokens[i]].push(postCount);
+        }
 
         postsByDay[dayIndex].push(postCount);
         postCount++;
         return postCount - 1;
+    }
+    function post(bytes32 content, bytes32[] memory tags, bytes32[] memory mentions, bytes32[] memory tokens, bytes32 category) public returns (uint){
+        uint newPostId = createPost(content, tags, mentions, tokens, category); 
+
+        interactWith(newPostId, InteractionType.Post, msg.sender);        
+        return newPostId;
     }    
-    function comment(uint postId, bytes32 content, bytes32[] memory tags, bytes32[] memory mentions, bytes32 category) public returns (uint){
-        uint newPostId = createPost(content, tags, mentions, category); 
+    function comment(uint postId, bytes32 content, bytes32[] memory tags, bytes32[] memory mentions, bytes32[] memory tokens, bytes32 category) public returns (uint){
+        uint newPostId = createPost(content, tags, mentions, tokens, category); 
 
         postComments[postId].push(newPostId);
         interactWith(postId, InteractionType.Comment, msg.sender);        
         return newPostId;
     }
     function bookmark(uint postId) public returns (uint){
-        require(users[msg.sender].userAddress != address(0), "No user");
+        //require(users[msg.sender].userAddress != address(0), "No user");
+        if(users[msg.sender].userAddress == address(0)) {
+            createUser();
+        }
         
         userBookmarks[msg.sender].push(postId);
         interactWith(postId, InteractionType.Bookmark, msg.sender);
@@ -291,8 +343,8 @@ contract SocialGraph {
     function updateContentAnalysis(uint postId, uint sentimentScore, bytes32 mainTopic) public {
         require(postId < postCount, "No post");
         require(msg.sender == posts[postId].creator, "Not creator");
-        Post storage post = posts[postId];
-        post.contentAnalysis = ContentAnalysis(sentimentScore, mainTopic);
+        Post storage new_post = posts[postId];
+        new_post.contentAnalysis = ContentAnalysis(sentimentScore, mainTopic);
     }
     function getInteractions(uint[] memory interactionIds) public view returns (Interaction[] memory){
             Interaction[] memory result = new Interaction[](interactionIds.length);
@@ -510,7 +562,6 @@ contract SocialGraph {
     }
     function getPostIdsWithTags(bytes32 tag, uint start, uint length) public view returns(uint[] memory) {
         require(start < postsWithTag[tag].length, "Start index out of bounds");
-        //require(start + length <= postsWithTag[tag].length, "Requested range exceeds post count");
         if(start + length > postsWithTag[tag].length) {
            length = postsWithTag[tag].length - start;
         }
@@ -518,6 +569,18 @@ contract SocialGraph {
         uint[] memory result = new uint[](length);
         for (uint i = 0; i < length; i++) {
             result[i] = postsWithTag[tag][start + i];
+        }
+        return result;
+    }
+    function getPostIdsWithTokens(bytes32 tag, uint start, uint length) public view returns(uint[] memory) {
+        require(start < postsWithTokens[tag].length, "Start index out of bounds");
+        if(start + length > postsWithTokens[tag].length) {
+           length = postsWithTokens[tag].length - start;
+        }
+
+        uint[] memory result = new uint[](length);
+        for (uint i = 0; i < length; i++) {
+            result[i] = postsWithTokens[tag][start + i];
         }
         return result;
     }

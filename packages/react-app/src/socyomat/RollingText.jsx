@@ -5,7 +5,7 @@ const RollingLetterText = ({ text }) => {
   return (
     <>
       {text.split("").map(function (char, index) {
-        const style = { "animation-delay": 0.05 + index / 50 + "s" };
+        const style = { animationDelay: 0.05 + index / 50 + "s" };
         return (
           <span aria-hidden="true" key={index} style={style} className="rolling-span">
             {char}

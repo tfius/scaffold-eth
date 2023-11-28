@@ -58,6 +58,8 @@ import { DisplayMessages } from "./DisplayMessages";
 import { DisplayUser } from "./DisplayUser";
 import { DisplayUserStats } from "./DisplayUserStats";
 import { add } from "@tensorflow/tfjs-core/dist/engine";
+import { CoinList } from "./coinlist";
+import { Graph } from "./Graph";
 const { Header, Content, Footer, Sider } = Layout;
 //import Sider from "antd/lib/layout/Sider";
 //import { Footer } from "antd/lib/layout/layout";
@@ -111,6 +113,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
   const [userStats, setUserStats] = useState(null); // [userId, followersCount, followingCount, postsCount
   const [todayIndex, setTodayIndex] = useState(0);
   const [postIds, setPostIds] = useState([]);
+  const [interactionIds, setInteractionIds] = useState([]); // [postId, userId, interactionType]
   const [posts, setPosts] = useState([]);
   const [messages, setMessages] = useState([]);
   const [messagesStack, setMessagesStack] = useState([]);
@@ -125,6 +128,8 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
   const [totalItems, setTotalItems] = useState(0);
   const [retrivalFunction, setRetrivalFunction] = useState(null);
   const [messageToComment, setMessageToComment] = useState(null);
+  const [coinList, setCoinList] = useState([]);
+  const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   // let { userId } = useParams();
   // let { postId } = useParams();
   // let { tag } = useParams();
@@ -216,7 +221,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     setItemsCount(pageSize);
     setTodayIndex(dayIdx);
     setLoading(false);
-    console.log("dayIndex", dayIdx.toNumber(), "todaysPostsCount", todaysPostsCount.toNumber());
+    console.log("dayIndex", dayIdx.toNumber(), "todaysPostsCount", todaysPostsCount);
   }, [readContracts]);
   const fetchPostIdsPerDay = useCallback(async () => {
     console.log("fetchPostIdsPerDay", todayIndex.toString(), startItem, itemsCount);
@@ -289,7 +294,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     setLoading(false);
     console.log("messages", msgs);
   });
-  const fetchLatest = useCallback(async () => {
+  const fetchLatestPostIds = useCallback(async () => {
     setLoading(true);
     var lenght = pageSize;
     const allPosts = await readContracts.SocialGraph.postCount();
@@ -306,9 +311,141 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     }
     setLoading(false);
   });
+  const fetchLatestInteractionIds = useCallback(async () => {
+    setLoading(true);
+    var lenght = pageSize * 25;
+    const allPosts = await readContracts.SocialGraph.interactionsCount();
+
+    const start = allPosts - pageSize >= 0 ? allPosts - pageSize : 0;
+    lenght = start + pageSize < allPosts ? pageSize : allPosts - start; // length can be more than pageSize + start
+    var idxs = createBigNumberArray(start, lenght); //this just gets latest post ids
+    console.log("fetchLatestInteractions", allPosts.toString(), start, lenght, idxs);
+    try {
+      // const posts_latest = await readContracts.SocialGraph.getPostsWith(idxs);
+      setInteractionIds(idxs);
+    } catch (e) {
+      console.log("error", e);
+    }
+    setLoading(false);
+  });
+  const fetchInteractions = useCallback(async () => {
+    setLoading(true);
+    const interactions = await readContracts.SocialGraph.getInteractions(interactionIds);
+    console.log("fetchInteractions", interactions);
+    var interaction_types = ["Post", "Follow", "Like", "Share", "Comment", "Bookmark", "Mention"];
+    //var interaction_colors = ["green", "red", "blue", "orange", "gray", "white"];
+    var interaction_colors = ["white", "#009900", "purple", "#000099", "#555500", "gray", "white"];
+    var nodes = [];
+    var links = [];
+    var interactedWithPostIds = [];
+    for (var i = 0; i < interaction_types.length; i++) {
+      // nodes.push({ id: interaction_types[i], type: "Interaction", color: "grey" });
+    }
+
+    for (var i = 0; i < interactions.length; i++) {
+      var interaction = interactions[i];
+      // console.log("interaction", interaction);
+      var user = interaction.from.toString();
+      var postId = interaction.post.toString();
+      var interactionType = interaction_types[interaction.interactionType];
+
+      var linkUserToInteraction = {
+        source: user,
+        target: interactionType,
+        interactionType: interactionType,
+        color: interaction_colors[interaction.interactionType],
+        thickness: 1,
+      };
+      var linkInteractionToPost = {
+        source: interactionType,
+        target: postId,
+        interactionType: interactionType,
+        color: interaction_colors[interaction.interactionType],
+        thickness: 1,
+      };
+      var linkUserToPost = {
+        source: user,
+        target: postId,
+        interactionType: interactionType,
+        color: interaction_colors[interaction.interactionType],
+        thickness: 1,
+      };
+
+      var linkPostToInteraction = {
+        source: postId,
+        target: interactionType,
+        interactionType: interactionType,
+        color: "gray",
+        thickness: 1,
+      };
+      //links.push(linkUserToInteraction);
+      //links.push(linkInteractionToPost);
+      // links.push(linkPostToInteraction);
+      links.push(linkUserToPost);
+
+      // var linkUserToPost = { source: user, target: postId, interactionType: interactionType };
+      // links.push(linkUserToPost);
+
+      // var linkPostToInteraction = { source: postId, target: interactionType, interactionType: interactionType };
+      // links.push(linkPostToInteraction);
+
+      // var linkInteractionToPost = { source: interactionType, target: postId, interactionType: interactionType };
+      // links.push(linkInteractionToPost);
+
+      if (nodes.filter(n => n.id === user).length === 0) {
+        nodes.push({ id: user, type: "user", color: "green" });
+      }
+      if (nodes.filter(n => n.id === postId).length === 0) {
+        nodes.push({ id: postId, type: "post", color: "purple" });
+
+        interactedWithPostIds.push(postId);
+      }
+    }
+
+    setInteractions(interactions);
+    setGraphData({ nodes: nodes, links: links });
+    setPostIds(interactedWithPostIds);
+    setLoading(false);
+  });
+  const fetchInteractionsForPost = useCallback(
+    async postId => {
+      setLoading(true);
+      const iactionIds = await readContracts.SocialGraph.getInteractionsFromPost(postId, 0, 100);
+      console.log("getInteractionsFromPost", iactionIds);
+      await pushMessagesOnStack();
+      setInteractionIds(iactionIds);
+    },
+    [interactionIds],
+  );
+  const fetchInteractionsForUser = useCallback(
+    async userId => {
+      setLoading(true);
+      const iactionIds = await readContracts.SocialGraph.getUserInteractions(userId, 0, 100);
+      console.log("getUserInteractions", iactionIds);
+      await pushMessagesOnStack();
+      setInteractionIds(iactionIds);
+    },
+    [interactionIds],
+  );
+  const fetchCoinList = useCallback(async () => {
+    setLoading(true);
+    setCoinList(CoinList);
+    ///////////////////////////////////////////////////////////////
+    //  or load latest from coinList
+    /*
+    const coinsResponse = await fetch("https://api.coingecko.com/api/v3/coins/list");
+    if (!coinsResponse.ok) {
+      throw new Error("Error fetching coin list");
+    }
+    const coinsData = await coinsResponse.json();
+    setCoinList(coinsData); 
+    */
+    console.log("coinsData", coinsData);
+  }, []);
 
   useEffect(() => {
     console.log("start getting posts");
+    fetchCoinList();
     fetchUserStats();
     setRetrivalFunction(() => fetchPostIdsPerDay);
     fetchTodayIndex();
@@ -322,7 +459,11 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
   /*useEffect(() => {
     fetchPostIdsPerDay();
   }, [startItem, itemsCount]);*/
-
+  useEffect(() => {
+    if (interactionIds.length == 0) return;
+    console.log("interactionIds changed", interactionIds.length);
+    fetchInteractions();
+  }, [interactionIds]);
   useEffect(() => {
     if (postIds.length == 0) return;
     console.log("postIds changed", postIds.length);
@@ -365,13 +506,15 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
   const onPostCreated = async (text, attachments, tags, atStrings, hashStrings) => {
     setMessageToComment(null);
     setIsPostModalVisible(false);
-    await fetchLatest();
+    await fetchLatestPostIds();
+    await fetchLatestInteractionIds();
     await fetchUserStats();
   };
   const onLoadPosts = async () => {
     let query = useQuery();
     let mention = query.get("mention");
     let tag = query.get("tag");
+    let token = query.get("token");
     let userId = query.get("userId");
     let postId = query.get("postId");
     let cat = query.get("cat");
@@ -387,7 +530,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
       // get posts with mention
       //console.log("mention", mention);
       var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("@" + mention)).toString();
-      var { tags, mentions, topics, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
+      var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
       var maxCount = mentions;
       var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
       const postIdxs = await readContracts.SocialGraph.getPostIdsWithMentions(hash, start, pageSize);
@@ -398,7 +541,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
       // get posts with tag
       //console.log("tag", tag);
       var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("#" + tag)).toString();
-      var { tags, mentions, topics, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
+      var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
       var maxCount = tags;
       var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
       const postIdxs = await readContracts.SocialGraph.getPostIdsWithTags(hash, start, pageSize);
@@ -409,10 +552,26 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
       // get posts with tag
       //console.log("tag", tag);
       var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("!" + cat)).toString();
-      var { tags, mentions, topics, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
+      var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
       var maxCount = categories;
       var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
       const postIdxs = await readContracts.SocialGraph.getPostIdsWithCategory(hash, start, pageSize);
+      await pushMessagesOnStack();
+      setPostIds(postIdxs);
+    }
+    if (token) {
+      //0xb76009235b2c7a92bc5084f814a21f97cea582b43e03d833286f7d11b4ffcc9c
+      //0xc38c931d4eee55ca403ef9e06b04c94f456a03a275519d2a13f7b8771551cd3a
+      // get posts with token
+      //console.log("token", token);
+      var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("$" + token)).toString();
+      //var t = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
+      //console.log("token", token, hash, t);
+      var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
+      var maxCount = tokens;
+      var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
+      const postIdxs = await readContracts.SocialGraph.getPostIdsWithTokens(hash, start, pageSize);
+      await pushMessagesOnStack();
       setPostIds(postIdxs);
     }
     if (userId) {
@@ -470,11 +629,12 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
   };
   const GoHome = async () => {
     console.log("GoHome");
-    await fetchLatest();
+    await fetchLatestPostIds();
     //console.log(postId, userId, tag, mention);
   };
   const GoExplore = async () => {
     console.log("GoExplore");
+    await fetchLatestInteractionIds();
   };
   const GoMentions = async () => {
     console.log("GoMentions");
@@ -495,6 +655,15 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
       console.log("error", e);
     }
   };
+  const onSearchChange = async text => {
+    console.log("onSearchChange", text);
+    var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(text)).toString();
+    var t = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
+    console.log("search", t);
+
+    //await fetchLatestPostIds();
+    //console.log(postId, userId, tag, mention);
+  };
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
@@ -510,7 +679,11 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
       <Layout>
         <Content>
           <div className="routeSubtitle">
-            <div className="post-card-body post-input-body" onClick={() => setIsPostModalVisible(true)}>
+            <div
+              className="post-card-body post-input-body"
+              style={{ maxHeight: "3rem" }}
+              onClick={() => setIsPostModalVisible(true)}
+            >
               <h3>
                 <RollingText textArray={questions} interval={50000} />
                 {userStats !== null && userStats !== undefined ? null : <> Seems you didn't post anything yet. </>}
@@ -527,6 +700,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
             postToCommentOn={messageToComment}
             isOpen={isPostModalVisible}
             setIsOpen={setIsPostModalVisible}
+            coinList={coinList}
           />
           {userStats !== null && userStats !== undefined ? (
             <>
@@ -546,7 +720,13 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
               />
             </>
           ) : null}
-
+          <Graph
+            data={graphData}
+            width={600}
+            height={200}
+            onPostClicked={fetchInteractionsForPost}
+            onUserClicked={fetchInteractionsForUser}
+          />
           <DisplayMessages
             messages={messages}
             tx={tx}
@@ -575,13 +755,14 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
             //display: "flex",
             //flexDirection: "column",
             position: "fixed",
+            background: "transparent",
             right: 0,
             // top: 0,
             // bottom: 0,
           }}
         >
           <Menu mode="inline" defaultSelectedKeys={["1"]}>
-            <Input placeholder="Search" style={{ width: "98%" }} />
+            <Input placeholder="Search" style={{ width: "98%" }} onChange={e => onSearchChange(e.target.value)} />
             <Menu.Item key="1" icon={<UserOutlined />}>
               <span to="#" onClick={() => GoHome()}>
                 Latest

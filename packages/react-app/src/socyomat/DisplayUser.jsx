@@ -34,6 +34,7 @@ export function DisplayUser({
     await newTx.wait();
   };
   const checkFollowing = useCallback(async () => {
+    if (userdata === null || userdata === undefined) return;
     try {
       var isFollowing = await readContracts.SocialGraph.getRelations(address, userdata.userAddress);
       console.log("relations user - other", address, userdata.userAddress, isFollowing);

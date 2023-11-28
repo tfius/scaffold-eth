@@ -70,7 +70,7 @@ const TextWithInteractiveMentionsAndTags = ({ text, onMentionClick, onHashtagCli
   return <div>{parseText(text)}</div>;
 };
 
-const TextInteractive = ({ text, onMentionClick, onHashtagClick, onUrlClick }) => {
+const TextInteractive = ({ text, onMentionClick, onHashtagClick, onUrlClick, onTokenClick }) => {
   // Function to detect URLs using a simple regex pattern
   const urlPattern = /(https?:\/\/[^\s]+)/g;
 
@@ -106,6 +106,20 @@ const TextInteractive = ({ text, onMentionClick, onHashtagClick, onUrlClick }) =
                     onClick={e => {
                       e.preventDefault();
                       onHashtagClick(word);
+                    }}
+                  >
+                    {word}
+                  </a>{" "}
+                </span>
+              );
+            } else if (word.startsWith("$")) {
+              return (
+                <span key={key}>
+                  <a
+                    href="#"
+                    onClick={e => {
+                      e.preventDefault();
+                      onTokenClick(word);
                     }}
                   >
                     {word}
@@ -164,6 +178,12 @@ export function DisplayMessages({
     onNotifyClick();
     // Handle hashtag click (e.g., search for hashtag)
   };
+  const handleTokenClick = token => {
+    console.log(`Token clicked: ${token}`);
+    // Handle post click (e.g., navigate to post)
+    history.push("/sociomat?token=" + token.substring(1));
+    onNotifyClick();
+  };
   const handleUrlClick = url => {
     console.log(`URL clicked: ${url}`);
     // Handle URL click (e.g., open URL with browser)
@@ -174,6 +194,7 @@ export function DisplayMessages({
     history.push("/sociomat?userId=" + post.creator);
     onNotifyClick();
   };
+
   const handlePostClick = post => {
     console.log(`Post clicked: ${post}`);
     // Handle post click (e.g., navigate to post)
@@ -231,6 +252,7 @@ export function DisplayMessages({
                   text={p.message}
                   onMentionClick={handleMentionClick}
                   onHashtagClick={handleHashtagClick}
+                  onTokenClick={handleTokenClick}
                   onUrlClick={handleUrlClick}
                 />
               </div>
@@ -268,6 +290,15 @@ export function DisplayMessages({
                 <span> ⚭</span> <small style={{ opacity: "0.5" }}>{formatNumber(p.totalEngagement.toString())}</small>{" "}
                 &nbsp;
               </Tooltip>
+            </div>
+            <div className="post-footer-tokens">
+              {p.tokens.map((t, i) => {
+                return (
+                  <span onClick={() => handleTokenClick(t.symbol)} style={{ cursor: "pointer" }}>
+                    {t.name}: {t.price}$&nbsp;
+                  </span>
+                );
+              })}
             </div>
 
             {/* <br />
