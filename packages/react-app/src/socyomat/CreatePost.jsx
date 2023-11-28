@@ -310,6 +310,7 @@ export default function CreatePost({
         const priceResponse = await fetch(
           `https://api.coingecko.com/api/v3/simple/price?ids=${t.id}&vs_currencies=usd`,
         );
+        new Promise(resolve => setTimeout(resolve, 1000));
         if (priceResponse.ok) {
           const priceData = await priceResponse.json();
           priceData[t.id].usd;

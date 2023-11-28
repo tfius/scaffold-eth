@@ -378,3 +378,31 @@ hr {
   z-index: 1000; /* High z-index to ensure it's above other elements */
   pointer-events: none; /* Avoid mouse events on the chart */
 }
+
+
+/* should be displayed under input, same width, floating over, each child in new line */
+.search-results {
+  background-color: #5c1c6fb7;
+  padding: 0px;
+  height: auto;
+  display: block;
+  position: absolute;
+  /* float: right; */
+  width: 98%;
+  z-index: 1000;
+  margin-top: 0px;
+  margin-bottom: 10px;
+}
+
+.search-result-item {
+  background-color: #804e9563;
+  padding: 0.8em;
+  /* height: auto; */
+  display: block;
+  position: relative;
+  /* float: right; */
+  width: 98%;
+  z-index: 1000;
+  margin: 5px;
+  cursor: pointer;
+}

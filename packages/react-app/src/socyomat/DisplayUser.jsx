@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect } from "react";
 import Blockies from "react-blockies";
 import { AddressSimple } from "../components";
-import { Collapse, Layout, Tooltip } from "antd";
+import { Button, Collapse, Layout, Tooltip } from "antd";
 import { formatNumber, timeAgo } from "../views/datetimeutils";
 
 export function DisplayUser({
@@ -36,8 +36,8 @@ export function DisplayUser({
   const checkFollowing = useCallback(async () => {
     if (userdata === null || userdata === undefined) return;
     try {
-      var isFollowing = await readContracts.SocialGraph.getRelations(address, userdata.userAddress);
-      console.log("relations user - other", address, userdata.userAddress, isFollowing);
+      var isFollowing = await readContracts.SocialGraph.getRelations(currentAddress, userdata.userAddress);
+      console.log("relations user - other", currentAddress, userdata.userAddress, isFollowing);
     } catch (e) {
       console.log("error", e);
     }
@@ -84,7 +84,12 @@ export function DisplayUser({
                   </Tooltip>
                 </span>
               </small>
-              <small onClick={() => follow(user.userAddress)}>Follow</small>
+              <Button
+                style={{ maxHeight: "1.5em", paddingTop: "0px", marginTop: "0px", borderRadius: "10px" }}
+                onClick={() => follow(user.userAddress)}
+              >
+                <span style={{ fontSize: "0.7em", padding: "0px" }}>Follow</span>
+              </Button>
             </div>
           </div>
         </div>

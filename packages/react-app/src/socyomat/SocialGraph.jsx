@@ -130,6 +130,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
   const [messageToComment, setMessageToComment] = useState(null);
   const [coinList, setCoinList] = useState([]);
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
+  const [searchResults, setSearchResults] = useState([]);
   // let { userId } = useParams();
   // let { postId } = useParams();
   // let { tag } = useParams();
@@ -440,7 +441,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     const coinsData = await coinsResponse.json();
     setCoinList(coinsData); 
     */
-    console.log("coinsData", coinsData);
+    //console.log("coinsData", coinsData);
   }, []);
 
   useEffect(() => {
@@ -510,6 +511,98 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     await fetchLatestInteractionIds();
     await fetchUserStats();
   };
+  const loadMention = async mention => {
+    var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(mention)).toString();
+    var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
+    var maxCount = mentions;
+    var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
+    const postIdxs = await readContracts.SocialGraph.getPostIdsWithMentions(hash, start, pageSize);
+    return postIdxs;
+  };
+  const loadTag = async tag => {
+    var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(tag)).toString();
+    var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
+    var maxCount = tags;
+    var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
+    const postIdxs = await readContracts.SocialGraph.getPostIdsWithTags(hash, start, pageSize);
+    return postIdxs;
+  };
+  const loadCategory = async cat => {
+    var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(cat)).toString();
+    var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
+    var maxCount = categories;
+    var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
+    const postIdxs = await readContracts.SocialGraph.getPostIdsWithCategory(hash, start, pageSize);
+    return postIdxs;
+  };
+  const loadTopic = async topic => {
+    var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(topic)).toString();
+    var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
+    var maxCount = topics;
+    var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
+    const postIdxs = await readContracts.SocialGraph.getPostIdsWithTopic(hash, start, pageSize);
+    return postIdxs;
+  };
+  const loadToken = async token => {
+    var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(token)).toString();
+    var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
+    var maxCount = tokens;
+    var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
+    const postIdxs = await readContracts.SocialGraph.getPostIdsWithTokens(hash, start, pageSize);
+    return postIdxs;
+  };
+  const loadUserStats = async user => {
+    var userStats = await readContracts.SocialGraph.getUserStats(user);
+    return userStats;
+  };
+  const loadUserPosts = async userStats => {
+    var maxCount = userStats.posts_count;
+    var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
+    const postIdxs = await readContracts.SocialGraph.getPostsFromUser(user, start, pageSize);
+    return postIdxs, userStats;
+  };
+
+  const loadPostsFrom = async (mention, tag, cat, token, topics, userId) => {
+    var postIndices = [];
+    if (mention) {
+      try {
+        const postIdxs = await loadMention("@" + mention);
+        postIndices.push(postIdxs);
+      } catch (e) {}
+    }
+    if (tag) {
+      try {
+        const postIdxs = await loadTag("#" + tag);
+        postIndices.push(postIdxs);
+      } catch (e) {}
+    }
+    if (cat) {
+      try {
+        const postIdxs = await loadCategory("!" + cat);
+        postIndices.push(postIdxs);
+      } catch (e) {}
+    }
+    if (token) {
+      try {
+        const postIdxs = await loadToken("$" + token);
+        postIndices.push(postIdxs);
+      } catch (e) {}
+    }
+    if (topic) {
+      try {
+        const postIdxs = await loadTopic("!" + topic);
+        postIndices.push(postIdxs);
+      } catch (e) {}
+    }
+    if (userId) {
+      try {
+        const stats = await loadUserStats(userId);
+        const postIdxs = loadUserPosts(stats);
+        postIndices.push(postIdxs);
+      } catch (e) {}
+    }
+    return postIndices;
+  };
   const onLoadPosts = async () => {
     let query = useQuery();
     let mention = query.get("mention");
@@ -522,94 +615,46 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     let followersFor = query.get("followers");
     let followingFor = query.get("following");
     let engaged = query.get("engaged");
-    let pageLen;
-    //console.log("query", query);
-    //let { mention } = useParams();
     console.log("location", mention, tag, userId, postId, cat, topic);
-    if (mention) {
-      // get posts with mention
-      //console.log("mention", mention);
-      var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("@" + mention)).toString();
-      var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
-      var maxCount = mentions;
-      var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-      const postIdxs = await readContracts.SocialGraph.getPostIdsWithMentions(hash, start, pageSize);
+
+    // load posts from mention, tag, cat, token, userId
+    const multiPostIdxs = await loadPostsFrom(mention, tag, cat, token, topic, userId);
+    if (multiPostIdxs.length > 0) {
       await pushMessagesOnStack();
-      setPostIds(postIdxs);
+      setPostIds(multiPostIdxs);
     }
-    if (tag) {
-      // get posts with tag
-      //console.log("tag", tag);
-      var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("#" + tag)).toString();
-      var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
-      var maxCount = tags;
-      var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-      const postIdxs = await readContracts.SocialGraph.getPostIdsWithTags(hash, start, pageSize);
-      await pushMessagesOnStack();
-      setPostIds(postIdxs);
-    }
-    if (cat) {
-      // get posts with tag
-      //console.log("tag", tag);
-      var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("!" + cat)).toString();
-      var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
-      var maxCount = categories;
-      var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-      const postIdxs = await readContracts.SocialGraph.getPostIdsWithCategory(hash, start, pageSize);
-      await pushMessagesOnStack();
-      setPostIds(postIdxs);
-    }
-    if (token) {
-      //0xb76009235b2c7a92bc5084f814a21f97cea582b43e03d833286f7d11b4ffcc9c
-      //0xc38c931d4eee55ca403ef9e06b04c94f456a03a275519d2a13f7b8771551cd3a
-      // get posts with token
-      //console.log("token", token);
-      var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("$" + token)).toString();
-      //var t = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
-      //console.log("token", token, hash, t);
-      var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
-      var maxCount = tokens;
-      var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-      const postIdxs = await readContracts.SocialGraph.getPostIdsWithTokens(hash, start, pageSize);
-      await pushMessagesOnStack();
-      setPostIds(postIdxs);
-    }
+
     if (userId) {
-      var userStats = await readContracts.SocialGraph.getUserStats(userId);
-      console.log("userStats", userStats);
+      const stats = await loadUserStats(userId);
       setUserStats(userStats);
-      var maxCount = userStats.posts_count;
-      var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-      const postIdxs = await readContracts.SocialGraph.getPostsFromUser(userId, start, pageSize);
-      await pushMessagesOnStack();
-      setPostIds(postIdxs);
     }
     if (followersFor) {
-      var userStats = await readContracts.SocialGraph.getUserStats(followersFor);
-      setUserStats(userStats);
-      var maxCount = userStats.followers_count;
+      const stats = await loadUserStats(userId);
+      setUserStats(stats);
+      var maxCount = stats.followers_count;
       var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
       const gotUsers = await readContracts.SocialGraph.getFollowers(followersFor, start, pageSize);
       setUsers(gotUsers);
     }
     if (followingFor) {
-      var userStats = await readContracts.SocialGraph.getUserStats(followingFor);
-      setUserStats(userStats);
+      const stats = await loadUserStats(followingFor);
+      setUserStats(stats);
       var maxCount = userStats.following_count;
       var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
       const gotUsers = await readContracts.SocialGraph.getFollowing(followingFor, start, pageSize);
       setUsers(gotUsers);
     }
     if (engaged) {
-      var userStats = await readContracts.SocialGraph.getUserStats(engaged);
-      setUserStats(userStats);
+      const stats = await loadUserStats(engaged);
+      setUserStats(stats);
       var maxCount = userStats.engagedWith_count;
       var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-      const gotUsers = await readContracts.SocialGraph.getFollowing(getEngagedWith, start, pageSize);
+      const gotUsers = await readContracts.SocialGraph.getEngagedWith(engaged, start, pageSize);
       setUsers(gotUsers);
     }
   };
   const pushMessagesOnStack = async () => {
+    if (messages.length === 0) return;
     var stack = messagesStack;
     stack.push(messages);
     setMessagesStack(stack);
@@ -621,7 +666,6 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     setMessagesStack(messagesStack.slice(0, messagesStack.length - 1));
     setMessages(lastStack);
   };
-
   // when action to comment is clicked
   const onOpenToComment = async messageToComment => {
     setMessageToComment(messageToComment);
@@ -655,14 +699,39 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
       console.log("error", e);
     }
   };
-  const onSearchChange = async text => {
+  const onSearchChange = async (text, invoke) => {
     console.log("onSearchChange", text);
-    var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(text)).toString();
-    var t = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
-    console.log("search", t);
+    var words = text.split(" ");
+    var results = [];
 
-    //await fetchLatestPostIds();
-    //console.log(postId, userId, tag, mention);
+    for (var i = 0; i < words.length; i++) {
+      var word = words[i];
+      var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(word)).toString();
+      var t = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
+      console.log("search", t);
+
+      if (t.mentions > 0) results.push({ name: word, count: t.mentions, fn: loadMention });
+      if (t.tags > 0) results.push({ name: word, count: t.tags, fn: loadTag });
+      if (t.categories > 0) results.push({ name: word, count: t.categories, fn: loadCategory });
+      if (t.tokens > 0) results.push({ name: word, count: t.tokens, fn: loadToken });
+      if (t.topics > 0) results.push({ name: word, count: t.topics, fn: loadTopic });
+      // userId
+      // results.push({ name: word, count: t.topics });
+    }
+    setSearchResults(results);
+    if (invoke) {
+      console.log("invoke", results);
+      var multiPostIdxs = [];
+      for (var i = 0; i < results.length; i++) {
+        var result = results[i];
+        var postIdxs = await result.fn(result.name);
+        multiPostIdxs = [...multiPostIdxs, ...postIdxs];
+      }
+      if (multiPostIdxs.length > 0) {
+        await pushMessagesOnStack();
+        setPostIds(multiPostIdxs);
+      }
+    }
   };
 
   return (
@@ -706,6 +775,8 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
             <>
               <DisplayUser
                 userdata={userStats.userdata}
+                readContracts={readContracts}
+                writeContracts={writeContracts}
                 ensProvider={ensProvider}
                 currentAddress={address}
                 history={history}
@@ -762,7 +833,27 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
           }}
         >
           <Menu mode="inline" defaultSelectedKeys={["1"]}>
-            <Input placeholder="Search" style={{ width: "98%" }} onChange={e => onSearchChange(e.target.value)} />
+            <div style={{ width: "100%", position: "relative" }}>
+              <Input
+                placeholder="Search # @ $ !"
+                style={{ width: "98%" }}
+                onChange={e => onSearchChange(e.target.value, false)}
+                onPressEnter={e => onSearchChange(e.target.value, true)}
+              />
+              <div className="search-results">
+                {searchResults.map((r, i) => {
+                  return (
+                    <>
+                      {r.count > 0 && (
+                        <div className="search-result-item">
+                          {r.name} <small>({r.count.toString()})</small>
+                        </div>
+                      )}
+                    </>
+                  );
+                })}
+              </div>
+            </div>
             <Menu.Item key="1" icon={<UserOutlined />}>
               <span to="#" onClick={() => GoHome()}>
                 Latest
