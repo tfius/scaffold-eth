@@ -418,62 +418,68 @@ function App(props) {
             style={{ textAlign: "left", height: "100%", borderRight: 0 }}
             selectedKeys={[location.pathname]}
           >
-            <Menu.Item key="/">
-              <Tooltip
-                title={
-                  <>
-                    Registration:&nbsp;
-                    {smailMail.pubKey ? "wallet" : "no key"}&nbsp;
-                    {smailMail.smailPrivateKey ? "bonded" : "no bond"}
-                  </>
-                }
-              >
-                <Link to="/">
-                  {smailMail.pubKey === null || smailMail.smailPrivateKey == null ? <>Register</> : <>Home</>}
-                </Link>
-              </Tooltip>
-            </Menu.Item>
-
             <Menu.Item key="/sociomat">
               <Tooltip title="Social interaction network">
                 <Link to="/sociomat">Sociomat</Link>
               </Tooltip>
             </Menu.Item>
-            <Menu.Item key="/inbox">
-              <Tooltip title="View one way messages" placement="right">
-                <Link to="/inbox">Inbox</Link>
-              </Tooltip>
-            </Menu.Item>
-            <Menu.Item key="/locker" disabled={!isBonded}>
-              <Tooltip title="Encrypt and store your data" placement="right">
-                <Link to="/locker">Locker</Link>
-              </Tooltip>
-            </Menu.Item>
-            <Menu.Item key="/received" disabled={!isBonded}>
-              <Tooltip title="View received messages" placement="right">
-                <Link to="/received">Received</Link>
-              </Tooltip>
-            </Menu.Item>
-            <Menu.Item key="/sent" disabled={!isBonded}>
-              <Tooltip title="View sent messages" placement="right">
-                <Link to="/sent">Sent</Link>
-              </Tooltip>
-            </Menu.Item>
-            <Menu.Item key="/threads" disabled={!isBonded}>
-              <Tooltip title="View threads" placement="right">
-                <Link to="/threads">Threads</Link>
-              </Tooltip>
-            </Menu.Item>
-            <Menu.Item key="/calendar" disabled={!isBonded}>
-              <Tooltip title="View calendar" placement="right">
-                <Link to="/calendar">Calendar</Link>
-              </Tooltip>
-            </Menu.Item>
-            <Menu.Item key="/scheduler" disabled={!isBonded}>
-              <Tooltip title="Schedule events at other addresses and manage your scheduler settings" placement="right">
-                <Link to="/scheduler">Scheduler</Link>
-              </Tooltip>
-            </Menu.Item>
+
+            <Menu.SubMenu key="submenuSmail" title="Smail" inlineCollapsed={true} mode="inline">
+              <Menu.Item key="/">
+                <Tooltip
+                  title={
+                    <>
+                      Registration:&nbsp;
+                      {smailMail.pubKey ? "wallet" : "no key"}&nbsp;
+                      {smailMail.smailPrivateKey ? "bonded" : "no bond"}
+                    </>
+                  }
+                >
+                  <Link to="/">
+                    {smailMail.pubKey === null || smailMail.smailPrivateKey == null ? <>Register</> : <>Home</>}
+                  </Link>
+                </Tooltip>
+              </Menu.Item>
+
+              <Menu.Item key="/inbox">
+                <Tooltip title="View one way messages" placement="right">
+                  <Link to="/inbox">Inbox</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Item key="/locker" disabled={!isBonded}>
+                <Tooltip title="Encrypt and store your data" placement="right">
+                  <Link to="/locker">Locker</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Item key="/received" disabled={!isBonded}>
+                <Tooltip title="View received messages" placement="right">
+                  <Link to="/received">Received</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Item key="/sent" disabled={!isBonded}>
+                <Tooltip title="View sent messages" placement="right">
+                  <Link to="/sent">Sent</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Item key="/threads" disabled={!isBonded}>
+                <Tooltip title="View threads" placement="right">
+                  <Link to="/threads">Threads</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Item key="/calendar" disabled={!isBonded}>
+                <Tooltip title="View calendar" placement="right">
+                  <Link to="/calendar">Calendar</Link>
+                </Tooltip>
+              </Menu.Item>
+              <Menu.Item key="/scheduler" disabled={!isBonded}>
+                <Tooltip
+                  title="Schedule events at other addresses and manage your scheduler settings"
+                  placement="right"
+                >
+                  <Link to="/scheduler">Scheduler</Link>
+                </Tooltip>
+              </Menu.Item>
+            </Menu.SubMenu>
 
             {/* <>
               <Menu.Item key="/smailmailkey" disabled>
@@ -487,7 +493,7 @@ function App(props) {
 
             {/* {fairOSSessionId != null && <Menu.Divider />} */}
             <Menu.Divider />
-            <Menu.SubMenu key="submenuDatahub" title="Subscriptions" inlineCollapsed={true} mode="inline">
+            <Menu.SubMenu key="submenuDatahub" title="Fairdrive" inlineCollapsed={true} mode="inline">
               {web3Modal && web3Modal?.cachedProvider && (
                 <Menu.Item key="/fairOS">
                   <FairOSWasmConnect
@@ -738,6 +744,7 @@ function App(props) {
                     messageCount={messageCount}
                     smailMail={smailMail}
                     mainnetProvider={mainnetProvider}
+                    setReplyTo={setReplyTo}
                   />
                 )}
               />

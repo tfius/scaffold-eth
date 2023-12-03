@@ -86,7 +86,7 @@ body {
   border-radius: 8px;
   background: linear-gradient(-45deg, #9500ff05, #4000ff15, #9500ff05, #4000ff05);
   background-size: 200% 200%;
-  border-color: rgba(130, 68, 132, 0.473);
+  border-color: rgba(130, 68, 132, 0.373);
   border-style: solid;
   border-width: 0px 1px 1px 1px; /* top, right, bottom, left */
 
@@ -108,7 +108,6 @@ body {
   display: flex;
   animation-name: fadeInFromNone, appGradient;
 }
-
 .post-card-body:hover {
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
   filter: grayscale(0);
@@ -121,17 +120,19 @@ body {
   margin-right: 5px;
 }
 .post-layout {
-  z-index: 2;
+  z-index: -2; 
   display: flex;
-  margin-right: 5px;
+  margin-right: 0px;
+  padding: 0px;
+  cursor: pointer;
 }
 .post-blockie {
   display: block;
-  min-width: 32px;
-  width: 32px;
-  height: 32px;
-  margin: 5px 5px;
-  border-radius: 16px;
+  min-width: 16px;
+  width: 16px;
+  height: 16px;
+  margin: 13px 5px;
+  border-radius: 8px;
   overflow: hidden;
   
   filter: grayscale(50%);
@@ -146,12 +147,20 @@ body {
   padding: 10px 0px 8px 0px; 
 }
 .post-text {
-  display: block;
+  display: inline-block;
+  /* background-color: #865dff33; */
 }
 .post-footer {
   display: flex;
+  width: auto;
   padding-top: 4px;
   justify-content: right;
+  /* float: right;  */
+  /* justify-content: flex-end; */
+  position: absolute;
+  right: 0;
+  top: 0;
+  /* background-color: #865dff33; */
 }
 .post-footer-tokens {
   display: inline;
@@ -162,6 +171,20 @@ body {
   overflow-y: hidden;
   overflow-x: auto;
   background-color: #865dff33;
+}
+.post-clicker {
+  cursor: crosshair;
+  background-color: #77DD7630;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  /* z-index: 100; */
+}
+.post-clicker:hover {
+  background-color: #77DD7611;
 }
 
 iframe {

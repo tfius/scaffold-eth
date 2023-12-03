@@ -31,86 +31,36 @@ export function DisplayUserStats({
 
   return (
     <div style={{ width: "70%" }}>
-      <div style={{ width: "100%" }} className="user-card-body">
-        <div className="user-layout">
-          <div className="post-blockie">
-            <Blockies seed={userStats?.userdata?.userAddress.toLowerCase()} size={32} scale={2} />
-          </div>
-          <div className="post-text">
-            <div className="post-creator">
-              <AddressSimple address={userStats?.userdata?.userAddress} ensProvider={ensProvider} />
-              <small>
-                &nbsp; · {timeAgo(userStats?.userdata?.timestamp.toNumber() * 1000)}
-                {currentAddress?.toLowerCase() === userStats?.userdata?.userAddress?.toLowerCase() && (
-                  <span>&nbsp; · Connected account</span>
-                )}
-                &nbsp;
-                <span>
-                  <Tooltip title="Score">
-                    <span onClick={() => handleFollowClick()} style={{ cursor: "pointer" }}>
-                      🎖
-                    </span>
-                    <small style={{ opacity: "0.5" }}>
-                      {" "}
-                      {formatNumber(userStats?.userdata?.engagementScore.toString())}
-                    </small>{" "}
-                    &nbsp;
-                  </Tooltip>
-                  <Tooltip title="Day">
-                    <span onClick={() => handleFollowClick()} style={{ cursor: "pointer" }}>
-                      ⧖
-                    </span>
-                    <small style={{ opacity: "0.5" }}>
-                      {" "}
-                      {timeAgo(userStats?.userdata?.dayIndex.toNumber() * 24 * 60 * 60 * 1000)}
-                    </small>{" "}
-                    &nbsp;
-                  </Tooltip>
-                </span>
-              </small>
-            </div>
-            <Tooltip title="Engagement">
-              <span onClick={() => handleFollowClick()} style={{ cursor: "pointer" }}>
-                ⚭
-              </span>
-              <small style={{ opacity: "0.5" }}> {formatNumber(userStats?.engagedWith_count.toString())}</small> &nbsp;
-            </Tooltip>
-            <Tooltip title="Posts">
-              <span onClick={() => handleFollowClick()} style={{ cursor: "pointer" }}>
-                🗨
-              </span>
-              <small style={{ opacity: "0.5" }}> {formatNumber(userStats?.posts_count.toString())}</small> &nbsp;
-            </Tooltip>
-            <Tooltip title="Followers">
-              <span onClick={() => handleFollowClick()} style={{ cursor: "pointer" }}>
-                ⚘
-              </span>
-              <small style={{ opacity: "0.5" }}> {formatNumber(userStats?.followers_count.toString())}</small> &nbsp;
-            </Tooltip>
-            <Tooltip title="Following">
-              <span onClick={() => handleFollowClick()} style={{ cursor: "pointer" }}>
-                ✽
-              </span>
-              <small style={{ opacity: "0.5" }}> {formatNumber(userStats?.following_count.toString())}</small> &nbsp;
-            </Tooltip>
-            <Tooltip title="Interactions">
-              <span onClick={() => onViewInteractions()} style={{ cursor: "pointer" }}>
-                ∑
-              </span>
-              <small style={{ opacity: "0.5" }}> {formatNumber(userStats?.interactions_count.toString())}</small> &nbsp;
-            </Tooltip>
-
-            {/* Last seen: {timeAgo(userStats?.timestamp.toString())}
-            Engagement: {formatNumber(userStats?.engagementScore.toString())} */}
-            {/* <TextInteractive
-               text={p.message}
-               onMentionClick={handleMentionClick}
-               onHashtagClick={handleHashtagClick}
-               onUrlClick={handleUrlClick}
-             /> */}
-          </div>
-        </div>
-      </div>
+      <Tooltip title="Engagement">
+        <span onClick={() => handleFollowClick()} style={{ cursor: "pointer" }}>
+          ⚭
+        </span>
+        <small style={{ opacity: "0.5" }}> {formatNumber(userStats?.engagedWith_count.toString())}</small> &nbsp;
+      </Tooltip>
+      <Tooltip title="Posts">
+        <span onClick={() => handleFollowClick()} style={{ cursor: "pointer" }}>
+          🗨
+        </span>
+        <small style={{ opacity: "0.5" }}> {formatNumber(userStats?.posts_count.toString())}</small> &nbsp;
+      </Tooltip>
+      <Tooltip title="Followers">
+        <span onClick={() => handleFollowClick()} style={{ cursor: "pointer" }}>
+          ⚘
+        </span>
+        <small style={{ opacity: "0.5" }}> {formatNumber(userStats?.followers_count.toString())}</small> &nbsp;
+      </Tooltip>
+      <Tooltip title="Following">
+        <span onClick={() => handleFollowClick()} style={{ cursor: "pointer" }}>
+          ✽
+        </span>
+        <small style={{ opacity: "0.5" }}> {formatNumber(userStats?.following_count.toString())}</small> &nbsp;
+      </Tooltip>
+      <Tooltip title="Interactions">
+        <span onClick={() => onViewInteractions()} style={{ cursor: "pointer" }}>
+          ∑
+        </span>
+        <small style={{ opacity: "0.5" }}> {formatNumber(userStats?.interactions_count.toString())}</small> &nbsp;
+      </Tooltip>
     </div>
   );
 }

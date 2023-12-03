@@ -338,7 +338,7 @@ export function FairOSWasmConnect({
       {/* <Button onClick={() => ConnectFairOS()}>Connect</Button> */}
       {/* {!isLoginVisible && login != null && <Button onClick={() => Logout()}>Logout FairOS</Button>} */}
       {/* {!isLoginVisible && login == null && ( */}
-      <Button type="primary" style={{ width: "10rem" }} onClick={() => OpenFairOSDialog()}>
+      <Button type="primary" style={{ width: "80%" }} onClick={() => OpenFairOSDialog()}>
         FairOS
       </Button>
       {/* )} */}

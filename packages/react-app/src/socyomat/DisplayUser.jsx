@@ -4,10 +4,13 @@ import Blockies from "react-blockies";
 import { AddressSimple } from "../components";
 import { Button, Collapse, Layout, Tooltip } from "antd";
 import { formatNumber, timeAgo } from "../views/datetimeutils";
+const { utils } = require("ethers");
+import { DisplayUserStats } from "./DisplayUserStats";
 
 export function DisplayUser({
   userdata,
   userAddress,
+  userStats,
   tx,
   writeContracts,
   readContracts,
@@ -17,6 +20,7 @@ export function DisplayUser({
   onComment,
   currentAddress,
 }) {
+  const [areYouFollowing, setAreYouFollowing] = React.useState(false);
   const handleUserClick = user => {
     console.log(`User clicked: ${user}`);
     // Handle post click (e.g., navigate to post)
@@ -30,10 +34,14 @@ export function DisplayUser({
   };
   const follow = async userAddress => {
     console.log("follow", userAddress);
+    var userStats = await readContracts.SocialGraph.getUserStats(userAddress);
+    console.log("userStats", userStats.userdata.priceForFollow.toString());
+    //userStats.userdata.priceForFollow
+
     // var newTx = await writeContracts.SocialGraph.follow(userAddress);
     let newTx = await tx(
       writeContracts.SocialGraph.follow(userAddress, {
-        value: cost, // in wei
+        value: userStats.userdata.priceForFollow, // in wei
       }),
     );
     await newTx.wait();
@@ -41,8 +49,25 @@ export function DisplayUser({
   const checkFollowing = useCallback(async () => {
     if (userdata === null || userdata === undefined) return;
     try {
-      var isFollowing = await readContracts.SocialGraph.getRelations(currentAddress, userdata.userAddress);
-      console.log("relations user - other", currentAddress, userdata.userAddress, isFollowing);
+      if (currentAddress == userdata.userAddress) {
+        setAreYouFollowing(true);
+        return;
+      }
+      var relations = await readContracts.SocialGraph.getRelations(currentAddress, userdata.userAddress);
+      console.log(
+        "relations user - other",
+        currentAddress,
+        userdata.userAddress,
+        relations,
+        relations.user_following_other > 0 ? true : false,
+      );
+      setAreYouFollowing(relations.user_following_other > 0 ? true : false);
+      // engagement_to_other
+      // engagement_to_user
+      // other_follower_user
+      // other_following_user
+      // user_follower_other
+      // user_following_other
     } catch (e) {
       console.log("error", e);
     }
@@ -62,7 +87,9 @@ export function DisplayUser({
           </div>
           <div className="post-text">
             <div className="post-creator">
-              <AddressSimple address={userdata?.userAddress} ensProvider={ensProvider} />
+              <strong>
+                <AddressSimple address={userdata?.userAddress} ensProvider={ensProvider} />
+              </strong>
               <small>
                 &nbsp; · {timeAgo(userdata?.timestamp.toNumber() * 1000)}
                 {currentAddress?.toLowerCase() === userdata?.userAddress?.toLowerCase() && (
@@ -89,14 +116,27 @@ export function DisplayUser({
                   </Tooltip>
                 </span>
               </small>
-              <Button
-                type="primary"
-                style={{ maxHeight: "1.5em", paddingTop: "0px", marginTop: "0px", borderRadius: "10px" }}
-                onClick={() => follow(userdata?.userAddress)}
-              >
-                <span style={{ fontSize: "1.0em", padding: "0px" }}>Follow</span>
-              </Button>
+              {areYouFollowing === false ? (
+                <Button
+                  type="primary"
+                  style={{ maxHeight: "1.5em", paddingTop: "0px", marginTop: "0px", borderRadius: "10px" }}
+                  onClick={() => follow(userdata?.userAddress)}
+                >
+                  <span style={{ fontSize: "1.0em", padding: "0px" }}>
+                    Follow {userdata.priceForFollow > 0 && <>⬨{utils.formatEther(userdata.priceForFollow)}</>}
+                  </span>
+                </Button>
+              ) : (
+                <small>Following</small>
+              )}
             </div>
+            <DisplayUserStats
+              userStats={userStats}
+              ensProvider={ensProvider}
+              currentAddress={currentAddress}
+              history={history}
+              onNotifyClick={onNotifyClick}
+            />
           </div>
         </div>
       </div>

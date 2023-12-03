@@ -3,10 +3,18 @@ import React from "react";
 import Blockies from "react-blockies";
 import { AddressSimple } from "../components";
 import { Collapse, Layout, Tooltip } from "antd";
+import { EnterOutlined, EditOutlined, ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { formatNumber, timeAgo } from "../views/datetimeutils";
 
 const { Header, Content, Footer, Sider } = Layout;
 const { Panel } = Collapse;
+
+const IconText = ({ icon, tooltip, text }) => (
+  <Tooltip title={tooltip}>
+    {React.createElement(icon)}
+    {text}
+  </Tooltip>
+);
 
 const TextWithLinks = ({ text }) => {
   // Function to convert @mentions and #hashtags into clickable links
@@ -70,9 +78,13 @@ const TextWithInteractiveMentionsAndTags = ({ text, onMentionClick, onHashtagCli
   return <div>{parseText(text)}</div>;
 };
 
-const TextInteractive = ({ text, onMentionClick, onHashtagClick, onUrlClick, onTokenClick }) => {
+const TextInteractive = ({ text, onMentionClick, onHashtagClick, onUrlClick, onTokenClick, expanded }) => {
   // Function to detect URLs using a simple regex pattern
   const urlPattern = /(https?:\/\/[^\s]+)/g;
+  if (expanded === false) {
+    // strip text to 140 characters
+    text = text.substring(0, 240);
+  }
 
   // Function to split the text into parts and identify @mentions, #hashtags, and URLs
   const parseText = text => {
@@ -164,6 +176,7 @@ export function DisplayMessages({
   history,
   onNotifyClick,
   onComment,
+  setReplyTo,
 }) {
   const handleMentionClick = mention => {
     console.log(`Mention clicked: ${mention}`);
@@ -196,7 +209,8 @@ export function DisplayMessages({
   };
 
   const handlePostClick = post => {
-    console.log(`Post clicked: ${post}`);
+    //console.log(`Post clicked: ${post}`);
+    console.log("Post clicked: ", post);
     // Handle post click (e.g., navigate to post)
     history.push("/sociomat?postId=" + post.postId);
     onNotifyClick();
@@ -228,63 +242,80 @@ export function DisplayMessages({
     var newTx = await tx(writeContracts.SocialGraph.bookmark(message.postId));
     await newTx.wait();
   };
+  const handleBackgroundClick = event => {
+    if (event.target == event.currentTarget) {
+      console.log("background clicked"); // display post in full and its comments
+      //setReplyTo("", false);
+    }
+  };
 
   return (
     <div style={{ width: "70%" }}>
       {messages.map((p, i) => {
         return (
-          <div key={i} style={{ width: "100%" }} className="post-card-body">
-            <div className="post-layout">
-              <Tooltip title="View user">
+          <div
+            key={i}
+            style={{ width: "100%", marginLeft: p.parentPost ? p.level + "px" : "0px" }}
+            className="post-card-body"
+          >
+            <div className="post-layout" onClick={() => handlePostClick(p)}>
+              <Tooltip
+                title={
+                  <>
+                    View profile of user &nbsp;
+                    <AddressSimple address={p.creator} ensProvider={ensProvider} />
+                  </>
+                }
+              >
                 <div className="post-blockie" style={{ cursor: "pointer" }} onClick={() => handleUserClick(p)}>
                   <Blockies seed={p.creator.toLowerCase()} size={16} scale={2} />
                 </div>
               </Tooltip>
+
               <div className="post-text">
-                <div className="post-creator">
-                  <AddressSimple address={p.creator} ensProvider={ensProvider} />
-                  <small>&nbsp; · {timeAgo(p.sendTime)}</small>
-                </div>
-                {/* <Card key={i} style={{ width: "100%" }} className="post-card-body"> */}
-                {/* <Panel header={p.message} key={i}> */}
-                {/* <TextWithLinks text={p.message} /> */}
+                <strong className="post-creator">
+                  <small>{timeAgo(p.sendTime)}</small>
+                </strong>
                 <TextInteractive
                   text={p.message}
                   onMentionClick={handleMentionClick}
                   onHashtagClick={handleHashtagClick}
                   onTokenClick={handleTokenClick}
                   onUrlClick={handleUrlClick}
+                  expanded={p.expanded || i === 0}
                 />
               </div>
             </div>
             <div className="post-footer">
-              <Tooltip title="Comments">
+              <small
+                style={{ margin: "3px 10px 0px", cursor: "pointer", scale: "100%" }}
+                onClick={() => setReplyTo(p.creator, true)}
+              >
+                <IconText icon={ArrowLeftOutlined} tooltip="Send message" key="list-vertical-reply-o" />
+              </small>
+              <Tooltip title="Comment">
                 <span onClick={() => comment(p)} style={{ cursor: "pointer" }}>
                   {" "}
-                  🗨
-                </span>{" "}
-                <small style={{ opacity: "0.5" }}>{formatNumber(p.commentCount.toString())}</small> &nbsp;
+                  🗨 <small style={{ opacity: "0.5" }}>{formatNumber(p.commentCount.toString())}</small> &nbsp;
+                </span>
               </Tooltip>
               <Tooltip title="Like">
                 <span onClick={() => like(p)} style={{ cursor: "pointer" }}>
                   {" "}
-                  ♡
-                </span>{" "}
-                <small style={{ opacity: "0.5" }}>{formatNumber(p.likeCount.toString())}</small> &nbsp;
+                  ♡ <small style={{ opacity: "0.5" }}>{formatNumber(p.likeCount.toString())}</small> &nbsp;
+                </span>
               </Tooltip>
-              <Tooltip title="Shares">
+              <Tooltip title="Share">
                 <span onClick={() => share(p)} style={{ cursor: "pointer" }}>
                   {" "}
-                  ☄
-                </span>{" "}
-                <small style={{ opacity: "0.5" }}>{formatNumber(p.shareCount.toString())}</small> &nbsp;
+                  ☄ <small style={{ opacity: "0.5" }}>{formatNumber(p.shareCount.toString())}</small> &nbsp;
+                </span>
               </Tooltip>
               <Tooltip title="Bookmark">
                 <span onClick={() => bookmark(p)} style={{ cursor: "pointer" }}>
                   {" "}
-                  🕮
-                </span>{" "}
-                <small style={{ opacity: "0.5" }}>{formatNumber(p.totalEngagement.toString())}</small> &nbsp;
+                  🕮 <small style={{ opacity: "0.5" }}>{formatNumber(p.totalEngagement.toString())}</small> &nbsp;
+                </span>
               </Tooltip>
               <Tooltip title="Engagement">
                 <span> ⚭</span> <small style={{ opacity: "0.5" }}>{formatNumber(p.totalEngagement.toString())}</small>{" "}
@@ -294,7 +325,7 @@ export function DisplayMessages({
             <div className="post-footer-tokens">
               {p.tokens.map((t, i) => {
                 return (
-                  <span onClick={() => handleTokenClick(t.symbol)} style={{ cursor: "pointer" }}>
+                  <span key={"tkn" + i} onClick={() => handleTokenClick(t.symbol)} style={{ cursor: "pointer" }}>
                     {t.name}: {t.price}$&nbsp;
                   </span>
                 );

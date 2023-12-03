@@ -62,10 +62,11 @@ export const Graph = ({ data, width, height, onUserClicked, onPostClicked }) => 
         .on("click", linkClicked) // Adding click event handler
         .on("mouseover", function (event, d) {
           tooltip.style("visibility", "visible").html("" + d.interactionType);
-          console.log("mouse", d);
+          //console.log("mouse", d);
         })
         .on("mousemove", function (event) {
-          tooltip.style("top", event.pageY - 10 + "px").style("left", event.pageX + 10 + "px");
+          //tooltip.style("top", event.pageY - 10 + "px").style("left", event.pageX + 10 + "px");
+          tooltip.style("top", event.layerY - 10 + "px").style("left", event.layerX + 10 + "px");
         })
         .on("mouseout", function () {
           tooltip.style("visibility", "hidden");
@@ -87,7 +88,8 @@ export const Graph = ({ data, width, height, onUserClicked, onPostClicked }) => 
           tooltip.style("visibility", "visible").html("" + d.type + ": " + d.id);
         })
         .on("mousemove", function (event) {
-          tooltip.style("top", event.pageY - 10 + "px").style("left", event.pageX + 10 + "px");
+          //tooltip.style("top", event.pageY - 10 + "px").style("left", event.pageX + 10 + "px");
+          tooltip.style("top", event.layerY - 10 + "px").style("left", event.layerX + 10 + "px");
         })
         .on("mouseout", function () {
           tooltip.style("visibility", "hidden");
@@ -173,6 +175,7 @@ export const Graph = ({ data, width, height, onUserClicked, onPostClicked }) => 
           backgroundColor: "transparent",
           padding: "5px",
           border: "1px solid black",
+          overflow: "hidden",
         }}
       ></div>
     </div>

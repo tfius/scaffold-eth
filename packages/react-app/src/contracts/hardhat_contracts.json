@@ -6654,33 +6654,158 @@
       "name": "localhost",
       "chainId": "31337",
       "contracts": {
-        "Calendar": {
-          "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+        "SwarmMail": {
+          "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
           "abi": [
             {
+              "inputs": [],
+              "stateMutability": "nonpayable",
+              "type": "constructor"
+            },
+            {
+              "anonymous": false,
               "inputs": [
                 {
-                  "internalType": "uint64",
-                  "name": "_date",
-                  "type": "uint64"
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "previousOwner",
+                  "type": "address"
                 },
                 {
-                  "internalType": "uint64",
-                  "name": "_time",
-                  "type": "uint64"
-                },
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipTransferred",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
                 {
-                  "internalType": "uint64",
-                  "name": "_duration",
-                  "type": "uint64"
-                },
-                {
+                  "indexed": true,
                   "internalType": "bytes32",
-                  "name": "_swarmLocation",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "previousAdminRole",
+                  "type": "bytes32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "newAdminRole",
                   "type": "bytes32"
                 }
               ],
-              "name": "addEvent",
+              "name": "RoleAdminChanged",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "sender",
+                  "type": "address"
+                }
+              ],
+              "name": "RoleGranted",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "sender",
+                  "type": "address"
+                }
+              ],
+              "name": "RoleRevoked",
+              "type": "event"
+            },
+            {
+              "inputs": [],
+              "name": "DEFAULT_ADMIN_ROLE",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "types",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "emailSwarmLocation",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "swarmThreadLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "addThread",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "addr",
+                  "type": "address"
+                }
+              ],
+              "name": "blackListAddress",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -6689,139 +6814,105 @@
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "_address",
+                  "name": "to",
                   "type": "address"
                 },
                 {
-                  "internalType": "uint64",
-                  "name": "_date",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "_time",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "_duration",
-                  "type": "uint64"
-                },
-                {
                   "internalType": "bytes32",
-                  "name": "_swarmLocation",
+                  "name": "swarmLocation",
                   "type": "bytes32"
                 }
               ],
-              "name": "addEventForAddress",
+              "name": "createThread",
               "outputs": [],
-              "stateMutability": "nonpayable",
+              "stateMutability": "payable",
               "type": "function"
             },
             {
-              "inputs": [
+              "inputs": [],
+              "name": "fundsBalance",
+              "outputs": [
                 {
-                  "internalType": "uint64",
-                  "name": "_date",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "_time",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "_duration",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "_swarmLocation",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address[]",
-                  "name": "_participants",
-                  "type": "address[]"
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
                 }
               ],
-              "name": "addInvite",
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "fundsTransfer",
               "outputs": [],
-              "stateMutability": "nonpayable",
+              "stateMutability": "payable",
               "type": "function"
             },
             {
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "_address",
+                  "name": "addr",
                   "type": "address"
                 },
                 {
-                  "internalType": "bool",
-                  "name": "allow",
-                  "type": "bool"
-                }
-              ],
-              "name": "allowAddress",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint64",
-                  "name": "_date",
-                  "type": "uint64"
+                  "internalType": "uint256",
+                  "name": "types",
+                  "type": "uint256"
                 },
                 {
-                  "internalType": "uint64",
-                  "name": "_index",
-                  "type": "uint64"
-                }
-              ],
-              "name": "confirmInvite",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "owner",
-                  "type": "address"
+                  "internalType": "uint256",
+                  "name": "start",
+                  "type": "uint256"
                 },
                 {
-                  "internalType": "uint64",
-                  "name": "_date",
-                  "type": "uint64"
+                  "internalType": "uint256",
+                  "name": "length",
+                  "type": "uint256"
                 }
               ],
-              "name": "getEventsByDate",
+              "name": "getEmailRange",
               "outputs": [
                 {
                   "components": [
                     {
+                      "internalType": "bool",
+                      "name": "isEncryption",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "time",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "from",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "to",
+                      "type": "address"
+                    },
+                    {
                       "internalType": "bytes32",
-                      "name": "location",
+                      "name": "swarmLocation",
                       "type": "bytes32"
                     },
                     {
-                      "internalType": "uint64",
-                      "name": "time",
-                      "type": "uint64"
+                      "internalType": "bool",
+                      "name": "signed",
+                      "type": "bool"
                     },
                     {
-                      "internalType": "uint64",
-                      "name": "duration",
-                      "type": "uint64"
+                      "internalType": "bytes32[]",
+                      "name": "threads",
+                      "type": "bytes32[]"
                     }
                   ],
-                  "internalType": "struct Calendar.Event[]",
-                  "name": "",
+                  "internalType": "struct SwarmMail.Email[]",
+                  "name": "messages",
                   "type": "tuple[]"
                 }
               ],
@@ -6832,126 +6923,36 @@
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "owner",
+                  "name": "locker",
                   "type": "address"
                 },
                 {
-                  "internalType": "uint64[]",
-                  "name": "_dates",
-                  "type": "uint64[]"
+                  "internalType": "bytes32",
+                  "name": "lockerLocation",
+                  "type": "bytes32"
                 }
               ],
-              "name": "getEventsByDates",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "bytes32",
-                      "name": "location",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "uint64",
-                      "name": "time",
-                      "type": "uint64"
-                    },
-                    {
-                      "internalType": "uint64",
-                      "name": "duration",
-                      "type": "uint64"
-                    }
-                  ],
-                  "internalType": "struct Calendar.Event[]",
-                  "name": "",
-                  "type": "tuple[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "owner",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "_date",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "_duration",
-                  "type": "uint64"
-                }
-              ],
-              "name": "getFreeSlot",
-              "outputs": [
-                {
-                  "internalType": "uint64",
-                  "name": "",
-                  "type": "uint64"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "owner",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "_date",
-                  "type": "uint64"
-                }
-              ],
-              "name": "getInvitesByDate",
+              "name": "getLockerShares",
               "outputs": [
                 {
                   "components": [
                     {
                       "internalType": "address",
-                      "name": "creator",
+                      "name": "withAddress",
                       "type": "address"
                     },
                     {
                       "internalType": "bytes32",
-                      "name": "location",
+                      "name": "keyLocation",
                       "type": "bytes32"
                     },
                     {
-                      "internalType": "uint64",
-                      "name": "time",
-                      "type": "uint64"
-                    },
-                    {
-                      "internalType": "uint64",
-                      "name": "duration",
-                      "type": "uint64"
-                    },
-                    {
-                      "internalType": "uint64",
-                      "name": "date",
-                      "type": "uint64"
-                    },
-                    {
-                      "internalType": "address[]",
-                      "name": "participants",
-                      "type": "address[]"
-                    },
-                    {
-                      "internalType": "address[]",
-                      "name": "accepted",
-                      "type": "address[]"
+                      "internalType": "bool",
+                      "name": "revoked",
+                      "type": "bool"
                     }
                   ],
-                  "internalType": "struct Calendar.Invite[]",
+                  "internalType": "struct SwarmMail.Share[]",
                   "name": "",
                   "type": "tuple[]"
                 }
@@ -6963,56 +6964,99 @@
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "owner",
+                  "name": "addr",
                   "type": "address"
-                },
-                {
-                  "internalType": "uint64[]",
-                  "name": "_dates",
-                  "type": "uint64[]"
                 }
               ],
-              "name": "getInvitesByDates",
+              "name": "getPublicKeys",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "registered",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "pubKey",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "keyLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "getRoleAdmin",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32[]",
+                  "name": "locations",
+                  "type": "bytes32[]"
+                }
+              ],
+              "name": "getThreads",
               "outputs": [
                 {
                   "components": [
                     {
+                      "internalType": "bool",
+                      "name": "isEncryption",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "time",
+                      "type": "uint256"
+                    },
+                    {
                       "internalType": "address",
-                      "name": "creator",
+                      "name": "from",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "to",
                       "type": "address"
                     },
                     {
                       "internalType": "bytes32",
-                      "name": "location",
+                      "name": "swarmLocation",
                       "type": "bytes32"
                     },
                     {
-                      "internalType": "uint64",
-                      "name": "time",
-                      "type": "uint64"
+                      "internalType": "bool",
+                      "name": "signed",
+                      "type": "bool"
                     },
                     {
-                      "internalType": "uint64",
-                      "name": "duration",
-                      "type": "uint64"
-                    },
-                    {
-                      "internalType": "uint64",
-                      "name": "date",
-                      "type": "uint64"
-                    },
-                    {
-                      "internalType": "address[]",
-                      "name": "participants",
-                      "type": "address[]"
-                    },
-                    {
-                      "internalType": "address[]",
-                      "name": "accepted",
-                      "type": "address[]"
+                      "internalType": "bytes32[]",
+                      "name": "threads",
+                      "type": "bytes32[]"
                     }
                   ],
-                  "internalType": "struct Calendar.Invite[]",
+                  "internalType": "struct SwarmMail.Email[]",
                   "name": "",
                   "type": "tuple[]"
                 }
@@ -7024,26 +7068,403 @@
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "owner",
+                  "name": "addr",
+                  "type": "address"
+                }
+              ],
+              "name": "getUserStats",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "numInboxItems",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "numSentItems",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "numLockers",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "numSharedLockers",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "numOneWayItems",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "numThreads",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "addr",
                   "type": "address"
                 },
                 {
-                  "internalType": "uint64",
-                  "name": "_date",
-                  "type": "uint64"
+                  "internalType": "uint256",
+                  "name": "start",
+                  "type": "uint256"
                 },
                 {
-                  "internalType": "uint64",
-                  "name": "_time",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "_duration",
-                  "type": "uint64"
+                  "internalType": "uint256",
+                  "name": "length",
+                  "type": "uint256"
                 }
               ],
-              "name": "isOwnerAvailable",
+              "name": "getUserThreadsRange",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bool",
+                      "name": "isEncryption",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "time",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "from",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "to",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "swarmLocation",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "signed",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "bytes32[]",
+                      "name": "threads",
+                      "type": "bytes32[]"
+                    }
+                  ],
+                  "internalType": "struct SwarmMail.Email[]",
+                  "name": "",
+                  "type": "tuple[]"
+                },
+                {
+                  "internalType": "bytes32[]",
+                  "name": "",
+                  "type": "bytes32[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                }
+              ],
+              "name": "grantRole",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                }
+              ],
+              "name": "hasRole",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "owner",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "pubKey",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "keyLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "register",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "name": "release",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint32",
+                  "name": "types",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "bytes32[]",
+                  "name": "locations",
+                  "type": "bytes32[]"
+                }
+              ],
+              "name": "removeEmails",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "idx",
+                  "type": "uint256"
+                }
+              ],
+              "name": "removeUserThread",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                }
+              ],
+              "name": "renounceRole",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "reset_registration",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "role",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                }
+              ],
+              "name": "revokeRole",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "toAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isEncryption",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "sendEmail",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "toAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isEncryption",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "sendOneWayEmail",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "lockerLocation",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "keyLocation",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "withAddress",
+                  "type": "address"
+                }
+              ],
+              "name": "shareLockerWith",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "in_types",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "sender_types",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "signEmail",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "storeLocker",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes4",
+                  "name": "interfaceId",
+                  "type": "bytes4"
+                }
+              ],
+              "name": "supportsInterface",
               "outputs": [
                 {
                   "internalType": "bool",
@@ -7057,17 +7478,12 @@
             {
               "inputs": [
                 {
-                  "internalType": "uint64",
-                  "name": "_date",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "_index",
-                  "type": "uint64"
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
                 }
               ],
-              "name": "removeEventByIndex",
+              "name": "transferOwnership",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -7075,81 +7491,34 @@
             {
               "inputs": [
                 {
-                  "internalType": "uint64",
-                  "name": "_date",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "_index",
-                  "type": "uint64"
-                }
-              ],
-              "name": "removeInviteByIndex",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint64",
-                  "name": "_date",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "_index",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "_newTime",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "_newDuration",
-                  "type": "uint64"
+                  "internalType": "bytes32",
+                  "name": "lockerLocation",
+                  "type": "bytes32"
                 },
                 {
                   "internalType": "bytes32",
-                  "name": "_swarmLocation",
+                  "name": "keyLocation",
                   "type": "bytes32"
-                }
-              ],
-              "name": "updateEventsByDate",
-              "outputs": [
+                },
                 {
-                  "components": [
-                    {
-                      "internalType": "bytes32",
-                      "name": "location",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "uint64",
-                      "name": "time",
-                      "type": "uint64"
-                    },
-                    {
-                      "internalType": "uint64",
-                      "name": "duration",
-                      "type": "uint64"
-                    }
-                  ],
-                  "internalType": "struct Calendar.Event",
-                  "name": "",
-                  "type": "tuple"
+                  "internalType": "address",
+                  "name": "withAddress",
+                  "type": "address"
                 }
               ],
+              "name": "unshareLockerWith",
+              "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
+            },
+            {
+              "stateMutability": "payable",
+              "type": "receive"
             }
           ]
         },
         "DataHub": {
-          "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+          "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
           "abi": [
             {
               "inputs": [],
@@ -8615,8 +8984,502 @@
             }
           ]
         },
+        "Calendar": {
+          "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "addEvent",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "addEventForAddress",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_swarmLocation",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "_participants",
+                  "type": "address[]"
+                }
+              ],
+              "name": "addInvite",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "allow",
+                  "type": "bool"
+                }
+              ],
+              "name": "allowAddress",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_index",
+                  "type": "uint64"
+                }
+              ],
+              "name": "confirmInvite",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                }
+              ],
+              "name": "getEventsByDate",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    }
+                  ],
+                  "internalType": "struct Calendar.Event[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64[]",
+                  "name": "_dates",
+                  "type": "uint64[]"
+                }
+              ],
+              "name": "getEventsByDates",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    }
+                  ],
+                  "internalType": "struct Calendar.Event[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                }
+              ],
+              "name": "getFreeSlot",
+              "outputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "",
+                  "type": "uint64"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                }
+              ],
+              "name": "getInvitesByDate",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "creator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "date",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "address[]",
+                      "name": "participants",
+                      "type": "address[]"
+                    },
+                    {
+                      "internalType": "address[]",
+                      "name": "accepted",
+                      "type": "address[]"
+                    }
+                  ],
+                  "internalType": "struct Calendar.Invite[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64[]",
+                  "name": "_dates",
+                  "type": "uint64[]"
+                }
+              ],
+              "name": "getInvitesByDates",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "creator",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "date",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "address[]",
+                      "name": "participants",
+                      "type": "address[]"
+                    },
+                    {
+                      "internalType": "address[]",
+                      "name": "accepted",
+                      "type": "address[]"
+                    }
+                  ],
+                  "internalType": "struct Calendar.Invite[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_time",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_duration",
+                  "type": "uint64"
+                }
+              ],
+              "name": "isOwnerAvailable",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_index",
+                  "type": "uint64"
+                }
+              ],
+              "name": "removeEventByIndex",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_index",
+                  "type": "uint64"
+                }
+              ],
+              "name": "removeInviteByIndex",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint64",
+                  "name": "_date",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_index",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_newTime",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "_newDuration",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "updateEventsByDate",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "location",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "time",
+                      "type": "uint64"
+                    },
+                    {
+                      "internalType": "uint64",
+                      "name": "duration",
+                      "type": "uint64"
+                    }
+                  ],
+                  "internalType": "struct Calendar.Event",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ]
+        },
         "Scheduler": {
-          "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+          "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
           "abi": [
             {
               "inputs": [],
@@ -9216,8 +10079,1073 @@
             }
           ]
         },
+        "TaskBroker": {
+          "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+          "abi": [
+            {
+              "inputs": [],
+              "stateMutability": "nonpayable",
+              "type": "constructor"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "newFee",
+                  "type": "uint256"
+                }
+              ],
+              "name": "FeeChanged",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "previousOwner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipTransferred",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "user",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "taskId",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bytes32",
+                  "name": "data",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "TaskAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "user",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "taskId",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bytes32",
+                  "name": "result",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "TaskCompleted",
+              "type": "event"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_forBroker",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "_brokerServiceId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_data",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "addTask",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "blockList",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "_infoLocation",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "_price",
+                  "type": "uint256"
+                }
+              ],
+              "name": "brokerAddService",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_serviceId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "brokerGetService",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "infoLocation",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "price",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "isActive",
+                      "type": "bool"
+                    }
+                  ],
+                  "internalType": "struct TaskBroker.Service",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_start",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "_length",
+                  "type": "uint256"
+                }
+              ],
+              "name": "brokerGetServices",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "infoLocation",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "price",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "isActive",
+                      "type": "bool"
+                    }
+                  ],
+                  "internalType": "struct TaskBroker.Service[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_serviceId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_infoLocation",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "_newPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "_isActive",
+                  "type": "bool"
+                }
+              ],
+              "name": "brokerUpdateServiceInfo",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "brokers",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "infoLocation",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "earned",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "inEscrow",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isAway",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "collectFees",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_taskId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "_result",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "completeTask",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "name": "completedTasks",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_taskId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "disputeTaks",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "feesCollected",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                }
+              ],
+              "name": "getBroker",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "infoLocation",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "earned",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "inEscrow",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "isAway",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "uint256[]",
+                      "name": "servicesIndices",
+                      "type": "uint256[]"
+                    }
+                  ],
+                  "internalType": "struct TaskBroker.Broker",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "_taskId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getCompletedTask",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "taskId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "serviceId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "data",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "result",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "submittedAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "takenAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "completedAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "payment",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "owner",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "broker",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "enum TaskBroker.TaskStatus",
+                      "name": "status",
+                      "type": "uint8"
+                    }
+                  ],
+                  "internalType": "struct TaskBroker.Task",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getFee",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_taskId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getPendingTask",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "taskId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "serviceId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "data",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "result",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "submittedAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "takenAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "completedAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "payment",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "owner",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "broker",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "enum TaskBroker.TaskStatus",
+                      "name": "status",
+                      "type": "uint8"
+                    }
+                  ],
+                  "internalType": "struct TaskBroker.Task",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_broker",
+                  "type": "address"
+                }
+              ],
+              "name": "getPendingTasksForBroker",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "taskId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "serviceId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "data",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "result",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "submittedAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "takenAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "completedAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "payment",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "owner",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "broker",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "enum TaskBroker.TaskStatus",
+                      "name": "status",
+                      "type": "uint8"
+                    }
+                  ],
+                  "internalType": "struct TaskBroker.Task[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_taskId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getTask",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "taskId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "serviceId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "data",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "result",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "submittedAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "takenAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "completedAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "payment",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "owner",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "broker",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "enum TaskBroker.TaskStatus",
+                      "name": "status",
+                      "type": "uint8"
+                    }
+                  ],
+                  "internalType": "struct TaskBroker.Task",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "lastServiceId",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "owner",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "name": "pendingTaskIds",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "name": "pendingTasks",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "taskId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "serviceId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "data",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "result",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "submittedAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "takenAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "completedAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "payment",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "owner",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "broker",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "enum TaskBroker.TaskStatus",
+                      "name": "status",
+                      "type": "uint8"
+                    }
+                  ],
+                  "internalType": "struct TaskBroker.Task",
+                  "name": "task",
+                  "type": "tuple"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "index",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "schedulerFee",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "name": "services",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "infoLocation",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "price",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isActive",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bool",
+                  "name": "_away",
+                  "type": "bool"
+                }
+              ],
+              "name": "setAway",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "_isBlocked",
+                  "type": "bool"
+                }
+              ],
+              "name": "setBlockAddress",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "newFee",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setFee",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "taskId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "takePendingTask",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "name": "tasks",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "taskId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "serviceId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "data",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "result",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "submittedAt",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "takenAt",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "completedAt",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "payment",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "broker",
+                  "type": "address"
+                },
+                {
+                  "internalType": "enum TaskBroker.TaskStatus",
+                  "name": "status",
+                  "type": "uint8"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "transferOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ]
+        },
         "SocialGraph": {
-          "address": "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
+          "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
           "abi": [
             {
               "inputs": [
@@ -11331,1934 +13259,6 @@
                 }
               ],
               "stateMutability": "view",
-              "type": "function"
-            }
-          ]
-        },
-        "SwarmMail": {
-          "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-          "abi": [
-            {
-              "inputs": [],
-              "stateMutability": "nonpayable",
-              "type": "constructor"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "previousOwner",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "OwnershipTransferred",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "bytes32",
-                  "name": "previousAdminRole",
-                  "type": "bytes32"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "bytes32",
-                  "name": "newAdminRole",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "RoleAdminChanged",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "sender",
-                  "type": "address"
-                }
-              ],
-              "name": "RoleGranted",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "sender",
-                  "type": "address"
-                }
-              ],
-              "name": "RoleRevoked",
-              "type": "event"
-            },
-            {
-              "inputs": [],
-              "name": "DEFAULT_ADMIN_ROLE",
-              "outputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "",
-                  "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "types",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "emailSwarmLocation",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "swarmThreadLocation",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "addThread",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "addr",
-                  "type": "address"
-                }
-              ],
-              "name": "blackListAddress",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "swarmLocation",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "createThread",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "fundsBalance",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "fundsTransfer",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "addr",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "types",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "start",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "length",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getEmailRange",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "bool",
-                      "name": "isEncryption",
-                      "type": "bool"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "time",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "from",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "to",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "swarmLocation",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bool",
-                      "name": "signed",
-                      "type": "bool"
-                    },
-                    {
-                      "internalType": "bytes32[]",
-                      "name": "threads",
-                      "type": "bytes32[]"
-                    }
-                  ],
-                  "internalType": "struct SwarmMail.Email[]",
-                  "name": "messages",
-                  "type": "tuple[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "locker",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "lockerLocation",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "getLockerShares",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "address",
-                      "name": "withAddress",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "keyLocation",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bool",
-                      "name": "revoked",
-                      "type": "bool"
-                    }
-                  ],
-                  "internalType": "struct SwarmMail.Share[]",
-                  "name": "",
-                  "type": "tuple[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "addr",
-                  "type": "address"
-                }
-              ],
-              "name": "getPublicKeys",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "registered",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "pubKey",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "keyLocation",
-                  "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "getRoleAdmin",
-              "outputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "",
-                  "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32[]",
-                  "name": "locations",
-                  "type": "bytes32[]"
-                }
-              ],
-              "name": "getThreads",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "bool",
-                      "name": "isEncryption",
-                      "type": "bool"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "time",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "from",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "to",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "swarmLocation",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bool",
-                      "name": "signed",
-                      "type": "bool"
-                    },
-                    {
-                      "internalType": "bytes32[]",
-                      "name": "threads",
-                      "type": "bytes32[]"
-                    }
-                  ],
-                  "internalType": "struct SwarmMail.Email[]",
-                  "name": "",
-                  "type": "tuple[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "addr",
-                  "type": "address"
-                }
-              ],
-              "name": "getUserStats",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "numInboxItems",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "numSentItems",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "numLockers",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "numSharedLockers",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "numOneWayItems",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "numThreads",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "addr",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "start",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "length",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getUserThreadsRange",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "bool",
-                      "name": "isEncryption",
-                      "type": "bool"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "time",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "from",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "to",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "swarmLocation",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bool",
-                      "name": "signed",
-                      "type": "bool"
-                    },
-                    {
-                      "internalType": "bytes32[]",
-                      "name": "threads",
-                      "type": "bytes32[]"
-                    }
-                  ],
-                  "internalType": "struct SwarmMail.Email[]",
-                  "name": "",
-                  "type": "tuple[]"
-                },
-                {
-                  "internalType": "bytes32[]",
-                  "name": "",
-                  "type": "bytes32[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                }
-              ],
-              "name": "grantRole",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                }
-              ],
-              "name": "hasRole",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "owner",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "pubKey",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "keyLocation",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "register",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "token",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amount",
-                  "type": "uint256"
-                }
-              ],
-              "name": "release",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint32",
-                  "name": "types",
-                  "type": "uint32"
-                },
-                {
-                  "internalType": "bytes32[]",
-                  "name": "locations",
-                  "type": "bytes32[]"
-                }
-              ],
-              "name": "removeEmails",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "idx",
-                  "type": "uint256"
-                }
-              ],
-              "name": "removeUserThread",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounceOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                }
-              ],
-              "name": "renounceRole",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "reset_registration",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "role",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "account",
-                  "type": "address"
-                }
-              ],
-              "name": "revokeRole",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "toAddress",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "isEncryption",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "swarmLocation",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "sendEmail",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "toAddress",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "isEncryption",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "swarmLocation",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "sendOneWayEmail",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "lockerLocation",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "keyLocation",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "withAddress",
-                  "type": "address"
-                }
-              ],
-              "name": "shareLockerWith",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "in_types",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "sender_types",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "swarmLocation",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "signEmail",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "swarmLocation",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "storeLocker",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes4",
-                  "name": "interfaceId",
-                  "type": "bytes4"
-                }
-              ],
-              "name": "supportsInterface",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "transferOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "lockerLocation",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "keyLocation",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "address",
-                  "name": "withAddress",
-                  "type": "address"
-                }
-              ],
-              "name": "unshareLockerWith",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "stateMutability": "payable",
-              "type": "receive"
-            }
-          ]
-        },
-        "TaskBroker": {
-          "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
-          "abi": [
-            {
-              "inputs": [],
-              "stateMutability": "nonpayable",
-              "type": "constructor"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "newFee",
-                  "type": "uint256"
-                }
-              ],
-              "name": "FeeChanged",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "previousOwner",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "OwnershipTransferred",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "user",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "taskId",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "bytes32",
-                  "name": "data",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "TaskAdded",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "user",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "taskId",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "bytes32",
-                  "name": "result",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "TaskCompleted",
-              "type": "event"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_forBroker",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "_brokerServiceId",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "_data",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "addTask",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "name": "blockList",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "_infoLocation",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "_price",
-                  "type": "uint256"
-                }
-              ],
-              "name": "brokerAddService",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "_serviceId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "brokerGetService",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "bytes32",
-                      "name": "infoLocation",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "price",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "bool",
-                      "name": "isActive",
-                      "type": "bool"
-                    }
-                  ],
-                  "internalType": "struct TaskBroker.Service",
-                  "name": "",
-                  "type": "tuple"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "_start",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "_length",
-                  "type": "uint256"
-                }
-              ],
-              "name": "brokerGetServices",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "bytes32",
-                      "name": "infoLocation",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "price",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "bool",
-                      "name": "isActive",
-                      "type": "bool"
-                    }
-                  ],
-                  "internalType": "struct TaskBroker.Service[]",
-                  "name": "",
-                  "type": "tuple[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "_serviceId",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "_infoLocation",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "_newPrice",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "_isActive",
-                  "type": "bool"
-                }
-              ],
-              "name": "brokerUpdateServiceInfo",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "name": "brokers",
-              "outputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "infoLocation",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "earned",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "inEscrow",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "isAway",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "collectFees",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "_taskId",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "_result",
-                  "type": "bytes32"
-                }
-              ],
-              "name": "completeTask",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "name": "completedTasks",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "_taskId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "disputeTaks",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "feesCollected",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_address",
-                  "type": "address"
-                }
-              ],
-              "name": "getBroker",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "bytes32",
-                      "name": "infoLocation",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "earned",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "inEscrow",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "bool",
-                      "name": "isAway",
-                      "type": "bool"
-                    },
-                    {
-                      "internalType": "uint256[]",
-                      "name": "servicesIndices",
-                      "type": "uint256[]"
-                    }
-                  ],
-                  "internalType": "struct TaskBroker.Broker",
-                  "name": "",
-                  "type": "tuple"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "owner",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "_taskId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getCompletedTask",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "uint256",
-                      "name": "taskId",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "serviceId",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "data",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "result",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "submittedAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "takenAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "completedAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "payment",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "owner",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "broker",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "enum TaskBroker.TaskStatus",
-                      "name": "status",
-                      "type": "uint8"
-                    }
-                  ],
-                  "internalType": "struct TaskBroker.Task",
-                  "name": "",
-                  "type": "tuple"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "amount",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getFee",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "_taskId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getPendingTask",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "uint256",
-                      "name": "taskId",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "serviceId",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "data",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "result",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "submittedAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "takenAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "completedAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "payment",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "owner",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "broker",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "enum TaskBroker.TaskStatus",
-                      "name": "status",
-                      "type": "uint8"
-                    }
-                  ],
-                  "internalType": "struct TaskBroker.Task",
-                  "name": "",
-                  "type": "tuple"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_broker",
-                  "type": "address"
-                }
-              ],
-              "name": "getPendingTasksForBroker",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "uint256",
-                      "name": "taskId",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "serviceId",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "data",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "result",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "submittedAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "takenAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "completedAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "payment",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "owner",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "broker",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "enum TaskBroker.TaskStatus",
-                      "name": "status",
-                      "type": "uint8"
-                    }
-                  ],
-                  "internalType": "struct TaskBroker.Task[]",
-                  "name": "",
-                  "type": "tuple[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "_taskId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getTask",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "uint256",
-                      "name": "taskId",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "serviceId",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "data",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "result",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "submittedAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "takenAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "completedAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "payment",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "owner",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "broker",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "enum TaskBroker.TaskStatus",
-                      "name": "status",
-                      "type": "uint8"
-                    }
-                  ],
-                  "internalType": "struct TaskBroker.Task",
-                  "name": "",
-                  "type": "tuple"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "lastServiceId",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "owner",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "name": "pendingTaskIds",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "name": "pendingTasks",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "uint256",
-                      "name": "taskId",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "serviceId",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "data",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "result",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "submittedAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "takenAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "completedAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "payment",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "owner",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "broker",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "enum TaskBroker.TaskStatus",
-                      "name": "status",
-                      "type": "uint8"
-                    }
-                  ],
-                  "internalType": "struct TaskBroker.Task",
-                  "name": "task",
-                  "type": "tuple"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "index",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounceOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "schedulerFee",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "name": "services",
-              "outputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "infoLocation",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "price",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "isActive",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bool",
-                  "name": "_away",
-                  "type": "bool"
-                }
-              ],
-              "name": "setAway",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_address",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "_isBlocked",
-                  "type": "bool"
-                }
-              ],
-              "name": "setBlockAddress",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "newFee",
-                  "type": "uint256"
-                }
-              ],
-              "name": "setFee",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "taskId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "takePendingTask",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "name": "tasks",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "taskId",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "serviceId",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "data",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "result",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "submittedAt",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "takenAt",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "completedAt",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "payment",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "address",
-                  "name": "owner",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "broker",
-                  "type": "address"
-                },
-                {
-                  "internalType": "enum TaskBroker.TaskStatus",
-                  "name": "status",
-                  "type": "uint8"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "transferOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
               "type": "function"
             }
           ]

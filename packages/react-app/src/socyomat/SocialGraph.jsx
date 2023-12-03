@@ -56,7 +56,7 @@ import { load } from "@tensorflow-models/toxicity";
 import { RollingText } from "./RollingText";
 import { DisplayMessages } from "./DisplayMessages";
 import { DisplayUser } from "./DisplayUser";
-import { DisplayUserStats } from "./DisplayUserStats";
+
 import { add } from "@tensorflow/tfjs-core/dist/engine";
 import { CoinList } from "./coinlist";
 import { Graph } from "./Graph";
@@ -65,6 +65,13 @@ const { Header, Content, Footer, Sider } = Layout;
 //import { Footer } from "antd/lib/layout/layout";
 const { Panel } = Collapse;
 
+function convertToHex(str) {
+  const num = parseInt(str, 10); // Convert string to an integer
+  if (isNaN(num)) {
+    return null; // or throw an error, or return a default value
+  }
+  return num.toString(16); // Convert the number to a hexadecimal string
+}
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -105,7 +112,7 @@ function MyDropzone({ ref, onAdd }) {
   );
 }*/
 
-export function SocialGraph({ readContracts, writeContracts, address, tx, ensProvider }) {
+export function SocialGraph({ readContracts, writeContracts, address, tx, ensProvider, setReplyTo }) {
   let history = useHistory();
   const [loading, setLoading] = useState(false);
   const loaderRef = useRef(null);
@@ -124,7 +131,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
   const [interactions, setInteractions] = useState([]); // [postId, userId, interactionType
   const [startItem, setStartItem] = useState(0);
   const [itemsCount, setItemsCount] = useState(0);
-  const [pageSize, setPageSize] = useState(15);
+  const [pageSize, setPageSize] = useState(100);
   const [totalItems, setTotalItems] = useState(0);
   const [retrivalFunction, setRetrivalFunction] = useState(null);
   const [messageToComment, setMessageToComment] = useState(null);
@@ -245,15 +252,30 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     setLoading(true);
     console.log("got postIds", postIds);
     try {
+      //var p = postIds.sort((a, b) => (a > b ? -1 : 1));
       const postsInfo = await readContracts.SocialGraph.getPostsWith(postIds);
+      //const postsInfo = await readContracts.SocialGraph.getPostsWith(p);
       var postsEx = [];
       // add postIds to postsInfo
       for (var i = 0; i < postsInfo.length; i++) {
+        const p = postsInfo[i];
+        /*var isInMessages = messages.filter(m => m.contentPosition === p.contentPosition);
+        // if it exits, just update comments, likes, shares, etc
+        if (isInMessages.length > 0) {
+          // update comments, likes, shares, etc
+          var msg = isInMessages[0];
+          msg.commentCount = p.commentCount;
+          msg.likeCount = p.likeCount;
+          msg.shareCount = p.shareCount;
+          msg.totalEngagement = p.totalEngagement;
+          continue;
+        }*/
+
         postsEx.push({ ...postsInfo[i], postId: postIds[i] });
-        //postsInfo[i].postId = postIds[i];
       }
       // sort posts by timestamp
       //postsEx = postsEx.sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
+      //postsEx = postsEx.sort((a, b) => (a.postId < b.postId ? -1 : 1));
       setPosts(postsEx); // will trigger fetchMessages
       console.log("posts", postsEx);
     } catch (e) {
@@ -264,36 +286,89 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
   const fetchMessages = useCallback(async () => {
     setLoading(true);
     var msgs = [];
+    var parents = [];
     //debugger;
     for (var i = 0; i < posts.length; i++) {
       try {
         const p = posts[i];
         // check to see if postId is already in messages
         if (messages.filter(m => m.contentPosition === p.contentPosition).length > 0) continue;
+
         const data = await downloadDataFromBee(p.contentPosition);
         // const s = new TextDecoder().decode(data);
         const decompressedString = pako.inflate(data, { to: "string" });
         //
         //var m = JSON.parse(new TextDecoder().decode(decompressedString));
         var m = JSON.parse(decompressedString);
-        var mp = { ...m, ...p };
+        var mp = { ...m, ...p, expanded: false, level: 0, comments: [] };
         // console.log("message", mp);
         // add only if post.contentPosition does not exist in messages before
         //if (messages.filter(m => m.contentPosition === mp.contentPosition).length === 0)
+        if (mp.parentPost !== null) {
+          // find if parent id is not already in parents
+          var exists = parents.filter(p => p._hex === mp.parentPost.hex);
+          if (exists.length === 0) {
+            var bnPostId = BigNumber.from(mp.parentPost);
+            parents.push(bnPostId); // those should be loaded also
+          }
+        }
         msgs.push(mp);
-        // debugger;
       } catch (e) {
         console.log("error", e);
       }
     }
-    // sort messages by timestamp
-    //msgs = msgs.sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
-
-    //setMessages(msgs);
     // append msg to messages
-    setMessages(messages => [...msgs, ...messages]);
+    if (parents.length > 0) {
+      //msgs = [...msgs].sort((a, b) => (a.timestamp < b.timestamp ? -1 : 1));
+      //var sorted = [...msgs, ...messages].sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
+      //setMessages(sorted);
+      setMessages([...msgs, ...messages]);
+      console.log("messages", msgs);
+      //setPostIds([...parents, ...postIds]);
+      setPostIds([...parents]);
+      console.log("parents", parents);
+    } else {
+      // all parents have been loaded, reorder messages so that comments with parents are after parents
+      var msgs2 = [];
+      var all_messages = [...msgs, ...messages].sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
+      // first add all messages that have no parentPost
+      for (var i = 0; i < all_messages.length; i++) {
+        var msg = all_messages[i];
+        if (msg.parentPost === null) {
+          msgs2.push(msg);
+        }
+      }
+      // then add all messages that have parentPost
+      for (var i = 0; i < all_messages.length; i++) {
+        var msg = all_messages[i];
+        if (msg.parentPost !== null) {
+          msg.level = 10;
+          var idx = msgs2.findIndex(m => m.postId._hex === msg.parentPost.hex);
+          if (idx === -1) {
+            msgs2.push(msg);
+            console.log("push comment", msg.postId);
+          } else {
+            var insertIdx = idx + 1;
+            msg.level += msgs2[idx].level + 10;
+            // Find the correct position to insert the child message
+            while (insertIdx < msgs2.length && msgs2[insertIdx].parentPost === msg.parentPost) {
+              insertIdx++;
+            }
+            msgs2.splice(insertIdx, 0, msg);
+            console.log("inserted comment", msgs2[idx].postId);
+          }
+        }
+      }
+      // msgs2 = [...msgs2].sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
+      //msgs2 = msgs2.sort((a, b) => (a.postId < b.postId ? -1 : 1));
+      //setMessages(sorted);
+      // sort msgs by timestamp but only those that have no parentPost
+      //msgs2 = msgs2.filter(m => m.parentPost === null).sort((a, b) => (a.timestamp < b.timestamp ? -1 : 1));
+      setMessages([...msgs2]);
+      console.log("hiera messages", msgs2);
+    }
     setLoading(false);
-    console.log("messages", msgs);
+    //console.log("messages", msgs2);
   });
   const fetchLatestPostIds = useCallback(async () => {
     setLoading(true);
@@ -303,6 +378,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     const start = allPosts - pageSize >= 0 ? allPosts - pageSize : 0;
     lenght = start + pageSize < allPosts ? pageSize : allPosts - start; // length can be more than pageSize + start
     var idxs = createBigNumberArray(start, lenght); //this just gets latest post ids
+    //idxs = idxs.sort((a, b) => (a < b ? -1 : 1));
     console.log("fetchLatest todaysPostsCount", allPosts.toString(), start, lenght, idxs);
     try {
       // const posts_latest = await readContracts.SocialGraph.getPostsWith(idxs);
@@ -408,6 +484,19 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     setPostIds(interactedWithPostIds);
     setLoading(false);
   });
+  const fetchIdsForPostWithComments = useCallback(async postIdx => {
+    setLoading(true);
+    const postStats = await readContracts.SocialGraph.getPostStats(postIdx);
+    const maxCount = postStats.comments_count;
+    // if (maxCount == 0) return;
+    var comments = [];
+    if (maxCount != 0) {
+      const start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
+      comments = await readContracts.SocialGraph.getPostComments(postIdx, start, pageSize);
+    }
+    console.log("getPostComments", comments);
+    return [postIdx, ...comments];
+  }, []);
   const fetchInteractionsForPost = useCallback(
     async postId => {
       setLoading(true);
@@ -421,6 +510,8 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
   const fetchInteractionsForUser = useCallback(
     async userId => {
       setLoading(true);
+      const userStats = await readContracts.SocialGraph.getUserStats(userId);
+      setUserStats(userStats);
       const iactionIds = await readContracts.SocialGraph.getUserInteractions(userId, 0, 100);
       console.log("getUserInteractions", iactionIds);
       await pushMessagesOnStack();
@@ -456,10 +547,6 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     console.log("todayIndex changed", todayIndex.toString());
     //fetchPostIdsPerDay();
   }, [todayIndex]);
-
-  /*useEffect(() => {
-    fetchPostIdsPerDay();
-  }, [startItem, itemsCount]);*/
   useEffect(() => {
     if (interactionIds.length == 0) return;
     console.log("interactionIds changed", interactionIds.length);
@@ -555,11 +642,18 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     var userStats = await readContracts.SocialGraph.getUserStats(user);
     return userStats;
   };
-  const loadUserPosts = async userStats => {
+  const loadUserPostsFromStats = async userStats => {
     var maxCount = userStats.posts_count;
     var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
     const postIdxs = await readContracts.SocialGraph.getPostsFromUser(userStats.userdata.userAddress, start, pageSize);
     return postIdxs;
+  };
+  const loadUserStatsAndPosts = async user => {
+    var userStats = await readContracts.SocialGraph.getUserStats(user);
+    setUserStats(userStats);
+    setUsers([...users, userStats.userdata]);
+    var pidx = await loadUserPostsFromStats(userStats);
+    return pidx;
   };
 
   const loadPostsFrom = async (mention, tag, cat, token, topic, userId) => {
@@ -597,7 +691,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     if (userId) {
       try {
         const stats = await loadUserStats(userId);
-        const postIdxs = await loadUserPosts(stats);
+        const postIdxs = await loadUserPostsFromStats(stats);
         postIndices = [...postIndices, ...postIdxs];
       } catch (e) {}
     }
@@ -627,6 +721,18 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     if (userId) {
       const stats = await loadUserStats(userId);
       setUserStats(stats);
+    }
+    if (postId) {
+      //debugger;
+      //await fetchInteractionsForPost(postId);
+      // convert postId to bigNumber
+      //var bnPostId = BigNumber.from(postId);
+      //const postAndComments = await fetchIdsForPostWithComments({ type: "BigNumber", hex: "0x"+convertToHex(postId) });
+      const postAndComments = await fetchIdsForPostWithComments(ethers.BigNumber.from(postId));
+      if (postAndComments) {
+        await pushMessagesOnStack();
+        setPostIds(postAndComments);
+      }
     }
     if (followersFor) {
       const stats = await loadUserStats(userId);
@@ -706,6 +812,16 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
 
     for (var i = 0; i < words.length; i++) {
       var word = words[i];
+      // check to see if word is a user address
+      if (word.length === 42 && word.startsWith("0x")) {
+        try {
+          var userStats = await readContracts.SocialGraph.getUserStats(word);
+          results.push({ name: word, count: 1, fn: loadUserStatsAndPosts });
+        } catch (e) {
+          //console.log("error", e);
+        }
+      }
+
       var hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(word)).toString();
       var t = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
       console.log("search", t);
@@ -775,6 +891,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
             <>
               <DisplayUser
                 userdata={userStats.userdata}
+                userStats={userStats}
                 readContracts={readContracts}
                 writeContracts={writeContracts}
                 ensProvider={ensProvider}
@@ -782,23 +899,11 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
                 history={history}
                 onNotifyClick={onLoadPosts}
                 tx={tx}
-              />
-              <DisplayUserStats
-                userStats={userStats}
-                ensProvider={ensProvider}
-                currentAddress={address}
-                history={history}
-                onNotifyClick={onLoadPosts}
+                setReplyTo={setReplyTo}
               />
             </>
           ) : null}
-          <Graph
-            data={graphData}
-            width={600}
-            height={200}
-            onPostClicked={fetchInteractionsForPost}
-            onUserClicked={fetchInteractionsForUser}
-          />
+
           <DisplayMessages
             messages={messages}
             tx={tx}
@@ -808,10 +913,19 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
             history={history}
             onNotifyClick={onLoadPosts}
             onComment={onOpenToComment}
+            setReplyTo={setReplyTo}
           />
           {users.map((u, i) => {
-            <DisplayUser userData={u} ensProvider={ensProvider} currentAddress={address} />;
+            <DisplayUser key={"usr" + i} userData={u} ensProvider={ensProvider} currentAddress={address} />;
           })}
+          {/* <Graph
+            data={graphData}
+            width={600}
+            height={200}
+            onPostClicked={fetchInteractionsForPost}
+            onUserClicked={fetchInteractionsForUser}
+          />  */}
+
           <div ref={loaderRef}>
             <small>
               ... Messages:{messages.length} Total:{totalItems.toString()} Day:{todayIndex.toString()}
@@ -896,6 +1010,13 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
               </span>
             </Menu.Item>
           </Menu>
+          <Graph
+            data={graphData}
+            width={200}
+            height={600}
+            onPostClicked={fetchInteractionsForPost}
+            onUserClicked={fetchInteractionsForUser}
+          />
         </Sider>
       </Layout>
       {/* <Footer>footer</Footer> */}
