@@ -231,8 +231,8 @@ export function Home({
                 DECRYPT TO BOND WITH SMAIL
               </Button>
               <br />
-              This will open MetaMask and prompts you with decrypt request. This step is required to bond Smail Wallet
-              with your MetaMask account.
+              This will open MetaMask and prompts you with decrypt request. This step is required to bond Datafund
+              Wallet with your MetaMask account.
               <br />
             </>
           )}
@@ -272,91 +272,10 @@ export function Home({
           <div>
             <h2>BEWARE AND BEHOLD</h2>
             Always check that you are on correct domain and that you are using correct MetaMask account. Scammers could
-            potentially ask you to decrypt Smail Wallet and <strong>gain access to your data</strong>.
+            potentially ask you to decrypt Datafund Wallet and <strong>gain access to your data</strong>.
             <hr />
-            <h2>How Smail works</h2>
-            You will be asked to decrypt your Smail Wallet every time you visit this page.
-            <h3>
-              How <strong>registration</strong> works:
-            </h3>
-            <ul>
-              <li>your public encryption key is requested with which new Smail Wallet is created</li>
-              <li>Smail Wallet is encrypted with your MetaMask and uploaded to Swarm</li>
-              <li>a transaction is sent to register Smail public key and Smail Wallet</li>
-              Only MetaMask account that created Smail Wallet can decrypt and bond with it.
-            </ul>
-          </div>
-          <div>
-            <h3>
-              How <strong>Inbox</strong> works:
-            </h3>
-            <ul>
-              <li>Recipient's Smail public Key is retrieved</li>
-              <li>New Ephemeral key is created</li>
-              <li>Data is packaged, encrypted and uploaded </li>
-              <li>A transaction is sent to notify receiver of new data available</li>
-              You don't need to be bonded to send encrypted data as long as receiver is registered with Smail data sent
-              will be encrypted. <strong>NOTE: </strong>Only receiver can retrieve and decrypt its contents and create
-              Threads for notes.
-            </ul>
-            <h3>
-              How <strong>Locker</strong> works
-            </h3>
-            <ul>
-              <li>Create a locker item with new key</li>
-              <li>Data is encrypted with new key and uploaded </li>
-              <li>You can share your locker with other address by sharing newly created key</li>
-              <li>A transaction is sent to notify receiver, sender and receiver can decrypt message</li>
-              <li>Original creator can share/unshare key</li>
-              All data is encrypted between creator and new key. Threads are encrypted with same key as locker. All who
-              have access to locker item can read its threads.
-            </ul>
-            <h3>
-              How <strong>Received/Sent</strong> works
-            </h3>
-            <ul>
-              <li>Receiver and sender must be registered</li>
-              <li>Shared secret is used to encrypt data</li>
-              <li>Data is packaged, encrypted with shared secret key and uploaded </li>
-              <li>A transaction is sent to notify receiver, sender and receiver can decrypt message</li>
-              Uses Diffie-Hellman key exchange, a shared secret is used as a key to encrypt and decrypt message on both
-              sides. <strong>NOTE: </strong>
-              Both sender and receiver must be bonded to send encrypted data.
-            </ul>
-            <h3>
-              How <strong>Threads</strong> work
-            </h3>
-            <ul>
-              <li>Receiver and sender must be registered</li>
-              <li>Shared secret is used to encrypt data</li>
-              <li>Data is packaged, encrypted with shared secret key and uploaded </li>
-              <li>A transaction is sent to notify receiver, sender and receiver can decrypt message</li>
-              Uses Diffie-Hellman key exchange, a shared secret is used as a key to encrypt and decrypt message on both
-              sides. <strong>NOTE: </strong> Both sender and receiver must be bonded to send encrypted data. If one
-              party deletes a thread, other party will never know.
-            </ul>
-            <h3>
-              <strong>Calendar</strong>
-            </h3>
-            <ul>
-              <li>Add events to your calendar</li>
-              All events are encrypted for owner. And only owner can see details. Other users can see event as{" "}
-              <code>busy</code> only. Uses same encryption techinque as <strong>Locker</strong>.
-            </ul>
-            <h3>
-              <strong>Scheduler</strong>
-            </h3>
-            <ul>
-              <li>You can Schedule an event with another user</li>
-              <li>
-                Schedule owner can define <code>Start</code> and <code>End</code> time and payment per second.
-              </li>
-              <li>The user scheduling the event pays for owners time</li>
-              <li>No overlapping events</li>
-              <li>Can be used for automatic schedulers</li>
-              Others can only see time, duration and who scheduled event. Uses same encryption techinque as{" "}
-              <strong>Threads</strong>.
-            </ul>
+            <h2>How it works</h2>
+            <Link to="/about">See details here</Link>
             <hr />
           </div>
           <div>
@@ -375,7 +294,7 @@ export function Home({
             Sending unencrypted data is supported and occours when:
             <ul>
               <li>if either sender or receiver is not a registered</li>
-              <li>Sender's Smail Wallet can not be retrieved or is not decrypted</li>
+              <li>Sender's Datafund Wallet can not be retrieved or is not decrypted</li>
               <li>Receiver public key can not be retrieved</li>
               You can read and send <strong>unencrypted</strong> messages to Inbox, if you are connected and not bonded.
             </ul>
@@ -405,7 +324,7 @@ export function Home({
           <ul>
             <li>Cross network sending is NOT supported. </li>
             <li>You will have to register on each network.</li>
-            <li>Each Smail Wallet will be different.</li>
+            <li>Each Datafund Wallet will be different.</li>
           </ul>
           Which means if you send on one network, receiver will get message on that network only.
           {/* <hr />

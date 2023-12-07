@@ -373,7 +373,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
   const fetchLatestPostIds = useCallback(async () => {
     setLoading(true);
     var lenght = pageSize;
-    const allPosts = await readContracts.SocialGraph.postCount();
+    const allPosts = await readContracts.SocialGraph.totalSupply();
 
     const start = allPosts - pageSize >= 0 ? allPosts - pageSize : 0;
     lenght = start + pageSize < allPosts ? pageSize : allPosts - start; // length can be more than pageSize + start
@@ -738,24 +738,24 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
       const stats = await loadUserStats(userId);
       setUserStats(stats);
       var maxCount = stats.followers_count;
-      var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-      const gotUsers = await readContracts.SocialGraph.getFollowers(followersFor, start, pageSize);
+      var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0; // followers
+      const gotUsers = await readContracts.SocialGraph.getUsersByTypeFrom(followersFor, start, pageSize, 0);
       setUsers(gotUsers);
     }
     if (followingFor) {
       const stats = await loadUserStats(followingFor);
       setUserStats(stats);
       var maxCount = userStats.following_count;
-      var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-      const gotUsers = await readContracts.SocialGraph.getFollowing(followingFor, start, pageSize);
+      var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0; // following
+      const gotUsers = await readContracts.SocialGraph.getUsersByTypeFrom(followingFor, start, pageSize, 1);
       setUsers(gotUsers);
     }
     if (engaged) {
       const stats = await loadUserStats(engaged);
       setUserStats(stats);
       var maxCount = userStats.engagedWith_count;
-      var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-      const gotUsers = await readContracts.SocialGraph.getEngagedWith(engaged, start, pageSize);
+      var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0; // engaged with
+      const gotUsers = await readContracts.SocialGraph.getUsersByTypeFrom(engaged, start, pageSize, 2);
       setUsers(gotUsers);
     }
   };

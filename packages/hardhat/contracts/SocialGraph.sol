@@ -2,20 +2,20 @@
 // written by @tfius 
 pragma solidity ^0.8.0;
 // This contract tracks the social graph of users, users can create posts and interact with other users posts
-// 
+//import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 // peer to peer shared content for payment
 // paywall for following (post points to locker hash)
 // pay for post -> post (think about it)
 // creator pod 
 
-contract SocialGraph {
+contract SocialGraph  {
     struct User {
         address userAddress;
         uint    timestamp;
         uint    engagementScore;
         uint    dayIndex;	
-        uint[]  leaderboard; // contains indices of posts in posts array
+//        uint[]  leaderboard; // contains indices of posts in posts array
         uint    priceForFollow; // price for following
     }
     struct Interaction {
@@ -24,11 +24,11 @@ contract SocialGraph {
         InteractionType interactionType;
     }
     enum InteractionType { Post, Follow, Like, Share, Comment, Bookmark }
-    struct Metadata {
+    // struct Metadata {
     //    bytes32[] tags; // sha256 hash of the tag
     //    bytes32[] mentions; // sha256 hash of the mentions (address)
-        bytes32 category; // sha256 hash of the category
-    }
+    //    bytes32 category; // sha256 hash of the category
+    // }
     struct ContentAnalysis {
         uint sentimentScore;
         bytes32 mainTopic; // sha256 hash of the main topic
@@ -43,13 +43,34 @@ contract SocialGraph {
         uint    shareCount;
         uint    totalEngagement;
 
-        Metadata metadata;
+        //Metadata metadata;
+        bytes32 category; // sha256 hash of the category
         ContentAnalysis contentAnalysis;
+    }
+
+    //constructor() ERC721("Datafund Post", "DFEXE") {}
+    /**
+     * @dev See {IERC721Metadata-name}.
+     */
+    function name() public view virtual returns (string memory) {
+        return "Datafund Post";
+    }
+    /**
+     * @dev See {IERC721Metadata-symbol}.
+     */
+    function symbol() public view virtual returns (string memory) {
+        return "DFEXE";
+    }
+    function tokenURI(uint256 tokenId) public view returns (string memory) {
+        // tokenId is the post id
+        require(tokenId < totalSupply, "ERC721Metadata: URI query for nonexistent token");
+        // serialize to application/json
+        return string(abi.encodePacked("swarm://", posts[tokenId].contentPosition));
     }
 
     mapping(address => User) public users;
     mapping(uint => Post) public posts;
-    uint public postCount;
+    uint public totalSupply;
     Interaction[] public interactions;
     uint public interactionsCount;
     mapping(address => uint[]) public userPosts; // user posts 
@@ -74,25 +95,35 @@ contract SocialGraph {
     mapping(uint => address[]) public usersByDay; // map most active users per day
 
     // leaderboard per user with most engaging posts
-    mapping(address => mapping(uint => uint)) public postIndexInLeaderboard; // Maps post ID to its index in the leaderboard array
-    uint constant MAX_LEADERBOARD_LENGTH = 10;
+//    mapping(address => mapping(uint => uint)) public postIndexInLeaderboard; // Maps post ID to its index in the leaderboard array
+//    uint constant MAX_LEADERBOARD_LENGTH = 10;
     // mapping(address => uint[]) public leaderboards; // Maps user ID to an array of post IDs
     // mapping to prevent double counting of likes and shares
     mapping(address => mapping(uint => uint)) public isPostLiked;
     mapping(address => mapping(uint => uint)) public isPostShared;
     // add option to follow only for payment 
 
+    function balanceOf(address owner) public view virtual returns (uint256) {
+        return userPosts[owner].length;
+    }
+    function ownerOf(uint256 tokenId) public view virtual returns (address) {
+        return posts[tokenId].creator;
+    }
+    function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256) {
+        require(userPosts[owner].length > index, "ERC721Enumerable: owner index out of bounds");
+        return userPosts[owner][index];
+    }
     function getRelations(address user, address other) public view returns (uint engagement_to_other, uint engagement_to_user, uint user_following_other, uint user_follower_other, uint other_following_user, uint other_follower_user) {
         return (engagementScoreBetweenUsers[user][other], engagementScoreBetweenUsers[other][user], isFollowing[user][other], isFollower[user][other], isFollowing[other][user], isFollower[other][user]);
     }
-    function getUserStats(address user) public view returns (uint following_count, uint followers_count, uint engagedWith_count, uint posts_count, uint interactions_count, uint leaderboard_count,
+    function getUserStats(address user) public view returns (uint following_count, uint followers_count, uint engagedWith_count, uint posts_count, uint interactions_count, /* uint leaderboard_count,*/
                                                              User memory userdata) {
         require(users[user].userAddress != address(0), "No user");
-        return (following[user].length, followers[user].length, engagedWith[user].length, userPosts[user].length, userInteractions[user].length, users[user].leaderboard.length, 
+        return (following[user].length, followers[user].length, engagedWith[user].length, userPosts[user].length, userInteractions[user].length, /*users[user].leaderboard.length, */
                 users[user]);
     }
     function getPostStats(uint postId) public view returns (uint likeCount, uint commentCount, uint shareCount, uint totalEngagement, uint interactions_count, uint comments_count) {
-        require(postId < postCount, "No post");
+        require(postId < totalSupply, "No post");
         return (posts[postId].likeCount, posts[postId].commentCount, posts[postId].shareCount, posts[postId].totalEngagement, postInteractions[postId].length, postComments[postId].length);
     }
     function getInfoOn(bytes32 any) public view returns (uint tags, uint mentions, uint topics, uint tokens, uint categories) {
@@ -102,57 +133,52 @@ contract SocialGraph {
         return (postsByDay[dayIndex].length, usersByDay[dayIndex].length);
     }
     // internal function to rebuild users leaderboard
-    function engageWithPost(address postCreator, uint postId) private {
-        uint[] storage leaderboard = users[postCreator].leaderboard;
-        uint index = postIndexInLeaderboard[postCreator][postId];
+    // function engageWithPost(address postCreator, uint postId) private {
+    //     uint[] storage leaderboard = users[postCreator].leaderboard;
+    //     uint index = postIndexInLeaderboard[postCreator][postId];
 
-        if (index == 0 && (leaderboard.length == 0 || leaderboard[index] != postId)) {
-            // Post not found in leaderboard, add it
-            leaderboard.push(postId);
-            index = leaderboard.length - 1;
-            postIndexInLeaderboard[postCreator][postId] = index;
-        } 
-        // else {
-        //     // Post found, increase engagement
-        //     leaderboard[index].engagement += 1;
-        // }
+    //     if (index == 0 && (leaderboard.length == 0 || leaderboard[index] != postId)) {
+    //         // Post not found in leaderboard, add it
+    //         leaderboard.push(postId);
+    //         index = leaderboard.length - 1;
+    //         postIndexInLeaderboard[postCreator][postId] = index;
+    //     } 
+    //     // Bubble up the post in the leaderboard
+    //     while (index > 0 && shouldSwap(leaderboard, index, index - 1)) {
+    //         // Swap with previous post
+    //         uint postIndex = leaderboard[index];
+    //         leaderboard[index] = leaderboard[index - 1];
+    //         leaderboard[index - 1] = postIndex;
 
-        // Bubble up the post in the leaderboard
-        while (index > 0 && shouldSwap(leaderboard, index, index - 1)) {
-            // Swap with previous post
-            uint postIndex = leaderboard[index];
-            leaderboard[index] = leaderboard[index - 1];
-            leaderboard[index - 1] = postIndex;
+    //         // Update the indices in the mapping
+    //         postIndexInLeaderboard[postCreator][leaderboard[index]] = index;
+    //         postIndexInLeaderboard[postCreator][leaderboard[index - 1]] = index - 1;
 
-            // Update the indices in the mapping
-            postIndexInLeaderboard[postCreator][leaderboard[index]] = index;
-            postIndexInLeaderboard[postCreator][leaderboard[index - 1]] = index - 1;
+    //         index -= 1;
+    //     }
 
-            index -= 1;
-        }
+    //     // Check if leaderboard length exceeds maximum and remove last post if necessary
+    //     if (leaderboard.length > MAX_LEADERBOARD_LENGTH) {
+    //         uint postIdToRemove = leaderboard[MAX_LEADERBOARD_LENGTH];
+    //         delete postIndexInLeaderboard[postCreator][postIdToRemove];
+    //         leaderboard.pop();
+    //     }
+    // }
+    // function shouldSwap(uint[] memory leaderboard, uint indexA, uint indexB) private view returns (bool) {
+    //     Post memory postA = posts[leaderboard[indexA]];
+    //     Post memory postB = posts[leaderboard[indexB]];
 
-        // Check if leaderboard length exceeds maximum and remove last post if necessary
-        if (leaderboard.length > MAX_LEADERBOARD_LENGTH) {
-            uint postIdToRemove = leaderboard[MAX_LEADERBOARD_LENGTH];
-            delete postIndexInLeaderboard[postCreator][postIdToRemove];
-            leaderboard.pop();
-        }
-    }
-    function shouldSwap(uint[] memory leaderboard, uint indexA, uint indexB) private view returns (bool) {
-        Post memory postA = posts[leaderboard[indexA]];
-        Post memory postB = posts[leaderboard[indexB]];
-
-        if (postA.totalEngagement > postB.totalEngagement) {
-            return true;
-        } else if (postA.totalEngagement == postB.totalEngagement) {
-            return postA.timestamp > postB.timestamp;
-        } else {
-            return false;
-        }
-    }
+    //     if (postA.totalEngagement > postB.totalEngagement) {
+    //         return true;
+    //     } else if (postA.totalEngagement == postB.totalEngagement) {
+    //         return postA.timestamp > postB.timestamp;
+    //     } else {
+    //         return false;
+    //     }
+    // }
     // internal function to interact with post
     function interactWith(uint postId, InteractionType interactionType, address engagingUserAddress) private returns (uint) {
-        require(postId < postCount, "No post");
+        require(postId < totalSupply, "No post");
         User storage engagingUser = users[engagingUserAddress];
         User storage engagedUser = users[posts[postId].creator];
         
@@ -194,94 +220,29 @@ contract SocialGraph {
         usersByDay[dayIndex].push(engagingUserAddress);
         engagingUser.timestamp = block.timestamp;
 
-        engageWithPost(new_post.creator, postId);
+        // engageWithPost(new_post.creator, postId);
         interactionsCount++;
         return interactions.length - 1;
     }
     function createUser() private {
-        users[msg.sender] = User({
-            userAddress: msg.sender,
-            timestamp: block.timestamp,
-            engagementScore: 2,
-            dayIndex: 0,
-            leaderboard: new uint[](0),
-            priceForFollow: 0
-        });
+        if(users[msg.sender].userAddress == address(0)) {
+            users[msg.sender] = User({
+                userAddress: msg.sender,
+                timestamp: block.timestamp,
+                engagementScore: 2,
+                dayIndex: 0,
+                // leaderboard: new uint[](0),
+                priceForFollow: 0
+            });
+        }
     }  
     function setPriceToFollow(uint price) public {
         require(users[msg.sender].userAddress != address(0), "No user");
         users[msg.sender].priceForFollow = price;
     }
-    function unfollow(address who_following) private {
-        require(isFollowing[msg.sender][who_following] > 0, "Not following this user");
-        uint index = isFollowing[msg.sender][who_following] - 1;
-        address[] storage followingArray = following[msg.sender];
-        // Move the last element into the place to delete
-        followingArray[index] = followingArray[followingArray.length - 1];
-        followingArray.pop(); // Remove the last element
-        // Update isFollowing for the moved follower
-        isFollowing[msg.sender][followingArray[index]] = index + 1;
-        // Remove the unfollowed user from isFollowing
-        delete isFollowing[msg.sender][who_following];
-    }
-    function follow(address user, bool isFollow) public payable {
-        //require(users[user].userAddress != address(0), "No User");
-        //require(users[msg.sender].userAddress != address(0), "You have no user");
-        require(msg.sender != user, "Can't follow yourself");
-        require(msg.value >= users[user].priceForFollow, "Not enough funds");
-        if(users[msg.sender].userAddress == address(0)) {
-            createUser();
-        }
-
-        if(isFollow) {
-            users[msg.sender].engagementScore += 4; // assigning a weight of 4 for following
-            if(isFollowing[msg.sender][user]==0) {
-               following[msg.sender].push(user);
-               isFollowing[msg.sender][user] = following[msg.sender].length;
-            }
-            if(isFollower[user][msg.sender]==0) {
-               followers[user].push(msg.sender);
-               isFollower[user][msg.sender] = followers[user].length;
-            }
-            engagementScoreBetweenUsers[msg.sender][user] += 100;
-            // transfer value to user
-            if(users[user].priceForFollow>0)
-            {
-              uint fee = users[user].priceForFollow / 10; // 10% fee  
-              payable(users[user].userAddress).transfer(users[user].priceForFollow-fee);             
-              payable(msg.sender).transfer(msg.value - users[user].priceForFollow); // send rest to user
-            }
-            //transfer(msg.sender, user, users[user].priceForFollow);
-            //transfer(msg.sender, user, users[user].priceForFollow);
-        } else {
-            engagementScoreBetweenUsers[msg.sender][user] = 1; // nullify engagement between users
-            if(isFollowing[msg.sender][user] > 0) {
-                unfollow(user);
-            }
-        }
-    }
-    function like(uint postId) public {
-        //require(users[msg.sender].userAddress != address(0), "No user");
-        if(users[msg.sender].userAddress == address(0)) {
-            createUser();
-        }
-        require(isPostLiked[msg.sender][postId] == 0, "liked");       
-        interactWith(postId, InteractionType.Like, msg.sender);
-    }
-    function share(uint postId) public {
-        //require(users[msg.sender].userAddress != address(0), "No user");
-        if(users[msg.sender].userAddress == address(0)) {
-            createUser();
-        }
-        require(isPostShared[msg.sender][postId] == 0, "shared");
-        interactWith(postId, InteractionType.Share, msg.sender);       
-    }
-      
-    function createPost(bytes32 content, bytes32[] memory tags, bytes32[] memory mentions, bytes32[] memory tokens, bytes32 category) private returns (uint){
+    function createPost(bytes32 content, bytes32[] memory tags, bytes32[] memory mentions, bytes32[] memory tokens, bytes32 _category) private returns (uint){
         uint dayIndex = getTodayIndex();
-        if(users[msg.sender].userAddress == address(0)) {
-            createUser();
-        }
+        createUser();
         Post memory new_post = Post({
             creator: msg.sender,
             timestamp: block.timestamp,
@@ -290,13 +251,12 @@ contract SocialGraph {
             commentCount: 0,
             shareCount: 0,
             totalEngagement: 0,
-            metadata: Metadata(category),
-            //metadata: Metadata(tags, mentions, category),
+            category: _category,
             contentAnalysis: ContentAnalysis(0, 0x0)
         });
 
-        userPosts[msg.sender].push(postCount);
-        posts[postCount] = new_post;
+        userPosts[msg.sender].push(totalSupply);
+        posts[totalSupply] = new_post;
         if(users[msg.sender].dayIndex<dayIndex) // add user to usersByDay
         {
            usersByDay[dayIndex].push(msg.sender);
@@ -304,18 +264,19 @@ contract SocialGraph {
         }
 
         for(uint i = 0; i < tags.length; i++) {
-            postsWithTag[tags[i]].push(postCount);
+            postsWithTag[tags[i]].push(totalSupply);
         }
         for(uint i = 0; i < mentions.length; i++) {
-            postsWithMention[mentions[i]].push(postCount);
+            postsWithMention[mentions[i]].push(totalSupply);
         }
         for(uint i = 0; i < tokens.length; i++) {
-            postsWithTokens[tokens[i]].push(postCount);
+            postsWithTokens[tokens[i]].push(totalSupply);
         }
+        postsWithCategory[_category].push(totalSupply);
 
-        postsByDay[dayIndex].push(postCount);
-        postCount++;
-        return postCount - 1;
+        postsByDay[dayIndex].push(totalSupply);
+        totalSupply++;
+        return totalSupply - 1;
     }
     function post(bytes32 content, bytes32[] memory tags, bytes32[] memory mentions, bytes32[] memory tokens, bytes32 category) public returns (uint){
         uint newPostId = createPost(content, tags, mentions, tokens, category); 
@@ -330,18 +291,74 @@ contract SocialGraph {
         interactWith(postId, InteractionType.Comment, msg.sender);        
         return newPostId;
     }
-    function bookmark(uint postId) public returns (uint){
-        //require(users[msg.sender].userAddress != address(0), "No user");
-        if(users[msg.sender].userAddress == address(0)) {
-            createUser();
+    function unfollow(address who_following) private {
+        require(isFollowing[msg.sender][who_following] > 0, "Not following this user");
+        engagementScoreBetweenUsers[msg.sender][who_following] = 1; // nullify engagement between users
+
+        uint index = isFollowing[msg.sender][who_following] - 1;
+        address[] storage followingArray = following[msg.sender];
+        // Move the last element into the place to delete
+        followingArray[index] = followingArray[followingArray.length - 1];
+        followingArray.pop(); // Remove the last element
+        // Update isFollowing for the moved follower
+        isFollowing[msg.sender][followingArray[index]] = index + 1;
+        // Remove the unfollowed user from isFollowing
+        delete isFollowing[msg.sender][who_following];
+
+        // Remove the follower from the followed user
+        index = isFollower[who_following][msg.sender] - 1;
+        address[] storage followersArray = followers[who_following];
+        // Move the last element into the place to delete
+        followersArray[index] = followersArray[followersArray.length - 1];
+        followersArray.pop(); // Remove the last element
+        // Update isFollower for the moved follower
+        isFollower[who_following][followersArray[index]] = index + 1;
+        // Remove the unfollowed user from isFollower
+        delete isFollower[who_following][msg.sender];       
+    }
+    function follow(address user) public payable {
+        require(msg.sender != user, "Can't follow yourself");
+        require(msg.value >= users[user].priceForFollow, "Not enough funds");
+        // sender should not already follow 
+        require(isFollowing[msg.sender][user] == 0, "Already following");
+        createUser();
+
+        users[msg.sender].engagementScore += 4; // assigning a weight of 4 for following
+        following[msg.sender].push(user);
+        isFollowing[msg.sender][user] = following[msg.sender].length;
+
+        if(isFollower[user][msg.sender]==0) {
+            followers[user].push(msg.sender);
+            isFollower[user][msg.sender] = followers[user].length;
         }
+        engagementScoreBetweenUsers[msg.sender][user] += 100;
+        // transfer value to user
+        if(users[user].priceForFollow>0)
+        {
+            uint fee = users[user].priceForFollow / 10; // 10% fee  
+            payable(users[user].userAddress).transfer(users[user].priceForFollow-fee);             
+            payable(msg.sender).transfer(msg.value - users[user].priceForFollow); // send rest back to user
+        }
+    }
+    function like(uint postId) public {
+        require(isPostLiked[msg.sender][postId] == 0, "liked");
+        createUser();      
+        interactWith(postId, InteractionType.Like, msg.sender);
+    }
+    function share(uint postId) public {
+        require(isPostShared[msg.sender][postId] == 0, "shared");
+        createUser();
+        interactWith(postId, InteractionType.Share, msg.sender);       
+    }
+    function bookmark(uint postId) public returns (uint){
+        createUser();
         
         userBookmarks[msg.sender].push(postId);
         interactWith(postId, InteractionType.Bookmark, msg.sender);
         return userBookmarks[msg.sender].length - 1;
     }
     function updateContentAnalysis(uint postId, uint sentimentScore, bytes32 mainTopic) public {
-        require(postId < postCount, "No post");
+        require(postId < totalSupply, "No post");
         require(msg.sender == posts[postId].creator, "Not creator");
         Post storage new_post = posts[postId];
         new_post.contentAnalysis = ContentAnalysis(sentimentScore, mainTopic);
@@ -354,9 +371,8 @@ contract SocialGraph {
             return result;
     }
     function getInteractionsFromPost(uint postId, uint start, uint length) public view returns (uint[] memory){
-            require(postId < postCount, "No post");
+            require(postId < totalSupply, "No post");
             require(start < postInteractions[postId].length, "Start out");
-            //require(start + length < postInteractions[postId].length, "End out");
             if(start + length > postInteractions[postId].length) {
                 length = postInteractions[postId].length - start;
             }
@@ -369,7 +385,6 @@ contract SocialGraph {
     function getUserInteractions(address user, uint start, uint length) public view returns(uint[] memory){
         require(users[user].userAddress != address(0), "No user");
         require(start < userInteractions[user].length, "Start out");
-        //require(start + length < userInteractions[user].length, "End out");
         if(start + length > userInteractions[user].length) {
            length = userInteractions[user].length - start;
         }
@@ -387,10 +402,10 @@ contract SocialGraph {
             return result;
     }    
     function getPosts(uint start, uint length) public view returns (Post[] memory){
-        require(start < postCount, "Start out");
+        require(start < totalSupply, "Start out");
         //require(start + length < postCount, "End out");
-        if(start + length > postCount) {
-           length = postCount - start;
+        if(start + length > totalSupply) {
+           length = totalSupply - start;
         }
         Post[] memory result = new Post[](length);
         for(uint i = 0; i < length; i++) {
@@ -411,7 +426,6 @@ contract SocialGraph {
         }
         return result;
     }
-    // get last post from addresses (users)
     function getLastPostFromAddresses(address[] memory arr) public view returns (uint[] memory){ 
         uint[] memory result = new uint[](arr.length);
         for(uint i = 0; i < arr.length; i++) {
@@ -423,7 +437,7 @@ contract SocialGraph {
         return result;
     }
     function getPostComments(uint postId, uint start, uint length) public view returns (uint[] memory){
-        require(postId < postCount, "No post");
+        require(postId < totalSupply, "No post");
         require(start < postComments[postId].length, "Start out");
         //require(start + length < postComments[postId].length, "End index out of bounds");
         if(start + length > postComments[postId].length) {
@@ -445,8 +459,8 @@ contract SocialGraph {
     }
     function getUsers(address[] memory array, uint start, uint length) public view returns (User[] memory) {
         uint flength = array.length; 
-        require(start < flength, "Start index out of bounds");
-        require(start + length <= flength, "Requested range exceeds follower count");
+        require(start < flength, "Start index out");
+        require(start + length <= flength, "Range exceeds count");
 
         User[] memory result = new User[](length);
         for (uint i = 0; i < length; i++) {
@@ -454,22 +468,20 @@ contract SocialGraph {
         }
         return result;
     }
-    function getFollowers(address user, uint start, uint length) public view returns (User[] memory) {
+    function getUsersByTypeFrom(address user, uint start, uint length, uint user_type) public view returns (User[] memory)
+    {
         require(users[user].userAddress != address(0), "User does not exist");
-        return getUsers(followers[user], start, length);
+        if(user_type==1)
+           return getUsers(following[user], start, length);
+        else if(user_type==2)
+           return getUsers(engagedWith[user], start, length);
+        else
+           return getUsers(followers[user], start, length);
     }
-    function getFollowing(address user, uint start, uint length) public view returns (User[] memory) {
-        require(users[user].userAddress != address(0), "No User");
-        return getUsers(following[user], start, length);
-    }
-    function getEngagedWith(address user, uint start, uint length) public view returns (User[] memory) {
-        require(users[user].userAddress != address(0), "No User");
-        return getUsers(engagedWith[user], start, length);
-    }
-    function getLeaderboard(address user) public view returns(uint[] memory) {
-        require(users[user].userAddress != address(0), "No user");
-        return users[user].leaderboard; // returns post ids
-    }
+    // function getLeaderboard(address user) public view returns(uint[] memory) {
+    //     require(users[user].userAddress != address(0), "No user");
+    //     return users[user].leaderboard; // returns post ids
+    // }
     // get engagements scores for others from user
     function getEngagementScores(address user, address[] memory others) public view returns (User[] memory, uint[] memory, uint[] memory) {
         require(users[user].userAddress != address(0), "User does not exist");
@@ -486,37 +498,7 @@ contract SocialGraph {
 
         return (targets, scores_to_targets, scores_from_targets);
     }
-    function getStohastic(address[] memory addresses, uint sampleSize) private view returns (address[] memory) {
-        if (sampleSize > addresses.length) {
-            sampleSize = addresses.length;
-        }
 
-        address[] memory sampled = new address[](sampleSize);
-        // for (uint i = 0; i < sampleSize; i++) {
-        //     uint randomIndex = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, i))) % addresses.length;
-        //     sampled[i] = addresses[randomIndex];
-        // }
-        bytes32 randomHash = keccak256(abi.encodePacked(block.timestamp, msg.sender));
-        uint randomValue = uint(randomHash);
-
-        for (uint i = 0; i < sampleSize; i++) {
-            uint randomIndex = randomValue % addresses.length;
-            sampled[i] = addresses[randomIndex]; // Update randomValue for next iteration
-            randomValue = randomValue >> 16; // Bitwise right shift
-        }
-
-        return sampled;
-    }
-    function getStohasticUsers(address user, uint topN, uint user_type) public view returns(address[] memory) {
-        require(users[user].userAddress != address(0), "No user");
-        if(user_type == 0) {
-           return getStohastic(followers[user], topN);
-        } else if(user_type == 1) {
-           return getStohastic(following[user], topN);
-        } else {
-           return getStohastic(engagedWith[user], topN);
-        }
-    }
     function getRecentPostsFrom(address[] memory fromUsers, uint count) public view returns (uint[] memory) {
         uint[] memory recentPosts = new uint[](count);
         uint index = 0;
@@ -534,19 +516,19 @@ contract SocialGraph {
         }
         return recentPosts;
     }
-    function getPostsFromLeaderboard(address user, uint count) public view returns (uint[] memory) {
-        require(users[user].userAddress != address(0), "No user");
-        uint[] memory leaderboardPosts = new uint[](users[user].leaderboard.length);
-        uint index = 0;
+    // function getPostsFromLeaderboard(address user, uint count) public view returns (uint[] memory) {
+    //     require(users[user].userAddress != address(0), "No user");
+    //     uint[] memory leaderboardPosts = new uint[](users[user].leaderboard.length);
+    //     uint index = 0;
 
-        for (uint i = 0; i < users[user].leaderboard.length; i++) {
-            if (index < count) {
-                leaderboardPosts[index] = users[user].leaderboard[i];
-                index++;
-            }
-        }
-        return leaderboardPosts;
-    }
+    //     for (uint i = 0; i < users[user].leaderboard.length; i++) {
+    //         if (index < count) {
+    //             leaderboardPosts[index] = users[user].leaderboard[i];
+    //             index++;
+    //         }
+    //     }
+    //     return leaderboardPosts;
+    // }
     function getPostIdsWithCategory(bytes32 category, uint start, uint length) public view returns(uint[] memory) {
         require(start < postsWithCategory[category].length, "Start index out of bounds");
         //require(start + length <= postsWithCategory[category].length, "Requested range exceeds post count");
@@ -585,7 +567,7 @@ contract SocialGraph {
         return result;
     }
     function getPostIdsWithTopic(bytes32 topic, uint start, uint length) public view returns(uint[] memory) {
-        require(start < postsWithTopic[topic].length, "Start index out of bounds");
+        require(start < postsWithTopic[topic].length, "Start out");
         //require(start + length <= postsWithTopic[topic].length, "Requested range exceeds post count");
         if(start + length > postsWithTopic[topic].length) {
            length = postsWithTopic[topic].length - start;
@@ -599,7 +581,6 @@ contract SocialGraph {
     }
     function getPostIdsWithMentions(bytes32 mention, uint start, uint length) public view returns(uint[] memory) {
         require(start < postsWithMention[mention].length, "Start index out of bounds");
-        //require(start + length <= postsWithMention[mention].length, "Requested range exceeds post count");
         if(start + length > postsWithMention[mention].length) {
            length = postsWithMention[mention].length - start;
         }
@@ -643,6 +624,52 @@ contract SocialGraph {
         return latestUsers;
     }
 
+}
+
+    // function getStohastic(address[] memory addresses, uint sampleSize) private view returns (address[] memory) {
+    //     if (sampleSize > addresses.length) {
+    //         sampleSize = addresses.length;
+    //     }
+
+    //     address[] memory sampled = new address[](sampleSize);
+    //     // for (uint i = 0; i < sampleSize; i++) {
+    //     //     uint randomIndex = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, i))) % addresses.length;
+    //     //     sampled[i] = addresses[randomIndex];
+    //     // }
+    //     bytes32 randomHash = keccak256(abi.encodePacked(block.timestamp, msg.sender));
+    //     uint randomValue = uint(randomHash);
+
+    //     for (uint i = 0; i < sampleSize; i++) {
+    //         uint randomIndex = randomValue % addresses.length;
+    //         sampled[i] = addresses[randomIndex]; // Update randomValue for next iteration
+    //         randomValue = randomValue >> 16; // Bitwise right shift
+    //     }
+
+    //     return sampled;
+    // }
+    // function getStohasticUsers(address user, uint topN, uint user_type) public view returns(address[] memory) {
+    //     require(users[user].userAddress != address(0), "No user");
+    //     if(user_type == 0) {
+    //        return getStohastic(followers[user], topN);
+    //     } else if(user_type == 1) {
+    //        return getStohastic(following[user], topN);
+    //     } else {
+    //        return getStohastic(engagedWith[user], topN);
+    //     }
+    // }
+
+    // function getFollowers(address user, uint start, uint length) public view returns (User[] memory) {
+    //     require(users[user].userAddress != address(0), "User does not exist");
+    //     return getUsers(followers[user], start, length);
+    // }
+    // function getFollowing(address user, uint start, uint length) public view returns (User[] memory) {
+    //     require(users[user].userAddress != address(0), "No User");
+    //     return getUsers(following[user], start, length);
+    // }
+    // function getEngagedWith(address user, uint start, uint length) public view returns (User[] memory) {
+    //     require(users[user].userAddress != address(0), "No User");
+    //     return getUsers(engagedWith[user], start, length);
+    // }
     /*
     function generateFeed(address user, uint count, uint user_type) public view returns (Post[] memory) {
         require(users[user].userAddress != address(0), "No user");
@@ -668,10 +695,8 @@ contract SocialGraph {
 
         return feed;
     }*/
-}
 
 /*
-// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";

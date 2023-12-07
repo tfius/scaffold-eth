@@ -24,12 +24,12 @@ export function DisplayUser({
   const handleUserClick = user => {
     console.log(`User clicked: ${user}`);
     // Handle post click (e.g., navigate to post)
-    history.push("/sociomat?userId=" + user.userAddress);
+    history.push("/feed?userId=" + user.userAddress);
     onNotifyClick();
   };
   const handleFollowClick = mention => {
     console.log(`handleFollowClick`);
-    //history.push("/sociomat?mention=" + mention.substring(1));
+    //history.push("/feed?mention=" + mention.substring(1));
     //onNotifyClick();
   };
   const follow = async userAddress => {

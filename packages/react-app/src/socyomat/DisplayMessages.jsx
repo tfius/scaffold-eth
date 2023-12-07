@@ -180,21 +180,21 @@ export function DisplayMessages({
 }) {
   const handleMentionClick = mention => {
     console.log(`Mention clicked: ${mention}`);
-    history.push("/sociomat?mention=" + mention.substring(1));
+    history.push("/feed?mention=" + mention.substring(1));
     onNotifyClick();
     // Handle mention click (e.g., navigate to user profile)
   };
   const handleHashtagClick = hashtag => {
     console.log(`Hashtag clicked: ${hashtag}`);
     // remove trailing # from hashtag
-    history.push("/sociomat?tag=" + hashtag.substring(1));
+    history.push("/feed?tag=" + hashtag.substring(1));
     onNotifyClick();
     // Handle hashtag click (e.g., search for hashtag)
   };
   const handleTokenClick = token => {
     console.log(`Token clicked: ${token}`);
     // Handle post click (e.g., navigate to post)
-    history.push("/sociomat?token=" + token.substring(1));
+    history.push("/feed?token=" + token.substring(1));
     onNotifyClick();
   };
   const handleUrlClick = url => {
@@ -204,7 +204,7 @@ export function DisplayMessages({
   const handleUserClick = post => {
     console.log(`User clicked: ${post}`);
     // Handle post click (e.g., navigate to post)
-    history.push("/sociomat?userId=" + post.creator);
+    history.push("/feed?userId=" + post.creator);
     onNotifyClick();
   };
 
@@ -212,7 +212,7 @@ export function DisplayMessages({
     //console.log(`Post clicked: ${post}`);
     console.log("Post clicked: ", post);
     // Handle post click (e.g., navigate to post)
-    history.push("/sociomat?postId=" + post.postId);
+    history.push("/feed?postId=" + post.postId);
     onNotifyClick();
   };
   const getUpdateMessage = async message => {

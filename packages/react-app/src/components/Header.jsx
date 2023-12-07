@@ -5,8 +5,8 @@ import React from "react";
 
 export default function Header() {
   return (
-    <a href="https://fairdrive.io/" target="_blank" rel="noopener noreferrer">
-      <PageHeader title="Smail" subTitle="" style={{ cursor: "pointer" }} />
+    <a href="https://datafund.io/" target="_blank" rel="noopener noreferrer">
+      <PageHeader title="Datafund" subTitle="" style={{ cursor: "pointer" }} />
     </a>
   );
 }

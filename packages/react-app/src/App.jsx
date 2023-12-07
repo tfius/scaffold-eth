@@ -34,6 +34,7 @@ import { useStaticJsonRPC } from "./hooks";
 
 import * as consts from "./views/consts";
 import { Home } from "./views/Home";
+import { About } from "./views/About";
 import { Help } from "./views/Help";
 import { Inbox } from "./views/Inbox";
 import { Locker } from "./views/Locker";
@@ -418,13 +419,13 @@ function App(props) {
             style={{ textAlign: "left", height: "100%", borderRight: 0 }}
             selectedKeys={[location.pathname]}
           >
-            <Menu.Item key="/sociomat">
+            <Menu.Item key="/feed">
               <Tooltip title="Social interaction network">
-                <Link to="/sociomat">Sociomat</Link>
+                <Link to="/feed">Feed</Link>
               </Tooltip>
             </Menu.Item>
 
-            <Menu.SubMenu key="submenuSmail" title="Smail" inlineCollapsed={true} mode="inline">
+            <Menu.SubMenu key="submenuSmail" title="Datafunds" inlineCollapsed={true} mode="inline">
               <Menu.Item key="/">
                 <Tooltip
                   title={
@@ -479,6 +480,11 @@ function App(props) {
                   <Link to="/scheduler">Scheduler</Link>
                 </Tooltip>
               </Menu.Item>
+              <Menu.Item key="/tasks" disabled={!isBonded}>
+                <Tooltip title="Issue tasks to service providers." placement="right">
+                  <Link to="/tasks">Tasks</Link>
+                </Tooltip>
+              </Menu.Item>
             </Menu.SubMenu>
 
             {/* <>
@@ -521,7 +527,7 @@ function App(props) {
               <>
                 <Menu.Item key="/datahub" disabled={!isFairOsed}>
                   <Tooltip title="View offers, open new listings" placement="right">
-                    <Link to="/datahub">Data Hub</Link>
+                    <Link to="/datahub">Market</Link>
                   </Tooltip>
                 </Menu.Item>
                 <Menu.Item key="/subscriptions" disabled={!isFairOsed}>
@@ -603,7 +609,7 @@ function App(props) {
                 <Link to="/schedulercontract">Scheduler Contract</Link>
               </Menu.Item>
               <Menu.Item key="/taskbrokercontract">
-                <Link to="/taskbrokercontract">TaskBrokere Contract</Link>
+                <Link to="/taskbrokercontract">TaskBroker Contract</Link>
               </Menu.Item>
               <Menu.Item key="/socialgraphcontract">
                 <Link to="/socialgraphcontract">SocialGraph Contract</Link>
@@ -627,6 +633,20 @@ function App(props) {
             <Switch>
               <Route exact path="/">
                 <Home
+                  readContracts={readContracts}
+                  writeContracts={writeContracts}
+                  userSigner={userSigner}
+                  tx={tx}
+                  address={address}
+                  messageCount={messageCount}
+                  provider={localProvider}
+                  web3Modal={web3Modal}
+                  smailMail={smailMail}
+                  setSmailMail={setSmailMail}
+                />
+              </Route>
+              <Route exact path="/about">
+                <About
                   readContracts={readContracts}
                   writeContracts={writeContracts}
                   userSigner={userSigner}
@@ -733,7 +753,24 @@ function App(props) {
                 )}
               />
               <Route
-                path="/sociomat"
+                path="/tasks/:address?/:service?/:task?"
+                children={props => (
+                  <>
+                    {/* <Scheduler
+                     readContracts={readContracts}
+                     writeContracts={writeContracts}
+                     userSigner={userSigner}
+                     tx={tx}
+                     address={address}
+                     messageCount={messageCount}
+                     smailMail={smailMail}
+                     mainnetProvider={mainnetProvider}
+                   /> */}
+                  </>
+                )}
+              />
+              <Route
+                path="/feed"
                 children={props => (
                   <SocialGraph
                     readContracts={readContracts}

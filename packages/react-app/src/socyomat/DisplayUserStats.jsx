@@ -18,39 +18,57 @@ export function DisplayUserStats({
 }) {
   const handleFollowClick = mention => {
     console.log(`handleFollowClick`);
-    //history.push("/sociomat?mention=" + mention.substring(1));
+    //history.push("/feed?mention=" + mention.substring(1));
     //onNotifyClick();
   };
-  const follow = async message => {
-    console.log("follow", message);
-    //var newTx = await readContracts.SocialGraph.getPostStats(message.postId);
-    console.log("follow", newTx);
+  const onViewInteractions = mention => {
+    console.log(`onViewInteractions`);
+    //history.push("/feed?mention=" + mention.substring(1));
+    //onNotifyClick();
   };
-
-  //console.log("userStats", userStats);
+  const onViewFollowers = mention => {
+    console.log(`onViewFollowers`);
+    //history.push("/feed?mention=" + mention.substring(1));
+    //onNotifyClick();
+  };
+  const onViewFollowing = mention => {
+    console.log(`onViewFollowing`);
+    //history.push("/feed?mention=" + mention.substring(1));
+    //onNotifyClick();
+  };
+  const onViewPosts = mention => {
+    console.log(`onViewFollowing`);
+    //history.push("/feed?mention=" + mention.substring(1));
+    //onNotifyClick();
+  };
+  const onViewEngagedWith = mention => {
+    console.log(`onViewFollowing`);
+    //history.push("/feed?mention=" + mention.substring(1));
+    //onNotifyClick();
+  };
 
   return (
     <div style={{ width: "70%" }}>
       <Tooltip title="Engagement">
-        <span onClick={() => handleFollowClick()} style={{ cursor: "pointer" }}>
+        <span onClick={() => onViewEngagedWith()} style={{ cursor: "pointer" }}>
           ⚭
         </span>
         <small style={{ opacity: "0.5" }}> {formatNumber(userStats?.engagedWith_count.toString())}</small> &nbsp;
       </Tooltip>
       <Tooltip title="Posts">
-        <span onClick={() => handleFollowClick()} style={{ cursor: "pointer" }}>
+        <span onClick={() => onViewPosts()} style={{ cursor: "pointer" }}>
           🗨
         </span>
         <small style={{ opacity: "0.5" }}> {formatNumber(userStats?.posts_count.toString())}</small> &nbsp;
       </Tooltip>
       <Tooltip title="Followers">
-        <span onClick={() => handleFollowClick()} style={{ cursor: "pointer" }}>
+        <span onClick={() => onViewFollowers()} style={{ cursor: "pointer" }}>
           ⚘
         </span>
         <small style={{ opacity: "0.5" }}> {formatNumber(userStats?.followers_count.toString())}</small> &nbsp;
       </Tooltip>
       <Tooltip title="Following">
-        <span onClick={() => handleFollowClick()} style={{ cursor: "pointer" }}>
+        <span onClick={() => onViewFollowing()} style={{ cursor: "pointer" }}>
           ✽
         </span>
         <small style={{ opacity: "0.5" }}> {formatNumber(userStats?.following_count.toString())}</small> &nbsp;

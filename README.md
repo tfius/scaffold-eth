@@ -7,18 +7,18 @@ Smail is an email-like system that provides a secure, one-way communication chan
 
 **One-way email** allows users to send messages to others without receiving any replies, ensuring that sensitive information remains confidential. This feature is ideal for business professionals, journalists, and anyone who values privacy in their communications.
 
-The **locker** with sharing capabilities is another standout feature of Smail, allowing users to store their emails securely and share them with trusted parties when needed. This feature is especially useful for sharing sensitive information with clients or colleagues, and it ensures that your information remains safe at all times.
+The **locker** with sharing capabilities is another standout feature of Datafund, allowing users to store their emails securely and share them with trusted parties when needed. This feature is especially useful for sharing sensitive information with clients or colleagues, and it ensures that your information remains safe at all times.
 
 Finally, Smail's pod subscription marketplace **Data Hub** makes it easy to manage your data from your pods, email communications with vendors, service providers, and other third-party contacts. Users can subscribe to various data services and receive regular updates from vendors, ensuring that they stay up-to-date on important information without having to sift through countless emails.
 
-In summary, Smail is an email system that prioritizes privacy, security, and convenience. With features like one-way email, a locker with sharing capabilities, and a pod subscription marketplace, Smail is the perfect choice for anyone who wants to take control of their data and communications.
+In summary, Smail is an email system that prioritizes privacy, security, and convenience. With features like one-way email, a locker with sharing capabilities, and a pod subscription marketplace, Datafund is the perfect choice for anyone who wants to take control of their data and communications.
 
 # Bond with Smail
 ## How registration works:
-- your public encryption key is requested with which new Smail Wallet is created
-- Smail Wallet is encrypted with your MetaMask and uploaded to Swarm
-- a transaction is sent to register Smail public key and Smail Wallet
-Only MetaMask account that created Smail Wallet can decrypt and bond with it.
+- your public encryption key is requested with which new Datafund Wallet is created
+- Datafund Wallet is encrypted with your MetaMask and uploaded to Swarm
+- a transaction is sent to register Smail public key and Datafund Wallet
+Only MetaMask account that created Datafund Wallet can decrypt and bond with it.
 
 ## How sending data works:
 - Recipient's Smail public Key is retrieved
@@ -27,10 +27,10 @@ Only MetaMask account that created Smail Wallet can decrypt and bond with it.
 - A transaction is sent to notify receiver of new data available
 You don't need to be bonded to send encrypted data. As long as receiver is registered with Smail you will be able to send encrypted data.
 
-You will be asked to decrypt your Smail Wallet every time you visit this page. NOTE: Only receiver can retrieve and decrypt its contents.
+You will be asked to decrypt your Datafund Wallet every time you visit this page. NOTE: Only receiver can retrieve and decrypt its contents.
 
 ### BEWARE AND BEHOLD
-Always check that you are on correct domain and that you are using correct MetaMask account. Scammers could potentially ask you to decrypt Smail Wallet and gain access to your data.
+Always check that you are on correct domain and that you are using correct MetaMask account. Scammers could potentially ask you to decrypt Datafund Wallet and gain access to your data.
 
 ## Pricing
 When you send message you pay transaction costs and for storage fees on Swarm network. Data persistence is not guaranteed. Storage fees go to Smail maintainer and are used to buy Bzz tokens to store data for as long as possible. For how long you might ask? Answer to this question is tricky. It depends on market conditions as prices fluctuate when demand increases. If market is willing to pay more for storage, then postage stamps expire sooner and data will be garbage collected.
@@ -38,7 +38,7 @@ When you send message you pay transaction costs and for storage fees on Swarm ne
 ## Privacy
 Sending unencrypted data is supported and occours when:
 - if either sender or receiver is not a registered
-- Sender's Smail Wallet can not be retrieved or is not decrypted
+- Sender's Datafund Wallet can not be retrieved or is not decrypted
 - Receiver public key can not be retrieved
 You can read and send unencrypted messages if you are connected and not bonded.
 
@@ -51,7 +51,7 @@ It must be noted that transaction is sent from your MetaMask account and is as s
 Multiple networks supported, BUT:
 Cross network sending is NOT supported.
 You will have to register on each network.
-Each Smail Wallet will be different.
+Each Datafund Wallet will be different.
 
 Which means if you send on one network, receiver will get message on that network only.
 
