@@ -24,10 +24,6 @@ export function About({
       <>
         <Card>
           <div>
-            <h2>BEWARE AND BEHOLD</h2>
-            Always check that you are on correct domain and that you are using correct MetaMask account. Scammers could
-            potentially ask you to decrypt Datafund Wallet and <strong>gain access to your data</strong>.
-            <hr />
             <h2>How it works</h2>
             <h3>
               How <strong>Registration</strong> works:

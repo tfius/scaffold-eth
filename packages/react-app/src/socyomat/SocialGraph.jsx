@@ -861,7 +861,7 @@ export function SocialGraph({
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
-      <h1>
+      <h1 onClick={() => setComposePost(true)}>
         {messagesStack.length > 0 && (
           <span onClick={() => popMessagesStack()} style={{ cursor: "pointer" }}>
             🡄
