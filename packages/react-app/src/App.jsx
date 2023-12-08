@@ -44,6 +44,8 @@ import { Threads } from "./views/Threads";
 
 import { DataHub } from "./views/DataHub";
 import { ComposeNewMessage } from "./views/ComposeNewMessage";
+import { ComposeNewThread } from "./views/ComposeNewThread";
+import { ComposeNewPost } from "./views/ComposeNewPost";
 import { SubRequests } from "./views/SubRequests";
 import { SubBids } from "./views/SubBids";
 import { Subscribers } from "./views/Subscribers";
@@ -158,9 +160,12 @@ function App(props) {
   const [isLoading, setIsLoading] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
   const [smailMail, setSmailMail] = useState({ pubKey: null, keyLocation: null, smailPrivateKey: null }); // this has to be defined
-  const [replyTo, _setReplyTo] = useState("");
+  const [replyTo, _setReplyTo] = useState(""); // in mails, threads
+  const [subject, _setSubject] = useState(""); // in threads
   const [isOneWay, setIsOneWay] = useState(true);
   const [isComposeModalVisible, _setIsComposeModalVisible] = useState(false);
+  const [isComposeThreadModalVisible, _setIsComposeThreadModalVisible] = useState(false);
+  const [isComposePostModalVisible, _setIsComposePostModalVisible] = useState(false);
 
   const [fairOSPods, setFairOSPods] = useState([]);
   const [fairOSSessionId, setFairOSSessionId] = useState(null);
@@ -168,6 +173,22 @@ function App(props) {
   const [showHelp, setShowHelp] = useState(false);
 
   const location = useLocation();
+
+  const setIsComposePostModalVisible = visible => {
+    console.log(visible);
+    _setIsComposePostModalVisible(visible);
+  };
+
+  const setIsComposeThreadModalVisible = visible => {
+    console.log(visible);
+    _setIsComposeThreadModalVisible(visible);
+  };
+  const setThreadTo = (threadToAddress, subject) => {
+    _setReplyTo(threadToAddress);
+    _setSubject(subject);
+    setIsComposeThreadModalVisible(true);
+    console.log("setThreadTo", threadToAddress, subject);
+  };
 
   const setReplyTo = (replyToAddress, isOneWay) => {
     setIsOneWay(isOneWay);
@@ -782,6 +803,8 @@ function App(props) {
                     smailMail={smailMail}
                     mainnetProvider={mainnetProvider}
                     setReplyTo={setReplyTo}
+                    setThreadTo={setThreadTo}
+                    setComposePost={setIsComposePostModalVisible}
                   />
                 )}
               />
@@ -950,6 +973,35 @@ function App(props) {
           smailMail={smailMail}
           recipient={replyTo}
           isOneWay={isOneWay}
+          subject={subject}
+        />
+      )}
+      {isComposeThreadModalVisible && (
+        <ComposeNewThread
+          readContracts={readContracts}
+          writeContracts={writeContracts}
+          ensProvider={mainnetProvider}
+          address={address}
+          modalControl={setIsComposeThreadModalVisible}
+          tx={tx}
+          onMessageSent={onMessageSent}
+          smailMail={smailMail}
+          recipient={replyTo}
+          subject={subject}
+        />
+      )}
+      {isComposePostModalVisible && (
+        <ComposeNewPost
+          readContracts={readContracts}
+          writeContracts={writeContracts}
+          ensProvider={mainnetProvider}
+          address={address}
+          modalControl={setIsComposePostModalVisible}
+          tx={tx}
+          onMessageSent={onMessageSent}
+          smailMail={smailMail}
+          recipient={replyTo}
+          subject={subject}
         />
       )}
 

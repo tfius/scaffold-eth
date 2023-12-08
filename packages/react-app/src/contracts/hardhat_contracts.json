@@ -8616,7 +8616,7 @@
           ]
         },
         "Governance": {
-          "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+          "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
           "abi": [
             {
               "anonymous": false,
@@ -9536,7 +9536,7 @@
           ]
         },
         "SocialGraph": {
-          "address": "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
+          "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
           "abi": [
             {
               "inputs": [
@@ -9777,7 +9777,7 @@
                     },
                     {
                       "internalType": "uint256",
-                      "name": "timestamp",
+                      "name": "time",
                       "type": "uint256"
                     },
                     {
@@ -10174,17 +10174,17 @@
                   "components": [
                     {
                       "internalType": "address",
-                      "name": "creator",
+                      "name": "from",
                       "type": "address"
                     },
                     {
                       "internalType": "bytes32",
-                      "name": "contentPosition",
+                      "name": "swarmLocation",
                       "type": "bytes32"
                     },
                     {
                       "internalType": "uint256",
-                      "name": "timestamp",
+                      "name": "time",
                       "type": "uint256"
                     },
                     {
@@ -10310,17 +10310,17 @@
                   "components": [
                     {
                       "internalType": "address",
-                      "name": "creator",
+                      "name": "from",
                       "type": "address"
                     },
                     {
                       "internalType": "bytes32",
-                      "name": "contentPosition",
+                      "name": "swarmLocation",
                       "type": "bytes32"
                     },
                     {
                       "internalType": "uint256",
-                      "name": "timestamp",
+                      "name": "time",
                       "type": "uint256"
                     },
                     {
@@ -10533,7 +10533,7 @@
                     },
                     {
                       "internalType": "uint256",
-                      "name": "timestamp",
+                      "name": "time",
                       "type": "uint256"
                     },
                     {
@@ -10589,7 +10589,7 @@
                     },
                     {
                       "internalType": "uint256",
-                      "name": "timestamp",
+                      "name": "time",
                       "type": "uint256"
                     },
                     {
@@ -10650,7 +10650,7 @@
                     },
                     {
                       "internalType": "uint256",
-                      "name": "timestamp",
+                      "name": "time",
                       "type": "uint256"
                     },
                     {
@@ -10696,7 +10696,7 @@
                     },
                     {
                       "internalType": "uint256",
-                      "name": "timestamp",
+                      "name": "time",
                       "type": "uint256"
                     },
                     {
@@ -11034,17 +11034,17 @@
               "outputs": [
                 {
                   "internalType": "address",
-                  "name": "creator",
+                  "name": "from",
                   "type": "address"
                 },
                 {
                   "internalType": "bytes32",
-                  "name": "contentPosition",
+                  "name": "swarmLocation",
                   "type": "bytes32"
                 },
                 {
                   "internalType": "uint256",
-                  "name": "timestamp",
+                  "name": "time",
                   "type": "uint256"
                 },
                 {
@@ -11444,7 +11444,7 @@
                 },
                 {
                   "internalType": "uint256",
-                  "name": "timestamp",
+                  "name": "time",
                   "type": "uint256"
                 },
                 {
@@ -12519,6 +12519,11 @@
             {
               "inputs": [
                 {
+                  "internalType": "address",
+                  "name": "_broker",
+                  "type": "address"
+                },
+                {
                   "internalType": "uint256",
                   "name": "_serviceId",
                   "type": "uint256"
@@ -12528,6 +12533,11 @@
               "outputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "broker",
+                      "type": "address"
+                    },
                     {
                       "internalType": "bytes32",
                       "name": "infoLocation",
@@ -12555,6 +12565,11 @@
             {
               "inputs": [
                 {
+                  "internalType": "address",
+                  "name": "_broker",
+                  "type": "address"
+                },
+                {
                   "internalType": "uint256",
                   "name": "_start",
                   "type": "uint256"
@@ -12569,6 +12584,11 @@
               "outputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "broker",
+                      "type": "address"
+                    },
                     {
                       "internalType": "bytes32",
                       "name": "infoLocation",
@@ -12731,6 +12751,76 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "getAllPendingTasks",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "uint256",
+                      "name": "taskId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "serviceId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "data",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "result",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "submittedAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "takenAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "completedAt",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "payment",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "owner",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "broker",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "enum TaskBroker.TaskStatus",
+                      "name": "status",
+                      "type": "uint8"
+                    }
+                  ],
+                  "internalType": "struct TaskBroker.Task[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -12771,6 +12861,52 @@
                   "internalType": "struct TaskBroker.Broker",
                   "name": "",
                   "type": "tuple"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address[]",
+                  "name": "_addresses",
+                  "type": "address[]"
+                }
+              ],
+              "name": "getBrokers",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "bytes32",
+                      "name": "infoLocation",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "earned",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "inEscrow",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "isAway",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "uint256[]",
+                      "name": "servicesIndices",
+                      "type": "uint256[]"
+                    }
+                  ],
+                  "internalType": "struct TaskBroker.Broker[]",
+                  "name": "",
+                  "type": "tuple[]"
                 }
               ],
               "stateMutability": "view",
@@ -13032,6 +13168,52 @@
               "inputs": [
                 {
                   "internalType": "uint256",
+                  "name": "_start",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "length",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getServices",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "broker",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "infoLocation",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "price",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "isActive",
+                      "type": "bool"
+                    }
+                  ],
+                  "internalType": "struct TaskBroker.Service[]",
+                  "name": "",
+                  "type": "tuple[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
                   "name": "_taskId",
                   "type": "uint256"
                 }
@@ -13260,6 +13442,11 @@
               ],
               "name": "services",
               "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "broker",
+                  "type": "address"
+                },
                 {
                   "internalType": "bytes32",
                   "name": "infoLocation",

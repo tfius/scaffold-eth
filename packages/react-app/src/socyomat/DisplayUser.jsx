@@ -91,7 +91,7 @@ export function DisplayUser({
                 <AddressSimple address={userdata?.userAddress} ensProvider={ensProvider} />
               </strong>
               <small>
-                &nbsp; · {timeAgo(userdata?.timestamp.toNumber() * 1000)}
+                &nbsp; · {timeAgo(userdata?.time.toNumber() * 1000)}
                 {currentAddress?.toLowerCase() === userdata?.userAddress?.toLowerCase() && (
                   <span>&nbsp; · Connected account</span>
                 )}

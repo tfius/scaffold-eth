@@ -112,7 +112,16 @@ function MyDropzone({ ref, onAdd }) {
   );
 }*/
 
-export function SocialGraph({ readContracts, writeContracts, address, tx, ensProvider, setReplyTo }) {
+export function SocialGraph({
+  readContracts,
+  writeContracts,
+  address,
+  tx,
+  ensProvider,
+  setReplyTo,
+  setThreadTo,
+  setComposePost,
+}) {
   let history = useHistory();
   const [loading, setLoading] = useState(false);
   const loaderRef = useRef(null);
@@ -259,7 +268,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
       // add postIds to postsInfo
       for (var i = 0; i < postsInfo.length; i++) {
         const p = postsInfo[i];
-        /*var isInMessages = messages.filter(m => m.contentPosition === p.contentPosition);
+        /*var isInMessages = messages.filter(m => m.swarmLocation === p.swarmLocation);
         // if it exits, just update comments, likes, shares, etc
         if (isInMessages.length > 0) {
           // update comments, likes, shares, etc
@@ -273,8 +282,8 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
 
         postsEx.push({ ...postsInfo[i], postId: postIds[i] });
       }
-      // sort posts by timestamp
-      //postsEx = postsEx.sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
+      // sort posts by time
+      //postsEx = postsEx.sort((a, b) => (a.time > b.time ? -1 : 1));
       //postsEx = postsEx.sort((a, b) => (a.postId < b.postId ? -1 : 1));
       setPosts(postsEx); // will trigger fetchMessages
       console.log("posts", postsEx);
@@ -292,9 +301,9 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
       try {
         const p = posts[i];
         // check to see if postId is already in messages
-        if (messages.filter(m => m.contentPosition === p.contentPosition).length > 0) continue;
+        if (messages.filter(m => m.swarmLocation === p.swarmLocation).length > 0) continue;
 
-        const data = await downloadDataFromBee(p.contentPosition);
+        const data = await downloadDataFromBee(p.swarmLocation);
         // const s = new TextDecoder().decode(data);
         const decompressedString = pako.inflate(data, { to: "string" });
         //
@@ -302,8 +311,8 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
         var m = JSON.parse(decompressedString);
         var mp = { ...m, ...p, expanded: false, level: 0, comments: [] };
         // console.log("message", mp);
-        // add only if post.contentPosition does not exist in messages before
-        //if (messages.filter(m => m.contentPosition === mp.contentPosition).length === 0)
+        // add only if post.swarmLocation does not exist in messages before
+        //if (messages.filter(m => m.swarmLocation === mp.swarmLocation).length === 0)
         if (mp.parentPost !== null) {
           // find if parent id is not already in parents
           var exists = parents.filter(p => p._hex === mp.parentPost.hex);
@@ -319,8 +328,8 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     }
     // append msg to messages
     if (parents.length > 0) {
-      //msgs = [...msgs].sort((a, b) => (a.timestamp < b.timestamp ? -1 : 1));
-      //var sorted = [...msgs, ...messages].sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
+      //msgs = [...msgs].sort((a, b) => (a.time < b.time ? -1 : 1));
+      //var sorted = [...msgs, ...messages].sort((a, b) => (a.time > b.time ? -1 : 1));
       //setMessages(sorted);
       setMessages([...msgs, ...messages]);
       console.log("messages", msgs);
@@ -330,7 +339,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
     } else {
       // all parents have been loaded, reorder messages so that comments with parents are after parents
       var msgs2 = [];
-      var all_messages = [...msgs, ...messages].sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
+      var all_messages = [...msgs, ...messages].sort((a, b) => (a.time > b.time ? -1 : 1));
       // first add all messages that have no parentPost
       for (var i = 0; i < all_messages.length; i++) {
         var msg = all_messages[i];
@@ -359,11 +368,11 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
           }
         }
       }
-      // msgs2 = [...msgs2].sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
+      // msgs2 = [...msgs2].sort((a, b) => (a.time > b.time ? -1 : 1));
       //msgs2 = msgs2.sort((a, b) => (a.postId < b.postId ? -1 : 1));
       //setMessages(sorted);
-      // sort msgs by timestamp but only those that have no parentPost
-      //msgs2 = msgs2.filter(m => m.parentPost === null).sort((a, b) => (a.timestamp < b.timestamp ? -1 : 1));
+      // sort msgs by time but only those that have no parentPost
+      //msgs2 = msgs2.filter(m => m.parentPost === null).sort((a, b) => (a.time < b.time ? -1 : 1));
       setMessages([...msgs2]);
       console.log("hiera messages", msgs2);
     }
@@ -859,6 +868,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
           </span>
         )}{" "}
         Posts {loading && <Spin />}
+        {(readContracts === undefined || readContracts.SocialGraph === undefined) && <h3>Unsupported network</h3>}
       </h1>
 
       <Layout>
@@ -900,6 +910,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
                 onNotifyClick={onLoadPosts}
                 tx={tx}
                 setReplyTo={setReplyTo}
+                setThreadTo={setThreadTo}
               />
             </>
           ) : null}
@@ -914,6 +925,7 @@ export function SocialGraph({ readContracts, writeContracts, address, tx, ensPro
             onNotifyClick={onLoadPosts}
             onComment={onOpenToComment}
             setReplyTo={setReplyTo}
+            setThreadTo={setThreadTo}
           />
           {users.map((u, i) => {
             <DisplayUser key={"usr" + i} userData={u} ensProvider={ensProvider} currentAddress={address} />;

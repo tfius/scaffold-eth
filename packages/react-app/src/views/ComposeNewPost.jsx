@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import { Button, Card, Typography, Modal, Input, Form, Spin, Progress, notification } from "antd";
-import * as consts from "./consts";
-import { uploadDataToBee } from "../Swarm/BeeService";
+import * as consts from "./consts.js";
+import { uploadDataToBee } from "../Swarm/BeeService.js";
 import * as layouts from "./layouts.js";
 
 import * as EncDec from "../utils/EncDec.js";
 
-import { DropzoneReadFileContents } from "../Swarm/DropzoneReadFileContents";
+import { DropzoneReadFileContents } from "../Swarm/DropzoneReadFileContents.jsx";
 import { useEffect } from "react";
 
 const { Meta } = Card;
 const { Text } = Typography;
 
 const isENS = (address = "") => address.endsWith(".eth") || address.endsWith(".xyz");
-class ComposeNewThreadForm extends React.Component {
+class ComposeNewPostForm extends React.Component {
   formRef = React.createRef();
 
   constructor(props) {
@@ -83,7 +83,7 @@ class ComposeNewThreadForm extends React.Component {
     var total = this.state.attachments.reduce((a, b) => a + b.file.size, 0);
     var percent = Math.round((total / (5 * 1024 * 1024)) * 100);
     const required = [{ required: true }];
-    //console.log("compose thread forum recipient", this.state.recipient, this.state.subject);
+    console.log("compose thread forum recipient", this.state.recipient, this.state.subject);
 
     return (
       <>
@@ -163,7 +163,7 @@ class ComposeNewThreadForm extends React.Component {
 const { v4: uuidv4 } = require("uuid");
 const ascii85 = require("ascii85");
 
-export function ComposeNewThread({
+export function ComposeNewPost({
   readContracts,
   writeContracts,
   ensProvider,
@@ -201,7 +201,7 @@ export function ComposeNewThread({
     return null;
   };
 
-  const onThreadMessage = async (recipientAddress, message, attachments, recipientKey) => {
+  const onPostMessage = async (recipientAddress, message, attachments, recipientKey) => {
     setSendingInProgress(true);
     try {
       /*var recipientKey = await retrievePubKey(recipientAddress);
@@ -307,7 +307,7 @@ export function ComposeNewThread({
     }
     setSendingInProgress(false);
   };
-  var titleProgress = "Create New Thread";
+  var titleProgress = "Create New Post";
   if (sendingInProgress) titleProgress = "Storing data";
 
   //console.log("compose new thread recipient", recipient);
@@ -336,9 +336,9 @@ export function ComposeNewThread({
           </>
         )}
         {sendingInProgress === false && (
-          <ComposeNewThreadForm
+          <ComposeNewPostForm
             loading={setLoading}
-            onThreadMessage={onThreadMessage}
+            onPostMessage={onPostMessage}
             recipient={recipient}
             readContracts={readContracts}
             subject={subject}

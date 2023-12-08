@@ -177,6 +177,7 @@ export function DisplayMessages({
   onNotifyClick,
   onComment,
   setReplyTo,
+  setThreadTo,
 }) {
   const handleMentionClick = mention => {
     console.log(`Mention clicked: ${mention}`);
@@ -204,7 +205,7 @@ export function DisplayMessages({
   const handleUserClick = post => {
     console.log(`User clicked: ${post}`);
     // Handle post click (e.g., navigate to post)
-    history.push("/feed?userId=" + post.creator);
+    history.push("/feed?userId=" + post.from);
     onNotifyClick();
   };
 
@@ -263,12 +264,12 @@ export function DisplayMessages({
                 title={
                   <>
                     View profile of user &nbsp;
-                    <AddressSimple address={p.creator} ensProvider={ensProvider} />
+                    <AddressSimple address={p.from} ensProvider={ensProvider} />
                   </>
                 }
               >
                 <div className="post-blockie" style={{ cursor: "pointer" }} onClick={() => handleUserClick(p)}>
-                  <Blockies seed={p.creator.toLowerCase()} size={16} scale={2} />
+                  <Blockies seed={p.from.toLowerCase()} size={16} scale={2} />
                 </div>
               </Tooltip>
 
@@ -289,10 +290,16 @@ export function DisplayMessages({
             <div className="post-footer">
               <small
                 style={{ margin: "3px 10px 0px", cursor: "pointer", scale: "100%" }}
-                onClick={() => setReplyTo(p.creator, true)}
+                onClick={() => setReplyTo(p.from, true)}
               >
                 <IconText icon={ArrowLeftOutlined} tooltip="Send message" key="list-vertical-reply-o" />
               </small>
+              <Tooltip title="Thread">
+                <span onClick={() => setThreadTo(p.from, "Re Post: #" + p.postId)} style={{ cursor: "pointer" }}>
+                  {" "}
+                  ♺ &nbsp;
+                </span>
+              </Tooltip>
               <Tooltip title="Comment">
                 <span onClick={() => comment(p)} style={{ cursor: "pointer" }}>
                   {" "}
@@ -333,7 +340,7 @@ export function DisplayMessages({
             </div>
 
             {/* <br />
-              <div>Creator: {p.creator} </div>
+              <div>Creator: {p.from} </div>
               <div>Sender: {p.sender}</div>
               <div>SendTime: {p.sendTime}</div>
               <div>Toxicity: {JSON.stringify(p.toxicity)}</div>

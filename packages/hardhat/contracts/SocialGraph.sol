@@ -12,7 +12,7 @@ pragma solidity ^0.8.0;
 contract SocialGraph  {
     struct User {
         address userAddress;
-        uint    timestamp;
+        uint    time;
         uint    engagementScore;
         uint    dayIndex;	
 //        uint[]  leaderboard; // contains indices of posts in posts array
@@ -34,9 +34,9 @@ contract SocialGraph  {
         bytes32 mainTopic; // sha256 hash of the main topic
     }     
     struct Post {
-        address creator;
-        bytes32 contentPosition; // Position of the content in Swarm
-        uint    timestamp;
+        address from;
+        bytes32 swarmLocation; // Position of the content in Swarm
+        uint    time;
 
         uint    likeCount;
         uint    commentCount;
@@ -65,7 +65,7 @@ contract SocialGraph  {
         // tokenId is the post id
         require(tokenId < totalSupply, "ERC721Metadata: URI query for nonexistent token");
         // serialize to application/json
-        return string(abi.encodePacked("swarm://", posts[tokenId].contentPosition));
+        return string(abi.encodePacked("swarm://", posts[tokenId].swarmLocation));
     }
 
     mapping(address => User) public users;
@@ -107,7 +107,7 @@ contract SocialGraph  {
         return userPosts[owner].length;
     }
     function ownerOf(uint256 tokenId) public view virtual returns (address) {
-        return posts[tokenId].creator;
+        return posts[tokenId].from;
     }
     function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256) {
         require(userPosts[owner].length > index, "ERC721Enumerable: owner index out of bounds");
@@ -171,7 +171,7 @@ contract SocialGraph  {
     //     if (postA.totalEngagement > postB.totalEngagement) {
     //         return true;
     //     } else if (postA.totalEngagement == postB.totalEngagement) {
-    //         return postA.timestamp > postB.timestamp;
+    //         return postA.time > postB.time;
     //     } else {
     //         return false;
     //     }
@@ -180,7 +180,7 @@ contract SocialGraph  {
     function interactWith(uint postId, InteractionType interactionType, address engagingUserAddress) private returns (uint) {
         require(postId < totalSupply, "No post");
         User storage engagingUser = users[engagingUserAddress];
-        User storage engagedUser = users[posts[postId].creator];
+        User storage engagedUser = users[posts[postId].from];
         
         Post storage new_post = posts[postId];
         Interaction memory interaction = Interaction({
@@ -192,15 +192,15 @@ contract SocialGraph  {
         interactions.push(interaction);
         postInteractions[postId].push(interactionsCount);
         userInteractions[msg.sender].push(interactionsCount);
-        if(engagementScoreBetweenUsers[msg.sender][new_post.creator] == 0) {
-           engagedWith[msg.sender].push(new_post.creator); // add if not engaged before
+        if(engagementScoreBetweenUsers[msg.sender][new_post.from] == 0) {
+           engagedWith[msg.sender].push(new_post.from); // add if not engaged before
         }
         uint score = uint(interactionType) + 1; // Assigning a weight of 1 for likes
 
         engagingUser.engagementScore += score; // Assigning a weight of 1 for interactions
         engagedUser.engagementScore += score; // Assigning a weight of 2 for interactions
         new_post.totalEngagement += score; // Assigning a weight of 1 for likes
-        engagementScoreBetweenUsers[msg.sender][new_post.creator] += score;
+        engagementScoreBetweenUsers[msg.sender][new_post.from] += score;
 
         // Update engagement metrics
         if (interactionType == InteractionType.Like) {
@@ -218,9 +218,9 @@ contract SocialGraph  {
         uint dayIndex = getTodayIndex();
          
         usersByDay[dayIndex].push(engagingUserAddress);
-        engagingUser.timestamp = block.timestamp;
+        engagingUser.time = block.timestamp;
 
-        // engageWithPost(new_post.creator, postId);
+        // engageWithPost(new_post.from, postId);
         interactionsCount++;
         return interactions.length - 1;
     }
@@ -228,7 +228,7 @@ contract SocialGraph  {
         if(users[msg.sender].userAddress == address(0)) {
             users[msg.sender] = User({
                 userAddress: msg.sender,
-                timestamp: block.timestamp,
+                time: block.timestamp,
                 engagementScore: 2,
                 dayIndex: 0,
                 // leaderboard: new uint[](0),
@@ -244,9 +244,9 @@ contract SocialGraph  {
         uint dayIndex = getTodayIndex();
         createUser();
         Post memory new_post = Post({
-            creator: msg.sender,
-            timestamp: block.timestamp,
-            contentPosition: content,
+            from: msg.sender,
+            time: block.timestamp,
+            swarmLocation: content,
             likeCount: 0,
             commentCount: 0,
             shareCount: 0,
@@ -359,7 +359,7 @@ contract SocialGraph  {
     }
     function updateContentAnalysis(uint postId, uint sentimentScore, bytes32 mainTopic) public {
         require(postId < totalSupply, "No post");
-        require(msg.sender == posts[postId].creator, "Not creator");
+        require(msg.sender == posts[postId].from, "Not from");
         Post storage new_post = posts[postId];
         new_post.contentAnalysis = ContentAnalysis(sentimentScore, mainTopic);
     }
@@ -633,10 +633,10 @@ contract SocialGraph  {
 
     //     address[] memory sampled = new address[](sampleSize);
     //     // for (uint i = 0; i < sampleSize; i++) {
-    //     //     uint randomIndex = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, i))) % addresses.length;
+    //     //     uint randomIndex = uint(keccak256(abi.encodePacked(block.time, msg.sender, i))) % addresses.length;
     //     //     sampled[i] = addresses[randomIndex];
     //     // }
-    //     bytes32 randomHash = keccak256(abi.encodePacked(block.timestamp, msg.sender));
+    //     bytes32 randomHash = keccak256(abi.encodePacked(block.time, msg.sender));
     //     uint randomValue = uint(randomHash);
 
     //     for (uint i = 0; i < sampleSize; i++) {

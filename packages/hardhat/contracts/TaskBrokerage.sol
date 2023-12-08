@@ -24,6 +24,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         uint[]  servicesIndices;
     }
     struct Service {
+        address broker;
         bytes32 infoLocation;
         uint256 price;
         bool    isActive;
@@ -49,14 +50,14 @@ contract TaskBroker is Ownable, ReentrancyGuard {
     mapping(address => mapping(address => bool)) public blockList;  
     mapping(address => Broker) public brokers;
     mapping(uint256 => Service) public services;
+    uint256 public lastServiceId = 0;
+
     mapping(uint256 => Task) public tasks;
     //mapping(address => mapping(uint256 => bool)) public pendingTasks;
     mapping(address => mapping(uint256 => bool)) public completedTasks;
 
     mapping(uint256 => TaskStruct) public pendingTasks;
     uint256[] public pendingTaskIds;
-
-    uint256 public lastServiceId = 0;
 
     event TaskAdded(address indexed user, uint256 taskId, bytes32 data);
     event TaskCompleted(address indexed user, uint256 taskId, bytes32 result);
@@ -86,27 +87,34 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         brokers[msg.sender].isAway = _away;
     }
 
-
     /*
     function getPriceForService(address _address, uint serviceId, uint _duration) public view returns (uint256) {
         return _duration * services[serviceId].price;
     }*/
-
+    function getBrokers(address[] memory _addresses) public view returns (Broker[] memory) {
+        Broker[] memory _brokers = new Broker[](_addresses.length);
+        for(uint i = 0; i < _addresses.length ; i++) {
+            _brokers[i] = brokers[_addresses[i]];
+        }
+        return _brokers;        
+    }
+    function getServices(uint _start, uint length) public view returns (Service[] memory) {
+        if(_start + length > lastServiceId) {
+            length = lastServiceId - _start;
+        }
+        Service[] memory _services = new Service[](length);
+        for(uint i = _start; i < length ; i++) {
+            _services[i] = services[i];
+        }
+        return _services;
+    }
 
     function getBroker(address _address) public view returns (Broker memory) {
         return brokers[_address];
     }
 
-
-    // function brokerAddService(bytes32 _infoLocation, uint256 _price) public {
-    //     Service memory newService = Service(_infoLocation, _price, true);
-    //     services[lastServiceId] = newService;
-    //     brokers[msg.sender].servicesIndices[lastServiceId] = true;
-    //     lastServiceId++;
-    // }
-
     function brokerAddService(bytes32 _infoLocation, uint256 _price) public returns (uint) {
-        Service memory newService = Service(_infoLocation, _price, true);
+        Service memory newService = Service(msg.sender, _infoLocation, _price, true);
         services[lastServiceId] = newService;
         brokers[msg.sender].servicesIndices.push(lastServiceId);
         lastServiceId++;
@@ -122,16 +130,19 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         service.isActive = _isActive;
     }
 
-    function brokerGetServices(uint _start, uint _length) public view returns (Service[] memory) {
-        require(_start + _length <= brokers[msg.sender].servicesIndices.length, "Invalid range");
+    function brokerGetServices(address _broker, uint _start, uint _length) public view returns (Service[] memory) {
+        // require(_start + _length <= brokers[_broker].servicesIndices.length, "Invalid range");
+        if(_start + _length > brokers[_broker].servicesIndices.length) {
+            _length = brokers[_broker].servicesIndices.length - _start;
+        }
         Service[] memory _services = new Service[](_length);
         for(uint i = _start; i < _length ; i++) {
-            _services[i] = services[brokers[msg.sender].servicesIndices[i]];
+            _services[i] = services[brokers[_broker].servicesIndices[i]];
         }
         return _services;
     }
-    function brokerGetService(uint _serviceId) public view returns (Service memory) {
-        uint index = brokers[msg.sender].servicesIndices[_serviceId];
+    function brokerGetService(address _broker, uint _serviceId) public view returns (Service memory) {
+        uint index = brokers[_broker].servicesIndices[_serviceId];
         return services[index];
     }
 
@@ -248,6 +259,13 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         }
         
         return brokerTasks;
+    }
+    function getAllPendingTasks() public view returns (Task[] memory) {
+        Task[] memory _tasks = new Task[](pendingTaskIds.length);
+        for(uint i = 0; i < pendingTaskIds.length ; i++) {
+            _tasks[i] = pendingTasks[pendingTaskIds[i]].task;
+        }
+        return _tasks;
     }
     
     /*

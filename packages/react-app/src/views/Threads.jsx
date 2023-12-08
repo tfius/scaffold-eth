@@ -119,6 +119,11 @@ export function Threads({
     await updateThreads();
   };
 
+  useEffect(() => {
+    if (messageCount > messageCountTrigger && !updatingLocker) updateThreads();
+    setMessageCountTrigger(messageCount);
+  }, [messageCount]);
+
   const updateRegistration = useCallback(async () => {
     if (readContracts === undefined || readContracts.SwarmMail === undefined) return; // todo get pub key from ENS
     const data = await readContracts.SwarmMail.getPublicKeys(address);
@@ -243,8 +248,10 @@ export function Threads({
     }
     for (let i = 0; i < sMails.length; i++) {
       var s = sMails[i];
+      // skip if swarmLocation exists in mails
       if (mails.findIndex(m => m.location == s.swarmLocation) != -1) continue; // skip if already existing
       var mail = { attachments: [] };
+
       try {
         const data = await downloadDataFromBee(s.swarmLocation); // returns buffer
         console.log("smail", s);
@@ -301,7 +308,7 @@ export function Threads({
         //newMails.unshift(mail);
         // setMails(mails => [mail, ...mails]);
       }
-
+      console.log("thread mail", mail);
       await setMails(mails => [mail, ...mails]);
       if (mail.threads.length > 0) await loadThreads(mail);
 
@@ -334,8 +341,10 @@ export function Threads({
         var uint8View = new Uint8Array(data);
         var decoded = new TextDecoder().decode(uint8View);
         var d = JSON.parse(decoded);
+        //console.log("thread", d);
         var decRes = EncDec.nacl_decrypt(d, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
         var object = JSON.parse(decRes);
+        //console.log("decrypted thread", object);
         var blob = new Blob([new Uint8Array(object.binaryData)], { type: attachment.file.type });
         saveFileAs(blob, attachment.file.path);
       } catch (e) {

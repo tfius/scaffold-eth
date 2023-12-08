@@ -155,7 +155,7 @@ class ComposeNewMessageForm extends React.Component {
           <Form.Item name="recipient" label="Recipient" rules={required}>
             <Input
               //defaultValue={this.state.recipient}
-              initialValue={this.state.recipient}
+              //initialValue={this.state.recipient}
               placeholder="0x address or ENS"
               value={this.state.recepient}
               onChange={e => this.onRecepientChange(e.target.value)}

@@ -89,12 +89,12 @@ export default DisplayUserStats;
 //       <div key={i} style={{ width: "100%" }} className="post-card-body">
 //         <div className="post-layout">
 //           <div className="post-blockie" style={{ cursor: "pointer" }} onClick={() => handleUserClick(p)}>
-//             <Blockies seed={p.creator.toLowerCase()} size={16} scale={2} />
+//             <Blockies seed={p.from.toLowerCase()} size={16} scale={2} />
 //           </div>
 //           <div className="post-text">
 //             <div className="post-creator">
-//               {/* <Link to={"/profile/" + p.creator}>{p.creator}</Link> */}
-//               <AddressSimple address={p.creator} ensProvider={ensProvider} />
+//               {/* <Link to={"/profile/" + p.from}>{p.from}</Link> */}
+//               <AddressSimple address={p.from} ensProvider={ensProvider} />
 //               {"  "}
 //               <small>&nbsp; · {timeAgo(p.sendTime)}</small>
 //             </div>
