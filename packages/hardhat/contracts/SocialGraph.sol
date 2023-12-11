@@ -39,7 +39,7 @@ contract SocialGraph  {
         uint    time;
 
         uint    likeCount;
-        uint    commentCount;
+        //uint    commentCount;
         uint    shareCount;
         uint    totalEngagement;
 
@@ -76,8 +76,10 @@ contract SocialGraph  {
     mapping(address => uint[]) public userPosts; // user posts 
     mapping(address => uint[]) public userInteractions; // user interactions
     mapping(address => uint[]) public userBookmarks; // user bookmarks - posts
+
     mapping(uint => uint[]) public postInteractions; // post interactions (likes, comments, shares)
     mapping(uint => uint[]) public postComments; // post comments (posts)
+
     mapping(address => mapping(address => uint)) public engagementScoreBetweenUsers; // mapping of engagement score between followers    
     mapping(address => address[]) public followers; // mapping of who is following who
     mapping(address => mapping(address => uint)) public isFollower;
@@ -91,6 +93,7 @@ contract SocialGraph  {
     mapping(bytes32 => uint[]) public postsWithCategory; // mapping of posts with category
     mapping(bytes32 => uint[]) public postsWithMention; // mapping of posts with mentions
     mapping(bytes32 => uint[]) public postsWithTokens; // mapping of posts with tokens
+
     mapping(uint => uint[]) public postsByDay; // Map each day to an array of posts
     mapping(uint => address[]) public usersByDay; // map most active users per day
 
@@ -122,9 +125,9 @@ contract SocialGraph  {
         return (following[user].length, followers[user].length, engagedWith[user].length, userPosts[user].length, userInteractions[user].length, /*users[user].leaderboard.length, */
                 users[user]);
     }
-    function getPostStats(uint postId) public view returns (uint likeCount, uint commentCount, uint shareCount, uint totalEngagement, uint interactions_count, uint comments_count) {
+    function getPostStats(uint postId) public view returns (uint likeCount, uint comments_count, uint shareCount, uint totalEngagement, uint interactions_count) {
         require(postId < totalSupply, "No post");
-        return (posts[postId].likeCount, posts[postId].commentCount, posts[postId].shareCount, posts[postId].totalEngagement, postInteractions[postId].length, postComments[postId].length);
+        return (posts[postId].likeCount, postComments[postId].length, posts[postId].shareCount, posts[postId].totalEngagement, postInteractions[postId].length);
     }
     function getInfoOn(bytes32 any) public view returns (uint tags, uint mentions, uint topics, uint tokens, uint categories) {
         return (postsWithTag[any].length, postsWithMention[any].length, postsWithTopic[any].length, postsWithTokens[any].length, postsWithCategory[any].length);
