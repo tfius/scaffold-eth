@@ -37,9 +37,9 @@ contract SocialGraph  {
         address from;
         bytes32 swarmLocation; // Position of the content in Swarm
         uint    time;
+        uint    price; // price for post
 
         uint    likeCount;
-        //uint    commentCount;
         uint    shareCount;
         uint    totalEngagement;
 
@@ -210,7 +210,7 @@ contract SocialGraph  {
             new_post.likeCount++;
             isPostLiked[msg.sender][postId] = 1;
         } else if (interactionType == InteractionType.Comment) {
-            new_post.commentCount++;
+            // new_post.commentCount++;
         } else if (interactionType == InteractionType.Share) {
             new_post.shareCount++;
             isPostShared[msg.sender][postId] = 1;
@@ -243,15 +243,16 @@ contract SocialGraph  {
         require(users[msg.sender].userAddress != address(0), "No user");
         users[msg.sender].priceForFollow = price;
     }
-    function createPost(bytes32 content, bytes32[] memory tags, bytes32[] memory mentions, bytes32[] memory tokens, bytes32 _category) private returns (uint){
+    function createPost(bytes32 _content, uint _price,  bytes32[] memory _tags, bytes32[] memory _mentions, bytes32[] memory _tokens, bytes32 _category) private returns (uint){
         uint dayIndex = getTodayIndex();
         createUser();
         Post memory new_post = Post({
             from: msg.sender,
             time: block.timestamp,
-            swarmLocation: content,
+            price: _price,
+            swarmLocation: _content,
             likeCount: 0,
-            commentCount: 0,
+            //commentCount: 0,
             shareCount: 0,
             totalEngagement: 0,
             category: _category,
@@ -266,14 +267,14 @@ contract SocialGraph  {
            users[msg.sender].dayIndex=dayIndex;
         }
 
-        for(uint i = 0; i < tags.length; i++) {
-            postsWithTag[tags[i]].push(totalSupply);
+        for(uint i = 0; i < _tags.length; i++) {
+            postsWithTag[_tags[i]].push(totalSupply);
         }
-        for(uint i = 0; i < mentions.length; i++) {
-            postsWithMention[mentions[i]].push(totalSupply);
+        for(uint i = 0; i < _mentions.length; i++) {
+            postsWithMention[_mentions[i]].push(totalSupply);
         }
-        for(uint i = 0; i < tokens.length; i++) {
-            postsWithTokens[tokens[i]].push(totalSupply);
+        for(uint i = 0; i < _tokens.length; i++) {
+            postsWithTokens[_tokens[i]].push(totalSupply);
         }
         postsWithCategory[_category].push(totalSupply);
 
@@ -281,17 +282,17 @@ contract SocialGraph  {
         totalSupply++;
         return totalSupply - 1;
     }
-    function post(bytes32 content, bytes32[] memory tags, bytes32[] memory mentions, bytes32[] memory tokens, bytes32 category) public returns (uint){
-        uint newPostId = createPost(content, tags, mentions, tokens, category); 
+    function post(bytes32 _content, uint _price, bytes32[] memory _tags, bytes32[] memory _mentions, bytes32[] memory _tokens, bytes32 _category) public returns (uint){
+        uint newPostId = createPost(_content, _price, _tags, _mentions, _tokens, _category); 
 
         interactWith(newPostId, InteractionType.Post, msg.sender);        
         return newPostId;
     }    
-    function comment(uint postId, bytes32 content, bytes32[] memory tags, bytes32[] memory mentions, bytes32[] memory tokens, bytes32 category) public returns (uint){
-        uint newPostId = createPost(content, tags, mentions, tokens, category); 
+    function comment(uint _postId, uint _price, bytes32 _content, bytes32[] memory _tags, bytes32[] memory _mentions, bytes32[] memory _tokens, bytes32 _category) public returns (uint){
+        uint newPostId = createPost(_content, _price, _tags, _mentions, _tokens, _category); 
 
-        postComments[postId].push(newPostId);
-        interactWith(postId, InteractionType.Comment, msg.sender);        
+        postComments[_postId].push(newPostId);
+        interactWith(_postId, InteractionType.Comment, msg.sender);        
         return newPostId;
     }
     function unfollow(address who_following) private {

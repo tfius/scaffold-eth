@@ -112,7 +112,7 @@ export default DisplayUserStats;
 //               {" "}
 //               🗨
 //             </span>{" "}
-//             <small style={{ opacity: "0.5" }}>{formatNumber(p.commentCount.toString())}</small> &nbsp;
+//             <small style={{ opacity: "0.5" }}>{formatNumber(p.comments_count.toString())}</small> &nbsp;
 //           </Tooltip>
 //           <Tooltip title="Like">
 //             <span onClick={() => like(p)} style={{ cursor: "pointer" }}>

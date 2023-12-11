@@ -303,7 +303,7 @@ export function DisplayMessages({
               <Tooltip title="Comment">
                 <span onClick={() => comment(p)} style={{ cursor: "pointer" }}>
                   {" "}
-                  🗨 <small style={{ opacity: "0.5" }}>{formatNumber(p.commentCount.toString())}</small> &nbsp;
+                  🗨 <small style={{ opacity: "0.5" }}>{formatNumber(p.comments_count.toString())}</small> &nbsp;
                 </span>
               </Tooltip>
               <Tooltip title="Like">

@@ -363,12 +363,14 @@ export default function CreatePost({
       const compressed = pako.deflate(new TextEncoder().encode(m));
       const contentsLocation = await uploadDataToBee(compressed, "application/zip+json", "post.zip");
       console.log(contentsLocation, postData);
+      var price = 0;
 
       if (postToCommentOn != null) {
         var newTx = await tx(
           writeContracts.SocialGraph.comment(
             postToCommentOn.postId,
             "0x" + contentsLocation,
+            price,
             tagsHashes,
             atHashes,
             tokenHashes,
@@ -377,8 +379,16 @@ export default function CreatePost({
         );
         await newTx.wait();
       } else {
+        var price = 0;
         var newTx = await tx(
-          writeContracts.SocialGraph.post("0x" + contentsLocation, tagsHashes, atHashes, tokenHashes, "0x" + category),
+          writeContracts.SocialGraph.post(
+            "0x" + contentsLocation,
+            price,
+            tagsHashes,
+            atHashes,
+            tokenHashes,
+            "0x" + category,
+          ),
         );
         await newTx.wait();
         //console.log(newTx);

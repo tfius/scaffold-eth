@@ -268,18 +268,6 @@ export function SocialGraph({
       // add postIds to postsInfo
       for (var i = 0; i < postsInfo.length; i++) {
         const p = postsInfo[i];
-        /*var isInMessages = messages.filter(m => m.swarmLocation === p.swarmLocation);
-        // if it exits, just update comments, likes, shares, etc
-        if (isInMessages.length > 0) {
-          // update comments, likes, shares, etc
-          var msg = isInMessages[0];
-          msg.commentCount = p.commentCount;
-          msg.likeCount = p.likeCount;
-          msg.shareCount = p.shareCount;
-          msg.totalEngagement = p.totalEngagement;
-          continue;
-        }*/
-
         postsEx.push({ ...postsInfo[i], postId: postIds[i] });
       }
       // sort posts by time
