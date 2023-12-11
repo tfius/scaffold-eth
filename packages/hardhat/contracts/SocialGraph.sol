@@ -23,7 +23,7 @@ contract SocialGraph  {
         uint post; // post id
         InteractionType interactionType;
     }
-    enum InteractionType { Post, Follow, Like, Share, Comment, Bookmark }
+    enum InteractionType { Post, Follow, Like, Share, Comment, Bookmark, Process, Analysis, Merge, Other }
     // struct Metadata {
     //    bytes32[] tags; // sha256 hash of the tag
     //    bytes32[] mentions; // sha256 hash of the mentions (address)

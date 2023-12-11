@@ -406,9 +406,31 @@ export function SocialGraph({
     setLoading(true);
     const interactions = await readContracts.SocialGraph.getInteractions(interactionIds);
     console.log("fetchInteractions", interactions);
-    var interaction_types = ["Post", "Follow", "Like", "Share", "Comment", "Bookmark", "Mention"];
-    //var interaction_colors = ["green", "red", "blue", "orange", "gray", "white"];
-    var interaction_colors = ["white", "#009900", "purple", "#000099", "#555500", "gray", "white"];
+    var interaction_types = [
+      "Post",
+      "Follow",
+      "Like",
+      "Share",
+      "Comment",
+      "Bookmark",
+      "Process",
+      "Analysis",
+      "Merge",
+      "Other",
+    ];
+    //                        Post,   Follow,   Like,   Share,   Comment,   Bookmark,   Process, Analysis, Merge, Other
+    var interaction_colors = [
+      "white",
+      "#009900",
+      "purple",
+      "#000099",
+      "#555500",
+      "gray",
+      "#AAAAAA",
+      "#BBBBBB",
+      "#CCCCCC",
+      "#777777",
+    ];
     var nodes = [];
     var links = [];
     var interactedWithPostIds = [];
