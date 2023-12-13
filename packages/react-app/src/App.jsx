@@ -54,6 +54,7 @@ import { Calendar } from "./views/Calendar";
 import { Scheduler } from "./views/Scheduler";
 import { SocialGraph } from "./socyomat/SocialGraph";
 import { FairOSWasmConnect } from "./views/FairOSWasmConnect";
+import FairOSBrowser from "./views/FairOSBrowser";
 
 const { ethers } = require("ethers");
 /*
@@ -446,7 +447,7 @@ function App(props) {
               </Tooltip>
             </Menu.Item>
 
-            <Menu.SubMenu key="submenuSmail" title="Datafunds" inlineCollapsed={true} mode="inline">
+            <Menu.SubMenu key="submenuSmail" title="Datafunds" inlineCollapsed mode="inline">
               <Menu.Item key="/">
                 <Tooltip
                   title={
@@ -520,7 +521,7 @@ function App(props) {
 
             {/* {fairOSSessionId != null && <Menu.Divider />} */}
             <Menu.Divider />
-            <Menu.SubMenu key="submenuDatahub" title="Fairdrive" inlineCollapsed={true} mode="inline">
+            <Menu.SubMenu key="submenuDatahub" title="Fairdrive" inlineCollapsed mode="inline">
               {web3Modal && web3Modal?.cachedProvider && (
                 <Menu.Item key="/fairOS">
                   <FairOSWasmConnect
@@ -537,6 +538,7 @@ function App(props) {
                     provider={localProvider}
                     smailMail={smailMail}
                     setSmailMail={setSmailMail}
+                    //FairOSPods={fairOSPods}
                     setFairOSPods={setFairOSPods}
                     setFairOSSessionId={setFairOSSessionId}
                     setFairOSLogin={setFairOSLogin}
@@ -546,6 +548,11 @@ function App(props) {
               )}
 
               <>
+                <Menu.Item key="/fairosbrowser" disabled={fairOSLogin === null}>
+                  <Tooltip title="Browse your FairOS data" placement="right">
+                    <Link to="/fairosbrowser">Browse</Link>
+                  </Tooltip>
+                </Menu.Item>
                 <Menu.Item key="/datahub" disabled={!isFairOsed}>
                   <Tooltip title="View offers, open new listings" placement="right">
                     <Link to="/datahub">Market</Link>
@@ -616,7 +623,7 @@ function App(props) {
             </Menu.Item>
 
             {/* <Menu.Divider /> */}
-            <Menu.SubMenu key="submenuContracts" title="Contracts" inlineCollapsed={true} mode="inline">
+            <Menu.SubMenu key="submenuContracts" title="Contracts" inlineCollapsed mode="inline">
               <Menu.Item key="/swarmmailcontract">
                 <Link to="/swarmmailcontract">Smail Contract</Link>
               </Menu.Item>
@@ -810,6 +817,23 @@ function App(props) {
               />
 
               <Route
+                exact
+                path="/fairosbrowser"
+                children={props => (
+                  <FairOSBrowser
+                    readContracts={readContracts}
+                    writeContracts={writeContracts}
+                    mainnetProvider={mainnetProvider}
+                    userSigner={userSigner}
+                    tx={tx}
+                    address={address}
+                    smailMail={smailMail}
+                    fairOSLogin={fairOSLogin}
+                    fairOSPods={fairOSPods}
+                  />
+                )}
+              />
+              <Route
                 path="/datahub/:cat?/:sub?"
                 children={props => (
                   <DataHub
@@ -824,6 +848,7 @@ function App(props) {
                   />
                 )}
               />
+
               <Route exact path="/subscriptions">
                 <Subscriptions
                   readContracts={readContracts}

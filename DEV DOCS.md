@@ -70,4 +70,20 @@ Why notion:
  Discussion 
 
 Why not Roam:
- 
+
+Demo sepolia account: (do not use for your data (demo account only))
+demotimex2 / passwordpassword
+seminar
+earn
+cat
+toss
+verify
+clean
+list
+birth
+utility
+frozen
+glue
+fish
+
+address: 0x454013927dde97330E33602fb60331C13c2f0867

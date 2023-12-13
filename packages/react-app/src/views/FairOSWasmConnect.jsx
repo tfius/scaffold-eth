@@ -211,18 +211,31 @@ export function FairOSWasmConnect({
       signature = await userSigner.signMessage("Connect " + login.address + " with " + address);
       console.log("signature 1", login.address, signature, address);
       let resp = await window.connectWallet(username, password, login.address, signature);
+
+      var loginObj = {
+        user: resp.user,
+        sessionId: resp.sessionId,
+        address: resp.address,
+        portableAddress: resp.portableAddress,
+        nameHash: resp.nameHash,
+      };
+      setLogin(loginObj);
+
       // address expected is from userStat, but it should be from my wallet address, can fail with Signature failed to create user : wallet doesnot match portable account address
       console.log("connect wallet", resp);
       setIsConnectVisible(false);
+      await SetPortableAccount();
+      await LoginWithSignature(login.address, signature);
     } catch (e) {
       notification.warning({
         message: "Signature",
         description: e.toString(),
       });
+      notification.error({
+        message: "Failed to create signature SOC",
+        description: "There was problem linking signature with your wallet.",
+      });
     }
-
-    await SetPortableAccount();
-    await LoginWithSignature(login.address, signature);
   }
 
   async function SetPortableAccount() {
@@ -272,8 +285,15 @@ export function FairOSWasmConnect({
     console.log("podList", resp2);
     setPodList(resp2);
     setIsPodLoading(false);
-    setFairOSPods(resp2.pods);
+    //setFairOSPods(resp2.pods);
+    setFairOSPods(resp2);
     setFairOSSessionId(sessionId);
+  }
+  async function PodListAndBrowse(sessionId) {
+    await PodList(sessionId);
+    setFairOSLogin(login);
+    setIsFairOSVisible(false);
+    setIsConnectVisible(false);
   }
 
   async function ListPod(podName) {
@@ -335,9 +355,6 @@ export function FairOSWasmConnect({
   return (
     // <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
     <>
-      {/* <Button onClick={() => ConnectFairOS()}>Connect</Button> */}
-      {/* {!isLoginVisible && login != null && <Button onClick={() => Logout()}>Logout FairOS</Button>} */}
-      {/* {!isLoginVisible && login == null && ( */}
       <Button type="primary" style={{ width: "80%" }} onClick={() => OpenFairOSDialog()}>
         FairOS
       </Button>
@@ -361,9 +378,7 @@ export function FairOSWasmConnect({
                 <>
                   {podList.pods.length > 0 && (
                     <>
-                      Close will keep FairOS connected.
-                      <br />
-                      Click on pod to list it on Data Hub.
+                      Note: Close will keep FairOS connected.
                       <br />
                       <br />
                       <h3>Available Pods</h3>
@@ -374,6 +389,8 @@ export function FairOSWasmConnect({
                           </li>
                         ))}
                       </ul>
+                      <i>Click on pod to list it on Data Hub.</i>
+                      <br />
                     </>
                   )}
                   <br />
@@ -463,13 +480,18 @@ export function FairOSWasmConnect({
           <>
             To register your <strong>{address}</strong> <br /> with <strong>{username}</strong> a signature is needed.{" "}
             <hr />
-            This does not bond your address with Smail, only enables you to login into your FairOS account through
-            DataHub.
+            This does not bond your address with Datafund, only enables you to login into your FairOS account using
+            signature. This connection will allow you to use your portable account with Datafund.
           </>
           <br />
           <br />
           <Button type="primary" onClick={() => ConnectFairOSWithWallet()}>
-            Connect
+            Connect to FairOS with signature
+          </Button>
+          <br />
+          <br />
+          <Button type="primary" onClick={() => PodListAndBrowse(login.sessionId)}>
+            No thanks, will connect later
           </Button>
           {isPodLoading === true && <Spin />}
         </Modal>

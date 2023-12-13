@@ -214,6 +214,7 @@ export function SocialGraph({
   const fetchUserStats = useCallback(
     async forAddress => {
       if (address === undefined) return;
+      if (readContracts.SocialGraph === undefined) return;
       if (!forAddress) forAddress = address;
       setLoading(true);
       try {
@@ -231,14 +232,19 @@ export function SocialGraph({
   );
   const fetchTodayIndex = useCallback(async () => {
     setLoading(true);
-    const dayIdx = await readContracts.SocialGraph.getTodayIndex();
-    const todaysPostsCount = await readContracts.SocialGraph.getDayStats(dayIdx);
-    setTotalItems(todaysPostsCount);
-    setStartItem(todaysPostsCount - pageSize >= 0 ? todaysPostsCount - pageSize : 0);
-    setItemsCount(pageSize);
-    setTodayIndex(dayIdx);
+    if (readContracts.SocialGraph === undefined) return;
+    try {
+      const dayIdx = await readContracts.SocialGraph.getTodayIndex();
+      const todaysPostsCount = await readContracts.SocialGraph.getDayStats(dayIdx);
+      setTotalItems(todaysPostsCount);
+      setStartItem(todaysPostsCount - pageSize >= 0 ? todaysPostsCount - pageSize : 0);
+      setItemsCount(pageSize);
+      setTodayIndex(dayIdx);
+      console.log("dayIndex", dayIdx.toNumber(), "todaysPostsCount", todaysPostsCount);
+    } catch (e) {
+      console.log("error", e);
+    }
     setLoading(false);
-    console.log("dayIndex", dayIdx.toNumber(), "todaysPostsCount", todaysPostsCount);
   }, [readContracts]);
   const fetchPostIdsPerDay = useCallback(async () => {
     console.log("fetchPostIdsPerDay", todayIndex.toString(), startItem, itemsCount);
