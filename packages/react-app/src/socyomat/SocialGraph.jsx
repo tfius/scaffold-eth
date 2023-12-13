@@ -268,7 +268,16 @@ export function SocialGraph({
       // add postIds to postsInfo
       for (var i = 0; i < postsInfo.length; i++) {
         const p = postsInfo[i];
-        postsEx.push({ ...postsInfo[i], postId: postIds[i] });
+        const postStats = await readContracts.SocialGraph.getPostStats(postIds[i]);
+        postsEx.push({
+          ...postsInfo[i],
+          postId: postIds[i],
+          likes_count: postStats.likes_count,
+          comments_count: postStats.comments_count,
+          shares_count: postStats.shares_count,
+          interactions_count: postStats.interactions_count,
+          //total_engagements: postStats.total_engagement,
+        });
       }
       // sort posts by time
       //postsEx = postsEx.sort((a, b) => (a.time > b.time ? -1 : 1));
@@ -290,6 +299,7 @@ export function SocialGraph({
         const p = posts[i];
         // check to see if postId is already in messages
         if (messages.filter(m => m.swarmLocation === p.swarmLocation).length > 0) continue;
+        //if(getPostStats)
 
         const data = await downloadDataFromBee(p.swarmLocation);
         // const s = new TextDecoder().decode(data);
@@ -413,6 +423,7 @@ export function SocialGraph({
       "Share",
       "Comment",
       "Bookmark",
+      "Quote",
       "Process",
       "Analysis",
       "Merge",
@@ -426,6 +437,7 @@ export function SocialGraph({
       "#000099",
       "#555500",
       "gray",
+      "quartz",
       "#AAAAAA",
       "#BBBBBB",
       "#CCCCCC",
@@ -511,7 +523,8 @@ export function SocialGraph({
     var comments = [];
     if (maxCount != 0) {
       const start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-      comments = await readContracts.SocialGraph.getPostComments(postIdx, start, pageSize);
+      //comments = await readContracts.SocialGraph.getPostComments(postIdx, start, pageSize);
+      comments = await readContracts.SocialGraph.getPostData(postIdx, 0, start, pageSize);
     }
     console.log("getPostComments", comments);
     return [postIdx, ...comments];
@@ -519,7 +532,28 @@ export function SocialGraph({
   const fetchInteractionsForPost = useCallback(
     async postId => {
       setLoading(true);
-      const iactionIds = await readContracts.SocialGraph.getInteractionsFromPost(postId, 0, 100);
+      //const iactionIds = await readContracts.SocialGraph.getInteractionsFromPost(postId, 0, 100);
+      const iactionIds = await readContracts.SocialGraph.getPostData(postId, 1, 0, 100);
+      console.log("getInteractionsFromPost", iactionIds);
+      await pushMessagesOnStack();
+      setInteractionIds(iactionIds);
+    },
+    [interactionIds],
+  );
+  const fetchSharesForPost = useCallback(
+    async postId => {
+      setLoading(true);
+      const iactionIds = await readContracts.SocialGraph.getPostData(postId, 2, 0, 100);
+      console.log("getInteractionsFromPost", iactionIds);
+      await pushMessagesOnStack();
+      setInteractionIds(iactionIds);
+    },
+    [interactionIds],
+  );
+  const fetchLikesForPost = useCallback(
+    async postId => {
+      setLoading(true);
+      const iactionIds = await readContracts.SocialGraph.getPostData(postId, 3, 0, 100);
       console.log("getInteractionsFromPost", iactionIds);
       await pushMessagesOnStack();
       setInteractionIds(iactionIds);
@@ -622,7 +656,8 @@ export function SocialGraph({
     var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
     var maxCount = mentions;
     var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-    const postIdxs = await readContracts.SocialGraph.getPostIdsWithMentions(hash, start, pageSize);
+    //const postIdxs = await readContracts.SocialGraph.getPostIdsWithMentions(hash, start, pageSize);
+    const postIdxs = await readContracts.SocialGraph.getPostIdsByTypeFrom(hash, 0, start, pageSize);
     return postIdxs;
   };
   const loadTag = async tag => {
@@ -630,7 +665,8 @@ export function SocialGraph({
     var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
     var maxCount = tags;
     var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-    const postIdxs = await readContracts.SocialGraph.getPostIdsWithTags(hash, start, pageSize);
+    //const postIdxs = await readContracts.SocialGraph.getPostIdsWithTags(hash, start, pageSize);
+    const postIdxs = await readContracts.SocialGraph.getPostIdsByTypeFrom(hash, 2, start, pageSize);
     return postIdxs;
   };
   const loadCategory = async cat => {
@@ -638,7 +674,8 @@ export function SocialGraph({
     var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
     var maxCount = categories;
     var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-    const postIdxs = await readContracts.SocialGraph.getPostIdsWithCategory(hash, start, pageSize);
+    //const postIdxs = await readContracts.SocialGraph.getPostIdsWithCategory(hash, start, pageSize);
+    const postIdxs = await readContracts.SocialGraph.getPostIdsByTypeFrom(hash, 4, start, pageSize);
     return postIdxs;
   };
   const loadTopic = async topic => {
@@ -646,7 +683,8 @@ export function SocialGraph({
     var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
     var maxCount = topics;
     var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-    const postIdxs = await readContracts.SocialGraph.getPostIdsWithTopic(hash, start, pageSize);
+    //const postIdxs = await readContracts.SocialGraph.getPostIdsWithTopic(hash, start, pageSize);
+    const postIdxs = await readContracts.SocialGraph.getPostIdsByTypeFrom(hash, 1, start, pageSize);
     return postIdxs;
   };
   const loadToken = async token => {
@@ -654,7 +692,8 @@ export function SocialGraph({
     var { tags, mentions, topics, tokens, categories } = await readContracts.SocialGraph.getInfoOn(hash); // tags, mentions, topics, categories
     var maxCount = tokens;
     var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0;
-    const postIdxs = await readContracts.SocialGraph.getPostIdsWithTokens(hash, start, pageSize);
+    //const postIdxs = await readContracts.SocialGraph.getPostIdsWithTokens(hash, start, pageSize);
+    const postIdxs = await readContracts.SocialGraph.getPostIdsByTypeFrom(hash, 3, start, pageSize);
     return postIdxs;
   };
   const loadUserStats = async user => {

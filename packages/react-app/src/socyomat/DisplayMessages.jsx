@@ -218,19 +218,31 @@ export function DisplayMessages({
   };
   const getUpdateMessage = async message => {
     console.log("update", message);
-    var newTx = await readContracts.SocialGraph.getPostStats(message.postId);
-    console.log("postStats", newTx);
+    try {
+      var newTx = await readContracts.SocialGraph.getPostStats(message.postId);
+      console.log("postStats", newTx);
+    } catch (e) {
+      console.log("error", e);
+    }
   };
   const share = async message => {
     console.log("share", message);
-    var newTx = await tx(writeContracts.SocialGraph.share(message.postId));
-    await newTx.wait();
+    try {
+      var newTx = await tx(writeContracts.SocialGraph.share(message.postId));
+      await newTx.wait();
+    } catch (e) {
+      console.log("error", e);
+    }
   };
   const like = async message => {
     console.log("like", message);
-    await getUpdateMessage(message);
-    var newTx = await tx(writeContracts.SocialGraph.like(message.postId));
-    await newTx.wait();
+    try {
+      //await getUpdateMessage(message);
+      var newTx = await tx(writeContracts.SocialGraph.like(message.postId));
+      await newTx.wait();
+    } catch (e) {
+      console.log("error", e);
+    }
   };
   const comment = async message => {
     console.log("comment", message);
@@ -292,9 +304,23 @@ export function DisplayMessages({
                 style={{ margin: "3px 10px 0px", cursor: "pointer", scale: "100%" }}
                 onClick={() => setReplyTo(p.from, true)}
               >
-                <IconText icon={ArrowLeftOutlined} tooltip="Send message" key="list-vertical-reply-o" />
+                <IconText
+                  icon={ArrowLeftOutlined}
+                  tooltip={
+                    <>
+                      Send message to <AddressSimple address={p.from} ensProvider={ensProvider} />
+                    </>
+                  }
+                  key="list-vertical-reply-o"
+                />
               </small>
-              <Tooltip title="Thread">
+              <Tooltip
+                title={
+                  <>
+                    Create thread with <AddressSimple address={p.from} ensProvider={ensProvider} />
+                  </>
+                }
+              >
                 <span onClick={() => setThreadTo(p.from, "Re Post: #" + p.postId)} style={{ cursor: "pointer" }}>
                   {" "}
                   ♺ &nbsp;
@@ -309,13 +335,13 @@ export function DisplayMessages({
               <Tooltip title="Like">
                 <span onClick={() => like(p)} style={{ cursor: "pointer" }}>
                   {" "}
-                  ♡ <small style={{ opacity: "0.5" }}>{formatNumber(p.likeCount.toString())}</small> &nbsp;
+                  ♡ <small style={{ opacity: "0.5" }}>{formatNumber(p.likes_count.toString())}</small> &nbsp;
                 </span>
               </Tooltip>
               <Tooltip title="Share">
                 <span onClick={() => share(p)} style={{ cursor: "pointer" }}>
                   {" "}
-                  ☄ <small style={{ opacity: "0.5" }}>{formatNumber(p.shareCount.toString())}</small> &nbsp;
+                  ☄ <small style={{ opacity: "0.5" }}>{formatNumber(p.shares_count.toString())}</small> &nbsp;
                 </span>
               </Tooltip>
               <Tooltip title="Bookmark">

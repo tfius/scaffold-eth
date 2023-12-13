@@ -6655,7 +6655,7 @@
       "chainId": "31337",
       "contracts": {
         "Calendar": {
-          "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+          "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
           "abi": [
             {
               "inputs": [
@@ -7149,7 +7149,7 @@
           ]
         },
         "DataHub": {
-          "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+          "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
           "abi": [
             {
               "inputs": [],
@@ -8616,7 +8616,7 @@
           ]
         },
         "Governance": {
-          "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+          "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
           "abi": [
             {
               "anonymous": false,
@@ -8665,6 +8665,11 @@
             {
               "inputs": [
                 {
+                  "internalType": "uint256",
+                  "name": "postId",
+                  "type": "uint256"
+                },
+                {
                   "internalType": "bytes32",
                   "name": "description",
                   "type": "bytes32"
@@ -8672,11 +8677,6 @@
                 {
                   "internalType": "uint256",
                   "name": "duration",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "postId",
                   "type": "uint256"
                 }
               ],
@@ -8935,7 +8935,7 @@
           ]
         },
         "Scheduler": {
-          "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+          "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
           "abi": [
             {
               "inputs": [],
@@ -9536,8 +9536,27 @@
           ]
         },
         "SocialGraph": {
-          "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+          "address": "0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1",
           "abi": [
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "previousOwner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipTransferred",
+              "type": "event"
+            },
             {
               "inputs": [
                 {
@@ -9580,32 +9599,42 @@
               "inputs": [
                 {
                   "internalType": "uint256",
-                  "name": "postId",
+                  "name": "_postId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "_price",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "qoutePostId",
                   "type": "uint256"
                 },
                 {
                   "internalType": "bytes32",
-                  "name": "content",
+                  "name": "_content",
                   "type": "bytes32"
                 },
                 {
                   "internalType": "bytes32[]",
-                  "name": "tags",
+                  "name": "_tags",
                   "type": "bytes32[]"
                 },
                 {
                   "internalType": "bytes32[]",
-                  "name": "mentions",
+                  "name": "_mentions",
                   "type": "bytes32[]"
                 },
                 {
                   "internalType": "bytes32[]",
-                  "name": "tokens",
+                  "name": "_tokens",
                   "type": "bytes32[]"
                 },
                 {
                   "internalType": "bytes32",
-                  "name": "category",
+                  "name": "_category",
                   "type": "bytes32"
                 }
               ],
@@ -9658,6 +9687,19 @@
                 }
               ],
               "name": "engagementScoreBetweenUsers",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "feesCollected",
               "outputs": [
                 {
                   "internalType": "uint256",
@@ -9727,6 +9769,26 @@
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "fundsBalance",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "fundsTransfer",
+              "outputs": [],
+              "stateMutability": "payable",
               "type": "function"
             },
             {
@@ -9817,6 +9879,30 @@
             {
               "inputs": [
                 {
+                  "internalType": "uint256",
+                  "name": "_fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getFee",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "pure",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
                   "internalType": "bytes32",
                   "name": "any",
                   "type": "bytes32"
@@ -9892,35 +9978,6 @@
             {
               "inputs": [
                 {
-                  "internalType": "uint256",
-                  "name": "postId",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "start",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "length",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getInteractionsFromPost",
-              "outputs": [
-                {
-                  "internalType": "uint256[]",
-                  "name": "",
-                  "type": "uint256[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
                   "internalType": "address[]",
                   "name": "arr",
                   "type": "address[]"
@@ -9946,6 +10003,11 @@
                 },
                 {
                   "internalType": "uint256",
+                  "name": "_type",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
                   "name": "start",
                   "type": "uint256"
                 },
@@ -9955,7 +10017,7 @@
                   "type": "uint256"
                 }
               ],
-              "name": "getPostComments",
+              "name": "getPostData",
               "outputs": [
                 {
                   "internalType": "uint256[]",
@@ -9970,8 +10032,13 @@
               "inputs": [
                 {
                   "internalType": "bytes32",
-                  "name": "category",
+                  "name": "any",
                   "type": "bytes32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "_type",
+                  "type": "uint256"
                 },
                 {
                   "internalType": "uint256",
@@ -9984,123 +10051,7 @@
                   "type": "uint256"
                 }
               ],
-              "name": "getPostIdsWithCategory",
-              "outputs": [
-                {
-                  "internalType": "uint256[]",
-                  "name": "",
-                  "type": "uint256[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "mention",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "start",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "length",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getPostIdsWithMentions",
-              "outputs": [
-                {
-                  "internalType": "uint256[]",
-                  "name": "",
-                  "type": "uint256[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "tag",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "start",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "length",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getPostIdsWithTags",
-              "outputs": [
-                {
-                  "internalType": "uint256[]",
-                  "name": "",
-                  "type": "uint256[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "tag",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "start",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "length",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getPostIdsWithTokens",
-              "outputs": [
-                {
-                  "internalType": "uint256[]",
-                  "name": "",
-                  "type": "uint256[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "topic",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "start",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "length",
-                  "type": "uint256"
-                }
-              ],
-              "name": "getPostIdsWithTopic",
+              "name": "getPostIdsByTypeFrom",
               "outputs": [
                 {
                   "internalType": "uint256[]",
@@ -10123,22 +10074,17 @@
               "outputs": [
                 {
                   "internalType": "uint256",
-                  "name": "likeCount",
+                  "name": "likes_count",
                   "type": "uint256"
                 },
                 {
                   "internalType": "uint256",
-                  "name": "commentCount",
+                  "name": "comments_count",
                   "type": "uint256"
                 },
                 {
                   "internalType": "uint256",
-                  "name": "shareCount",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "totalEngagement",
+                  "name": "shares_count",
                   "type": "uint256"
                 },
                 {
@@ -10148,7 +10094,7 @@
                 },
                 {
                   "internalType": "uint256",
-                  "name": "comments_count",
+                  "name": "total_engagement",
                   "type": "uint256"
                 }
               ],
@@ -10189,17 +10135,12 @@
                     },
                     {
                       "internalType": "uint256",
-                      "name": "likeCount",
+                      "name": "price",
                       "type": "uint256"
                     },
                     {
                       "internalType": "uint256",
-                      "name": "commentCount",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "shareCount",
+                      "name": "quoted",
                       "type": "uint256"
                     },
                     {
@@ -10325,17 +10266,12 @@
                     },
                     {
                       "internalType": "uint256",
-                      "name": "likeCount",
+                      "name": "price",
                       "type": "uint256"
                     },
                     {
                       "internalType": "uint256",
-                      "name": "commentCount",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "shareCount",
+                      "name": "quoted",
                       "type": "uint256"
                     },
                     {
@@ -10753,6 +10689,19 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "inEscrow",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "uint256",
@@ -10905,12 +10854,51 @@
             },
             {
               "inputs": [],
+              "name": "marketFee",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "minListingFee",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "name",
               "outputs": [
                 {
                   "internalType": "string",
                   "name": "",
                   "type": "string"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "owner",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -10939,27 +10927,32 @@
               "inputs": [
                 {
                   "internalType": "bytes32",
-                  "name": "content",
+                  "name": "_content",
                   "type": "bytes32"
                 },
                 {
+                  "internalType": "uint256",
+                  "name": "_price",
+                  "type": "uint256"
+                },
+                {
                   "internalType": "bytes32[]",
-                  "name": "tags",
+                  "name": "_tags",
                   "type": "bytes32[]"
                 },
                 {
                   "internalType": "bytes32[]",
-                  "name": "mentions",
+                  "name": "_mentions",
                   "type": "bytes32[]"
                 },
                 {
                   "internalType": "bytes32[]",
-                  "name": "tokens",
+                  "name": "_tokens",
                   "type": "bytes32[]"
                 },
                 {
                   "internalType": "bytes32",
-                  "name": "category",
+                  "name": "_category",
                   "type": "bytes32"
                 }
               ],
@@ -11028,6 +11021,54 @@
                   "internalType": "uint256",
                   "name": "",
                   "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "name": "postLikes",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "name": "postShares",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
                 }
               ],
               "name": "posts",
@@ -11049,17 +11090,12 @@
                 },
                 {
                   "internalType": "uint256",
-                  "name": "likeCount",
+                  "name": "price",
                   "type": "uint256"
                 },
                 {
                   "internalType": "uint256",
-                  "name": "commentCount",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "shareCount",
+                  "name": "quoted",
                   "type": "uint256"
                 },
                 {
@@ -11240,6 +11276,44 @@
             {
               "inputs": [
                 {
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "name": "release",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "newFee",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setFee",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
                   "internalType": "uint256",
                   "name": "price",
                   "type": "uint256"
@@ -11330,6 +11404,19 @@
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "transferOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -11493,7 +11580,7 @@
           ]
         },
         "SwarmMail": {
-          "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+          "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
           "abi": [
             {
               "inputs": [],
@@ -12356,7 +12443,7 @@
           ]
         },
         "TaskBroker": {
-          "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+          "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
           "abi": [
             {
               "inputs": [],

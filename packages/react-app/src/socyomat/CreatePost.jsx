@@ -364,13 +364,15 @@ export default function CreatePost({
       const contentsLocation = await uploadDataToBee(compressed, "application/zip+json", "post.zip");
       console.log(contentsLocation, postData);
       var price = 0;
+      var quotePostId = postToCommentOn ? postToCommentOn.postId : 0;
 
       if (postToCommentOn != null) {
         var newTx = await tx(
           writeContracts.SocialGraph.comment(
             postToCommentOn.postId,
-            "0x" + contentsLocation,
             price,
+            quotePostId,
+            "0x" + contentsLocation,
             tagsHashes,
             atHashes,
             tokenHashes,

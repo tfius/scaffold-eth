@@ -24,7 +24,7 @@ contract Governance {
     event VoteCreated(uint256 indexed proposalId, bytes32 description);
     event Vote(uint256 indexed proposalId, address indexed voter, bool vote);
 
-    function createVote(bytes32 description, uint256 duration, uint postId) public {
+    function createVote(uint postId, bytes32 description, uint256 duration) public {
         uint256 proposalId = nextProposalId++;
         Proposal storage proposal = proposals[proposalId];
         proposal.data.description = description;

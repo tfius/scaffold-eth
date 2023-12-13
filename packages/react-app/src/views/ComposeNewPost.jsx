@@ -349,4 +349,4 @@ export function ComposeNewPost({
   );
 }
 
-export default ComposeNewThread;
+export default ComposeNewPost;
