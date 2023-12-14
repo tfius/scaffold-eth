@@ -8,6 +8,7 @@ import {
   EditOutlined,
   ArrowLeftOutlined,
   InfoCircleOutlined,
+  SaveOutlined,
   FolderOutlined,
   FolderOpenOutlined,
   FileOutlined,
@@ -32,79 +33,67 @@ const IconText = ({ icon, tooltip, text }) => (
   </Tooltip>
 );
 const ListFiles = ({ pod, files, onFileList, leftMargin, currentDir }) => (
-  <>
+  <div style={{ marginLeft: leftMargin }}>
     {files.length > 0 && (
-      <>
-        <table style={{ width: "100%", marginLeft: leftMargin }}>
-          <thead>
-            <tr style={{ fontSize: "0.6em" }}>
-              <th>Name</th>
-              <th>Size</th>
-              <th>Type</th>
-              <th>Created</th>
-              <th>Modified</th>
+      <table style={{ width: "95%" }}>
+        <thead>
+          <tr style={{ fontSize: "0.6em" }}>
+            <th>Name</th>
+            <th style={{ textAlign: "right" }}>Size</th>
+            {/* <th>Type</th> */}
+            <th style={{ textAlign: "right" }}>Created</th>
+            {/* <th>Modified</th> */}
+          </tr>
+        </thead>
+        <tbody>
+          {files.map((file, index) => (
+            <tr key={file + "_" + index}>
+              <td>
+                <IconText
+                  style={{ cursor: "pointer" }}
+                  icon={FileOutlined}
+                  tooltip="Download file"
+                  onClick={() => onFileList(pod, currentDir + "/" + file.name, file.name, file.contentType)}
+                />{" "}
+                {file.name}
+                {/* {leftMargin} */}
+              </td>
+              <td style={{ textAlign: "right" }}>{layouts.bytesToSize(file.size)}</td>
+              {/* <td>{file.contentType}</td> */}
+              <td style={{ textAlign: "right" }}>{getDateTimeString(file.creationTime)}</td>
+              {/* <td>{getDateTimeString(file.modificationTime)}</td> */}
             </tr>
-          </thead>
-          <tbody>
-            {files.map((file, index) => (
-              <tr
-                key={file + "_" + index}
-                onClick={() => onFileList(pod, currentDir + "/" + file.name, file.name, file.contentType)}
-                style={{ cursor: "pointer" }}
-              >
-                <td>
-                  <IconText icon={FileOutlined} tooltip="Download file" /> {file.name}
-                </td>
-                <td>{layouts.bytesToSize(file.size)}</td>
-                <td>{file.size}</td>
-                <td>{getDateTimeString(file.creationTime)}</td>
-                <td>{getDateTimeString(file.modificationTime)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </>
+          ))}
+        </tbody>
+      </table>
     )}
-
-    {/* {files.map((file, index) => (
-      <span
-        className="fairos podFile"
-        key={file + "_" + index}
-        style={{ marginLeft: leftMargin }}
-        onClick={() => onFileList(pod, currentDir + "/" + file.name, file.name, file.contentType)}
-      >
-        {file.name} <br />
-      </span>
-    ))} */}
-  </>
-);
-
-const ListDirs = ({ pod, dirs, onDirList, onFileList, leftMargin, currentDir }) => (
-  <div>
-    {dirs.map((dir, index) => (
-      <div className="fairos podDir" key={dir + "_" + index} style={{ marginLeft: leftMargin }}>
-        <span onClick={() => onDirList(pod, dir.name)} style={{ cursor: "pointer" }}>
-          <IconText icon={FolderOutlined} tooltip="View dir" /> {dir.name}
-        </span>{" "}
-        <ListFiles
-          pod={pod}
-          files={dir.files}
-          onFileList={onFileList}
-          leftMargin={leftMargin + 20 + "px"}
-          currentDir={currentDir}
-        />
-        <ListDirs
-          pod={pod}
-          dirs={dir.folders}
-          onDirList={onDirList}
-          onFileList={onFileList}
-          leftMargin={leftMargin + leftMargin + 30 + "px"}
-          currentDir={currentDir}
-        />
-      </div>
-    ))}
   </div>
 );
+
+function ListDirs({ pod, dirs, onDirList, onFileList, leftMargin, currentDir }) {
+  const [margin, setMargin] = useState(leftMargin + 10);
+  return (
+    <div className="fairos podDir" style={{ marginLeft: leftMargin }}>
+      {dirs.map((dir, index) => (
+        <div key={dir + "_" + index}>
+          <span onClick={() => onDirList(pod, dir.name)} style={{ cursor: "pointer" }}>
+            <IconText icon={FolderOutlined} tooltip="View dir" /> <strong>{dir.name}</strong>
+            {/* {leftMargin} */}
+          </span>{" "}
+          <ListFiles pod={pod} files={dir.files} onFileList={onFileList} leftMargin={margin} currentDir={currentDir} />
+          <ListDirs
+            pod={pod}
+            dirs={dir.folders}
+            onDirList={onDirList}
+            onFileList={onFileList}
+            leftMargin={margin}
+            currentDir={currentDir}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function FairOSBrowser({
   readContracts,
@@ -126,9 +115,25 @@ export function FairOSBrowser({
   const [currentPod, setCurrentPod] = useState(null);
   const [currentDir, setCurrentDir] = useState(null);
   const [currentFile, setCurrentFile] = useState(null);
-  const [dirs, setDirs] = useState([]);
-  const [files, setFiles] = useState([]);
-  const [folderTree, setFolderTree] = useState([{ name: "/", files: [], folders: [] }]); // tree of folders and files
+  //const [dirs, setDirs] = useState([]);
+  //const [files, setFiles] = useState([]);
+  var [folderTree, setFolderTree] = useState([{ name: "/", files: [], folders: [] }]); // tree of folders and files
+
+  useEffect(() => {
+    console.log("fairOSPods", fairOSPods);
+    /*
+    var tree = [];
+    for (let i = 0; i < fairOSPods?.pods?.length; i++) {
+      tree.push({
+        name: fairOSPods.pods[i],
+        files: [],
+        folders: [{ name: "/", files: [], folders: [], pod: fairOSPods.pods[i] }],
+      });
+    }
+    console.log("tree", tree);
+    setFolderTree(tree);
+    */
+  }, []);
 
   const saveFileAs = (blob, filename) => {
     if (window.navigator.msSaveOrOpenBlob) {
@@ -149,9 +154,7 @@ export function FairOSBrowser({
   };
   const onPodOpen = async pod => {
     setIsLoading(true);
-    setFolderTree([{ name: "/", files: [], folders: [] }]); // tree of folders and files
-    setFiles([]);
-    setDirs([]);
+    folderTree = [{ name: "/", files: [], folders: [] }]; // tree of folders and files
     let resp = await window.podOpen(fairOSLogin.sessionId, pod);
     console.log("onPodOpen", resp);
     let resp2 = await window.podStat(fairOSLogin.sessionId, pod);
@@ -159,11 +162,21 @@ export function FairOSBrowser({
     setIsLoading(false);
     setCurrentPod(pod);
     setCurrentDir("/");
-    if (resp == "pod opened successfully") onDirList(pod, "/");
+    //setFolderTree([{ name: "/", files: [], folders: [] }]); // tree of folders and files
     notification.info({
       message: resp,
       description: "'" + resp2.podName + "' opened from " + resp2.address,
     });
+    if (resp == "pod opened successfully") await onDirList(pod, "/");
+  };
+  // seek only first level to find pod
+  const findPodInTree = (pod, tree) => {
+    for (let i = 0; i < tree.length; i++) {
+      console.log("finding ", pod, " in ", tree[i].name);
+      if (tree[i].name == pod) {
+        return tree[i];
+      }
+    }
   };
   const findFolderInTree = (folder, tree) => {
     for (let i = 0; i < tree.length; i++) {
@@ -190,37 +203,28 @@ export function FairOSBrowser({
     console.log("onDirList response", resp);
     notification.open({
       message: "got dir list",
-      description: "'" + pod + "' " + resp.dirs?.length + " dirs, " + resp.files?.length + " files",
+      description: "'" + pod + "' " + dir + ":" + resp.dirs?.length + " dirs, " + resp.files?.length + " files",
     });
     setCurrentDir(dir);
-    // // go through all dirs you got from response and find corresponding in dirs and add files to them
-    var currentFolderTree = [...folderTree];
+    let currentFolderTree = [...folderTree]; // // go through all dirs you got from response and find corresponding in dirs and add files to them
 
+    //var inPod = findPodInTree(pod, currentFolderTree);
+    //console.log("inPod", inPod);
     var rootFolder = findFolderInTree(dir, currentFolderTree);
     if (rootFolder) rootFolder.files = resp.files;
 
     for (var i = 0; i < resp.dirs.length; i++) {
       var folderName = dir + (dir === "/" ? "" : "/") + resp.dirs[i].name;
       console.log(`find ${folderName}`);
-      var folderExists = findFolderInTree(folderName, currentFolderTree);
+      var folderExists = findFolderInTree(folderName, rootFolder);
       if (!folderExists) {
-        currentFolderTree.push({ name: folderName, folders: [], files: [] });
+        rootFolder.folders.push({ name: folderName, folders: [], files: [], pod: pod });
         console.log("added folder", folderName);
       }
     }
 
     console.log("currentFolderTree", currentFolderTree);
     setFolderTree(currentFolderTree);
-
-    setDirs(resp.dirs);
-    setFiles(resp.files);
-    setIsLoading(false);
-  };
-
-  const onListFolder = async folder => {
-    setIsLoading(true);
-    let resp2 = await window.podList(fairOSLogin.sessionId);
-    console.log("onListFolder", resp2);
     setIsLoading(false);
   };
 
@@ -241,16 +245,15 @@ export function FairOSBrowser({
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px" }}>
-      <h1 style={{ paddingTop: "18px" }}>Browse Your FairOS</h1>
-      <div className="routeSubtitle">
+      <h1 style={{ paddingTop: "18px" }}>Browse Your FairOS {isLoading && <Spin />}</h1>
+      {/* <div className="routeSubtitle">
         {currentPod} {currentDir} {isLoading && <Spin />}
-      </div>
-      {/* <h3>Available Pods</h3> */}
+      </div> */}
       {fairOSPods?.pods?.map((pod, index) => (
         <div key={pod + "__" + index}>
           {pod == currentPod ? (
             <>
-              <span className="podItem" key={pod + "_" + index} onClick={() => onDirList(pod, "/")}>
+              <span className="routeSubtitle" key={pod + "_" + index} onClick={() => onDirList(pod, "/")}>
                 <IconText icon={FolderOpenOutlined} tooltip="List" /> {pod} <br />
               </span>
               <>
@@ -262,41 +265,11 @@ export function FairOSBrowser({
                   leftMargin={10}
                   currentDir={currentDir}
                 />
-                {/* {dirs.map((dir, index) => (
-                  <span className="podItem" key={dir + "_" + index} onClick={() => onDirList(pod, "/" + dir.name)}>
-                    {dir.name} <br />
-                  </span>
-                ))}
-                {files.map((file, index) => (
-                  <table style={{ width: "100%" }} key={"table" + index}>
-                    <thead>
-                      <tr style={{ fontSize: "0.8em" }}>
-                        <th>Name</th>
-                        <th>Size</th>
-                        <th>Type</th>
-                        <th>Created</th>
-                        <th>Modified</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr
-                        onClick={() => onDownloadFile(pod, currentDir + "/" + file.name, file.name, file.contentType)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <td>{file.name}</td>
-                        <td>{layouts.bytesToSize(file.size)}</td>
-                        <td>{file.size}</td>
-                        <td>{getDateTimeString(file.creationTime)}</td>
-                        <td>{getDateTimeString(file.modificationTime)}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                ))} */}
               </>
             </>
           ) : (
             <span className="podItem" key={pod + "_" + index} onClick={() => onPodOpen(pod)}>
-              {pod} <br />
+              <IconText icon={SaveOutlined} tooltip="Pod" /> {pod} <br />
             </span>
           )}
         </div>
