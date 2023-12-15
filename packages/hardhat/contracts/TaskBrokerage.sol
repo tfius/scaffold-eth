@@ -195,7 +195,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         tasks[taskId].takenAt = block.timestamp;
     }
 
-        // can take back funds if task has not been completed in 12h
+    // can take back funds if task has not been completed in 12h
     function disputeTaks(uint256 _taskId) public nonReentrant {
         Task storage task = tasks[_taskId];
         require(task.owner == msg.sender, "Task can only be disputed by owner");

@@ -57,7 +57,7 @@ export const deriveDriveKey = async (seed, dataEncryptionKey) => {
   const driveKey = hkdf(Buffer.from(seed), keyByteLength, { info, hash: keyHash });
   return urlEncodeHashKey(driveKey);
 };
-*/ 
+*/
 /*
 export const encryptData = async (key, data) => {
   const keyData = Buffer.from(key, "base64");
@@ -217,7 +217,7 @@ export function generate_ephemeral_key_pair() {
 export function nacl_encrypt(message, receiverPublicKey) {
   try {
     var ephemeralKeyPair = generate_ephemeral_key_pair();
-    return nacl_encrypt_with_key(message, receiverPublicKey, ephemeralKeyPair) 
+    return nacl_encrypt_with_key(message, receiverPublicKey, ephemeralKeyPair);
   } catch (e) {
     console.error("nacl_encrypt", e);
   }
@@ -226,6 +226,26 @@ export function nacl_encrypt(message, receiverPublicKey) {
 
 export function generateNoise() {
   return nacl.util.encodeBase64(nacl.randomBytes(1024));
+}
+
+// only requires the receiver's public keys (sender does not need to be bonded with smail)
+export function nacl_encrypt_for_receivers(message, receiverPublicKeys /* [address, pubKey] */) {
+  // Encrypt the message
+  let symmetricKey = nacl.randomBytes(nacl.secretbox.keyLength);
+  let nonceForMessage = nacl.randomBytes(nacl.secretbox.nonceLength);
+  let encryptedMessage = nacl.secretbox(nacl.util.decodeUTF8(message), nonceForMessage, symmetricKey);
+
+  // Encrypt the symmetric key for each user
+  let encryptedKeysForUsers = receiverPublicKeys.map(receiverPublicKey => {
+    let ephemeralKeyPair = nacl.box.keyPair(); // Generate ephemeral key pair for each user
+    return {
+      address: receiverPublicKey.address,
+      key: nacl_encrypt_with_key(nacl.util.encodeBase64(symmetricKey), receiverPublicKey.key, ephemeralKeyPair),
+    };
+  });
+
+  return { encryptedMessage, receivers: encryptedKeysForUsers };
+  // Distribute `encryptedMessage` and the corresponding `encryptedKeysForUsers` to each user
 }
 
 export function nacl_encrypt_with_key(message, receiverPublicKey, ephemeralKeyPair) {
@@ -248,6 +268,22 @@ export function nacl_encrypt_with_key(message, receiverPublicKey, ephemeralKeyPa
   return null;
 }
 
+export function nacl_decrypt_with_key(encryptedData, pubKey, privateKey) {
+  try {
+    var ephemPrivateKey = nacl.util.decodeBase64(privateKey);
+    var ephemPubKey = nacl.util.decodeBase64(pubKey);
+    // assemble decryption parameters
+    var nonce = nacl.util.decodeBase64(encryptedData.nonce);
+    var ciphertext = nacl.util.decodeBase64(encryptedData.ciphertext);
+    //var ephemPublicKey = nacl.util.decodeBase64(encryptedData.ephemPublicKey);
+    var decryptedMessage = nacl.box.open(ciphertext, nonce, ephemPubKey, ephemPrivateKey);
+    var output = nacl.util.encodeUTF8(decryptedMessage);
+    return output;
+  } catch (e) {
+    console.error("nacl_decrypt", e);
+  }
+}
+
 export function nacl_decrypt(encryptedData, receiverPrivateKey) {
   try {
     var recieverPrivateKeyUint8Array = nacl_decodeHex(receiverPrivateKey);
@@ -264,21 +300,6 @@ export function nacl_decrypt(encryptedData, receiverPrivateKey) {
   }
 }
 
-export function nacl_decrypt_with_key(encryptedData, pubKey, privateKey) {
-  try {
-    var ephemPrivateKey = nacl.util.decodeBase64(privateKey);
-    var ephemPubKey = nacl.util.decodeBase64(pubKey);
-    // assemble decryption parameters
-    var nonce = nacl.util.decodeBase64(encryptedData.nonce);
-    var ciphertext = nacl.util.decodeBase64(encryptedData.ciphertext);
-    //var ephemPublicKey = nacl.util.decodeBase64(encryptedData.ephemPublicKey);
-    var decryptedMessage = nacl.box.open(ciphertext, nonce, ephemPubKey, ephemPrivateKey);
-    var output = nacl.util.encodeUTF8(decryptedMessage);
-    return output;
-  } catch (e) {
-    console.error("nacl_decrypt", e);
-  }
-}
 export function nacl_decrypt_with_rawkey(encryptedData, pubKey, privateKey) {
   try {
     var ephemPrivateKey = nacl.util.decodeBase64(privateKey);

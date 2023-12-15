@@ -271,11 +271,15 @@ export function DisplayMessages({
             style={{ width: "100%", marginLeft: p.parentPost ? p.level + "px" : "0px" }}
             className="post-card-body"
           >
-            <div className="post-layout" onClick={() => handlePostClick(p)}>
+            <div className="post-layout">
+              {/* <div
+                style={{ width: "100%", height: "100%", zIndex: "0", position: "fixed", background: "#00000033" }}
+                onClick={() => handlePostClick(p)}
+              /> */}
               <Tooltip
                 title={
                   <>
-                    View profile of user &nbsp;
+                    View profile of &nbsp;
                     <AddressSimple address={p.from} ensProvider={ensProvider} />
                   </>
                 }
@@ -287,7 +291,7 @@ export function DisplayMessages({
 
               <div className="post-text">
                 <strong className="post-creator">
-                  <small>{timeAgo(p.sendTime)}</small>
+                  <small onClick={() => handlePostClick(p)}>{timeAgo(p.sendTime)}</small>
                 </strong>
                 <TextInteractive
                   text={p.message}
@@ -321,7 +325,10 @@ export function DisplayMessages({
                   </>
                 }
               >
-                <span onClick={() => setThreadTo(p.from, "Re Post: #" + p.postId)} style={{ cursor: "pointer" }}>
+                <span
+                  onClick={() => setThreadTo(p.from, "Re Post: #" + p.postId)}
+                  style={{ cursor: "pointer", fontSize: "1vmin" }}
+                >
                   {" "}
                   ♺ &nbsp;
                 </span>
