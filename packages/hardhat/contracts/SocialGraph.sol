@@ -305,8 +305,6 @@ contract SocialGraph is Ownable {
         interactWith(_postId, InteractionType.Comment, msg.sender);        
         return newPostId;
     }
-
-
     function unfollow(address who_following) private {
         require(isFollowing[msg.sender][who_following] > 0, "Not following this user");
         engagementScoreBetweenUsers[msg.sender][who_following] = 1; // nullify engagement between users
@@ -475,7 +473,10 @@ contract SocialGraph is Ownable {
     function getUsers(address[] memory array, uint start, uint length) public view returns (User[] memory) {
         uint flength = array.length; 
         require(start < flength, "Start index out");
-        require(start + length <= flength, "Range exceeds count");
+        if(start + length > flength) {
+           length = flength;
+        }
+        //require(start + length <= flength, "Range exceeds count");
 
         User[] memory result = new User[](length);
         for (uint i = 0; i < length; i++) {
@@ -513,7 +514,6 @@ contract SocialGraph is Ownable {
 
         return (targets, scores_to_targets, scores_from_targets);
     }
-
     function getRecentPostsFrom(address[] memory fromUsers, uint count) public view returns (uint[] memory) {
         uint[] memory recentPosts = new uint[](count);
         uint index = 0;
@@ -531,7 +531,6 @@ contract SocialGraph is Ownable {
         }
         return recentPosts;
     }
-
     function getGenericPostIds(bytes32 _any,  mapping(bytes32 => uint[]) storage _map, uint _start, uint _length) internal view returns(uint[] memory){
         require(_start < _map[_any].length, "Start index out");
         if(_start + _length > _map[_any].length) {

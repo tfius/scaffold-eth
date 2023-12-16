@@ -224,6 +224,9 @@ export function ComposeNewThread({
       setProgressStatus("Uploading data...");
       var startTime = Date.now();
       var locations = [];
+      // console.log("recipientKey", recipientKey);
+      // console.log("sharedSecretKey", sharedSecretKey);
+      // debugger;
 
       for (var i = 0; i < attachments.length; i++) {
         var a = attachments[i];

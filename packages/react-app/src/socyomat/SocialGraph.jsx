@@ -646,6 +646,9 @@ export function SocialGraph({
       isCancelled = true;
     };
   }, [todayIndex]); // Empty dependency array means this effect will only run once (like componentDidMount in classes)
+  useEffect(() => {
+    console.log("users changed", users);
+  }, [users]);
 
   function useQuery() {
     return new URLSearchParams(location.search);
@@ -712,8 +715,8 @@ export function SocialGraph({
     const postIdxs = await readContracts.SocialGraph.getPostsFromUser(userStats.userdata.userAddress, start, pageSize);
     return postIdxs;
   };
-  const loadUserStatsAndPosts = async user => {
-    var userStats = await readContracts.SocialGraph.getUserStats(user);
+  const loadUserStatsAndPosts = async address => {
+    var userStats = await readContracts.SocialGraph.getUserStats(address);
     setUserStats(userStats);
     setUsers([...users, userStats.userdata]);
     var pidx = await loadUserPostsFromStats(userStats);
@@ -773,7 +776,7 @@ export function SocialGraph({
     let followersFor = query.get("followers");
     let followingFor = query.get("following");
     let engaged = query.get("engaged");
-    console.log("location", mention, tag, userId, postId, cat, topic);
+    console.log("location", mention, tag, userId, postId, cat, topic, followersFor, followingFor, engaged);
 
     // load posts from mention, tag, cat, token, userId
     const multiPostIdxs = await loadPostsFrom(mention, tag, cat, token, topic, userId);
@@ -799,7 +802,7 @@ export function SocialGraph({
       }
     }
     if (followersFor) {
-      const stats = await loadUserStats(userId);
+      const stats = await loadUserStats(followersFor);
       setUserStats(stats);
       var maxCount = stats.followers_count;
       var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0; // followers
@@ -869,6 +872,21 @@ export function SocialGraph({
       console.log("error", e);
     }
   };
+  const GoFollowers = async userAddress => {
+    console.log("GoFollowers");
+    history.push("/feed?followers=" + userAddress);
+    onLoadPosts();
+  };
+  const GoFollowing = async userAddress => {
+    console.log("GoFollowing");
+    history.push("/feed?following=" + userAddress);
+    onLoadPosts();
+  };
+  const GoEngagements = async userAddress => {
+    console.log("GoEngagements");
+    history.push("/feed?engaged=" + userAddress);
+    onLoadPosts();
+  };
   const onSearchChange = async (text, invoke) => {
     console.log("onSearchChange", text);
     var words = text.split(" ");
@@ -916,13 +934,13 @@ export function SocialGraph({
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
-      <h1 onClick={() => setComposePost(true)}>
+      <h1>
         {messagesStack.length > 0 && (
           <span onClick={() => popMessagesStack()} style={{ cursor: "pointer" }}>
             🡄
           </span>
         )}{" "}
-        Posts {loading && <Spin />}
+        Posts <span onClick={() => setComposePost(true)}>⎄</span> {loading && <Spin />}
         {(readContracts === undefined || readContracts.SocialGraph === undefined) && <h3>Unsupported network</h3>}
       </h1>
 
@@ -969,6 +987,25 @@ export function SocialGraph({
               />
             </>
           ) : null}
+          {users.map((u, i) => {
+            return (
+              <div key={"usr" + i}>
+                <DisplayUser
+                  userdata={u}
+                  userStats={null}
+                  readContracts={readContracts}
+                  writeContracts={writeContracts}
+                  ensProvider={ensProvider}
+                  currentAddress={address}
+                  history={history}
+                  onNotifyClick={onLoadPosts}
+                  tx={tx}
+                  setReplyTo={setReplyTo}
+                  setThreadTo={setThreadTo}
+                />
+              </div>
+            );
+          })}
 
           <DisplayMessages
             messages={messages}
@@ -982,9 +1019,7 @@ export function SocialGraph({
             setReplyTo={setReplyTo}
             setThreadTo={setThreadTo}
           />
-          {users.map((u, i) => {
-            <DisplayUser key={"usr" + i} userData={u} ensProvider={ensProvider} currentAddress={address} />;
-          })}
+
           {/* <Graph
             data={graphData}
             width={600}
@@ -1067,13 +1102,18 @@ export function SocialGraph({
               </span>
             </Menu.Item>
             <Menu.Item key="7" icon={<CloudOutlined />}>
-              <span to="#" onClick={() => GoInteractions()}>
+              <span to="#" onClick={() => GoFollowers(address)}>
                 Followers
               </span>
             </Menu.Item>
             <Menu.Item key="8" icon={<CloudOutlined />}>
-              <span to="#" onClick={() => GoInteractions()}>
+              <span to="#" onClick={() => GoFollowing(address)}>
                 Following
+              </span>
+            </Menu.Item>
+            <Menu.Item key="9" icon={<CloudOutlined />}>
+              <span to="#" onClick={() => GoEngagements(address)}>
+                Engagements with
               </span>
             </Menu.Item>
           </Menu>

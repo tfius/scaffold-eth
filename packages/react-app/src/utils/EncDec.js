@@ -228,24 +228,68 @@ export function generateNoise() {
   return nacl.util.encodeBase64(nacl.randomBytes(1024));
 }
 
-// only requires the receiver's public keys (sender does not need to be bonded with smail)
-export function nacl_encrypt_for_receivers(message, receiverPublicKeys /* [address, pubKey] */) {
-  // Encrypt the message
-  let symmetricKey = nacl.randomBytes(nacl.secretbox.keyLength);
+export function generate_symetric_key() {
+  let symetricKey = nacl.randomBytes(nacl.secretbox.keyLength);
   let nonceForMessage = nacl.randomBytes(nacl.secretbox.nonceLength);
-  let encryptedMessage = nacl.secretbox(nacl.util.decodeUTF8(message), nonceForMessage, symmetricKey);
+  return { symetricKey, nonceForMessage };
+}
 
-  // Encrypt the symmetric key for each user
-  let encryptedKeysForUsers = receiverPublicKeys.map(receiverPublicKey => {
-    let ephemeralKeyPair = nacl.box.keyPair(); // Generate ephemeral key pair for each user
-    return {
-      address: receiverPublicKey.address,
-      key: nacl_encrypt_with_key(nacl.util.encodeBase64(symmetricKey), receiverPublicKey.key, ephemeralKeyPair),
-    };
-  });
+export function convert_smail_pubKey (recipientPubKey) {
+  //console.log("convert_smail_pubKey", recipientPubKey)
+  const rkey = recipientPubKey.substr(2, recipientPubKey.length - 1);
+  var pubKey = Buffer.from(rkey, "hex").toString("base64");
+  console.log("convert_smail_pubKey", recipientPubKey, pubKey);
+  return { pubKey: pubKey };
+}
 
-  return { encryptedMessage, receivers: encryptedKeysForUsers };
+// only requires the receiver's public keys (sender does not need to be bonded with smail)
+export function nacl_encrypt_for_receivers(
+  message,
+  symetricKey /* { symmetricKey, nonceForMessage } */,
+  receiverPublicKeys /* [address, pubKey] */,
+) {
+  // debugger;
+  // Encrypt the message
+  let encryptedMessage = nacl.secretbox(
+    nacl.util.decodeUTF8(message),
+    symetricKey.nonceForMessage, //let symmetricKey = nacl.randomBytes(nacl.secretbox.keyLength);
+    symetricKey.symetricKey, //let nonceForMessage = nacl.randomBytes(nacl.secretbox.nonceLength);
+  );
+  // recipientKey +LnyKbijWPsRLJ9ZB9XwZkyKZkVH9M7PNhdGQy3WaD0=
+  // encryptWithKey = { publicKey, secretKey }
+  // var publicKey = convert_smail_pubKey(receiverPublicKeys[i].pubKey);
+  var encryptedKeysForUsers = {};
+  var keyToEncrypt = nacl.util.encodeBase64(symetricKey.symetricKey);
+  for (var i = 0; i < receiverPublicKeys.length; i++) {
+    var ephemeralKeyPair = nacl.box.keyPair(); // Generate ephemeral key pair for each user
+    var publicKey = receiverPublicKeys[i].pubKey;
+    console.log("symetric, public, ephemeral", keyToEncrypt, publicKey.pubKey, ephemeralKeyPair);
+    var encryptedKey = nacl_encrypt_with_key(keyToEncrypt, publicKey.pubKey, ephemeralKeyPair);
+    //encryptedKeysForUsers.push({ address: receiverPublicKeys[i].address, key: encryptedKey });
+    //encryptedKeysForUsers.push({ [receiverPublicKeys[i].address]: encryptedKey });
+    encryptedKeysForUsers[receiverPublicKeys[i].address] = encryptedKey;
+  }
+
+  return { encryptedMessage: nacl.util.encodeBase64(encryptedMessage), receivers: encryptedKeysForUsers };
   // Distribute `encryptedMessage` and the corresponding `encryptedKeysForUsers` to each user
+}
+// to decrypt the message, the receiver needs to know the sender's public key
+export function nacl_decrypt_for_receiver(encryptedMessage, userEncryptedKeyData, senderPublicKey, receiverPrivateKey) {
+  // Decrypt the symmetric key
+  //let userPrivateKey = "user's private key here"; // Each user's private key
+  //let userEncryptedKeyData = "encrypted symmetric key data for this user"; // Includes nonce, ciphertext, and ephemPublicKey
+
+  let decryptedSymmetricKey = nacl_decrypt_with_key(
+    userEncryptedKeyData,
+    userEncryptedKeyData.ephemPublicKey,
+    receiverPrivateKey,
+  );
+  let decryptedMessage = nacl.secretbox.open(
+    encryptedMessage,
+    nonceForMessage,
+    nacl.util.decodeBase64(decryptedSymmetricKey),
+  );
+  return nacl.util.encodeUTF8(decryptedMessage);
 }
 
 export function nacl_encrypt_with_key(message, receiverPublicKey, ephemeralKeyPair) {

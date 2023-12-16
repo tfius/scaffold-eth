@@ -12,6 +12,7 @@ import * as pako from "pako";
 import * as tf from "@tensorflow/tfjs-core";
 import * as toxicity from "@tensorflow-models/toxicity";
 import * as use from "@tensorflow-models/universal-sentence-encoder";
+import * as EncDec from "./../utils/EncDec.js";
 import "@tensorflow/tfjs-backend-cpu";
 // const tf = require("@tensorflow/tfjs-node");
 import { CollapseProps } from "antd";
@@ -36,6 +37,7 @@ import {
   Form,
   Collapse,
 } from "antd";
+import { json } from "d3";
 const { Panel } = Collapse;
 
 // returns list of @strings in text
@@ -245,7 +247,6 @@ export default function CreatePost({
     const timeOutId = setTimeout(() => doPredictions(text), 1000);
     return () => clearTimeout(timeOutId);
   }, [text]);
-
   const onTextChange = useCallback(async t => {
     setLoading(true);
     setAtStrings(findAtStrings(t));
@@ -273,7 +274,6 @@ export default function CreatePost({
   const removeAttachment = async attachment => {
     setAttachments(attachments.filter(a => a !== attachment));
   };
-
   function onReadFile(file, binaryData) {
     addAttachment(file, binaryData);
     console.log("onReadFile", file, binaryData, addAttachment);
@@ -285,11 +285,11 @@ export default function CreatePost({
     // calculate hashes for tags
     //ethers.utils.toUtf8Bytes(itemName)).toString()
     const tagsHashes = hashStrings.map(t => ethers.utils.keccak256(ethers.utils.toUtf8Bytes(t)).toString());
-    console.log(tagsHashes);
+    console.log("tags", tagsHashes);
     const atHashes = atStrings.map(t => ethers.utils.keccak256(ethers.utils.toUtf8Bytes(t)).toString());
-    console.log(atHashes);
+    console.log("at", atHashes);
     const tokenHashes = tokenStrings.map(t => ethers.utils.keccak256(ethers.utils.toUtf8Bytes(t.symbol)).toString());
-    console.log(tokenHashes);
+    console.log("tokens", tokenHashes);
 
     const ats = [];
     atHashes.map((t, i) => {
@@ -334,12 +334,26 @@ export default function CreatePost({
       }
     }
 
+    var symetricKey = EncDec.generate_symetric_key();
     var locations = [];
     for (var i = 0; i < attachments.length; i++) {
       var a = attachments[i];
+      var binaryData = Array.from(new Uint8Array(a.binaryData));
+      var fileObject = { binaryData: binaryData, file: a.file };
+      var asString = JSON.stringify(fileObject);
+      //var encAttachment = JSON.stringify(EncDec.nacl_encrypt_with_key(asString, recipientKey, ephemeralKey));
+      //var hash = await uploadDataToBee(encAttachment, "application/octet-stream", "sm" + i);
+
       hash = await uploadDataToBee(a.binaryData, a.file.type, a.file.name);
       locations.push({ file: a.file, digest: hash });
     }
+
+    var enc_message = "ThIs Is A tEsT, 1234567890!@#$%^&*()_+{}|:<>?/.,;[]\\-=_+~, When you see this, it worked!";
+    // debugger;
+    // get followers public keys
+    var receiverPublicKeys = await getFollowersPublicKeys(address);
+    var massEncryption = EncDec.nacl_encrypt_for_receivers(enc_message, symetricKey, receiverPublicKeys);
+    //console.log("massEncryption", massEncryption, "keys", receiverPublicKeys, "symetricKey", symetricKey);
 
     var postData = {
       message: text,
@@ -355,7 +369,11 @@ export default function CreatePost({
       embeddings: JSON.stringify(await embeddings?.array()),
       sentences: sentences,
       parentPost: postToCommentOn ? postToCommentOn.postId : null,
+      keys: massEncryption.receivers,
+      encryptedData: massEncryption.encryptedMessage,
     };
+    console.log("postData", postData);
+    debugger;
 
     try {
       //embeddings.print();
@@ -408,6 +426,58 @@ export default function CreatePost({
     setIsOpen(false);
     onCreatePost();
   }
+
+  const getFollowersPublicKeys = async forAddress => {
+    var receiverPublicKeys = [];
+    try {
+      var userStats = null;
+      var maxCount = 0;
+      var start = 0;
+
+      try {
+        userStats = await readContracts.SocialGraph.getUserStats(forAddress);
+        maxCount = userStats.followers_count;
+      } catch (e) {
+        //throw new Error("User not active in feeds");
+        console.log("User not active in feeds");
+      }
+
+      var hasFollowers = [];
+      try {
+        //var start = maxCount - pageSize >= 0 ? maxCount - pageSize : 0; // followers
+        hasFollowers = await readContracts.SocialGraph.getUsersByTypeFrom(forAddress, start, maxCount, 0);
+      } catch (e) {
+        notification.warning({
+          message: "Warning",
+          description: "No followers",
+          placement: "bottomRight",
+          duration: 10,
+        });
+      }
+      var followers = [...hasFollowers, ...[{ userAddress: address }]]; // append yourself
+      //console.log("followers", followers);
+      for (var i = 0; i < followers.length; i++) {
+        // get smail publickey for each follower
+        var smailPublicKeys = await readContracts.SwarmMail.getPublicKeys(followers[i].userAddress);
+        //console.log("user", followers[i].userAddress, smailPublicKeys);
+        if (smailPublicKeys.registered === true) {
+          //console.log("adding user", followers[i].userAddress, smailPublicKeys);
+          var convertedPublicKey = EncDec.convert_smail_pubKey(smailPublicKeys.pubKey);
+          receiverPublicKeys.push({ address: followers[i].userAddress, pubKey: convertedPublicKey });
+        } //else console.log("user", followers[i].userAddress, "not registered");
+      }
+    } catch (e) {
+      console.error(e);
+      notification.error({
+        message: "Error",
+        description: e.message,
+        placement: "bottomRight",
+        duration: 10,
+      });
+    }
+    console.log("receiverPublicKeys", receiverPublicKeys);
+    return receiverPublicKeys;
+  };
 
   //const tx = writeContracts.SocialGraph.createPost(text);
   // input field, post button, attachments button

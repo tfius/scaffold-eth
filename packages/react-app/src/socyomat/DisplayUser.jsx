@@ -34,17 +34,22 @@ export function DisplayUser({
   };
   const follow = async userAddress => {
     console.log("follow", userAddress);
-    var userStats = await readContracts.SocialGraph.getUserStats(userAddress);
-    console.log("userStats", userStats.userdata.priceForFollow.toString());
-    //userStats.userdata.priceForFollow
-
-    // var newTx = await writeContracts.SocialGraph.follow(userAddress);
-    let newTx = await tx(
-      writeContracts.SocialGraph.follow(userAddress, {
-        value: userStats.userdata.priceForFollow, // in wei
-      }),
-    );
-    await newTx.wait();
+    try {
+      var userStats = await readContracts.SocialGraph.getUserStats(userAddress);
+      console.log("userStats", userStats.userdata.priceForFollow.toString());
+      //userStats.userdata.priceForFollow
+      // var newTx = await writeContracts.SocialGraph.follow(userAddress);
+      let newTx = await tx(
+        writeContracts.SocialGraph.follow(userAddress, {
+          value: userStats.userdata.priceForFollow, // in wei
+        }),
+      );
+      await newTx.wait();
+      history.push("/feed?userId=" + user.userAddress); // after follow, go to users feed
+      // TODO change state or user if you are following him
+    } catch (e) {
+      console.log("error", e);
+    }
   };
   const checkFollowing = useCallback(async () => {
     if (userdata === null || userdata === undefined) return;
@@ -76,7 +81,7 @@ export function DisplayUser({
     checkFollowing();
   }, [userdata]);
 
-  //console.log("user", user);
+  //console.log("userdata", userdata);
 
   return (
     <div style={{ width: "70%" }}>
@@ -130,13 +135,15 @@ export function DisplayUser({
                 <small>Following</small>
               )}
             </div>
-            <DisplayUserStats
-              userStats={userStats}
-              ensProvider={ensProvider}
-              currentAddress={currentAddress}
-              history={history}
-              onNotifyClick={onNotifyClick}
-            />
+            {userStats != null && (
+              <DisplayUserStats
+                userStats={userStats}
+                ensProvider={ensProvider}
+                currentAddress={currentAddress}
+                history={history}
+                onNotifyClick={onNotifyClick}
+              />
+            )}
           </div>
         </div>
       </div>
