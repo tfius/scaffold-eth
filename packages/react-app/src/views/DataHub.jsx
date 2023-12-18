@@ -72,7 +72,6 @@ export function DataHub({
   const [viewDetailForSub, setViewDetailForSub] = useState(null);
 
   const history = useHistory();
-  //debugger;
   let { cat, sub } = useParams();
   console.log("params", cat, sub);
 

@@ -238,7 +238,7 @@ export function convert_smail_pubKey (recipientPubKey) {
   //console.log("convert_smail_pubKey", recipientPubKey)
   const rkey = recipientPubKey.substr(2, recipientPubKey.length - 1);
   var pubKey = Buffer.from(rkey, "hex").toString("base64");
-  console.log("convert_smail_pubKey", recipientPubKey, pubKey);
+  //console.log("convert_smail_pubKey", recipientPubKey, pubKey);
   return { pubKey: pubKey };
 }
 
@@ -248,7 +248,6 @@ export function nacl_encrypt_for_receivers(
   symetricKey /* { symmetricKey, nonceForMessage } */,
   receiverPublicKeys /* [address, pubKey] */,
 ) {
-  // debugger;
   // Encrypt the message
   let encryptedMessage = nacl.secretbox(
     nacl.util.decodeUTF8(message),
@@ -257,38 +256,39 @@ export function nacl_encrypt_for_receivers(
   );
   // recipientKey +LnyKbijWPsRLJ9ZB9XwZkyKZkVH9M7PNhdGQy3WaD0=
   // encryptWithKey = { publicKey, secretKey }
-  // var publicKey = convert_smail_pubKey(receiverPublicKeys[i].pubKey);
   var encryptedKeysForUsers = {};
   var keyToEncrypt = nacl.util.encodeBase64(symetricKey.symetricKey);
   for (var i = 0; i < receiverPublicKeys.length; i++) {
     var ephemeralKeyPair = nacl.box.keyPair(); // Generate ephemeral key pair for each user
     var publicKey = receiverPublicKeys[i].pubKey;
-    console.log("symetric, public, ephemeral", keyToEncrypt, publicKey.pubKey, ephemeralKeyPair);
+    //console.log("symetric, public, ephemeral", keyToEncrypt, publicKey.pubKey, ephemeralKeyPair);
     var encryptedKey = nacl_encrypt_with_key(keyToEncrypt, publicKey.pubKey, ephemeralKeyPair);
-    //encryptedKeysForUsers.push({ address: receiverPublicKeys[i].address, key: encryptedKey });
-    //encryptedKeysForUsers.push({ [receiverPublicKeys[i].address]: encryptedKey });
     encryptedKeysForUsers[receiverPublicKeys[i].address] = encryptedKey;
   }
-
-  return { encryptedMessage: nacl.util.encodeBase64(encryptedMessage), receivers: encryptedKeysForUsers };
+  return {
+    encryptedMessage: nacl.util.encodeBase64(encryptedMessage),
+    encryptedNonce: nacl.util.encodeBase64(symetricKey.nonceForMessage),
+    receivers: encryptedKeysForUsers,
+  };
   // Distribute `encryptedMessage` and the corresponding `encryptedKeysForUsers` to each user
 }
 // to decrypt the message, the receiver needs to know the sender's public key
-export function nacl_decrypt_for_receiver(encryptedMessage, userEncryptedKeyData, senderPublicKey, receiverPrivateKey) {
-  // Decrypt the symmetric key
-  //let userPrivateKey = "user's private key here"; // Each user's private key
-  //let userEncryptedKeyData = "encrypted symmetric key data for this user"; // Includes nonce, ciphertext, and ephemPublicKey
+export function nacl_decrypt_for_receiver(encryptedMessage, nonceForMessage, userEncryptedKeyData, receiverPrivateKey) {
+  // Decrypt the symmetric key, which is encrypted with the receiver's public key and ephemeral key pair (in userEncryptedKeyData)
+  let decryptedSymmetricKey = nacl_decrypt(userEncryptedKeyData, receiverPrivateKey);
+  // prepare the data for decryption
+  let decryptedSymmetricKeyUint8Array = nacl.util.decodeBase64(decryptedSymmetricKey);
+  let nonceForMessageUint8Array = nacl.util.decodeBase64(nonceForMessage);
+  var msgParamsUInt8Array = nacl.util.decodeBase64(encryptedMessage);
+  //console.log("decryptedSymmetricKey", decryptedSymmetricKey);
+  //console.log("nonceForMessage", nonceForMessage);
 
-  let decryptedSymmetricKey = nacl_decrypt_with_key(
-    userEncryptedKeyData,
-    userEncryptedKeyData.ephemPublicKey,
-    receiverPrivateKey,
-  );
   let decryptedMessage = nacl.secretbox.open(
-    encryptedMessage,
-    nonceForMessage,
-    nacl.util.decodeBase64(decryptedSymmetricKey),
+    msgParamsUInt8Array, //encryptedMessage,
+    nonceForMessageUint8Array,
+    decryptedSymmetricKeyUint8Array,
   );
+  // fails when decrypted message == null
   return nacl.util.encodeUTF8(decryptedMessage);
 }
 

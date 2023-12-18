@@ -274,7 +274,6 @@ function App(props) {
 
   const contractConfig = { deployedContracts: deployedContracts || {}, externalContracts: externalContracts || {} };
 
-  // debugger;
   // Load in your local 📝 contract and read a value from it:
   // const readContracts = useContractLoader(localProvider, contractConfig);
 

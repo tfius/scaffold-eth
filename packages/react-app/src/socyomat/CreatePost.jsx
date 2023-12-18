@@ -146,11 +146,13 @@ export default function CreatePost({
   isOpen,
   setIsOpen,
   coinList,
+  smailMail,
 }) {
   const cref = React.createRef();
   const xRef = useRef(null);
   //const [isOpen, setIsOpen] = useState(true);
   const [text, setText] = useState("");
+  const [encryptedText, setEncryptedText] = useState("");
   const [attachments, setAttachments] = useState([]);
 
   const [loading, setLoading] = useState(false);
@@ -237,7 +239,6 @@ export default function CreatePost({
     /*
     const hyperplanes = generateHyperplanes(256, 512); // // For a 256-bit hash, you would need 256 hyperplanes
     const tensor = tf.tensor(embeds.arraySync());
-    debugger;
     const hash = getBinaryHash(tensor, hyperplanes);
     console.log("hash", hash);
     */
@@ -247,6 +248,9 @@ export default function CreatePost({
     const timeOutId = setTimeout(() => doPredictions(text), 1000);
     return () => clearTimeout(timeOutId);
   }, [text]);
+  const onEncryptedTextChange = useCallback(async t => {
+    setEncryptedText(t);
+  });
   const onTextChange = useCallback(async t => {
     setLoading(true);
     setAtStrings(findAtStrings(t));
@@ -279,17 +283,17 @@ export default function CreatePost({
     console.log("onReadFile", file, binaryData, addAttachment);
   }
   async function CreatePost() {
-    console.log("CreatePost", text, attachments);
+    console.log("CreatePost", text, attachments, encryptedText);
     setLoading(true);
     //const tags = [...atStrings, ...hashStrings];
     // calculate hashes for tags
     //ethers.utils.toUtf8Bytes(itemName)).toString()
     const tagsHashes = hashStrings.map(t => ethers.utils.keccak256(ethers.utils.toUtf8Bytes(t)).toString());
-    console.log("tags", tagsHashes);
+    //console.log("tags", tagsHashes);
     const atHashes = atStrings.map(t => ethers.utils.keccak256(ethers.utils.toUtf8Bytes(t)).toString());
-    console.log("at", atHashes);
+    //console.log("at", atHashes);
     const tokenHashes = tokenStrings.map(t => ethers.utils.keccak256(ethers.utils.toUtf8Bytes(t.symbol)).toString());
-    console.log("tokens", tokenHashes);
+    //console.log("tokens", tokenHashes);
 
     const ats = [];
     atHashes.map((t, i) => {
@@ -348,12 +352,13 @@ export default function CreatePost({
       locations.push({ file: a.file, digest: hash });
     }
 
-    var enc_message = "ThIs Is A tEsT, 1234567890!@#$%^&*()_+{}|:<>?/.,;[]\\-=_+~, When you see this, it worked!";
-    // debugger;
+    //var enc_message = "ThIs Is A tEsT, 1234567890!@#$%^&*()_+{}|:<>?/.,;[]\\-=_+~, When you see this, it worked!";
+    var enc_message = encryptedText;
     // get followers public keys
     var receiverPublicKeys = await getFollowersPublicKeys(address);
     var massEncryption = EncDec.nacl_encrypt_for_receivers(enc_message, symetricKey, receiverPublicKeys);
-    //console.log("massEncryption", massEncryption, "keys", receiverPublicKeys, "symetricKey", symetricKey);
+    console.log("massEncryption", massEncryption, "keys", receiverPublicKeys, "symetricKey", symetricKey);
+    //debugger;
 
     var postData = {
       message: text,
@@ -371,9 +376,9 @@ export default function CreatePost({
       parentPost: postToCommentOn ? postToCommentOn.postId : null,
       keys: massEncryption.receivers,
       encryptedData: massEncryption.encryptedMessage,
+      encryptedNonce: massEncryption.encryptedNonce,
     };
     console.log("postData", postData);
-    debugger;
 
     try {
       //embeddings.print();
@@ -481,6 +486,7 @@ export default function CreatePost({
 
   //const tx = writeContracts.SocialGraph.createPost(text);
   // input field, post button, attachments button
+  console.log(smailMail);
   return (
     <Modal
       style={{ width: "80%", borderRadious: "20px" }}
@@ -506,7 +512,16 @@ export default function CreatePost({
           autosize={{ minRows: "5", maxRows: "10" }}
           onChange={e => onTextChange(e.target.value)}
         />
-        {}
+        {smailMail.pubKey && (
+          <Input.TextArea
+            maxLength={2048}
+            rows={5}
+            placeholder="Share secrets with bonded followers"
+            autosize={{ minRows: "5", maxRows: "10" }}
+            onChange={e => onEncryptedTextChange(e.target.value)}
+          />
+        )}
+
         <Button type="primary" disabled={!canPost || loading} onClick={() => CreatePost()} style={{ width: "100%" }}>
           {loading ? <Spin /> : "Post"}
         </Button>

@@ -134,7 +134,6 @@ export function Scheduler({
     if (readContracts === undefined || readContracts.Scheduler === undefined) return; // todo get pub key from ENS
     var data = [];
     for (var i = 0; i < eventsFromChain.length; i++) {
-      //debugger;
       // TODO decrypt with smail key data before upload
       var eventData = await downloadDataFromBee(eventsFromChain[i].location);
       var decoded = JSON.parse(new TextDecoder().decode(new Uint8Array(eventData)));

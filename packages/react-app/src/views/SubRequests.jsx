@@ -96,7 +96,6 @@ export function SubRequests({
     // let dataWithKey = { ref: consts.emptyHash, sender: address }; //, podAddress: fdp.podAddress, podIndex: sub.podIndex };
 
     // var encryptedKeyLocationOld = await EncDec.encryptAndUpload(dataWithKey, receiverPubKey.pk);
-    // debugger;
 
     if (sessionId === null) {
       notification.error({ message: "Session not started", description: "You need to start a FairOS session first" });
@@ -110,7 +109,6 @@ export function SubRequests({
       subRequest.fdpBuyerNameHash,
       //"0x" + subscriberNameHash.namehash,
     );
-    // debugger;
     // window.encryptSubscription
 
     try {

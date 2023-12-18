@@ -75,7 +75,6 @@ export function EmailsSent({
     if (start + length > mailCount) length = mailCount - start;
     setStartItem(start + 1);
     setEndItem(start + length);
-    //debugger;
 
     const mails = await readContracts.SwarmMail.getEmailRange(address, 1, start, length);
     //const mails = await readContracts.SwarmMail.getInbox(address);

@@ -411,7 +411,6 @@ export function ComposeNewMessage({
       setProgressStatus("Waiting for user to sign transaction ...");
       var newTx;
       // sendOneWayEmail
-      //debugger;
 
       if (sendOneWayEmail) {
         newTx = await tx(

@@ -363,7 +363,6 @@ export function Threads({
     // get recipient key
     if (mail.to === address) recipientAddress = mail.from;
 
-    //debugger;
     var key = await getDecryptKey(recipientAddress);
 
     var completeMessage = { subject: "Reply", contents: threadReply, sendTime: Date.now(), attachments: [] };

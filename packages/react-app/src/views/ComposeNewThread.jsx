@@ -213,7 +213,7 @@ export function ComposeNewThread({
         setSendingInProgress(false);
         return;
       }
-      debugger; */
+      */
       //var ephemeralKey = EncDec.generate_ephemeral_key_pair();
       var sharedSecretKey = await EncDec.calculateSharedKey(
         smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length),
@@ -226,7 +226,6 @@ export function ComposeNewThread({
       var locations = [];
       // console.log("recipientKey", recipientKey);
       // console.log("sharedSecretKey", sharedSecretKey);
-      // debugger;
 
       for (var i = 0; i < attachments.length; i++) {
         var a = attachments[i];
@@ -262,19 +261,16 @@ export function ComposeNewThread({
       // };
       var smail = JSON.stringify(completeMessage);
       console.log("smail", recipientKey, sharedSecretKey);
-      //debugger;
       // encrypt smail
       smail = JSON.stringify(EncDec.nacl_encrypt_with_key(smail, recipientKey, sharedSecretKey));
       fileSize += JSON.stringify(smail).length;
 
       /*
-      debugger;
       // test decryption
       var ds = JSON.parse(smail);
       var decSmail = EncDec.nacl_decrypt_with_key(ds, recipientKey, secretKey);
       console.log("decSmail", decSmail);
       */
-      //debugger;
       setProgressStatus("Uploading encrypted data ...");
       setProgress(90);
       const mailDigest = await uploadDataToBee(smail, "application/octet-stream", startTime + ".smail"); // ms-mail.json

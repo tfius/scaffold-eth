@@ -301,11 +301,24 @@ export function DisplayMessages({
                   onUrlClick={handleUrlClick}
                   expanded={p.expanded || i === 0}
                 />
+                {p.decRes && (
+                  <>
+                    <hr />
+                    <TextInteractive
+                      text={p.decRes}
+                      onMentionClick={handleMentionClick}
+                      onHashtagClick={handleHashtagClick}
+                      onTokenClick={handleTokenClick}
+                      onUrlClick={handleUrlClick}
+                      expanded={p.expanded || i === 0}
+                    />
+                  </>
+                )}
               </div>
             </div>
-            <div className="post-footer">
+            <div className="post-footer" style={{ fontSize: "1vmin" }}>
               <small
-                style={{ margin: "3px 10px 0px", cursor: "pointer", scale: "100%" }}
+                style={{ margin: "3px 10px 0px", cursor: "pointer", scale: "100%", fontSize: "1vmin" }}
                 onClick={() => setReplyTo(p.from, true)}
               >
                 <IconText
@@ -325,43 +338,37 @@ export function DisplayMessages({
                   </>
                 }
               >
-                <span
-                  onClick={() => setThreadTo(p.from, "Re Post: #" + p.postId)}
-                  style={{ cursor: "pointer", fontSize: "1vmin" }}
-                >
-                  {" "}
-                  ♺ &nbsp;
+                <span onClick={() => setThreadTo(p.from, "Re Post: #" + p.postId)} style={{ cursor: "pointer" }}>
+                  &nbsp;♺&nbsp;
                 </span>
               </Tooltip>
               <Tooltip title="Comment">
                 <span onClick={() => comment(p)} style={{ cursor: "pointer" }}>
-                  {" "}
-                  🗨 <small style={{ opacity: "0.5" }}>{formatNumber(p.comments_count.toString())}</small> &nbsp;
+                  &nbsp;🗨 <small>{formatNumber(p.comments_count.toString())}</small>
                 </span>
               </Tooltip>
               <Tooltip title="Like">
                 <span onClick={() => like(p)} style={{ cursor: "pointer" }}>
-                  {" "}
-                  ♡ <small style={{ opacity: "0.5" }}>{formatNumber(p.likes_count.toString())}</small> &nbsp;
+                  &nbsp;♡ <small>{formatNumber(p.likes_count.toString())}</small>
                 </span>
               </Tooltip>
               <Tooltip title="Share">
                 <span onClick={() => share(p)} style={{ cursor: "pointer" }}>
-                  {" "}
-                  ☄ <small style={{ opacity: "0.5" }}>{formatNumber(p.shares_count.toString())}</small> &nbsp;
+                  &nbsp;☄ <small>{formatNumber(p.shares_count.toString())}</small>
                 </span>
               </Tooltip>
               <Tooltip title="Bookmark">
                 <span onClick={() => bookmark(p)} style={{ cursor: "pointer" }}>
-                  {" "}
-                  🕮 <small style={{ opacity: "0.5" }}>{formatNumber(p.totalEngagement.toString())}</small> &nbsp;
+                  &nbsp;🕮 <small>{formatNumber(p.totalEngagement.toString())}</small>
                 </span>
               </Tooltip>
               <Tooltip title="Engagement">
-                <span> ⚭</span> <small style={{ opacity: "0.5" }}>{formatNumber(p.totalEngagement.toString())}</small>{" "}
-                &nbsp;
+                <span>
+                  &nbsp;⚭ <small>{formatNumber(p.totalEngagement.toString())}</small>
+                </span>
               </Tooltip>
             </div>
+
             <div className="post-footer-tokens">
               {p.tokens.map((t, i) => {
                 return (

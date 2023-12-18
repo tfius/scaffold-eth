@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import * as pako from "pako";
+import * as EncDec from "../utils/EncDec.js";
 
 import {
   AppstoreOutlined,
@@ -118,6 +119,7 @@ export function SocialGraph({
   address,
   tx,
   ensProvider,
+  smailMail,
   setReplyTo,
   setThreadTo,
   setComposePost,
@@ -147,6 +149,7 @@ export function SocialGraph({
   const [coinList, setCoinList] = useState([]);
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [searchResults, setSearchResults] = useState([]);
+  const [downloadStatus, setDownloadStatus] = useState("");
   // let { userId } = useParams();
   // let { postId } = useParams();
   // let { tag } = useParams();
@@ -299,8 +302,11 @@ export function SocialGraph({
     setLoading(true);
     var msgs = [];
     var parents = [];
-    //debugger;
+    var count = 0;
+
     for (var i = 0; i < posts.length; i++) {
+      count++;
+      setDownloadStatus("Downloading messages... " + count + "/" + posts.length);
       try {
         const p = posts[i];
         // check to see if postId is already in messages
@@ -313,7 +319,32 @@ export function SocialGraph({
         //
         //var m = JSON.parse(new TextDecoder().decode(decompressedString));
         var m = JSON.parse(decompressedString);
+        // check for encrypted data
+        //if (m.encryptedData?.lenght)
+        {
+          var decryptionInfo = m.keys[address];
+          if (decryptionInfo != undefined) {
+            console.log("found key for", address, decryptionInfo, "you can decrypt this message");
+            try {
+              var decRes = EncDec.nacl_decrypt_for_receiver(
+                m.encryptedData, // data to be decrypted
+                m.encryptedNonce, // using this nounce
+                decryptionInfo, // contains box ciphertext and ephemeral public key
+                smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length),
+              );
+              console.log("decRes", decRes);
+              m.decRes = decRes;
+            } catch (e) {
+              console.log("error", e);
+            }
+            //var decRes = EncDec.nacl_decrypt(m.encryptedData, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
+          }
+          // decrypt
+          // var decrypted = await decryptMessage(mp);
+          //mp = { ...mp, ...decrypted };
+        }
         var mp = { ...m, ...p, expanded: false, level: 0, comments: [] };
+
         // console.log("message", mp);
         // add only if post.swarmLocation does not exist in messages before
         //if (messages.filter(m => m.swarmLocation === mp.swarmLocation).length === 0)
@@ -330,6 +361,8 @@ export function SocialGraph({
         console.log("error", e);
       }
     }
+
+    setDownloadStatus("Done");
     // append msg to messages
     if (parents.length > 0) {
       //msgs = [...msgs].sort((a, b) => (a.time < b.time ? -1 : 1));
@@ -381,6 +414,7 @@ export function SocialGraph({
       console.log("hiera messages", msgs2);
     }
     setLoading(false);
+    setDownloadStatus("");
     //console.log("messages", msgs2);
   });
   const fetchLatestPostIds = useCallback(async () => {
@@ -601,33 +635,13 @@ export function SocialGraph({
     setRetrivalFunction(() => fetchPostIdsPerDay);
     fetchTodayIndex();
   }, []);
+  // useEffect(() => {
+  //   if (todayIndex == 0) return;
+  //   //console.log("todayIndex changed", todayIndex.toString());
+  //   //fetchPostIdsPerDay();
+  // }, [todayIndex]);
   useEffect(() => {
     if (todayIndex == 0) return;
-    console.log("todayIndex changed", todayIndex.toString());
-    //fetchPostIdsPerDay();
-  }, [todayIndex]);
-  useEffect(() => {
-    if (interactionIds.length == 0) return;
-    console.log("interactionIds changed", interactionIds.length);
-    fetchInteractions();
-  }, [interactionIds]);
-  useEffect(() => {
-    if (postIds.length == 0) return;
-    console.log("postIds changed", postIds.length);
-    fetchPosts();
-  }, [postIds]);
-  useEffect(() => {
-    if (posts.length === 0) return;
-    console.log("posts changed", posts.length);
-    fetchMessages();
-  }, [posts]);
-  const updateDailyPostsCount = useCallback(async day => {
-    var todaysPostsCount = await readContracts.SocialGraph.getDayStats(day);
-    console.log("updateDailyPostsCount", todaysPostsCount.toString(), day);
-    setTotalItems(todaysPostsCount);
-    return todaysPostsCount;
-  });
-  useEffect(() => {
     let isCancelled = false;
     const fetchData = async () => {
       try {
@@ -636,7 +650,7 @@ export function SocialGraph({
         //setUserStats(usrStats);
       } catch (error) {}
       if (!isCancelled) {
-        setTimeout(fetchData, 13000); // Schedule the next call
+        setTimeout(fetchData, 30000); // Schedule the next call 30s
       }
     };
 
@@ -647,7 +661,28 @@ export function SocialGraph({
     };
   }, [todayIndex]); // Empty dependency array means this effect will only run once (like componentDidMount in classes)
   useEffect(() => {
-    console.log("users changed", users);
+    if (interactionIds.length == 0) return;
+    //console.log("interactionIds changed", interactionIds.length);
+    fetchInteractions();
+  }, [interactionIds]);
+  useEffect(() => {
+    if (postIds.length == 0) return;
+    //console.log("postIds changed", postIds.length);
+    fetchPosts();
+  }, [postIds]);
+  useEffect(() => {
+    if (posts.length === 0) return;
+    //console.log("posts changed", posts.length);
+    fetchMessages();
+  }, [posts]);
+  const updateDailyPostsCount = useCallback(async day => {
+    var todaysPostsCount = await readContracts.SocialGraph.getDayStats(day);
+    console.log("updateDailyPostsCount", todaysPostsCount.toString(), day);
+    setTotalItems(todaysPostsCount);
+    return todaysPostsCount;
+  });
+  useEffect(() => {
+    //console.log("users changed", users);
   }, [users]);
 
   function useQuery() {
@@ -790,7 +825,6 @@ export function SocialGraph({
       setUserStats(stats);
     }
     if (postId) {
-      //debugger;
       //await fetchInteractionsForPost(postId);
       // convert postId to bigNumber
       //var bnPostId = BigNumber.from(postId);
@@ -943,6 +977,7 @@ export function SocialGraph({
         Posts <span onClick={() => setComposePost(true)}>⎄</span> {loading && <Spin />}
         {(readContracts === undefined || readContracts.SocialGraph === undefined) && <h3>Unsupported network</h3>}
       </h1>
+      <small style={{ fontSize: "0.5em", position: "fixed", right: "20", top: "45px" }}>{downloadStatus} &nbsp;</small>
 
       <Layout>
         <Content>
@@ -969,6 +1004,7 @@ export function SocialGraph({
             isOpen={isPostModalVisible}
             setIsOpen={setIsPostModalVisible}
             coinList={coinList}
+            smailMail={smailMail}
           />
           {userStats !== null && userStats !== undefined ? (
             <>
@@ -1113,7 +1149,7 @@ export function SocialGraph({
             </Menu.Item>
             <Menu.Item key="9" icon={<CloudOutlined />}>
               <span to="#" onClick={() => GoEngagements(address)}>
-                Engagements with
+                Engagements
               </span>
             </Menu.Item>
           </Menu>

@@ -88,7 +88,7 @@ export function Locker({
         //console.log("lockerItem", lockerItem);
         //console.log("key", smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
 
-        var secretKey = new Uint8Array(Buffer.from(lockerItem.ephemeralKey.secretKey, "base64"));
+        //var secretKey = new Uint8Array(Buffer.from(lockerItem.ephemeralKey.secretKey, "base64"));
         //var secretKey = Buffer.from(sharedItem.ephemeralKey.secretKey, "base64").toString("hex");
         //console.log("secretkey", secretKey);
         // get shared content

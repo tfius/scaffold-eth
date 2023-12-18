@@ -176,7 +176,6 @@ export function Home({
     return smailKeyData;
   };
   const decryptSmailKey = async (forAddress, encryptedSmailKeyData) => {
-    // debugger;
     var decryptedSmailKey = await EncDec.MMdecryptMessage(window.ethereum, forAddress, encryptedSmailKeyData);
     //console.log("decryptedSmailKey", decryptedSmailKey);
     // get soc location from ENS, download and decrypt key, and use it here

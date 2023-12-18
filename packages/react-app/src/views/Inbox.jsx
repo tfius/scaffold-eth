@@ -95,7 +95,6 @@ export function Inbox({
     if (start + length > mailCount) length = mailCount - start;
     setStartItem(start + 1);
     setEndItem(start + length);
-    //debugger;
 
     const mails = await readContracts.SwarmMail.getEmailRange(address, 3, start, length);
     //const mails = await readContracts.SwarmMail.getInbox(address);
@@ -159,7 +158,6 @@ export function Inbox({
   // };
   const processSMails = async sMails => {
     setIsLoading(true);
-    //debugger;
     for (let i = 0; i < sMails.length; i++) {
       var s = sMails[i];
       var mail = { attachments: [] };
