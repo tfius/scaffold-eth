@@ -24,6 +24,7 @@ export function EmailsSent({
   smailMail,
   setReplyTo,
   mainnetProvider,
+  onStoreToFairOS,
 }) {
   const [isRegistered, setIsRegistered] = useState(false);
   // const [key, setKey] = useState(consts.emptyHash);

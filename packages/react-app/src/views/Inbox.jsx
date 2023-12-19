@@ -23,6 +23,7 @@ export function Inbox({
   smailMail,
   setReplyTo,
   mainnetProvider,
+  onStoreToFairOS,
 }) {
   const [isRegistered, setIsRegistered] = useState(false);
   // const [key, setKey] = useState(consts.emptyHash);
@@ -197,24 +198,49 @@ export function Inbox({
     }
     setIsLoading(false);
   };
+  const getDataForFile = async (mail, index, attachment) => {
+    //var blob = null;
+    var uint8array = null;
+    try {
+      const data = await downloadDataFromBee("0x" + attachment.digest); // returns buffer
+      if (mail.isEncryption === true) {
+        try {
+          var uint8View = new Uint8Array(data);
+          var decoded = new TextDecoder().decode(uint8View);
+          var d = JSON.parse(decoded);
+          var decRes = EncDec.nacl_decrypt(d, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
+          var object = JSON.parse(decRes);
+          uint8array = new Uint8Array(object.binaryData);
+          //blob = new Blob([new Uint8Array(object.binaryData)], { type: attachment.file.type });
+        } catch (e) {
+          console.error("decrypt", e);
+        }
+      } else {
+        uint8array = new Uint8Array(data);
+        //blob = new Blob([data], { type: attachment.file.type });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return { path: attachment.file.path, type: attachment.file.type, uint8array: uint8array };
+  };
+
+  const storeToFairOS = async (mail, index, attachment) => {
+    setIsLoading(true);
+    var res = await getDataForFile(mail, index, attachment);
+    if (res.uint8array !== null) {
+      onStoreToFairOS(true, res);
+    } // could fail TODO: display error
+
+    setIsLoading(false);
+  };
+
   const onDownloadFile = async (mail, index, attachment) => {
     setIsLoading(true);
-    //console.log("onDownloadFile", mail, attachment);
-    const data = await downloadDataFromBee("0x" + attachment.digest); // returns buffer
-    if (mail.isEncryption === true) {
-      try {
-        var uint8View = new Uint8Array(data);
-        var decoded = new TextDecoder().decode(uint8View);
-        var d = JSON.parse(decoded);
-        var decRes = EncDec.nacl_decrypt(d, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
-        var object = JSON.parse(decRes);
-        var blob = new Blob([new Uint8Array(object.binaryData)], { type: attachment.file.type });
-        saveFileAs(blob, attachment.file.path);
-      } catch (e) {
-        console.error("decrypt", e);
-      }
-    } else {
-      saveFileAs(new Blob([data], { type: attachment.file.type }), attachment.file.path);
+    var res = await getDataForFile(mail, index, attachment);
+    if (res.uint8array !== null) {
+      var blob = new Blob([res.uint8array], { type: res.type });
+      saveFileAs(blob, res.path);
     }
     setIsLoading(false);
   };
@@ -390,37 +416,39 @@ export function Inbox({
                         {mail.attachments.length > 0 && (
                           <>
                             {mail.attachments.map((a, i) => (
-                              <Tooltip
-                                title={
-                                  <>
-                                    {a.file.path} <br /> <small>{a.file.type}</small>
-                                  </>
-                                }
-                                key={a.digest}
+                              <span
+                                style={{
+                                  cursor: "pointer",
+                                  display: "inline-block",
+                                  border: "1px solid #00000055",
+                                  borderRadius: "5px",
+                                  paddingLeft: "0.2rem",
+                                  width: "150px",
+                                  overflow: "hidden",
+                                  textAlign: "center",
+                                  textOverflow: "ellipsis",
+                                  overflowWrap: "anywhere",
+                                  fontSize: "0.7rem",
+                                  marginRight: "20px",
+                                  marginTop: "3px",
+                                  maxHeight: "1.1rem",
+                                  background: "#88888888",
+                                }}
                               >
-                                <span
-                                  style={{
-                                    cursor: "pointer",
-                                    display: "inline-block",
-                                    border: "1px solid #00000055",
-                                    borderRadius: "5px",
-                                    paddingLeft: "0.2rem",
-                                    width: "150px",
-                                    overflow: "hidden",
-                                    textAlign: "center",
-                                    textOverflow: "ellipsis",
-                                    overflowWrap: "anywhere",
-                                    fontSize: "0.7rem",
-                                    marginRight: "20px",
-                                    marginTop: "3px",
-                                    maxHeight: "1.1rem",
-                                    background: "#88888888",
-                                  }}
-                                  onClick={() => onDownloadFile(mail, i, a)}
+                                <Tooltip title="Store to FairOS">
+                                  <span onClick={() => storeToFairOS(mail, i, a)}>⎄&nbsp;</span>
+                                </Tooltip>
+                                <Tooltip
+                                  title={
+                                    <>
+                                      Download '{a.file.path}' <br /> <small>{a.file.type}</small>
+                                    </>
+                                  }
+                                  key={a.digest}
                                 >
-                                  {a.file.path}
-                                </span>
-                              </Tooltip>
+                                  <span onClick={() => onDownloadFile(mail, i, a)}>{a.file.path}</span>
+                                </Tooltip>
+                              </span>
                             ))}
                           </>
                         )}

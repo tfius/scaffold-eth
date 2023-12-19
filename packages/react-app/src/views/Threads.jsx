@@ -65,6 +65,7 @@ export function Threads({
   address,
   messageCount,
   smailMail,
+  onStoreToFairOS,
 }) {
   const [isRegistered, setIsRegistered] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);

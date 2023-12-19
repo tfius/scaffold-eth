@@ -76,7 +76,7 @@ function ListDirs({ pod, dirs, onDirList, onFileList, leftMargin, currentDir }) 
     <div className="fairos podDir" style={{ marginLeft: leftMargin }}>
       {dirs.map((dir, index) => (
         <div key={dir + "_" + index}>
-          <span onClick={() => onDirList(pod, dir.name)} style={{ cursor: "pointer" }}>
+          <span onClick={() => onDirList(pod, dir.name)} style={{ cursor: "pointer" }} className="podDirItem">
             <IconText icon={FolderOutlined} tooltip="View dir" /> <strong>{dir.name}</strong>
             {/* {leftMargin} */}
           </span>{" "}

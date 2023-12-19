@@ -54,6 +54,7 @@ import { Calendar } from "./views/Calendar";
 import { Scheduler } from "./views/Scheduler";
 import { SocialGraph } from "./socyomat/SocialGraph";
 import { FairOSWasmConnect } from "./views/FairOSWasmConnect";
+import { FairOSStoreFileTo } from "./views/FairOSStoreFileTo";
 import FairOSBrowser from "./views/FairOSBrowser";
 
 const { ethers } = require("ethers");
@@ -168,12 +169,21 @@ function App(props) {
   const [isComposeThreadModalVisible, _setIsComposeThreadModalVisible] = useState(false);
   const [isComposePostModalVisible, _setIsComposePostModalVisible] = useState(false);
 
+  const [isStoreFileToFairOSModalVisible, _setIsStoreFileToFairOSModalVisible] = useState(false);
+  const [fairOSFileObject, setFairOSFileObject] = useState(null);
+
   const [fairOSPods, setFairOSPods] = useState([]);
   const [fairOSSessionId, setFairOSSessionId] = useState(null);
   const [fairOSLogin, setFairOSLogin] = useState(null);
   const [showHelp, setShowHelp] = useState(false);
 
   const location = useLocation();
+
+  const setIsStoreFileToFairOSModalVisible = (visible, fairOSFileObject) => {
+    console.log(visible);
+    setFairOSFileObject(fairOSFileObject); /*{ path, type, uint8array }*/
+    _setIsStoreFileToFairOSModalVisible(visible);
+  };
 
   const setIsComposePostModalVisible = visible => {
     console.log(visible);
@@ -697,6 +707,7 @@ function App(props) {
                   smailMail={smailMail}
                   setReplyTo={setReplyTo}
                   mainnetProvider={mainnetProvider}
+                  onStoreToFairOS={setIsStoreFileToFairOSModalVisible}
                 />
               </Route>
               <Route path="/sent">
@@ -710,6 +721,7 @@ function App(props) {
                   smailMail={smailMail}
                   setReplyTo={setReplyTo}
                   mainnetProvider={mainnetProvider}
+                  onStoreToFairOS={setIsStoreFileToFairOSModalVisible}
                 />
               </Route>
               <Route path="/received">
@@ -723,6 +735,7 @@ function App(props) {
                   smailMail={smailMail}
                   setReplyTo={setReplyTo}
                   mainnetProvider={mainnetProvider}
+                  onStoreToFairOS={setIsStoreFileToFairOSModalVisible}
                 />
               </Route>
               <Route path="/locker">
@@ -735,6 +748,7 @@ function App(props) {
                   messageCount={messageCount}
                   smailMail={smailMail}
                   mainnetProvider={mainnetProvider}
+                  onStoreToFairOS={setIsStoreFileToFairOSModalVisible}
                 />
               </Route>
               <Route path="/threads">
@@ -747,6 +761,7 @@ function App(props) {
                   messageCount={messageCount}
                   smailMail={smailMail}
                   mainnetProvider={mainnetProvider}
+                  onStoreToFairOS={setIsStoreFileToFairOSModalVisible}
                 />
               </Route>
               <Route
@@ -1026,6 +1041,15 @@ function App(props) {
           smailMail={smailMail}
           recipient={replyTo}
           subject={subject}
+        />
+      )}
+      {isStoreFileToFairOSModalVisible && (
+        <FairOSStoreFileTo
+          smailMail={smailMail}
+          fairOSLogin={fairOSLogin}
+          fairOSPods={fairOSPods}
+          modalControl={setIsStoreFileToFairOSModalVisible}
+          fairOSFileObject={fairOSFileObject}
         />
       )}
 
