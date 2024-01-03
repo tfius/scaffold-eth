@@ -1,3 +1,4 @@
+/*
 const ipfsAPI = require("ipfs-http-client");
 const chalk = require("chalk");
 const { clearLine } = require("readline");
@@ -87,3 +88,4 @@ const deploy = async () => {
 };
 
 deploy();
+*/
