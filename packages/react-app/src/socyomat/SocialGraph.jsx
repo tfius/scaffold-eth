@@ -975,7 +975,7 @@ export function SocialGraph({
           </span>
         )}{" "}
         Posts <span onClick={() => setComposePost(true)}>⎄</span> {loading && <Spin />}
-        {(readContracts === undefined || readContracts.SocialGraph === undefined) && <h3>Unsupported network</h3>}
+        {(readContracts === undefined || readContracts.SocialGraph === undefined) && <span>Unsupported network</span>}
       </h1>
       <small style={{ fontSize: "0.5em", position: "fixed", right: "20", top: "45px" }}>{downloadStatus} &nbsp;</small>
 

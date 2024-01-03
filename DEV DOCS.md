@@ -170,3 +170,14 @@ In conclusion, Creator PODs symbolize more than a new tool or platform; they rep
 Thanks for joining us on this journey. Here's to shaping our digital future with courage and vision!
 Marry christmas to everyone. 
 
+### 
+Private key and public key (do not use) for NACL library
+
+               10        20        30        40        50        60 
+     0123456789012345678901234567890123456789012345678901234567890123 
+pk 0x82e0ef96be569e6d60cf3e415d0c4408a2638e3624a11c739033c10db3427ba0  <- uint8 array 32 
+
+uint8 bytes32
+encodeBase64
+pu fxHfy0ackRnjKwt+HUcUdpw2lvh/8lTWjS2WpNGmvmc=
+

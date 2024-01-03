@@ -354,11 +354,25 @@ export default function CreatePost({
 
     //var enc_message = "ThIs Is A tEsT, 1234567890!@#$%^&*()_+{}|:<>?/.,;[]\\-=_+~, When you see this, it worked!";
     var enc_message = encryptedText;
-    // get followers public keys
-    var receiverPublicKeys = await getFollowersPublicKeys(address);
-    var massEncryption = EncDec.nacl_encrypt_for_receivers(enc_message, symetricKey, receiverPublicKeys);
-    console.log("massEncryption", massEncryption, "keys", receiverPublicKeys, "symetricKey", symetricKey);
-    //debugger;
+
+    var massEncryption = { receivers: [], encryptedMessage: [], encryptedNonce: [] };
+
+    try {
+      // get followers public keys
+      var receiverPublicKeys = await getFollowersPublicKeys(address);
+      massEncryption = EncDec.nacl_encrypt_for_receivers(enc_message, symetricKey, receiverPublicKeys);
+      console.log("massEncryption", massEncryption, "keys", receiverPublicKeys, "symetricKey", symetricKey);
+      //debugger;
+
+    } catch (e) {
+      console.error(e);
+      notification.error({
+        message: "Error",
+        description: e.message,
+        placement: "bottomRight",
+        duration: 10,
+      });
+
 
     var postData = {
       message: text,
