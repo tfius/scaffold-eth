@@ -49,13 +49,13 @@ const ListFiles = ({ pod, files, onFileList, leftMargin, currentDir }) => (
           {files.map((file, index) => (
             <tr key={file + "_" + index}>
               <td>
-                <IconText
+                <IconText style={{ cursor: "pointer" }} icon={FileOutlined} tooltip="Click on filename to download" />{" "}
+                <span
                   style={{ cursor: "pointer" }}
-                  icon={FileOutlined}
-                  tooltip="Download file"
                   onClick={() => onFileList(pod, currentDir + "/" + file.name, file.name, file.contentType)}
-                />{" "}
-                {file.name}
+                >
+                  {file.name}
+                </span>
                 {/* {leftMargin} */}
               </td>
               <td style={{ textAlign: "right" }}>{layouts.bytesToSize(file.size)}</td>
@@ -229,8 +229,8 @@ export function FairOSBrowser({
   };
 
   const onDownloadFile = async (pod, filepath, filename, contentType) => {
-    setIsLoading(true);
     console.log("onDownloadFile", pod, filepath);
+    setIsLoading(true);
     let resp = await window.fileDownload(fairOSLogin.sessionId, pod, filepath);
     console.log("onDownloadFile response", resp);
     var blob = new Blob([resp, { type: contentType }]);

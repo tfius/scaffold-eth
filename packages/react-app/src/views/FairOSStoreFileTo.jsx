@@ -136,6 +136,9 @@ export function FairOSStoreFileTo({ fairOSLogin, fairOSPods, modalControl, fairO
     setIsLoading(false);
   };
 
+  const ifFairOSavailable =
+    fairOSPods?.pods?.length === null || fairOSPods?.pods?.length === 0 || fairOSLogin === null ? false : true;
+
   return (
     <Modal
       style={{ width: "80%", resize: "auto", borderRadious: "20px" }}
@@ -143,7 +146,7 @@ export function FairOSStoreFileTo({ fairOSLogin, fairOSPods, modalControl, fairO
         <h3>
           {isLoading === true ? (
             <>
-              Storing '{fairOSFileObject.path}' to '{currentPod}'
+              Storing '{fairOSFileObject?.path}' to '{currentPod}'
               <Spin />
             </>
           ) : (
@@ -159,15 +162,22 @@ export function FairOSStoreFileTo({ fairOSLogin, fairOSPods, modalControl, fairO
         modalControl(false);
       }}
     >
-      {isLoading === false && (
+      {(fairOSPods?.pods?.length === null || fairOSPods?.pods?.length === 0) && (
         <>
-          <h3>Choose POD to store '{fairOSFileObject.path}' to</h3>
+          <h3>You have no pods</h3>
+        </>
+      )}
+      {isLoading === false && ifFairOSavailable === true ? (
+        <>
+          <h3>Choose POD to store '{fairOSFileObject?.path}' to</h3>
           {fairOSPods?.pods?.map((pod, index) => (
             <div className="podItem" key={pod + "__" + index} onClick={() => storeToPod(pod)}>
               {pod}
             </div>
           ))}
         </>
+      ) : (
+        <>You have no pods or your FairOS connection is not active</>
       )}
     </Modal>
   );
