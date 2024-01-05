@@ -1,4 +1,4 @@
-import { gql, useQuery } from "@apollo/client";
+/*import { gql, useQuery } from "@apollo/client";
 import { Button, Input, Table, Typography } from "antd";
 import "antd/dist/antd.css";
 import GraphiQL from "graphiql";
@@ -10,7 +10,7 @@ import { Address } from "../components";
 const highlight = {
   marginLeft: 4,
   marginRight: 8,
-  /* backgroundColor: "#f9f9f9", */ padding: 4,
+  padding: 4,
   borderRadius: 4,
   fontWeight: "bolder",
 };
@@ -163,7 +163,6 @@ function Subgraph(props) {
           <Button
             onClick={() => {
               console.log("newPurpose", newPurpose);
-              /* look how you call setPurpose on your contract: */
               props.tx(props.writeContracts.YourContract.setPurpose(newPurpose));
             }}
           >
@@ -188,3 +187,4 @@ function Subgraph(props) {
 }
 
 export default Subgraph;
+*/

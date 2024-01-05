@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.2.2",
-    "@apollo/client": "^3.3.21",
     "@apollo/react-hooks": "^4.0.0",
     "@ethersphere/bee-js": "^4.1.1",
     "@fairdatasociety/beeson": "^0.1.1",
