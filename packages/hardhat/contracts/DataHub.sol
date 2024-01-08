@@ -73,6 +73,7 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         uint256 price;
         bool    active; // is subscription active
         uint256 earned;  
+        bytes32 category; // category of subscription listing
         uint256  bids;
         uint256  sells;
         uint256  reports; 
@@ -245,7 +246,7 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         bytes32 subHash = keccak256(abi.encode(msg.sender, fdpSellerNameHash, podAddress));// user can list same pod only once
         require(subscriptionIds[subHash] == 0, "SubExists"); // must not exists
 
-        Sub memory s = Sub(subHash, fdpSellerNameHash, msg.sender, dataSwarmLocation, price, true, 0, 0, 0, 0, daysValid);
+        Sub memory s = Sub(subHash, fdpSellerNameHash, msg.sender, dataSwarmLocation, price, true, 0, category, 0, 0, 0, daysValid);
         
         subscriptions.push(s);
         subscriptionIds[subHash] = subscriptions.length; // will point to 1 more than index

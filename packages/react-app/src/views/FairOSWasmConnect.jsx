@@ -589,7 +589,9 @@ const durations = [
   { label: "90 days", value: 90 },
   { label: "180 days", value: 180 },
   { label: "270 days", value: 270 },
-  { label: "364 days", value: 364 },
+  { label: "1 year, 365 days", value: 365 },
+  { label: "2 years, 730 days", value: 730 },
+  { label: "5 years ie. 1826 days", value: 1826 },
 ];
 function ListPodModalForm({ podName, podAddress, sellerNameHash, categories, onListPod }) {
   const [isPodLoading, setIsPodLoading] = useState(false);
