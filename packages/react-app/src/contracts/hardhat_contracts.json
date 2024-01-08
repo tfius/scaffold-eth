@@ -8078,24 +8078,29 @@
                       "type": "uint256"
                     },
                     {
-                      "internalType": "uint32",
+                      "internalType": "bytes32",
+                      "name": "category",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
                       "name": "bids",
-                      "type": "uint32"
+                      "type": "uint256"
                     },
                     {
-                      "internalType": "uint32",
+                      "internalType": "uint256",
                       "name": "sells",
-                      "type": "uint32"
+                      "type": "uint256"
                     },
                     {
-                      "internalType": "uint32",
+                      "internalType": "uint256",
                       "name": "reports",
-                      "type": "uint32"
+                      "type": "uint256"
                     },
                     {
-                      "internalType": "uint16",
+                      "internalType": "uint256",
                       "name": "daysValid",
-                      "type": "uint16"
+                      "type": "uint256"
                     }
                   ],
                   "internalType": "struct DataHub.Sub",
@@ -8154,24 +8159,29 @@
                       "type": "uint256"
                     },
                     {
-                      "internalType": "uint32",
+                      "internalType": "bytes32",
+                      "name": "category",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
                       "name": "bids",
-                      "type": "uint32"
+                      "type": "uint256"
                     },
                     {
-                      "internalType": "uint32",
+                      "internalType": "uint256",
                       "name": "sells",
-                      "type": "uint32"
+                      "type": "uint256"
                     },
                     {
-                      "internalType": "uint32",
+                      "internalType": "uint256",
                       "name": "reports",
-                      "type": "uint32"
+                      "type": "uint256"
                     },
                     {
-                      "internalType": "uint16",
+                      "internalType": "uint256",
                       "name": "daysValid",
-                      "type": "uint16"
+                      "type": "uint256"
                     }
                   ],
                   "internalType": "struct DataHub.Sub",
@@ -8507,24 +8517,29 @@
                       "type": "uint256"
                     },
                     {
-                      "internalType": "uint32",
+                      "internalType": "bytes32",
+                      "name": "category",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
                       "name": "bids",
-                      "type": "uint32"
+                      "type": "uint256"
                     },
                     {
-                      "internalType": "uint32",
+                      "internalType": "uint256",
                       "name": "sells",
-                      "type": "uint32"
+                      "type": "uint256"
                     },
                     {
-                      "internalType": "uint32",
+                      "internalType": "uint256",
                       "name": "reports",
-                      "type": "uint32"
+                      "type": "uint256"
                     },
                     {
-                      "internalType": "uint16",
+                      "internalType": "uint256",
                       "name": "daysValid",
-                      "type": "uint16"
+                      "type": "uint256"
                     }
                   ],
                   "internalType": "struct DataHub.Sub[]",
@@ -8652,9 +8667,9 @@
                   "type": "address"
                 },
                 {
-                  "internalType": "uint16",
+                  "internalType": "uint256",
                   "name": "daysValid",
-                  "type": "uint16"
+                  "type": "uint256"
                 }
               ],
               "name": "listSub",
@@ -8923,24 +8938,29 @@
                   "type": "uint256"
                 },
                 {
-                  "internalType": "uint32",
+                  "internalType": "bytes32",
+                  "name": "category",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint256",
                   "name": "bids",
-                  "type": "uint32"
+                  "type": "uint256"
                 },
                 {
-                  "internalType": "uint32",
+                  "internalType": "uint256",
                   "name": "sells",
-                  "type": "uint32"
+                  "type": "uint256"
                 },
                 {
-                  "internalType": "uint32",
+                  "internalType": "uint256",
                   "name": "reports",
-                  "type": "uint32"
+                  "type": "uint256"
                 },
                 {
-                  "internalType": "uint16",
+                  "internalType": "uint256",
                   "name": "daysValid",
-                  "type": "uint16"
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
