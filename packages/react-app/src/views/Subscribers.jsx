@@ -171,14 +171,14 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
                   <Tooltip
                     title={
                       <div>
-                        Reported: {sub.reports} <br />
+                        Reported: {sub.reports.toString()} <br />
                         PodIndex: {sub.podIndex} <br />
                       </div>
                     }
                   >
                     <div>
-                      Sold: {sub.sells} Bids: {sub.bids} <br />
-                      Reported: {sub.reports}
+                      Sold: {sub.sells} Bids: {sub.bids.toString()} <br />
+                      Reported: {sub.reports.toString()}
                     </div>
                   </Tooltip>
                   <br />

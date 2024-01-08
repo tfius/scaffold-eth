@@ -488,8 +488,8 @@ export function DataHub({
                         title={
                           <>
                             <h3>Stats</h3>
-                            Bids: <strong>{sub.bids}</strong> Sells <strong>{sub.sells}</strong> Report{" "}
-                            <strong>{sub.reports}</strong>
+                            Bids: <strong>{sub.bids.toString()}</strong> Sells <strong>{sub.sells.toString()}</strong>{" "}
+                            Report <strong>{sub.reports.toString()}</strong>
                           </>
                         }
                       >
