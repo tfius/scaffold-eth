@@ -73,10 +73,10 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         uint256 price;
         bool    active; // is subscription active
         uint256 earned;  
-        uint32  bids;
-        uint32  sells;
-        uint32  reports; 
-        uint16  daysValid;
+        uint256  bids;
+        uint256  sells;
+        uint256  reports; 
+        uint256  daysValid;
     }
     Sub[] public  subscriptions;
     mapping(bytes32 => uint256) public subscriptionIds; 
@@ -236,10 +236,11 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         }
     }
     // Market to sell encrypted swarmLocation
-    function listSub(bytes32 fdpSellerNameHash, bytes32 dataSwarmLocation, uint price, bytes32 category, address podAddress, uint16 daysValid) public payable {
+    function listSub(bytes32 fdpSellerNameHash, bytes32 dataSwarmLocation, uint price, bytes32 category, address podAddress, uint256 daysValid) public payable {
         //bytes32 subHash = keccak256(abi.encode(msg.sender, fdpSeller, dataSwarmLocation, price, category, podIndex));
         require(msg.value>=minListingFee, "minFee"); // sent value must be equal to price
-        require(daysValid>=1 && daysValid<=365, "daysValid"); // must not exists
+        //require(daysValid>=1 && daysValid<=365, "daysValid"); // must not exists
+        require(daysValid>=1, "daysValid"); // must not exists
 
         bytes32 subHash = keccak256(abi.encode(msg.sender, fdpSellerNameHash, podAddress));// user can list same pod only once
         require(subscriptionIds[subHash] == 0, "SubExists"); // must not exists

@@ -363,7 +363,6 @@ export default function CreatePost({
       massEncryption = EncDec.nacl_encrypt_for_receivers(enc_message, symetricKey, receiverPublicKeys);
       console.log("massEncryption", massEncryption, "keys", receiverPublicKeys, "symetricKey", symetricKey);
       //debugger;
-
     } catch (e) {
       console.error(e);
       notification.error({
@@ -372,6 +371,7 @@ export default function CreatePost({
         placement: "bottomRight",
         duration: 10,
       });
+    }
 
 
     var postData = {

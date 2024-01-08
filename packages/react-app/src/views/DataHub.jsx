@@ -179,9 +179,46 @@ export function DataHub({
     await bidSubTx(subscription, "0x" + fairOSLogin.nameHash); // TODO this must be FDPbuyer address not METAMASK address
   };
 
+  const createSubscriptionFrom = async (sub, categoryHash) => {
+    console.log("createSubscriptionFrom ", sub);
+    //if (sub.active === false) continue; // ignore non active subs
+    var subData = await downloadDataFromBee(sub.swarmLocation);
+    var subscription = JSON.parse(new TextDecoder().decode(subData));
+    //console.log("subscription", subscription);
+    subscription.seller = sub.seller;
+    subscription.active = sub.active;
+    subscription.fdpSellerNameHash = sub.fdpSellerNameHash;
+    subscription.price = ethers.utils.formatEther(sub.price).toString();
+    subscription.priceInWei = sub.price.toString();
+    subscription.bids = sub.bids.toString();
+    subscription.sells = sub.sells.toString();
+    subscription.reports = sub.reports.toString();
+    subscription.swarmLocation = sub.swarmLocation;
+    subscription.subHash = sub.subHash;
+    subscription.daysValid = sub.daysValid;
+    subscription.category = categories.find(x => x.value == categoryHash)?.label;
+    subscription.categoryHash = categoryHash;
+
+    subscription.dataPodName = subscription.podName;
+    subscription.dataPodAddress = subscription.podAddress;
+
+    console.log("subscription", subscription);
+    return subscription;
+  };
+
   const onCategoryChange = async values => {
     console.log("onCategoryChange", values);
     setSubscriptions(subscriptions => []);
+    if (values.length === 0) {
+      var subs = await readContracts.DataHub.getSubs();
+      for (var i = 0; i < subs.length; i++) {
+        var sub = subs[i];
+        if (sub.active === false) continue; // ignore non active subs
+        var subscription = await createSubscriptionFrom(sub, "0x" + consts.emptyHash);
+        setSubscriptions(subscriptions => [...subscriptions, subscription]);
+      }
+      return;
+    }
     let listedCategories = [];
     for (var i = 0; i < values.length; i++) {
       var cat = await getCategory(values[i]);
@@ -189,7 +226,10 @@ export function DataHub({
         try {
           var sub = await getSub(cat.subIdxs[subId]); // getting by index is different than getting by hash
           console.log("sub", sub);
-          //if (sub.active === false) continue; // ignore non active subs
+          if (sub.active === false) continue; // ignore non active subs
+          var subscription = await createSubscriptionFrom(sub, values[i]);
+
+          /*
           var subData = await downloadDataFromBee(sub.swarmLocation);
           var subscription = JSON.parse(new TextDecoder().decode(subData));
           //console.log("subscription", subscription);
@@ -210,7 +250,7 @@ export function DataHub({
           subscription.dataPodName = subscription.podName;
           subscription.dataPodAddress = subscription.podAddress;
 
-          console.log("subscription", subscription);
+          console.log("subscription", subscription);*/
           setSubscriptions(subscriptions => [...subscriptions, subscription]);
         } catch (e) {
           console.log(e);

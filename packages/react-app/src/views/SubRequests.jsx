@@ -73,7 +73,7 @@ export function SubRequests({
       newReqSub.sub = sub;
       newReqSub.data = subData;
 
-      console.log("sub", newReqSub);
+      console.log("subRequest " + i, newReqSub);
       setReqSubSubscriptions(reqSubSubscriptions => [...reqSubSubscriptions, newReqSub]);
     }
   });
@@ -110,9 +110,13 @@ export function SubRequests({
       //"0x" + subscriberNameHash.namehash,
     );
     // window.encryptSubscription
+    console.log("sell sub to", subRequest.requestHash, "0x" + encryptedKeyLocation.reference);
 
     try {
-      var tx = await writeContracts.DataHub.sellSub(subRequest.requestHash, "0x" + encryptedKeyLocation.reference);
+      var tx = await writeContracts.DataHub.sellSub(subRequest.requestHash, "0x" + encryptedKeyLocation.reference, {
+        value: 0,
+        gasLimit: ethers.utils.hexlify(250000),
+      });
       await tx.wait();
       // remove subRequest from
       setReqSubSubscriptions(reqSubSubscriptions.filter(reqSub => reqSub.requestHash !== subRequest.requestHash));
