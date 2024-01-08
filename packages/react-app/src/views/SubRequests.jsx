@@ -176,7 +176,7 @@ export function SubRequests({
                       <br />
                       <strong>{reqSub.data.podName}</strong>
                       <br />
-                      for {reqSub.sub.daysValid} days
+                      for {reqSub.sub.daysValid.toString()} days
                     </>
                   }
                 >

@@ -196,8 +196,9 @@ export function DataHub({
     subscription.swarmLocation = sub.swarmLocation;
     subscription.subHash = sub.subHash;
     subscription.daysValid = sub.daysValid;
-    subscription.category = categories.find(x => x.value == categoryHash)?.label;
-    subscription.categoryHash = categoryHash;
+    //subscription.cat = sub.category;
+    subscription.category = categories.find(x => x.value == sub.category /*categoryHash*/)?.label;
+    subscription.categoryHash = sub.category; //categoryHash;
 
     subscription.dataPodName = subscription.podName;
     subscription.dataPodAddress = subscription.podAddress;
@@ -353,7 +354,6 @@ export function DataHub({
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <Tooltip title={<>CategoryHash: {subscription.categoryHash}</>}>
               <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-                {" "}
                 <h3>{subscription.category}</h3>
               </div>
             </Tooltip>
