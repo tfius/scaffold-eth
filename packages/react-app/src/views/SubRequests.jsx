@@ -110,18 +110,23 @@ export function SubRequests({
       //"0x" + subscriberNameHash.namehash,
     );
     // window.encryptSubscription
-    console.log("sell sub to", subRequest.requestHash, "0x" + encryptedKeyLocation.reference);
+    console.log("sell suRequest requestHash", subRequest.requestHash, "0x" + encryptedKeyLocation.reference);
 
     try {
-      var tx = await writeContracts.DataHub.sellSub(subRequest.requestHash, "0x" + encryptedKeyLocation.reference, {
+      var tx = await writeContracts.DataHub.sellSub(
+        subRequest.requestHash,
+        "0x" + encryptedKeyLocation.reference /*, {
         value: 0,
-        gasLimit: ethers.utils.hexlify(250000),
-      });
-      await tx.wait();
+        gasLimit: ethers.utils.hexlify(200000),
+      }*/,
+      );
+      var res = await tx.wait();
+      console.log("txres", res);
       // remove subRequest from
       setReqSubSubscriptions(reqSubSubscriptions.filter(reqSub => reqSub.requestHash !== subRequest.requestHash));
     } catch (e) {
       notification.error({ message: "Transaction Failed", description: "Rejected " + e.message });
+      console.log("error", e);
     }
   };
 
