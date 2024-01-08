@@ -43,7 +43,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     from: deployer,
     // args: [dataMarket.address, "DM-C-0"],
     log: true,
-  }) */
+  }) 
   console.log('SocialGraph')
   const SocialGraph = await deploy('SocialGraph', {
     from: deployer,

@@ -328,16 +328,19 @@ contract DataHub is Ownable, ReentrancyGuard, AccessControl  {
         //removeSubRequest(msg.sender, requestHash); // seller removes request from his list
         //removeActiveBid(br.buyer, requestHash); // remove activeBid from buyer
 
-        // calculate fees and transfer to seller
-        uint256 fee = getFee(marketFee, s.price);
-        uint256 sellerPayout = s.price-fee;
-        payable(msg.sender).transfer(sellerPayout);
-        inEscrow -= s.price;
-        feesCollected += fee;
+        uint256 sellerPayout = 0;
+        if(s.price>0)
+        {
+            uint256 fee = getFee(marketFee, s.price); // calculate fees and transfer to seller
+            sellerPayout = s.price-fee;
+            payable(msg.sender).transfer(sellerPayout);
+            inEscrow -= s.price;
+            feesCollected += fee;
+            s.earned += (sellerPayout);
+        }
 
         s.sells++;
-        s.earned += (sellerPayout);
-
+        
         if(subInfos[br.subHash].perSubscriberBalance[br.buyer]==0) // only add subscriber if not already added
            subInfos[br.subHash].subscribers.push(br.buyer);
 
