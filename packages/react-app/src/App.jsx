@@ -347,6 +347,8 @@ function App(props) {
       //      console.log("🌍 DAI contract on mainnet:", mainnetContracts);
       //      console.log("💵 yourMainnetDAIBalance", myMainnetDAIBalance);
       console.log("🔐 writeContracts", writeContracts);
+
+      loadDataHubData(address);
     }
     setFairOSPods([]);
     setFairOSSessionId(null);
@@ -362,6 +364,20 @@ function App(props) {
     writeContracts,
     //mainnetContracts,
   ]);
+
+  const loadDataHubData = useCallback(
+    async forAddress => {
+      if (address === undefined) return;
+      if (readContracts === undefined) return;
+      if (readContracts.DataHub === undefined) return;
+      const activeBids = await readContracts.DataHub.getActiveBids(forAddress);
+      const listedSubs = await readContracts.DataHub.getListedSubs(forAddress); // listed subscribers
+      const subItems = await readContracts.DataHub.getAllSubItems(forAddress); // sub items
+      const subRequests = await readContracts.DataHub.getSubRequests(forAddress); // sub requests
+      console.log("loadDataHubData", forAddress, activeBids, listedSubs, subItems, subRequests);
+    },
+    [address, readContracts],
+  );
 
   useEffect(() => {
     console.log("Address changed to: ", address);
@@ -409,6 +425,7 @@ function App(props) {
     await new Promise(resolve => setTimeout(resolve, 10000));
     setMessageCount(messageCount + 1);
   };
+
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //

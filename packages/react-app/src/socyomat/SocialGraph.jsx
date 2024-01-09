@@ -634,6 +634,7 @@ export function SocialGraph({
     fetchUserStats();
     setRetrivalFunction(() => fetchPostIdsPerDay);
     fetchTodayIndex();
+    fetchLatestPostIds();
   }, []);
   // useEffect(() => {
   //   if (todayIndex == 0) return;

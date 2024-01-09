@@ -73,7 +73,7 @@ export function DataHub({
 
   const history = useHistory();
   let { cat, sub } = useParams();
-  console.log("params", cat, sub);
+  console.log("params cat, sub", cat, sub);
 
   const getFees = useCallback(async () => {
     if (readContracts === undefined || readContracts.DataHub === undefined) return;
