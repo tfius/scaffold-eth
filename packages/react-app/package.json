@@ -108,6 +108,7 @@
     "eject": "react-scripts eject",
     "prestart": "node ./scripts/create_contracts.js",
     "start": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
+    "startx": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
     "test": "react-scripts test",
     "lint": "eslint --config ./.eslintrc.js --ignore-path ./.eslintignore ./src/**/*",
     "ipfs": "node ./scripts/ipfs.js",
