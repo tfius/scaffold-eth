@@ -102,11 +102,12 @@ contract FaveACL {
         return entries[aclEntries[owner][_resourceIdentifier][_userAddress]-1];
     }
     // Function get all entries for ethereum address
-    function getEntries(address _userAddress) public view returns (Entry[] memory) {
-        Entry[] memory _entries = new Entry[](userEntries[_userAddress].length);
+    function getEntries(address _userAddress) public view returns (Entry[] memory _userEntries) {
+        _userEntries = new Entry[](userEntries[_userAddress].length);
         for (uint256 i = 0; i < userEntries[_userAddress].length; i++) {
-            _entries[i] = entries[userEntries[_userAddress][i]-1];
+            _userEntries[i] = entries[userEntries[_userAddress][i]-1];
         }
+        return _userEntries;
     }
 
 

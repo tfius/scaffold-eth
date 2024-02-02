@@ -651,22 +651,25 @@ function App(props) {
             {/* <Menu.Divider /> */}
             <Menu.SubMenu key="submenuContracts" title="Contracts" inlineCollapsed mode="inline">
               <Menu.Item key="/swarmmailcontract">
-                <Link to="/swarmmailcontract">Smail Contract</Link>
+                <Link to="/swarmmailcontract">SMail</Link>
               </Menu.Item>
               <Menu.Item key="/datahubcontract">
-                <Link to="/datahubcontract">DataHub Contract</Link>
+                <Link to="/datahubcontract">DataHub</Link>
               </Menu.Item>
               <Menu.Item key="/calendarcontract">
-                <Link to="/calendarcontract">Calendar Contract</Link>
+                <Link to="/calendarcontract">Calendar</Link>
               </Menu.Item>
               <Menu.Item key="/schedulercontract">
-                <Link to="/schedulercontract">Scheduler Contract</Link>
+                <Link to="/schedulercontract">Scheduler</Link>
               </Menu.Item>
               <Menu.Item key="/taskbrokercontract">
-                <Link to="/taskbrokercontract">TaskBroker Contract</Link>
+                <Link to="/taskbrokercontract">TaskBroker</Link>
               </Menu.Item>
               <Menu.Item key="/socialgraphcontract">
-                <Link to="/socialgraphcontract">SocialGraph Contract</Link>
+                <Link to="/socialgraphcontract">SocialGraph</Link>
+              </Menu.Item>
+              <Menu.Item key="/datarelaycontract">
+                <Link to="/datarelaycontract">DataRelay Service</Link>
               </Menu.Item>
             </Menu.SubMenu>
             {/* </SubMenu> */}
@@ -1003,6 +1006,18 @@ function App(props) {
               <Route exact path="/socialgraphcontract">
                 <Contract
                   name="SocialGraph"
+                  price={price}
+                  signer={userSigner}
+                  provider={localProvider}
+                  address={address}
+                  blockExplorer={blockExplorer}
+                  contractConfig={contractConfig}
+                  messageCount={messageCount}
+                />
+              </Route>
+              <Route exact path="/datarelaycontract">
+                <Contract
+                  name="DataRelayService"
                   price={price}
                   signer={userSigner}
                   provider={localProvider}

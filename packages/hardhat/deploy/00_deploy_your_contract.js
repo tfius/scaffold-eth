@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // deploy/00_deploy_your_contract.js
 
 const { ethers } = require("hardhat");
@@ -25,11 +26,28 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const token = await ethers.getContract("TestToken");
   await token.transfer(
     "0x1894F06a48acD00A2793A0eB00FFE7B6184B630e",
-    ethers.utils.parseEther("1000000")
+    ethers.utils.parseEther("100")
   );
   await token.transfer(deployer, ethers.utils.parseEther("1000000"));
 
-  return;
+  console.log("DataRelayService");
+  const DataRelayService = await deploy("DataRelayService", {
+    from: deployer,
+    log: true,
+    args: [token.address],
+  });
+
+  const dataRelayService = await ethers.getContract("DataRelayService");
+  await dataRelayService.changeBeneficiary(
+    "0x1894F06a48acD00A2793A0eB00FFE7B6184B630e",
+    { from: deployer }
+  );
+  await dataRelayService.changeOwner(
+    "0x1894F06a48acD00A2793A0eB00FFE7B6184B630e",
+    { from: deployer }
+  );
+
+  // return;
 
   console.log("SwarmMail");
   const SwarmMail = await deploy("SwarmMail", {
