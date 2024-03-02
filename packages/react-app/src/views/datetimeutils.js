@@ -83,8 +83,7 @@ export function timeAgo(timestamp) {
     return `${hours} h`;
   } else if (days < 365) {
     return `${days} days`;
-  }
-  else {
+  } else {
     return `${years} years`;
   }
 }

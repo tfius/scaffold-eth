@@ -421,7 +421,7 @@ export function Locker({
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
       <h1>Locker</h1>
-      <div className="routeSubtitle">Encrypted packages and sharing info</div>
+      <div className="routeSubtitle">Encrypted data packages and share access</div>
       <div className="paginationInfo">
         {startItem}-{endItem} of {totalItems} &nbsp;&nbsp;&nbsp;
         <a onClick={() => retrieveNewPage(page - 1)}>{"<"}</a>&nbsp;{page}/{maxPages}&nbsp;

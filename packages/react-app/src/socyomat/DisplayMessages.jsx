@@ -142,17 +142,19 @@ const TextInteractive = ({ text, onMentionClick, onHashtagClick, onUrlClick, onT
               const url = word.match(urlPattern)[0];
               return (
                 <span key={key}>
-                  <a
-                    href={url}
-                    onClick={e => {
-                      e.preventDefault();
-                      onUrlClick(url);
-                    }}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {word}
-                  </a>{" "}
+                  <Tooltip title={url}>
+                    <a
+                      href={url}
+                      onClick={e => {
+                        e.preventDefault();
+                        onUrlClick(url);
+                      }}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {/* {word}  */} [↗]
+                    </a>
+                  </Tooltip>
                 </span>
               );
             } else {
@@ -200,6 +202,8 @@ export function DisplayMessages({
   };
   const handleUrlClick = url => {
     console.log(`URL clicked: ${url}`);
+    // open url in blank window
+    window.open(url, "_blank");
     // Handle URL click (e.g., open URL with browser)
   };
   const handleUserClick = post => {
@@ -301,8 +305,9 @@ export function DisplayMessages({
                   onUrlClick={handleUrlClick}
                   expanded={p.expanded || i === 0}
                 />
+                {/* encrypted part */}
                 {p.decRes && (
-                  <>
+                  <span style={{ background: "#FFFFFFA3" }}>
                     <hr />
                     <TextInteractive
                       text={p.decRes}
@@ -312,25 +317,36 @@ export function DisplayMessages({
                       onUrlClick={handleUrlClick}
                       expanded={p.expanded || i === 0}
                     />
-                  </>
+                  </span>
                 )}
               </div>
             </div>
-            <div className="post-footer" style={{ fontSize: "1vmin" }}>
-              <small
+            <div className="post-footer" style={{ fontSize: "0.7rem" }}>
+              {/* <small
                 style={{ margin: "3px 10px 0px", cursor: "pointer", scale: "100%", fontSize: "1vmin" }}
                 onClick={() => setReplyTo(p.from, true)}
+              > */}
+              {/* <IconText
+                icon={ArrowLeftOutlined}
+                tooltip={
+                  <span onClick={() => setReplyTo(p.from, true)} style={{ cursor: "pointer" }}>
+                    Send message to <AddressSimple address={p.from} ensProvider={ensProvider} />
+                  </span>
+                }
+                key="list-vertical-reply-o"
+              /> */}
+              {/* </small> */}
+              <Tooltip
+                title={
+                  <>
+                    Send message with <AddressSimple address={p.from} ensProvider={ensProvider} />
+                  </>
+                }
               >
-                <IconText
-                  icon={ArrowLeftOutlined}
-                  tooltip={
-                    <>
-                      Send message to <AddressSimple address={p.from} ensProvider={ensProvider} />
-                    </>
-                  }
-                  key="list-vertical-reply-o"
-                />
-              </small>
+                <span onClick={() => setReplyTo(p.from, true, "Re Post: #" + p.postId)} style={{ cursor: "pointer" }}>
+                  &nbsp;⇽&nbsp;
+                </span>
+              </Tooltip>
               <Tooltip
                 title={
                   <>

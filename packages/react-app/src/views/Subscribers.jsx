@@ -116,7 +116,7 @@ export function Subscribers({ readContracts, writeContracts, tx, userSigner, add
         description: e.message,
       });
     }
-  }; 
+  };
 
   useEffect(() => {
     if (readContracts === undefined || address === undefined) return;

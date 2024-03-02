@@ -1,53 +1,53 @@
 .App {
   text-align: left;
-  font-size: 1rem;
+  /* font-size: 1rem; */
 }
 :root {
-   --color1: #77DD76;
-   --color2: #A6eca8;
-   --color3: #d2fdbb;
-   --color4: #fbfde1;
-   --color5: #fdfd97;
+  --color1: #77dd76;
+  --color2: #a6eca8;
+  --color3: #d2fdbb;
+  --color4: #fbfde1;
+  --color5: #fdfd97;
 }
 
 body {
-	/*background: linear-gradient(-45deg, #fdfd9711, #fdfd9711, #fdfd9722, #fdfd9711);*/
-	background-size: 400% 400%;
-	animation: appGradient 105s ease infinite;
-	height: 100vh;
+  /*background: linear-gradient(-45deg, #fdfd9711, #fdfd9711, #fdfd9722, #fdfd9711);*/
+  background-size: 400% 400%;
+  animation: appGradient 105s ease infinite;
+  height: 100vh;
   animation: fadeInFromNone 1s linear;
   -moz-transition: all 1s ease-in-out;
   -o-transition: all 1s ease-in-out;
   -webkit-transition: all 1s ease-in-out;
   -ms-transition: all 1s ease-in-out;
   transition: all 1s ease-in-out;
-  box-shadow: 0px 2px 10px rgb(0 0 0 / 30%);  
+  box-shadow: 0px 2px 10px rgb(0 0 0 / 30%);
 }
 @keyframes appGradient {
-	0% {
-		background-position: 0% 0%;
-	}
-	50% {
-		background-position: 100% 100%;
-	}
-	100% {
-		background-position: 0% 0%;
-	}
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
 }
 
 @keyframes fadeInFromNone {
   0% {
-      opacity: 0;
+    opacity: 0;
   }
 
   100% {
-      opacity: 1;
+    opacity: 1;
   }
 }
 
 .ant-card-head {
   background: linear-gradient(-90deg, #4000ff55, #9500ff05, #4000ff05, #9500ff15);
-	background-size: 500% 500%;
+  background-size: 500% 500%;
   animation-name: fadeInFromNone, appGradient;
   animation-duration: 0.5s, 21s;
   animation-iteration-count: 1, infinite;
@@ -57,13 +57,13 @@ body {
 
 .ant-card-body {
   background: linear-gradient(-45deg, #9500ff05, #4000ff15, #9500ff05, #4000ff05);
-	background-size: 400% 400%;
+  background-size: 400% 400%;
   opacity: 1;
   animation-name: fadeInFromNone, appGradient;
   animation-duration: 1s, 42s;
   animation-iteration-count: 1, infinite;
   animation-delay: 0s, 1s; /* add this */
-  animation-timing-function: ease-in, ease-in-out;  
+  animation-timing-function: ease-in, ease-in-out;
 }
 .ant-btn {
   border-radius: 20px;
@@ -71,10 +71,10 @@ body {
 .user-card-body {
   background: linear-gradient(-45deg, #a025f910, #4000ff10, #9500ff10, #4000ff10);
   background-size: 100% 100%;
-  border-color: rgba(130, 68, 132, 0.473);
+  border-color: rgba(149, 141, 255, 0.5);
   border-style: solid;
   border-width: 1px 1px 1px 1px; /* top, right, bottom, left */
-  border-radius: 15px;
+  border-radius: 0px;
 }
 
 .post-card-body {
@@ -83,21 +83,24 @@ body {
   padding-right: 1px;
   padding-top: 1px;
   padding-bottom: 1px;
-  border-radius: 8px;
+  border-radius: 0px;
   background: linear-gradient(-45deg, #9500ff05, #4000ff15, #9500ff05, #4000ff05);
-  background-size: 200% 200%;
-  border-color: rgba(130, 68, 132, 0.373);
+  background-size: 100% 100%;
+  border-color: rgba(149, 141, 255, 0.2);
   border-style: solid;
-  border-width: 0px 1px 1px 1px; /* top, right, bottom, left */
+  border-width: 0px 0px 1px 0px; /* top, right, bottom, left */
 
   animation-name: fadeInFromNone, appGradient;
   animation-duration: 1s, 42s;
   animation-iteration-count: 1, infinite;
   animation-delay: 0s, 1s; /* add this */
-  animation-timing-function: ease-in, ease-in-out;  
+  animation-timing-function: ease-in, ease-in-out;
   transition: filter 0.5s ease-out;
   filter: grayscale(50%);
 }
+/* .post-card-body :hover {
+  border-width: 1px 1px 1px 1px; /* top, right, bottom, left *
+} */
 .post-input-body {
   padding-top: 10px;
   padding-bottom: 10px;
@@ -109,7 +112,7 @@ body {
   animation-name: fadeInFromNone, appGradient;
 }
 .post-card-body:hover {
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
   filter: grayscale(0);
 }
 
@@ -120,7 +123,7 @@ body {
   margin-right: 5px;
 }
 .post-layout {
-  z-index: 3; 
+  z-index: 3;
   display: flex;
   margin-right: 0px;
   padding: 0px;
@@ -134,20 +137,23 @@ body {
   margin: 13px 5px;
   border-radius: 8px;
   overflow: hidden;
-  
+
   filter: grayscale(50%);
   transition: filter 0.5s ease-out;
 }
 .post-blockie:hover {
-  opacity: 1; 
+  opacity: 1;
   filter: grayscale(0);
 }
 .post-creator {
   display: flex;
-  padding: 10px 0px 8px 0px; 
+  padding: 10px 0px 8px 0px;
 }
 .post-text {
   display: inline-block;
+  text-wrap: wrap;
+  word-wrap: break-word;
+  width: 98%;
   /* background-color: #865dff33; */
 }
 .post-footer {
@@ -174,7 +180,7 @@ body {
 }
 .post-clicker {
   cursor: crosshair;
-  background-color: #77DD7630;
+  background-color: #77dd7630;
   position: absolute;
   top: 0;
   left: 0;
@@ -184,7 +190,7 @@ body {
   /* z-index: 100; */
 }
 .post-clicker:hover {
-  background-color: #77DD7611;
+  background-color: #77dd7611;
 }
 
 iframe {
@@ -207,11 +213,11 @@ iframe {
 
 .podItem {
   cursor: pointer;
-  color:rgb(183, 106, 255);
+  color: rgb(183, 106, 255);
 }
 
 .podItem:hover {
-  color:blueviolet;
+  color: blueviolet;
 }
 
 .podItemLogoImage {
@@ -223,22 +229,19 @@ iframe {
   margin: 0;
   top: 0px;
   left: 0px;
-  color:#4000ff55;
+  color: #4000ff55;
   opacity: 0.2;
   background-color: #4000ff55;
-  background-image: linear-gradient(
-      rgba(189, 58, 255, 0.9),
-      rgba(134, 185, 255, 0.0)
-      )
+  background-image: linear-gradient(rgba(189, 58, 255, 0.9), rgba(134, 185, 255, 0));
 }
 
-@keyframes myAnimation{
-  0%{
+@keyframes myAnimation {
+  0% {
     opacity: 1;
   }
-  100%{
+  100% {
     opacity: 0.9;
-    color:#865eff;
+    color: #865eff;
     /* margin-bottom: 4px; */
     /* display: none; */
     /* transform: rotateX(90deg);  */
@@ -246,17 +249,17 @@ iframe {
 }
 
 .routeSubtitle {
-    animation-name: myAnimation;
-    animation-duration: 12000ms;
-    animation-fill-mode: forwards;
+  animation-name: myAnimation;
+  animation-duration: 12000ms;
+  animation-fill-mode: forwards;
 }
 
-@keyframes headerAnimation{
-  0%{
+@keyframes headerAnimation {
+  0% {
     opacity: 0.7;
-    color:#865dff;
+    color: #865dff;
   }
-  100%{
+  100% {
     opacity: 1;
   }
 }
@@ -282,14 +285,14 @@ h5 {
   animation-duration: 18000ms;
 }
 
-@keyframes paginationAnimation{
-  0%{
+@keyframes paginationAnimation {
+  0% {
     opacity: 0;
     margin-right: 0px;
   }
-  100%{
+  100% {
     opacity: 0.9;
-    color:#865eff;
+    color: #865eff;
     margin-right: 23px;
   }
 }
@@ -299,24 +302,24 @@ h5 {
   margin-right: 10px;
   animation-name: paginationAnimation;
   animation-duration: 2000ms;
-  animation-fill-mode: forwards; 
+  animation-fill-mode: forwards;
 }
 
-@keyframes dividerAnimation{
-  0%{
+@keyframes dividerAnimation {
+  0% {
     opacity: 0.5;
     margin-right: 25px;
-    border-color:#865eff33;
+    border-color: #865eff33;
   }
-  50%{
+  50% {
     opacity: 0.9;
-    border-color:#865effff;
+    border-color: #865effff;
     margin-right: 0px;
   }
-  100%{
+  100% {
     opacity: 0.5;
     margin-right: 25px;
-    border-color:#865eff33;
+    border-color: #865eff33;
   }
 }
 
@@ -328,14 +331,14 @@ hr {
   animation: 5s dividerAnimation ease-in infinite;
 }
 
-@keyframes menuItemAnimation{
-  0%{
+@keyframes menuItemAnimation {
+  0% {
     opacity: 0.7;
   }
-  50%{
+  50% {
     opacity: 0.99;
   }
-  100%{
+  100% {
     opacity: 0.7;
   }
 }
@@ -374,25 +377,24 @@ hr {
   padding-right: 3px;
   border: #865dffdd 0px solid;
   background: #865dff31;
-
 }
 .hourBoxEvent:first-child {
   margin-right: 5px;
-} 
+}
 .hourBoxEventLocation {
   font-size: 0.5rem;
 }
 
 .interaction-graph-container {
-    position: fixed;
-    top: 100;
-    right: 100;
-    width: 100vw;  /* Full viewport width */
-    height: 100vh; /* Full viewport height */
-    z-index: 1000;
-    pointer-events: none; /* Avoid mouse events on the chart */
-    /* background-color: rgba(255, 255, 255, 0.9); */
-     /* Optional: semi-transparent background */
+  position: fixed;
+  top: 100;
+  right: 100;
+  width: 100vw; /* Full viewport width */
+  height: 100vh; /* Full viewport height */
+  z-index: 1000;
+  pointer-events: none; /* Avoid mouse events on the chart */
+  /* background-color: rgba(255, 255, 255, 0.9); */
+  /* Optional: semi-transparent background */
 }
 .interaction-graph-container1 {
   position: absolute;
@@ -401,7 +403,6 @@ hr {
   z-index: 1000; /* High z-index to ensure it's above other elements */
   pointer-events: none; /* Avoid mouse events on the chart */
 }
-
 
 /* should be displayed under input, same width, floating over, each child in new line */
 .search-results {

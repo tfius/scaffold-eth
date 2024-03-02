@@ -11,15 +11,22 @@ interface IERC20 {
 contract DataRelayService {
     address public owner; // service provider
     address public beneficiary; // data owner
-    IERC20 public bzzToken;
+    IERC20 public erc20Token;
 
     uint256 private constant FEE_PRECISION = 1e5;  
     uint256 public marketFee = 10000; // 10%
     uint256 public feesCollected = 0;
 
-    mapping(address => uint256) public payments;
+    //mapping(address => uint256) public payments;
+    mapping(address => mapping(bytes32 => uint256)) public confirmations;
+    mapping(address => bytes32[]) public confirmationsList;
+
+    mapping(address => mapping(bytes32 => uint256)) public payments;
+    mapping(address => bytes32[]) public paymentDigests;
+    //mapping(address => bytes32[]) public payments;
 
     event PaymentReceived(address indexed user, uint256 amount);
+    event PaymentForStorage(address indexed user, uint256 size, uint256 amount);
     event Withdrawn(address indexed to, uint256 amount);
 
     modifier onlyOwner() {
@@ -27,10 +34,10 @@ contract DataRelayService {
         _;
     }
 
-    constructor(address _bzzTokenAddress) {
+    constructor(address _erc20TokenAddress) {
         owner = msg.sender;
         beneficiary = msg.sender;
-        bzzToken = IERC20(_bzzTokenAddress);
+        erc20Token = IERC20(_erc20TokenAddress);
     }
 
     function getFee(uint256 _fee, uint256 amount) public pure returns (uint256) {
@@ -40,23 +47,52 @@ contract DataRelayService {
         marketFee = newFee; 
     }
 
-    function payForService(uint256 amount) public {
-        uint256 feeAmount = amount * marketFee / FEE_PRECISION;
-        require(bzzToken.transferFrom(msg.sender, address(this), amount), "Transfer failed");
-        require(bzzToken.transfer(address(beneficiary), feeAmount), "Fee failed");
+    fallback() external payable {
+        // This function is executed on a call to the contract if none of
+        // the other functions match the given function identifier
+    }
 
+    receive() external payable {
+        // This function is executed on a plain Ether transfer (i.e., for any call with empty calldata)
+    }
+
+    function payForDownloadInEth(bytes32 paymentConfirmationId, uint256 amount) public payable {
+        uint256 feeAmount = amount * marketFee / FEE_PRECISION;
+        require(msg.value >= amount, "Insufficient amount");
+        payable(beneficiary).transfer(amount-feeAmount);
+        payable(owner).transfer(feeAmount);
         feesCollected += feeAmount;
-        payments[msg.sender] += amount;
+        
+        confirmations[msg.sender][paymentConfirmationId] = amount;
+        confirmationsList[msg.sender].push(paymentConfirmationId);
+        
         emit PaymentReceived(msg.sender, amount);
     }
 
-    function verifyPayment(address user, uint256 amount) external view returns (bool) {
-        return payments[user] >= amount;
+    function payForStorage(bytes32 digest, uint256 size, uint256 amount) public payable {
+        uint256 feeAmount = amount * marketFee / FEE_PRECISION;
+        require(msg.value >= amount, "Insufficient amount");
+        payable(beneficiary).transfer(amount-feeAmount);
+        payable(owner).transfer(feeAmount);
+        feesCollected += feeAmount;
+
+        payments[msg.sender][digest] = amount;
+        paymentDigests[msg.sender].push(digest);
+
+        emit PaymentForStorage(msg.sender, size, amount);
     }
 
+    // function verifyPayment(address user, uint256 amount) external view returns (bool) {
+    //     return payments[user] >= amount;
+    //}
+
+    /*function verifyConfirmation(address user, bytes32 confirmationId) external view returns (uint) {
+        return confirmations[user][confirmationId];
+    }*/
+
     function withdraw(uint256 amount) external onlyOwner {
-        require(amount <= bzzToken.balanceOf(address(this)), "Insufficient balance");
-        require(bzzToken.transfer(owner, amount), "Transfer failed");
+        require(amount <= erc20Token.balanceOf(address(this)), "Insufficient balance");
+        require(erc20Token.transfer(owner, amount), "Transfer failed");
         emit Withdrawn(owner, amount);
     }
 
@@ -72,8 +108,13 @@ contract DataRelayService {
 
     // Additional function to handle emergency situation
     function emergencyWithdraw() external onlyOwner {
-        uint256 balance = bzzToken.balanceOf(address(this));
-        require(bzzToken.transfer(owner, balance), "Transfer failed");
+        // transfer all eth to owner
+        if(address(this).balance > 0)
+           payable(owner).transfer(address(this).balance);
+
+        uint256 balance = erc20Token.balanceOf(address(this));
+        // transfer all tokens to owner
+        require(erc20Token.transfer(owner, balance), "Transfer failed");
         emit Withdrawn(owner, balance);
     }
 }

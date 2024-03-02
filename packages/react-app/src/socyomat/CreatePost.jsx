@@ -373,7 +373,6 @@ export default function CreatePost({
       });
     }
 
-
     var postData = {
       message: text,
       attachments: locations, //only digests as pointers to where files are stored
@@ -498,13 +497,14 @@ export default function CreatePost({
     return receiverPublicKeys;
   };
 
+  if (isOpen == false) return null;
   //const tx = writeContracts.SocialGraph.createPost(text);
   // input field, post button, attachments button
-  console.log(smailMail);
+  //console.log(smailMail);
   return (
     <Modal
       style={{ width: "80%", borderRadious: "20px" }}
-      title={null}
+      title={<h3>Create Post</h3>}
       footer={null}
       visible={isOpen}
       maskClosable={false}
@@ -522,7 +522,7 @@ export default function CreatePost({
         <Input.TextArea
           maxLength={2048}
           rows={5}
-          placeholder="What's on your mind?"
+          placeholder="What's on your mind ? (Visible to all)"
           autosize={{ minRows: "5", maxRows: "10" }}
           onChange={e => onTextChange(e.target.value)}
         />
@@ -530,7 +530,7 @@ export default function CreatePost({
           <Input.TextArea
             maxLength={2048}
             rows={5}
-            placeholder="Share secrets with bonded followers"
+            placeholder="Share secrets with followers (only bonded followers will be able to read)"
             autosize={{ minRows: "5", maxRows: "10" }}
             onChange={e => onEncryptedTextChange(e.target.value)}
           />

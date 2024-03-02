@@ -972,10 +972,14 @@ export function SocialGraph({
       <h1>
         {messagesStack.length > 0 && (
           <span onClick={() => popMessagesStack()} style={{ cursor: "pointer" }}>
-            🡄
+            ⬅
           </span>
         )}{" "}
-        Posts <span onClick={() => setComposePost(true)}>⎄</span> {loading && <Spin />}
+        Posts{" "}
+        {/* <span onClick={() => setComposePost(true)} style={{ cursor: "pointer" }}>
+          ⎄
+        </span>{" "} */}
+        {loading && <Spin />}
         {(readContracts === undefined || readContracts.SocialGraph === undefined) && <span>Unsupported network</span>}
       </h1>
       <small style={{ fontSize: "0.5em", position: "fixed", right: "20", top: "45px" }}>{downloadStatus} &nbsp;</small>

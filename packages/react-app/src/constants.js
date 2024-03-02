@@ -64,7 +64,7 @@ export const NETWORKS = {
     faucet: "https://faucet.sepolia.dev/",
     blockExplorer: "https://sepolia.etherscan.io/",
     rpcUrl: `https://sepolia.dev.fairdatasociety.org`,
-    //rpcUrl: `https://sepolia.infura.io/v3/${INFURA_ID}`,    
+    //rpcUrl: `https://sepolia.infura.io/v3/${INFURA_ID}`,
   },
   xdai: {
     name: "xdai",

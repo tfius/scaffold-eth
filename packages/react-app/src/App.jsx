@@ -201,9 +201,10 @@ function App(props) {
     console.log("setThreadTo", threadToAddress, subject);
   };
 
-  const setReplyTo = (replyToAddress, isOneWay) => {
+  const setReplyTo = (replyToAddress, isOneWay, subject) => {
     setIsOneWay(isOneWay);
     _setReplyTo(replyToAddress);
+    if (subject !== undefined) _setSubject(subject);
     setIsComposeModalVisible(true);
   };
   const setIsComposeModalVisible = visible => {
@@ -473,7 +474,7 @@ function App(props) {
               </Tooltip>
             </Menu.Item>
 
-            <Menu.SubMenu key="submenuSmail" title="Datafunds" inlineCollapsed mode="inline">
+            <Menu.SubMenu key="comspace" title="Comspace" inlineCollapsed mode="inline">
               <Menu.Item key="/">
                 <Tooltip
                   title={
@@ -492,17 +493,12 @@ function App(props) {
 
               <Menu.Item key="/inbox">
                 <Tooltip title="View one way messages" placement="right">
-                  <Link to="/inbox">Inbox</Link>
-                </Tooltip>
-              </Menu.Item>
-              <Menu.Item key="/locker" disabled={!isBonded}>
-                <Tooltip title="Encrypt and store your data" placement="right">
-                  <Link to="/locker">Locker</Link>
+                  <Link to="/inbox">Incoming</Link>
                 </Tooltip>
               </Menu.Item>
               <Menu.Item key="/received" disabled={!isBonded}>
                 <Tooltip title="View received messages" placement="right">
-                  <Link to="/received">Received</Link>
+                  <Link to="/received">Inbox</Link>
                 </Tooltip>
               </Menu.Item>
               <Menu.Item key="/sent" disabled={!isBonded}>
@@ -513,6 +509,14 @@ function App(props) {
               <Menu.Item key="/threads" disabled={!isBonded}>
                 <Tooltip title="View threads" placement="right">
                   <Link to="/threads">Threads</Link>
+                </Tooltip>
+              </Menu.Item>
+            </Menu.SubMenu>
+
+            <Menu.SubMenu key="workspace" title="Productivity" inlineCollapsed mode="inline" disabled={!isBonded}>
+              <Menu.Item key="/locker" disabled={!isBonded}>
+                <Tooltip title="Encrypt and store your data" placement="right">
+                  <Link to="/locker">Locker</Link>
                 </Tooltip>
               </Menu.Item>
               <Menu.Item key="/calendar" disabled={!isBonded}>
@@ -534,7 +538,6 @@ function App(props) {
                 </Tooltip>
               </Menu.Item>
             </Menu.SubMenu>
-
             {/* <>
               <Menu.Item key="/smailmailkey" disabled>
                 <Tooltip title="Registration status">

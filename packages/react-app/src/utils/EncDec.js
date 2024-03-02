@@ -234,7 +234,7 @@ export function generate_symetric_key() {
   return { symetricKey, nonceForMessage };
 }
 
-export function convert_smail_pubKey (recipientPubKey) {
+export function convert_smail_pubKey(recipientPubKey) {
   //console.log("convert_smail_pubKey", recipientPubKey)
   const rkey = recipientPubKey.substr(2, recipientPubKey.length - 1);
   var pubKey = Buffer.from(rkey, "hex").toString("base64");
