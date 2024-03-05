@@ -27,6 +27,7 @@ export function Notarization({
 }) {
   const [isRegistered, setIsRegistered] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isLookupModalVisible, setIsLookupModalVisible] = useState(false);
   // const [key, setKey] = useState(consts.emptyHash);
   // const [publicKey, setPublicKey] = useState({ x: consts.emptyHash, y: consts.emptyHash });
   const [mails, setMails] = useState([]);
@@ -391,6 +392,15 @@ export function Notarization({
     });
   };
 
+  function displayProof(mail, proofIdx) {
+    console.log("displayProof", mail, proofIdx);
+    if (mail.proofs[proofIdx] === displayProofChunks) {
+      setDisplayProofChunks(null);
+      return;
+    }
+    setDisplayProofChunks(mail.proofs[proofIdx]);
+  }
+
   if (address === undefined) {
     return (
       <div style={{ top: "50%", left: "50%", position: "absolute" }}>
@@ -456,10 +466,10 @@ export function Notarization({
             &nbsp;
           </Tooltip>
           <Tooltip title="Add notarization package">
-            <Button onClick={() => setIsModalVisible(true)}>Notarization</Button>&nbsp;
+            <Button onClick={() => setIsModalVisible(true)}>Notarize package</Button>&nbsp;
           </Tooltip>
           <Tooltip title="Find package with inclusion">
-            <Button onClick={() => setIsModalVisible(true)}>Lookup</Button>&nbsp;
+            <Button onClick={() => setIsLookupModalVisible(true)}>Lookup</Button>&nbsp;
           </Tooltip>
           <Tooltip title="View shared items">
             <Switch checked={viewSharedItems} onChange={toggleViewShared} />
@@ -578,7 +588,13 @@ export function Notarization({
                             overflowWrap: "anywhere",
                           }}
                         >
-                          <strong style={{ cursor: "pointer" }} onClick={() => setViewMail(mail)}>
+                          <strong
+                            style={{ cursor: "pointer" }}
+                            onClick={() => {
+                              setViewMail(mail);
+                              setDisplayProofChunks(null);
+                            }}
+                          >
                             {mail.subject}
                           </strong>
 
@@ -759,32 +775,27 @@ export function Notarization({
               </>
             )}
           </div>
-          <dic>
-            <h5>Inclusion proofs</h5>
+          <div>
+            <h5>References</h5>
             {viewMail.inclusionProofs.length > 0 && (
               <>
                 {viewMail.inclusionProofs.map((inclusionProof, i) => (
                   <div key={i}>
-                    <small onClick={() => setDisplayProofChunks(viewMail.proofChunksHex(i))}>
+                    <small onClick={() => displayProof(viewMail, i)}>
                       {inclusionProof}
                       <br />
-                      {/* <a href={ip.url} target="_blank">
-                        {ip.url}
-                      </a> */}
                     </small>
                   </div>
                 ))}
               </>
             )}
             {displayProofChunks && (
-              <>
-                <br />
-                <small>
-                  <pre>{JSON.stringify(displayProofChunks)}</pre>
-                </small>
-              </>
+              <div>
+                <h5>Inclusion proofs</h5>
+                <small>{JSON.stringify(displayProofChunks)}</small>
+              </div>
             )}
-          </dic>
+          </div>
 
           <div>
             {viewShares.length > 0 && (
@@ -826,6 +837,21 @@ export function Notarization({
           smailMail={smailMail}
           recipient={address}
         />
+      )}
+
+      {isLookupModalVisible && (
+        <Modal
+          visible={isLookupModalVisible}
+          style={{ width: "80%", resize: "auto", borderRadious: "20px" }}
+          title={<h3>Lookup</h3>}
+          maskClosable={true}
+          onOk={() => {}}
+          onCancel={() => {
+            setIsLookupModalVisible(false);
+          }}
+        >
+          <p>Lookup</p>
+        </Modal>
       )}
     </div>
   );
