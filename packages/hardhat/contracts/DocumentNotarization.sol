@@ -4,7 +4,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 interface ISwarmMail {
-    function storeLocker(bytes32 swarmLocation) external payable;
+    //function storeLocker(bytes32 swarmLocation) external payable;
+    function storeLockerFor(address forLocker, bytes32 swarmLocation) external payable;
     function shareLockerWith(bytes32 lockerLocation, bytes32 keyLocation, address withAddress) external payable;
     function unshareLockerWith(bytes32 lockerLocation, bytes32 keyLocation, address withAddress) external;
     function removeEmails(uint32 types, bytes32[] memory locations) external;
@@ -56,7 +57,7 @@ contract DocumentNotarization is AccessControl {
         uint256 index = documentList.length; // we start at 1, not 0 - 1;
         documentIndex[_docHash] = index;
 
-        swarmMail.storeLocker(_docHash);
+        swarmMail.storeLockerFor(msg.sender, _docHash);
         for(uint i = 0; i < _proofs.length; i++) {
             proofsForDocument[_proofs[i]] = index;
         }

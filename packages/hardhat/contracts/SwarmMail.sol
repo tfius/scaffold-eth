@@ -18,8 +18,8 @@ uint88		27		309,485,009,821,345,068,724,781,055
 uint96		29		79,228,162,514,264,337,593,543,950,335
 */
 
-
-contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
+/*, ReentrancyGuard*/
+contract SwarmMail is Ownable, AccessControl  {
     struct Share {
         address withAddress;
         bytes32 keyLocation;
@@ -104,6 +104,8 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
     mapping(address => User) private users;
     // mapping of blacklisted addresses (for spam)
     mapping(address => mapping(address => bool)) private blackList;
+
+    address public _notarizationContract;
     //mapping(address => address)
     // mapping(address => address) userToPortable;
 
@@ -111,8 +113,14 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
     function blackListAddress(address addr) public {
         blackList[msg.sender][addr] = true;
     }
+
+    function setNotarizationContract(address addr) public {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "!");
+        _notarizationContract = addr;
+    }
  
     constructor() {
+       _setupRole(DEFAULT_ADMIN_ROLE, msg.sender); 
     }
 
     receive() external payable {}
@@ -332,6 +340,21 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
     function getLocker(address locker, bytes32 lockerLocation) public view returns (Email memory) {
         return users[locker].lockerEmails[users[locker].lockerEmailIds[lockerLocation]-1];
     }
+    function storeLockerFor(address forLocker, bytes32 swarmLocation) public payable {
+        require(msg.sender==_notarizationContract, "!notary");
+        User storage sender = users[forLocker];
+        require(sender.lockerEmailIds[swarmLocation] == 0, "!exist");
+        Email memory email;
+        email.isEncryption = true;
+        email.time = block.timestamp;
+        email.from = msg.sender;
+        email.to = forLocker;
+        email.swarmLocation = swarmLocation;
+
+        sender.lockerEmails.push(email);
+        sender.lockerEmailIds[swarmLocation] = sender.lockerEmails.length;
+    }
+
     function storeLocker(bytes32 swarmLocation) public payable {
         User storage sender = users[msg.sender];
         require(sender.lockerEmailIds[swarmLocation] == 0, "!exist");

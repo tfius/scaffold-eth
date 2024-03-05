@@ -2387,7 +2387,7 @@
           ]
         },
         "DocumentNotarization": {
-          "address": "0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB",
+          "address": "0x99bbA657f2BbC93c02D617f8bA121cB8Fc104Acf",
           "abi": [
             {
               "inputs": [
@@ -6066,7 +6066,7 @@
           ]
         },
         "SwarmMail": {
-          "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+          "address": "0x4826533B4897376654Bb4d4AD88B7faFD0C98528",
           "abi": [
             {
               "inputs": [],
@@ -6175,6 +6175,19 @@
                   "internalType": "bytes32",
                   "name": "",
                   "type": "bytes32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "_notarizationContract",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -6938,6 +6951,19 @@
             {
               "inputs": [
                 {
+                  "internalType": "address",
+                  "name": "addr",
+                  "type": "address"
+                }
+              ],
+              "name": "setNotarizationContract",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
                   "internalType": "bytes32",
                   "name": "lockerLocation",
                   "type": "bytes32"
@@ -6990,6 +7016,24 @@
                 }
               ],
               "name": "storeLocker",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "forLocker",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "swarmLocation",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "storeLockerFor",
               "outputs": [],
               "stateMutability": "payable",
               "type": "function"

@@ -63,6 +63,9 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     args: [SwarmMail.address],
   });
 
+  const swarmMail = await ethers.getContract("SwarmMail");
+  await swarmMail.setNotarizationContract(DocumentNotarization.address);
+
   const notarizationService = await ethers.getContract("DocumentNotarization");
   await notarizationService.grantNotarizerRole(
     "0xdaa070D909E010211606144eDe5B2ca6864C2c1c",
