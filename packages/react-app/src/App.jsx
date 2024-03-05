@@ -520,6 +520,12 @@ function App(props) {
                   <Link to="/locker">Locker</Link>
                 </Tooltip>
               </Menu.Item>
+              <Menu.Item key="/notarization" disabled={!isBonded}>
+                <Tooltip title="Document Notarization" placement="right">
+                  <Link to="/notarization">Notarization</Link>
+                </Tooltip>
+              </Menu.Item>
+
               <Menu.Item key="/calendar" disabled={!isBonded}>
                 <Tooltip title="View calendar" placement="right">
                   <Link to="/calendar">Calendar</Link>
@@ -536,12 +542,6 @@ function App(props) {
               <Menu.Item key="/tasks" disabled={!isBonded}>
                 <Tooltip title="Issue tasks to service providers." placement="right">
                   <Link to="/tasks">AI Tasks</Link>
-                </Tooltip>
-              </Menu.Item>
-
-              <Menu.Item key="/notarization" disabled={!isBonded}>
-                <Tooltip title="Document Notarization" placement="right">
-                  <Link to="/notarization">Notarization</Link>
                 </Tooltip>
               </Menu.Item>
             </Menu.SubMenu>

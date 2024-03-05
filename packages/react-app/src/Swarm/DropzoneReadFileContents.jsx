@@ -5,7 +5,7 @@ import { useDropzone } from "react-dropzone";
 
 export function DropzoneReadFileContents({ refObj, onAdd }) {
   const onDrop = useCallback(async acceptedFiles => {
-    console.log(refObj, onAdd, acceptedFiles);
+    //console.log(refObj, onAdd, acceptedFiles);
     //acceptedFiles.forEach(file => {
     for (const file of acceptedFiles) {
       //const hash = await uploadFileToBee(file);

@@ -22,7 +22,37 @@ export const DEFAULT_MAX_PAYLOAD_SIZE = 4096;
 const { Meta } = Card;
 const { Text } = Typography;
 
-const isENS = (address = "") => address.endsWith(".eth") || address.endsWith(".xyz");
+function convertToHex(byteArray) {
+  return Array.from(byteArray, byte => ("0" + (byte & 0xff).toString(16)).slice(-2)).join("");
+}
+
+function processSegment(segment) {
+  // If the segment is an array-like object, convert it
+  if (segment !== null && typeof segment === "object" && !Array.isArray(segment) && "0" in segment) {
+    return convertToHex(Object.values(segment));
+  }
+  // If it's a deeper object (e.g., has nested sisterSegments), recursively process it
+  if (segment.sisterSegments) {
+    return {
+      ...segment,
+      sisterSegments: segment.sisterSegments.map(processSegment),
+      span: convertToHex(Object.values(segment.span)),
+    };
+  }
+  if (segment.span) {
+    return {
+      ...segment,
+      span: convertToHex(Object.values(segment.span)),
+    };
+  }
+  // Return the segment unchanged if it doesn't match the above cases
+  return segment;
+}
+
+function proofChunksFromUint8ArrayObjectToJson(obj) {
+  return obj.map(item => processSegment(item));
+}
+
 class ComposeNewNotarizationForm extends React.Component {
   formRef = React.createRef();
 
@@ -173,8 +203,14 @@ export function ComposeNewNotarization({
 
     // check the last segment has the correct span value.
     const fileSizeFromProof = getSpanValue(proofChunks[proofChunks.length - 1].span);
+    const fileAddress = fileAddressFromInclusionProof(proofChunks, proveSegment, segmentIndex);
+    const proofChunksHex = proofChunksFromUint8ArrayObjectToJson(proofChunks);
 
-    return fileAddressFromInclusionProof(proofChunks, proveSegment, segmentIndex);
+    console.log("proofChunks", proofChunks);
+    console.log("proofChunksHex", proofChunksHex);
+
+    //return fileAddressFromInclusionProof(proofChunks, proveSegment, segmentIndex);
+    return { fileAddress, fileSizeFromProof, proofChunksHex };
   };
 
   const onLockerMessage = async (message, attachments) => {
@@ -188,16 +224,16 @@ export function ComposeNewNotarization({
       var startTime = Date.now();
       var locations = [];
       var inclusionProofs = [];
+      var chunkProofs = [];
       for (var i = 0; i < attachments.length; i++) {
         var a = attachments[i];
         var fileBytes = new Uint8Array(a.binaryData);
         // encrypt attachment
 
         var chunkedFile = makeChunkedFile(fileBytes);
-        var chunkedAddress = chunkedFile.address();
-        var fileHash = GetFileHash(chunkedFile, fileBytes, 0);
-        // convert to bytes32 hex
-        var fileHashBytes32 = "0x" + Buffer.from(fileHash).toString("hex"); //"0x" +
+        var chunkedAddress = "0x" + Buffer.from(chunkedFile.address()).toString("hex"); //"0x" +
+        var { fileAddress, fileSizeFromProof, proofChunksHex } = GetFileHash(chunkedFile, fileBytes, 0);
+        var fileHashBytes32 = "0x" + Buffer.from(fileAddress).toString("hex"); // convert to bytes32 hex
         inclusionProofs.push(fileHashBytes32);
 
         var binaryData = Array.from(fileBytes);
@@ -209,43 +245,34 @@ export function ComposeNewNotarization({
         var size = encAttachment.length;
         fileSize += size;
 
-        locations.push({ file: a.file, digest: hash, inclusion: fileHashBytes32 });
+        locations.push({ file: a.file, digest: hash, inclusion: fileHashBytes32, fileSize: fileSizeFromProof });
+        chunkProofs.push(proofChunksHex);
         setProgress(Math.round(attachments.length > 0 ? 5 + (i / attachments.length) * 80 : 80));
       }
+
       var completeMessage = message;
       completeMessage.attachments = locations;
       completeMessage.inclusionProofs = inclusionProofs;
+      completeMessage.proofs = chunkProofs;
       completeMessage.sendTime = startTime;
       completeMessage.noise = EncDec.generateNoise();
       console.log("completeMessage", completeMessage);
 
       var endTime = Date.now();
       completeMessage.sendTime = endTime;
-      // convert from uint8array to base64
-      //var publicKey = Buffer.from(ephemeralKey.publicKey).toString("base64");
       var secretKey = Buffer.from(ephemeralKey.secretKey).toString("base64");
 
       var ephKey = { recipientKey, secretKey };
       completeMessage.ephemeralKey = ephKey;
-      // to convert call this:
-      // var decEphemeralKey = {
-      //   publicKey: new Uint8Array(Buffer.from(ephKey.publicKey, "base64")),
-      //   secretKey: new Uint8Array(Buffer.from(ephKey.secretKey, "base64")),
-      // };
       var smail = JSON.stringify(completeMessage);
 
       // encrypt smail
       smail = JSON.stringify(EncDec.nacl_encrypt_with_key(smail, recipientKey, ephemeralKey));
       fileSize += JSON.stringify(smail).length;
-      /*
-      // test decryption
-      var ds = JSON.parse(smail);
-      var decSmail = EncDec.nacl_decrypt_with_key(ds, recipientKey, secretKey);
-      console.log("decSmail", decSmail);
-      */
 
       setProgressStatus("Uploading encrypted data ...");
       setProgress(90);
+
       const mailDigest = await uploadDataToBee(smail, "application/octet-stream", startTime + ".smail"); // ms-mail.json
       //console.log("mailDigest", mailDigest);
 

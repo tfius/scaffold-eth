@@ -51,6 +51,7 @@ export function Notarization({
   const [toAddress, setToAddress] = useState();
   const [viewSharedItems, setViewSharedItems] = useState(false);
   const [sharedItems, setSharedItems] = useState([]);
+  const [displayProofChunks, setDisplayProofChunks] = useState(null);
 
   const setViewMail = async mail => {
     console.log("onViewMessage", mail);
@@ -127,6 +128,7 @@ export function Notarization({
     setIsRegistered(data.registered);
     if (isRegistered === false && data.registered) updateLocker();
   });
+
   var updatingLocker = false;
   const updateLocker = useCallback(async () => {
     if (updatingLocker) return;
@@ -151,7 +153,6 @@ export function Notarization({
       if (smails.length > 0) processSMails(smails);
     }
     //console.log("got smails", mails);
-    updatingLocker = false;
 
     const numDocuments = await readContracts.DocumentNotarization.getUserNotarizedDocumentsCount(address);
     console.log("numDocuments", numDocuments);
@@ -169,6 +170,7 @@ export function Notarization({
       }
     }
     if (smails.length > 0) processSMails(smails);
+    updatingLocker = false;
   });
 
   useEffect(() => {
@@ -243,7 +245,7 @@ export function Notarization({
           console.error("processSMails", e);
         }
       }
-      debugger;
+
       mail.time = s.time;
       mail.checked = false;
       mail.location = s.swarmLocation;
@@ -718,20 +720,6 @@ export function Notarization({
           )}
 
           <div>
-            {viewMail.inclusionProofs.length > 0 && (
-              <>
-                {viewMail.inclusionProofs.map((ip, i) => (
-                  <div key={i}>
-                    <small>
-                      {viewMail.inclusionProofs}
-                      {/* <a href={ip.url} target="_blank">
-                        {ip.url}
-                      </a> */}
-                    </small>
-                  </div>
-                ))}
-              </>
-            )}
             {viewMail.attachments.length > 0 && (
               <>
                 <br />
@@ -771,6 +759,32 @@ export function Notarization({
               </>
             )}
           </div>
+          <dic>
+            <h5>Inclusion proofs</h5>
+            {viewMail.inclusionProofs.length > 0 && (
+              <>
+                {viewMail.inclusionProofs.map((inclusionProof, i) => (
+                  <div key={i}>
+                    <small onClick={() => setDisplayProofChunks(viewMail.proofChunksHex(i))}>
+                      {inclusionProof}
+                      <br />
+                      {/* <a href={ip.url} target="_blank">
+                        {ip.url}
+                      </a> */}
+                    </small>
+                  </div>
+                ))}
+              </>
+            )}
+            {displayProofChunks && (
+              <>
+                <br />
+                <small>
+                  <pre>{JSON.stringify(displayProofChunks)}</pre>
+                </small>
+              </>
+            )}
+          </dic>
 
           <div>
             {viewShares.length > 0 && (
