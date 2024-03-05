@@ -47,6 +47,22 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     { from: deployer }
   );
 
+  console.log("DocumentNotarization");
+  const DocumentNotarization = await deploy("DocumentNotarization", {
+    from: deployer,
+    log: true,
+  });
+
+  const notarizationService = await ethers.getContract("DocumentNotarization");
+  await notarizationService.grantNotarizerRole(
+    "0xdaa070D909E010211606144eDe5B2ca6864C2c1c",
+    { from: deployer }
+  );
+  await notarizationService.grantNotarizerRole(
+    "0xd27ffA0e47Fca8D3E757B4d2C408169859B8c419",
+    { from: deployer }
+  );
+
   // return;
 
   console.log("SwarmMail");

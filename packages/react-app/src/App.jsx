@@ -55,6 +55,7 @@ import { Scheduler } from "./views/Scheduler";
 import { SocialGraph } from "./socyomat/SocialGraph";
 import { FairOSWasmConnect } from "./views/FairOSWasmConnect";
 import { FairOSStoreFileTo } from "./views/FairOSStoreFileTo";
+import { Notarization } from "./views/Notarization";
 import FairOSBrowser from "./views/FairOSBrowser";
 
 const { ethers } = require("ethers");
@@ -534,7 +535,13 @@ function App(props) {
               </Menu.Item>
               <Menu.Item key="/tasks" disabled={!isBonded}>
                 <Tooltip title="Issue tasks to service providers." placement="right">
-                  <Link to="/tasks">Tasks</Link>
+                  <Link to="/tasks">AI Tasks</Link>
+                </Tooltip>
+              </Menu.Item>
+
+              <Menu.Item key="/notarization" disabled={!isBonded}>
+                <Tooltip title="Document Notarization" placement="right">
+                  <Link to="/notarization">Notarization</Link>
                 </Tooltip>
               </Menu.Item>
             </Menu.SubMenu>
@@ -672,7 +679,10 @@ function App(props) {
                 <Link to="/socialgraphcontract">SocialGraph</Link>
               </Menu.Item>
               <Menu.Item key="/datarelaycontract">
-                <Link to="/datarelaycontract">DataRelay Service</Link>
+                <Link to="/datarelaycontract">DataRelayService</Link>
+              </Menu.Item>
+              <Menu.Item key="/documentnotarizationcontract">
+                <Link to="/documentnotarizationcontract">DocumentNotarization</Link>
               </Menu.Item>
             </Menu.SubMenu>
             {/* </SubMenu> */}
@@ -832,6 +842,21 @@ function App(props) {
                      mainnetProvider={mainnetProvider}
                    /> */}
                   </>
+                )}
+              />
+              <Route
+                path="/notarization/:address?/:document?"
+                children={props => (
+                  <Notarization
+                    readContracts={readContracts}
+                    writeContracts={writeContracts}
+                    userSigner={userSigner}
+                    tx={tx}
+                    address={address}
+                    messageCount={messageCount}
+                    smailMail={smailMail}
+                    mainnetProvider={mainnetProvider}
+                  />
                 )}
               />
               <Route
@@ -1021,6 +1046,18 @@ function App(props) {
               <Route exact path="/datarelaycontract">
                 <Contract
                   name="DataRelayService"
+                  price={price}
+                  signer={userSigner}
+                  provider={localProvider}
+                  address={address}
+                  blockExplorer={blockExplorer}
+                  contractConfig={contractConfig}
+                  messageCount={messageCount}
+                />
+              </Route>
+              <Route exact path="/documentnotarizationcontract">
+                <Contract
+                  name="DocumentNotarization"
                   price={price}
                   signer={userSigner}
                   provider={localProvider}
