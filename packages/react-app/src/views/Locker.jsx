@@ -13,6 +13,7 @@ import MarkdownPreview from "@uiw/react-markdown-preview";
 
 import { AddressSimple, AddressInput } from "../components";
 import { ComposeNewLocker } from "./ComposeNewLocker";
+import { shared } from "@tensorflow/tfjs-backend-cpu";
 
 export function Locker({
   readContracts,
@@ -106,6 +107,7 @@ export function Locker({
         var sharedLocker = {};
         sharedLocker.sharedMail = lockerItem;
         sharedLocker.locker = JSON.parse(decSharedRes);
+
         //sharedLocker.
 
         setSharedItems(sharedItems => [...sharedItems, sharedLocker]);
@@ -468,7 +470,7 @@ export function Locker({
                       <>
                         <Tooltip title={<AddressSimple address={mail.sharedMail.sender} placement="right" />}>
                           {mail.locker.subject}
-                        </Tooltip>
+                        </Tooltip>{" "}
                         {/* {mail.locker.contents} */}
                       </>
                     }
@@ -572,6 +574,9 @@ export function Locker({
                           <strong style={{ cursor: "pointer" }} onClick={() => setViewMail(mail)}>
                             {mail.subject}
                           </strong>
+                          {mail.inclusionProofs != undefined && mail.inclusionProofs.length > 0 && (
+                            <small>&nbsp;&nbsp;&nbsp;&nbsp;Notarized</small>
+                          )}
 
                           {mail.isEncryption === false && (
                             <IconText
@@ -601,6 +606,7 @@ export function Locker({
                       description={
                         <>
                           <div style={{ maxHeight: "2.7rem", overflow: "hidden" }}>{mail.contents}</div>
+
                           <div>
                             {mail.attachments.length > 0 && (
                               <>
