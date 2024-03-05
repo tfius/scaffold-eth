@@ -329,6 +329,9 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         }*/
     }
 
+    function getLocker(address locker, bytes32 lockerLocation) public view returns (Email memory) {
+        return users[locker].lockerEmails[users[locker].lockerEmailIds[lockerLocation]-1];
+    }
     function storeLocker(bytes32 swarmLocation) public payable {
         User storage sender = users[msg.sender];
         require(sender.lockerEmailIds[swarmLocation] == 0, "!exist");
@@ -342,7 +345,6 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
         sender.lockerEmails.push(email);
         sender.lockerEmailIds[swarmLocation] = sender.lockerEmails.length;
     }
-
     function shareLockerWith(bytes32 lockerLocation, bytes32 keyLocation, address withAddress) public payable {
         require(blackList[withAddress][msg.sender]==false, "denied");
 
@@ -412,6 +414,10 @@ contract SwarmMail is Ownable, AccessControl /*, ReentrancyGuard*/ {
             return e;
         }*/ 
         e = Threads[threadHashIds[swarmLocation]-1];
+    }
+
+    function getEmailFromByType(address addr, uint types, bytes32 swarmLocation) public view returns (Email memory) {
+        return getEmailByType(users[addr], types, swarmLocation);
     }
 
     function createThread(address to, bytes32 swarmLocation) public payable

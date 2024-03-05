@@ -49,15 +49,17 @@ contract DocumentNotarization is AccessControl {
         newDoc.metaHash = _metaHash;
         newDoc.metadata = _metadata;
         newDoc.isAttested = false;
-        documentList.push(newDoc);
+        
 
         uint256 index = documentList.length; // we start at 1, not 0 - 1;
         documentIndex[_docHash] = index;
 
-        swarmMail.storeLocker(_docHash);
+        uint inLockerIndex = swarmMail.storeLocker(_docHash);
         for(uint i = 0; i < _proofs.length; i++) {
             proofsForDocument[_proofs[i]] = index;
         }
+        newDoc.inLocker = inLocker;
+        documentList.push(newDoc);
 
         emit DocumentNotarized(_docHash, msg.sender, block.timestamp, _metadata);
     }
