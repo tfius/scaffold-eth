@@ -197,7 +197,8 @@ export function ComposeNewNotarization({
         var chunkedAddress = chunkedFile.address();
         var fileHash = GetFileHash(chunkedFile, fileBytes, 0);
         // convert to bytes32 hex
-        var fileHashBytes32 = Buffer.from(fileHash).toString("hex"); //"0x" +
+        var fileHashBytes32 = "0x" + Buffer.from(fileHash).toString("hex"); //"0x" +
+        inclusionProofs.push(fileHashBytes32);
 
         var binaryData = Array.from(fileBytes);
         var fileObject = { binaryData: binaryData, file: a.file };
@@ -257,9 +258,15 @@ export function ComposeNewNotarization({
       setProgressStatus("Waiting for user to sign transaction ...");
 
       let newTx = await tx(
-        writeContracts.SwarmMail.storeLocker("0x" + mailDigest, {
-          value: cost, // in wei
-        }),
+        //writeContracts.SwarmMail.storeLocker("0x" + mailDigest, {
+        writeContracts.SwarmMail.notarizeDocument(
+          "0x" + mailDigest,
+          consts.emptyHash,
+          completeMessage.inclusionProofs,
+          {
+            value: cost, // in wei
+          },
+        ),
       );
 
       setProgress(95);

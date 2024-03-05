@@ -448,7 +448,7 @@ export function Locker({
             </Button>
             &nbsp;
           </Tooltip>
-          <Tooltip title="Delete">
+          <Tooltip title="Create new locker">
             <Button onClick={() => setIsModalVisible(true)}>Add Data</Button>&nbsp;
           </Tooltip>
           <Tooltip title="View shared items">

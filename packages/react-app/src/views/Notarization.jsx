@@ -435,8 +435,11 @@ export function Notarization({
             </Button>
             &nbsp;
           </Tooltip>
-          <Tooltip title="Delete">
-            <Button onClick={() => setIsModalVisible(true)}>Add Notarization Package</Button>&nbsp;
+          <Tooltip title="Add notarization package">
+            <Button onClick={() => setIsModalVisible(true)}>Notarization</Button>&nbsp;
+          </Tooltip>
+          <Tooltip title="Find package with inclusion">
+            <Button onClick={() => setIsModalVisible(true)}>Lookup</Button>&nbsp;
           </Tooltip>
           <Tooltip title="View shared items">
             <Switch checked={viewSharedItems} onChange={toggleViewShared} />
