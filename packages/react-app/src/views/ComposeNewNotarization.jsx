@@ -255,7 +255,7 @@ export function ComposeNewNotarization({
       console.log("cost", cost);
 
       setProgressStatus("Waiting for user to sign transaction ...");
-      debugger;
+      //debugger;
 
       var metaHash = "0x" + consts.emptyHash;
 

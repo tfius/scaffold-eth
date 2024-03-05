@@ -20,6 +20,7 @@ contract DocumentNotarization is AccessControl {
     struct Document {
         uint256 timestamp; // when was the document notarized
         address owner; // who notarized the document
+        bytes32 docHash; // hash of the document
         bytes32 metaHash; // hash of the metadata
         //string metadata; // metadata
         bool isAttested; // has the document been attested
@@ -49,6 +50,7 @@ contract DocumentNotarization is AccessControl {
         Document storage newDoc = documents[_docHash];
         newDoc.timestamp = block.timestamp;
         newDoc.owner = msg.sender;
+        newDoc.docHash = _docHash;
         newDoc.metaHash = _metaHash;
         //newDoc.metadata = _metadata;
         newDoc.isAttested = false;

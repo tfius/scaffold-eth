@@ -157,6 +157,18 @@ export function Notarization({
     console.log("numDocuments", numDocuments);
     const notarizationDocuments = await readContracts.DocumentNotarization.getAllUserNotarizedDocuments(address);
     console.log("notarizationDocuments", notarizationDocuments);
+
+    var smails = [];
+    for (var i = 0; i < notarizationDocuments.length; i++) {
+      try {
+        var doc = notarizationDocuments[i];
+        var smail = await readContracts.SwarmMail.getEmailFromByType(address, 2, doc.docHash);
+        smails.push(smail);
+      } catch (e) {
+        console.log("error", e);
+      }
+    }
+    if (smails.length > 0) processSMails(smails);
   });
 
   useEffect(() => {
@@ -231,6 +243,7 @@ export function Notarization({
           console.error("processSMails", e);
         }
       }
+      debugger;
       mail.time = s.time;
       mail.checked = false;
       mail.location = s.swarmLocation;
@@ -238,9 +251,7 @@ export function Notarization({
       mail.signed = s.signed;
       mail.isEncryption = s.isEncryption;
       setMails(mails => [mail, ...mails]);
-      // only add if not existing
-      //existingMails.findIndex(m => m.sendTime == mail.sendTime) == -1 ? setMails(mails => [mail, ...mails]) : null;
-      //console.log(mail);
+      console.log("mail", mail);
     }
     setIsLoading(false);
     //console.log("processedMails", mails);
@@ -707,6 +718,20 @@ export function Notarization({
           )}
 
           <div>
+            {viewMail.inclusionProofs.length > 0 && (
+              <>
+                {viewMail.inclusionProofs.map((ip, i) => (
+                  <div key={i}>
+                    <small>
+                      {viewMail.inclusionProofs}
+                      {/* <a href={ip.url} target="_blank">
+                        {ip.url}
+                      </a> */}
+                    </small>
+                  </div>
+                ))}
+              </>
+            )}
             {viewMail.attachments.length > 0 && (
               <>
                 <br />

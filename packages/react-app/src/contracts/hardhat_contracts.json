@@ -2387,7 +2387,7 @@
           ]
         },
         "DocumentNotarization": {
-          "address": "0x99bbA657f2BbC93c02D617f8bA121cB8Fc104Acf",
+          "address": "0x809d550fca64d94Bd9F66E60752A544199cfAC3D",
           "abi": [
             {
               "inputs": [
@@ -2604,6 +2604,11 @@
                 },
                 {
                   "internalType": "bytes32",
+                  "name": "docHash",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
                   "name": "metaHash",
                   "type": "bytes32"
                 },
@@ -2637,6 +2642,11 @@
                       "internalType": "address",
                       "name": "owner",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "docHash",
+                      "type": "bytes32"
                     },
                     {
                       "internalType": "bytes32",
@@ -2700,6 +2710,11 @@
                     },
                     {
                       "internalType": "bytes32",
+                      "name": "docHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
                       "name": "metaHash",
                       "type": "bytes32"
                     },
@@ -2738,6 +2753,11 @@
                       "internalType": "address",
                       "name": "owner",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "docHash",
+                      "type": "bytes32"
                     },
                     {
                       "internalType": "bytes32",
@@ -2808,6 +2828,11 @@
                       "internalType": "address",
                       "name": "owner",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "docHash",
+                      "type": "bytes32"
                     },
                     {
                       "internalType": "bytes32",
