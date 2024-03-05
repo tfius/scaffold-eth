@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 
 import { ethers } from "ethers";
 import { Link, Route, useLocation } from "react-router-dom";
@@ -6,6 +6,7 @@ import { Button, List, Card, Modal, notification, Tooltip, Typography, Spin, Che
 import { EnterOutlined, EditOutlined, ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
 
 import { uploadDataToBee, downloadDataFromBee } from "../Swarm/BeeService";
+import { formatNumber, timeAgo, getDateTimeString } from "./../views/datetimeutils";
 import * as consts from "./consts";
 import * as EncDec from "../utils/EncDec.js";
 import Blockies from "react-blockies";
@@ -13,6 +14,12 @@ import MarkdownPreview from "@uiw/react-markdown-preview";
 
 import { AddressSimple, AddressInput } from "../components";
 import { ComposeNewNotarization } from "./ComposeNewNotarization";
+import {
+  getSpanValue,
+  makeChunkedFile,
+  fileInclusionProofBottomUp,
+  fileAddressFromInclusionProof,
+} from "@fairdatasociety/bmt-js";
 
 export function Notarization({
   readContracts,
@@ -24,7 +31,10 @@ export function Notarization({
   messageCount,
   smailMail,
   onStoreToFairOS,
+  setReplyTo,
+  setThreadTo,
 }) {
+  const fileInputRef = useRef(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLookupModalVisible, setIsLookupModalVisible] = useState(false);
@@ -53,6 +63,7 @@ export function Notarization({
   const [viewSharedItems, setViewSharedItems] = useState(false);
   const [sharedItems, setSharedItems] = useState([]);
   const [displayProofChunks, setDisplayProofChunks] = useState(null);
+  const [displayDocument, setDisplayDocument] = useState(null);
 
   const setViewMail = async mail => {
     console.log("onViewMessage", mail);
@@ -400,6 +411,43 @@ export function Notarization({
     }
     setDisplayProofChunks(mail.proofs[proofIdx]);
   }
+  // Handle file input change
+  const handleLookUpFileChange = async event => {
+    if (event.target.files.length > 0) {
+      const file = event.target.files[0];
+      // read file contents as uint8 array
+      const reader = new FileReader();
+      reader.onload = async e => {
+        const fileBytes = new Uint8Array(e.target.result);
+        const chunkedFile = makeChunkedFile(fileBytes);
+        var chunkedAddress = "0x" + Buffer.from(chunkedFile.address()).toString("hex"); //"0x" +
+
+        console.log("chunkedAddress", chunkedAddress);
+        verifyDocumentInNotary(chunkedAddress);
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  };
+
+  const handleLookupFileButtonClick = () => {
+    setDisplayDocument(null);
+    // Trigger the hidden file input's click event
+    fileInputRef.current.click();
+  };
+
+  const verifyDocumentInNotary = async fileAddress => {
+    var document = await readContracts.DocumentNotarization.getDocumentByProof(fileAddress);
+    /*
+    docHash: "0xbb435ae6764f533302a9b2268528bc174a08dde067d5bf814abcfad61c8e9029"
+    isAttested: false
+    metaHash: "0x0000000000000000000000000000000000000000000000000000000000000000"
+    owner: "0xd27ffA0e47Fca8D3E757B4d2C408169859B8c419"
+    timestamp: BigNumber {_hex: '0x65e797d0', _isBigNumber: true}
+    */
+
+    console.log("document", document);
+    setDisplayDocument(document);
+  };
 
   if (address === undefined) {
     return (
@@ -839,20 +887,87 @@ export function Notarization({
         />
       )}
 
-      {isLookupModalVisible && (
-        <Modal
-          visible={isLookupModalVisible}
-          style={{ width: "80%", resize: "auto", borderRadious: "20px" }}
-          title={<h3>Lookup</h3>}
-          maskClosable={true}
-          onOk={() => {}}
-          onCancel={() => {
-            setIsLookupModalVisible(false);
-          }}
-        >
-          <p>Lookup</p>
-        </Modal>
-      )}
+      <Modal
+        visible={isLookupModalVisible}
+        style={{ width: "80%", resize: "auto", borderRadious: "20px" }}
+        title={<h3>Verify notarized file</h3>}
+        maskClosable={true}
+        onOk={() => {
+          setIsLookupModalVisible(false);
+        }}
+        onCancel={() => {
+          setIsLookupModalVisible(false);
+        }}
+      >
+        <p>Select document to check if it was notarized</p>
+        <input
+          type="file"
+          onChange={handleLookUpFileChange}
+          style={{ display: "none" }} // Hide the input element
+          ref={fileInputRef} // Reference the input for triggering click
+        />
+        <Button onClick={handleLookupFileButtonClick}>Verify file</Button>
+      </Modal>
+
+      {/* display modal for document */}
+      <Modal
+        visible={displayDocument != null}
+        style={{ width: "80%", resize: "auto", borderRadious: "20px" }}
+        title={<h3>Lookup</h3>}
+        maskClosable={true}
+        onOk={() => {
+          setDisplayDocument(null);
+        }}
+        onCancel={() => {
+          setDisplayDocument(null);
+        }}
+      >
+        {displayDocument != null && (
+          <>
+            <h3>This file was notarized</h3>
+            <strong>Owner:</strong>
+            <AddressSimple address={displayDocument.owner} ensProvider={mainnetProvider} />
+            <Tooltip
+              title={
+                <>
+                  Send message with <AddressSimple address={displayDocument.owner} ensProvider={mainnetProvider} />
+                </>
+              }
+            >
+              <span
+                onClick={() => setReplyTo(displayDocument.owner, true, "Re Post: #" + displayDocument.docHash)}
+                style={{ cursor: "pointer" }}
+              >
+                &nbsp;⇽&nbsp;
+              </span>
+            </Tooltip>
+            <Tooltip
+              title={
+                <>
+                  Create thread with <AddressSimple address={displayDocument.owner} ensProvider={mainnetProvider} />
+                </>
+              }
+            >
+              <span
+                onClick={() => setThreadTo(displayDocument.owner, "Re Document: #" + displayDocument.docHash)}
+                style={{ cursor: "pointer" }}
+              >
+                &nbsp;♺&nbsp;
+              </span>
+            </Tooltip>
+            <br />
+            <strong>Notarized on:</strong>
+            {getDateTimeString(displayDocument.timestamp)}
+            <br />
+            <strong>Attested:</strong> {displayDocument.isAttested ? "true" : "N/A"}
+            {/* <br />
+            <strong>Doc:</strong> {displayDocument.docHash}
+            <br />
+            <strong>Meta:</strong> {displayDocument.metaHash}
+            <br /> */}
+          </>
+        )}
+      </Modal>
     </div>
   );
 }

@@ -856,6 +856,8 @@ function App(props) {
                     messageCount={messageCount}
                     smailMail={smailMail}
                     mainnetProvider={mainnetProvider}
+                    setReplyTo={setReplyTo}
+                    setThreadTo={setThreadTo}
                   />
                 )}
               />
