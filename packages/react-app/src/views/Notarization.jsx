@@ -925,7 +925,7 @@ export function Notarization({
         {displayDocument != null && (
           <>
             <h3>This file was notarized</h3>
-            <strong>Owner:</strong>
+            <strong>Owner: </strong>
             <AddressSimple address={displayDocument.owner} ensProvider={mainnetProvider} />
             <Tooltip
               title={
@@ -956,10 +956,10 @@ export function Notarization({
               </span>
             </Tooltip>
             <br />
-            <strong>Notarized on:</strong>
+            <strong>Notarized on: </strong>
             {getDateTimeString(displayDocument.timestamp)}
             <br />
-            <strong>Attested:</strong> {displayDocument.isAttested ? "true" : "N/A"}
+            <strong>Attested: </strong> {displayDocument.isAttested ? "true" : "N/A"}
             {/* <br />
             <strong>Doc:</strong> {displayDocument.docHash}
             <br />
