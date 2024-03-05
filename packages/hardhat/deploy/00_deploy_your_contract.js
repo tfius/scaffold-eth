@@ -25,7 +25,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   // transfer tokens to deployer
   const token = await ethers.getContract("TestToken");
   await token.transfer(
-    "0x1894F06a48acD00A2793A0eB00FFE7B6184B630e",
+    "0xd27ffA0e47Fca8D3E757B4d2C408169859B8c419",
     ethers.utils.parseEther("100")
   );
   await token.transfer(deployer, ethers.utils.parseEther("1000000"));
@@ -39,11 +39,11 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   const dataRelayService = await ethers.getContract("DataRelayService");
   await dataRelayService.changeBeneficiary(
-    "0x1894F06a48acD00A2793A0eB00FFE7B6184B630e",
+    "0xd27ffA0e47Fca8D3E757B4d2C408169859B8c419",
     { from: deployer }
   );
   await dataRelayService.changeOwner(
-    "0x1894F06a48acD00A2793A0eB00FFE7B6184B630e",
+    "0xd27ffA0e47Fca8D3E757B4d2C408169859B8c419",
     { from: deployer }
   );
 
@@ -60,7 +60,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const DocumentNotarization = await deploy("DocumentNotarization", {
     from: deployer,
     log: true,
-    args: SwarmMail.address,
+    args: [SwarmMail.address],
   });
 
   const notarizationService = await ethers.getContract("DocumentNotarization");
