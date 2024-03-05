@@ -30,22 +30,22 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   );
   await token.transfer(deployer, ethers.utils.parseEther("1000000"));
 
-  console.log("DataRelayService");
-  const DataRelayService = await deploy("DataRelayService", {
-    from: deployer,
-    log: true,
-    args: [token.address],
-  });
+  // console.log("DataRelayService");
+  // const DataRelayService = await deploy("DataRelayService", {
+  //   from: deployer,
+  //   log: true,
+  //   args: [token.address],
+  // });
 
-  const dataRelayService = await ethers.getContract("DataRelayService");
-  await dataRelayService.changeBeneficiary(
-    "0xd27ffA0e47Fca8D3E757B4d2C408169859B8c419",
-    { from: deployer }
-  );
-  await dataRelayService.changeOwner(
-    "0xd27ffA0e47Fca8D3E757B4d2C408169859B8c419",
-    { from: deployer }
-  );
+  // const dataRelayService = await ethers.getContract("DataRelayService");
+  // await dataRelayService.changeBeneficiary(
+  //   "0xd27ffA0e47Fca8D3E757B4d2C408169859B8c419",
+  //   { from: deployer }
+  // );
+  // await dataRelayService.changeOwner(
+  //   "0xd27ffA0e47Fca8D3E757B4d2C408169859B8c419",
+  //   { from: deployer }
+  // );
 
   // return;
 

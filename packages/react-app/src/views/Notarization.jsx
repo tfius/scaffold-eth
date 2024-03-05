@@ -133,23 +133,30 @@ export function Notarization({
     updatingLocker = true;
     const boxCount = await readContracts.SwarmMail.getUserStats(address);
     console.log("boxCount", boxCount);
-    const mailCount = boxCount.numLockers.toNumber();
+    if (false) {
+      const mailCount = boxCount.numLockers.toNumber();
 
-    setTotalItems(mailCount);
-    var allPages = Math.ceil(mailCount / pageSize);
-    setMaxPages(allPages);
+      setTotalItems(mailCount);
+      var allPages = Math.ceil(mailCount / pageSize);
+      setMaxPages(allPages);
 
-    var length = pageSize;
-    var start = mailCount - page * pageSize;
-    if (start < 0) start = 0;
-    if (start + length > mailCount) length = mailCount - start;
-    setStartItem(start + 1);
-    setEndItem(start + length);
+      var length = pageSize;
+      var start = mailCount - page * pageSize;
+      if (start < 0) start = 0;
+      if (start + length > mailCount) length = mailCount - start;
+      setStartItem(start + 1);
+      setEndItem(start + length);
 
-    const smails = await readContracts.SwarmMail.getEmailRange(address, 2, start, length);
-    processSMails(smails);
+      const smails = await readContracts.SwarmMail.getEmailRange(address, 2, start, length);
+      if (smails.length > 0) processSMails(smails);
+    }
     //console.log("got smails", mails);
     updatingLocker = false;
+
+    const numDocuments = await readContracts.DocumentNotarization.getUserNotarizedDocumentsCount(address);
+    console.log("numDocuments", numDocuments);
+    const notarizationDocuments = await readContracts.DocumentNotarization.getAllUserNotarizedDocuments(address);
+    console.log("notarizationDocuments", notarizationDocuments);
   });
 
   useEffect(() => {

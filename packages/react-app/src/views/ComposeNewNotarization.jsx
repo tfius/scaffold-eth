@@ -205,7 +205,6 @@ export function ComposeNewNotarization({
         var asString = JSON.stringify(fileObject);
         var encAttachment = JSON.stringify(EncDec.nacl_encrypt_with_key(asString, recipientKey, ephemeralKey));
 
-        debugger;
         var hash = await uploadDataToBee(encAttachment, "application/octet-stream", "sm" + i);
         var size = encAttachment.length;
         fileSize += size;
@@ -256,15 +255,18 @@ export function ComposeNewNotarization({
       console.log("cost", cost);
 
       setProgressStatus("Waiting for user to sign transaction ...");
+      debugger;
+
+      var metaHash = "0x" + consts.emptyHash;
 
       let newTx = await tx(
-        //writeContracts.SwarmMail.storeLocker("0x" + mailDigest, {
-        writeContracts.SwarmMail.notarizeDocument(
+        writeContracts.DocumentNotarization.notarizeDocument(
           "0x" + mailDigest,
-          consts.emptyHash,
+          metaHash,
           completeMessage.inclusionProofs,
           {
             value: cost, // in wei
+            from: address,
           },
         ),
       );
@@ -279,6 +281,10 @@ export function ComposeNewNotarization({
       onMessageSent();
     } catch (e) {
       console.error(e);
+      notification.error({
+        message: "Error",
+        description: e.message,
+      });
     }
     setSendingInProgress(false);
   };

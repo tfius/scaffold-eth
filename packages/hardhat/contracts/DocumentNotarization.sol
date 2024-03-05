@@ -43,7 +43,7 @@ contract DocumentNotarization is AccessControl {
         swarmMail = _swarmMail;
     }
 
-    function notarizeDocument(bytes32 _docHash, bytes32 _metaHash, bytes32 _proofs) public onlyRole(NOTARIZER_ROLE) {
+    function notarizeDocument(bytes32 _docHash, bytes32 _metaHash, bytes32[] memory _proofs) payable public onlyRole(NOTARIZER_ROLE) {
         require(documents[_docHash].timestamp == 0, "Document already notarized.");
         Document storage newDoc = documents[_docHash];
         newDoc.timestamp = block.timestamp;
@@ -87,7 +87,7 @@ contract DocumentNotarization is AccessControl {
 
     function getDocumentByProof(bytes32 _proof) public view returns (Document memory) {
         require(proofsForDocument[_proof] != 0, "Document not found.");
-        return documentList[proofsForDocument[_proof]];
+        return documentList[proofsForDocument[_proof]-1];
     }
 
     function getDocumentByHash(bytes32 _docHash) public view returns (Document memory) {
@@ -100,7 +100,7 @@ contract DocumentNotarization is AccessControl {
         Document[] memory docs = new Document[](userDocs.length);
         
         for(uint i = 0; i < userDocs.length; i++) {
-            docs[i] = documentList[userDocs[i]];
+            docs[i] = documentList[userDocs[i]-1];
         }
         return docs;
     }
