@@ -12,7 +12,7 @@ import Blockies from "react-blockies";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 
 import { AddressSimple, AddressInput } from "../components";
-import { ComposeNewLocker } from "./ComposeNewLocker";
+import { ComposeNewNotarization } from "./ComposeNewNotarization";
 
 export function Notarization({
   readContracts,
@@ -117,11 +117,6 @@ export function Notarization({
     //setSharedItems(smails);
   };
 
-  /*  
-  const onMessageSent = useCallback(async () => {
-    console.log("locker onMessageSent");
-    updateLocker();
-  }, []);*/
   const onMessageSent = async () => {
     await updateLocker();
   };
@@ -413,7 +408,7 @@ export function Notarization({
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
       <h1>Document notarization</h1>
-      <div className="routeSubtitle">Encrypted notarization services for data packages</div>
+      <div className="routeSubtitle">Notarization services for encrypted data packages</div>
       <div className="paginationInfo">
         {startItem}-{endItem} of {totalItems} &nbsp;&nbsp;&nbsp;
         <a onClick={() => retrieveNewPage(page - 1)}>{"<"}</a>&nbsp;{page}/{maxPages}&nbsp;
@@ -441,7 +436,7 @@ export function Notarization({
             &nbsp;
           </Tooltip>
           <Tooltip title="Delete">
-            <Button onClick={() => setIsModalVisible(true)}>Add Data</Button>&nbsp;
+            <Button onClick={() => setIsModalVisible(true)}>Add Notarization Package</Button>&nbsp;
           </Tooltip>
           <Tooltip title="View shared items">
             <Switch checked={viewSharedItems} onChange={toggleViewShared} />
@@ -771,7 +766,7 @@ export function Notarization({
       )}
 
       {isModalVisible && (
-        <ComposeNewLocker
+        <ComposeNewNotarization
           readContracts={readContracts}
           writeContracts={writeContracts}
           ensProvider={mainnetProvider}
