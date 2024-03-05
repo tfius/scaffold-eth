@@ -25,7 +25,7 @@ contract DataRelayService {
     mapping(address => bytes32[]) public paymentDigests;
     //mapping(address => bytes32[]) public payments;
 
-    event PaymentReceived(address indexed user, uint256 amount);
+    event PaymentReceived(address indexed user, address indexed dataOwner, uint256 amount);
     event PaymentForStorage(address indexed user, uint256 size, uint256 amount);
     event Withdrawn(address indexed to, uint256 amount);
 
@@ -66,7 +66,20 @@ contract DataRelayService {
         confirmations[msg.sender][paymentConfirmationId] = amount;
         confirmationsList[msg.sender].push(paymentConfirmationId);
         
-        emit PaymentReceived(msg.sender, amount);
+        emit PaymentReceived(msg.sender, beneficiary, amount);
+    }
+
+    function payForDownloadForOwnerInEth(bytes32 paymentConfirmationId, address dataOwner, uint256 amount) public payable {
+        uint256 feeAmount = amount * marketFee / FEE_PRECISION;
+        require(msg.value >= amount, "Insufficient amount");
+        payable(dataOwner).transfer(amount-feeAmount);
+        payable(owner).transfer(feeAmount);
+        feesCollected += feeAmount;
+        
+        confirmations[msg.sender][paymentConfirmationId] = amount;
+        confirmationsList[msg.sender].push(paymentConfirmationId);
+        
+        emit PaymentReceived(msg.sender, dataOwner, amount);
     }
 
     function payForStorage(bytes32 digest, uint256 size, uint256 amount) public payable {

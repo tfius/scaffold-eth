@@ -20,7 +20,7 @@ contract DocumentNotarization is AccessControl {
         uint256 timestamp; // when was the document notarized
         address owner; // who notarized the document
         bytes32 metaHash; // hash of the metadata
-        string metadata; // metadata
+        //string metadata; // metadata
         bool isAttested; // has the document been attested
         //mapping(address => bool) attestations;
     }
@@ -31,9 +31,11 @@ contract DocumentNotarization is AccessControl {
     mapping(bytes32 => address[]) private documentAttestors; // document hash to list of attestors
     mapping(bytes32 => mapping(address => bool)) private documentAttestations; // document hash to attestor to attestation
 
+    mapping(address => uint[]) public usersNotarizedDocuments; // find documents by owner
+
     mapping(bytes32 => uint) public proofsForDocument; // find documents by proof
 
-    event DocumentNotarized(bytes32 indexed docHash, address indexed owner, uint256 timestamp, string metadata);
+    event DocumentNotarized(bytes32 indexed docHash, address indexed owner, uint256 timestamp);
     event DocumentAttested(bytes32 indexed docHash, address indexed attestor, bool attested);
 
     constructor(ISwarmMail _swarmMail) {
@@ -41,27 +43,27 @@ contract DocumentNotarization is AccessControl {
         swarmMail = _swarmMail;
     }
 
-    function notarizeDocument(bytes32 _docHash, bytes32 _metaHash, bytes32 _proofs, string memory _metadata) public onlyRole(NOTARIZER_ROLE) {
+    function notarizeDocument(bytes32 _docHash, bytes32 _metaHash, bytes32 _proofs) public onlyRole(NOTARIZER_ROLE) {
         require(documents[_docHash].timestamp == 0, "Document already notarized.");
         Document storage newDoc = documents[_docHash];
         newDoc.timestamp = block.timestamp;
         newDoc.owner = msg.sender;
         newDoc.metaHash = _metaHash;
-        newDoc.metadata = _metadata;
+        //newDoc.metadata = _metadata;
         newDoc.isAttested = false;
-        
+        documentList.push(newDoc);
 
         uint256 index = documentList.length; // we start at 1, not 0 - 1;
         documentIndex[_docHash] = index;
 
-        uint inLockerIndex = swarmMail.storeLocker(_docHash);
+        swarmMail.storeLocker(_docHash);
         for(uint i = 0; i < _proofs.length; i++) {
             proofsForDocument[_proofs[i]] = index;
         }
-        newDoc.inLocker = inLocker;
-        documentList.push(newDoc);
 
-        emit DocumentNotarized(_docHash, msg.sender, block.timestamp, _metadata);
+        usersNotarizedDocuments[msg.sender].push(index);
+        
+        emit DocumentNotarized(_docHash, msg.sender, block.timestamp);
     }
 
     function attestDocument(bytes32 _docHash, bool _attest) public onlyRole(ATTESTOR_ROLE) {
@@ -86,6 +88,36 @@ contract DocumentNotarization is AccessControl {
     function getDocumentByProof(bytes32 _proof) public view returns (Document memory) {
         require(proofsForDocument[_proof] != 0, "Document not found.");
         return documentList[proofsForDocument[_proof]];
+    }
+
+    function getDocumentByHash(bytes32 _docHash) public view returns (Document memory) {
+        require(documents[_docHash].timestamp != 0, "Document not found.");
+        return documents[_docHash];
+    }
+
+    function getAllUserNotarizedDocuments(address _user) public view returns (Document[] memory) {
+        uint[] memory userDocs = usersNotarizedDocuments[_user];
+        Document[] memory docs = new Document[](userDocs.length);
+        
+        for(uint i = 0; i < userDocs.length; i++) {
+            docs[i] = documentList[userDocs[i]];
+        }
+        return docs;
+    }
+    function getUserNotarizedDocumentsCount(address _user) public view returns (uint) {
+        return usersNotarizedDocuments[_user].length;
+    }
+    
+    function getUserNotarizedDocuments(address user, uint start, uint length) public view returns (Document[] memory) {
+        require(start < usersNotarizedDocuments[user].length, "Start out");
+        if(start + length > usersNotarizedDocuments[user].length) {
+           length = usersNotarizedDocuments[user].length - start;
+        }
+        Document[] memory docs = new Document[](length);
+        for(uint i = 0; i < length; i++) {
+            docs[i] = documentList[usersNotarizedDocuments[user][start + i]];
+        }
+        return docs;
     }
 
     // Function to check if a document has been attested by a specific attestor

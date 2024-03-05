@@ -47,10 +47,20 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     { from: deployer }
   );
 
+  // return;
+
+  console.log("SwarmMail");
+  const SwarmMail = await deploy("SwarmMail", {
+    from: deployer,
+    // args: [dataMarket.address, "DM-C-0"],
+    log: true,
+  });
+
   console.log("DocumentNotarization");
   const DocumentNotarization = await deploy("DocumentNotarization", {
     from: deployer,
     log: true,
+    args: SwarmMail.address,
   });
 
   const notarizationService = await ethers.getContract("DocumentNotarization");
@@ -63,14 +73,6 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     { from: deployer }
   );
 
-  // return;
-
-  console.log("SwarmMail");
-  const SwarmMail = await deploy("SwarmMail", {
-    from: deployer,
-    // args: [dataMarket.address, "DM-C-0"],
-    log: true,
-  });
   console.log("DataHub");
   const DataHub = await deploy("DataHub", {
     from: deployer,
