@@ -340,7 +340,7 @@ export function Locker({
     );
   };
   const shareLocker = async locker => {
-    //console.log("shareLocker", locker);
+    console.log("shareLocker", locker);
     // to convert call this:
     var ephemeralKey = {
       publicKey: new Uint8Array(Buffer.from(locker.ephemeralKey.recipientKey, "base64")),
@@ -468,17 +468,29 @@ export function Locker({
                   <List.Item.Meta
                     title={
                       <>
-                        <Tooltip title={<AddressSimple address={mail.sharedMail.sender} placement="right" />}>
+                        <Tooltip
+                          title={
+                            <>
+                              Owner: <AddressSimple address={mail.sharedMail.sender} placement="right" />
+                            </>
+                          }
+                        >
                           {mail.locker.subject}
                         </Tooltip>{" "}
-                        {/* {mail.locker.contents} */}
                       </>
                     }
                     description={
                       <>
                         <div style={{ maxHeight: "2.7rem", overflow: "hidden" }}>{mail.locker.contents}</div>
 
-                        {console.log("mail.locker", mail)}
+                        {/* {console.log("mail.locker", mail)} */}
+                        <div>
+                          {mail.locker.inclusionProofs != undefined && mail.locker.inclusionProofs.length > 0 && (
+                            <Tooltip title="This package is notarized and has inclusion proofs. You can do attestation.">
+                              <small>Notarization package</small>
+                            </Tooltip>
+                          )}
+                        </div>
                         <div>
                           {mail.locker.attachments.length > 0 && (
                             <>
@@ -575,7 +587,9 @@ export function Locker({
                             {mail.subject}
                           </strong>
                           {mail.inclusionProofs != undefined && mail.inclusionProofs.length > 0 && (
-                            <small>&nbsp;&nbsp;&nbsp;&nbsp;Notarized</small>
+                            <Tooltip title="This package is notarized and has inclusion proofs. You can share it with verified account for attestation.">
+                              <small>&nbsp;&nbsp;&nbsp;&nbsp;Notarized</small>
+                            </Tooltip>
                           )}
 
                           {mail.isEncryption === false && (

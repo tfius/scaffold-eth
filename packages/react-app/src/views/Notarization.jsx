@@ -403,6 +403,38 @@ export function Notarization({
     });
   };
 
+  const doAttestation = async mail => {
+    console.log("doAttestation", mail);
+    console.log("mail.attachments", mail.locker.attachments);
+    if (mail.locker.attachments.length === 0) {
+      notification.error({
+        message: "Attestation failed",
+        description: "No attachments with inclusions found",
+      });
+      return;
+    }
+
+    try {
+      var fileAddress = mail.locker.attachments[0].inclusion;
+
+      var document = await readContracts.DocumentNotarization.getDocumentByProof(fileAddress);
+      console.log("document", document);
+
+      var docLocation = document.docHash;
+
+      //var tx = new Tx(readContracts.DocumentNotarization.attestDocument(mail.location, true)
+      var checked = true;
+      var newTx = await tx(writeContracts.DocumentNotarization.attestDocument(docLocation, checked));
+      await newTx.wait();
+    } catch (e) {
+      console.log("error", e);
+      notification.error({
+        message: "Attestation failed",
+        description: "Either package is not valid or you are not verified",
+      });
+    }
+  };
+
   function displayProof(mail, proofIdx) {
     console.log("displayProof", mail, proofIdx);
     if (mail.proofs[proofIdx] === displayProofChunks) {
@@ -542,6 +574,16 @@ export function Notarization({
                     }
                     description={
                       <>
+                        <div>
+                          {mail.locker.contents}
+                          {mail.locker.inclusionProofs != undefined && mail.locker.inclusionProofs.length > 0 && (
+                            <Tooltip title="This package is notarized and has inclusion proofs. You can do attestation, if you are verified.">
+                              <small onClick={() => doAttestation(mail)}>
+                                Do attestation this notarization package
+                              </small>
+                            </Tooltip>
+                          )}
+                        </div>
                         <div style={{ maxHeight: "2.7rem", overflow: "hidden" }}>{mail.locker.contents}</div>
 
                         {console.log("mail.locker", mail)}
