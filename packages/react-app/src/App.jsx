@@ -56,6 +56,7 @@ import { SocialGraph } from "./socyomat/SocialGraph";
 import { FairOSWasmConnect } from "./views/FairOSWasmConnect";
 import { FairOSStoreFileTo } from "./views/FairOSStoreFileTo";
 import { Notarization } from "./views/Notarization";
+import { Tasks } from "./views/Tasks";
 import FairOSBrowser from "./views/FairOSBrowser";
 
 const { ethers } = require("ethers");
@@ -782,6 +783,7 @@ function App(props) {
                   smailMail={smailMail}
                   mainnetProvider={mainnetProvider}
                   onStoreToFairOS={setIsStoreFileToFairOSModalVisible}
+                  setReplyTo={setReplyTo}
                 />
               </Route>
               <Route path="/threads">
@@ -831,16 +833,18 @@ function App(props) {
                 path="/tasks/:address?/:service?/:task?"
                 children={props => (
                   <>
-                    {/* <Scheduler
-                     readContracts={readContracts}
-                     writeContracts={writeContracts}
-                     userSigner={userSigner}
-                     tx={tx}
-                     address={address}
-                     messageCount={messageCount}
-                     smailMail={smailMail}
-                     mainnetProvider={mainnetProvider}
-                   /> */}
+                    <Tasks
+                      readContracts={readContracts}
+                      writeContracts={writeContracts}
+                      userSigner={userSigner}
+                      tx={tx}
+                      address={address}
+                      messageCount={messageCount}
+                      smailMail={smailMail}
+                      mainnetProvider={mainnetProvider}
+                      setReplyTo={setReplyTo}
+                      setThreadTo={setThreadTo}
+                    />
                   </>
                 )}
               />

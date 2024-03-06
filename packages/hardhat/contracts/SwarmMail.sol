@@ -341,14 +341,18 @@ contract SwarmMail is Ownable, AccessControl  {
         return users[locker].lockerEmails[users[locker].lockerEmailIds[lockerLocation]-1];
     }
     function storeLockerFor(address forLocker, bytes32 swarmLocation) public payable {
-        require(msg.sender==_notarizationContract, "!notary");
-        User storage sender = users[forLocker];
+        address forAddress =  msg.sender;
+        // require(msg.sender==_notarizationContract, "!notary");
+        if(msg.sender ==_notarizationContract) {
+            forAddress = forLocker; // only use for locker if from notarization contract
+        }
+        User storage sender = users[forAddress];
         require(sender.lockerEmailIds[swarmLocation] == 0, "!exist");
         Email memory email;
         email.isEncryption = true;
         email.time = block.timestamp;
-        email.from = msg.sender;
-        email.to = forLocker;
+        email.from = forAddress;
+        email.to = forAddress;
         email.swarmLocation = swarmLocation;
 
         sender.lockerEmails.push(email);
@@ -356,17 +360,18 @@ contract SwarmMail is Ownable, AccessControl  {
     }
 
     function storeLocker(bytes32 swarmLocation) public payable {
-        User storage sender = users[msg.sender];
-        require(sender.lockerEmailIds[swarmLocation] == 0, "!exist");
-        Email memory email;
-        email.isEncryption = true;
-        email.time = block.timestamp;
-        email.from = msg.sender;
-        email.to = msg.sender;
-        email.swarmLocation = swarmLocation;
+        storeLockerFor(msg.sender, swarmLocation);
+        // User storage sender = users[msg.sender];
+        // require(sender.lockerEmailIds[swarmLocation] == 0, "!exist");
+        // Email memory email;
+        // email.isEncryption = true;
+        // email.time = block.timestamp;
+        // email.from = msg.sender;
+        // email.to = msg.sender;
+        // email.swarmLocation = swarmLocation;
 
-        sender.lockerEmails.push(email);
-        sender.lockerEmailIds[swarmLocation] = sender.lockerEmails.length;
+        // sender.lockerEmails.push(email);
+        // sender.lockerEmailIds[swarmLocation] = sender.lockerEmails.length;
     }
     function shareLockerWith(bytes32 lockerLocation, bytes32 keyLocation, address withAddress) public payable {
         require(blackList[withAddress][msg.sender]==false, "denied");
@@ -406,7 +411,7 @@ contract SwarmMail is Ownable, AccessControl  {
         User storage u2 = users[withAddress];
         require(u2.sharedLockerEmailIds[keyLocation] != 0, "!exist");
         // needs to be owner to remove shared locker 
-        require(u2.lockerEmails[u2.lockerEmailIds[keyLocation]].from == msg.sender, "!owner");
+        require(u2.sharedLockerEmails[u2.lockerEmailIds[keyLocation]].from == msg.sender, "!from");
         // u2.lockerEmails[u2.lockerEmailIds[keyLocation]].to == msg.sender
 
         removeGenericEmail(keyLocation, u2.sharedLockerEmailIds, u2.sharedLockerEmails);

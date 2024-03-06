@@ -25,6 +25,7 @@ export function Locker({
   messageCount,
   smailMail,
   onStoreToFairOS,
+  setReplyTo,
 }) {
   const [isRegistered, setIsRegistered] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -87,12 +88,6 @@ export function Locker({
         var d = JSON.parse(new TextDecoder().decode(lockerData));
         var decRes = EncDec.nacl_decrypt(d, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
         var lockerItem = JSON.parse(decRes);
-        //console.log("lockerItem", lockerItem);
-        //console.log("key", smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
-
-        //var secretKey = new Uint8Array(Buffer.from(lockerItem.ephemeralKey.secretKey, "base64"));
-        //var secretKey = Buffer.from(sharedItem.ephemeralKey.secretKey, "base64").toString("hex");
-        //console.log("secretkey", secretKey);
         // get shared content
         const sharedData = await downloadDataFromBee(lockerItem.location); // returns buffer
         var sharedD = JSON.parse(new TextDecoder().decode(sharedData));
@@ -105,17 +100,19 @@ export function Locker({
         );
         //console.log("decSharedRes", decSharedRes);
         var sharedLocker = {};
+        sharedLocker.smail = smails[i];
         sharedLocker.sharedMail = lockerItem;
         sharedLocker.locker = JSON.parse(decSharedRes);
 
         //sharedLocker.
 
         setSharedItems(sharedItems => [...sharedItems, sharedLocker]);
+        console.log("sharedLocker", sharedLocker);
       } catch (e) {
         console.log("error", e);
       }
     }
-    console.log("sharedItems", sharedItems);
+    //console.log("sharedItems", sharedItems);
     //setSharedItems(smails);
   };
 
@@ -239,6 +236,7 @@ export function Locker({
           console.error("processSMails", e);
         }
       }
+      mail.smail = s;
       mail.time = s.time;
       mail.checked = false;
       mail.location = s.swarmLocation;
@@ -248,7 +246,7 @@ export function Locker({
       setMails(mails => [mail, ...mails]);
       // only add if not existing
       //existingMails.findIndex(m => m.sendTime == mail.sendTime) == -1 ? setMails(mails => [mail, ...mails]) : null;
-      //console.log(mail);
+      console.log("smail", mail);
     }
     setIsLoading(false);
     //console.log("processedMails", mails);
@@ -423,7 +421,7 @@ export function Locker({
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
       <h1>Locker</h1>
-      <div className="routeSubtitle">Encrypted data packages and share access</div>
+      <div className="routeSubtitle">Encrypted data packages and share access {isLoading && <Spin />}</div>
       <div className="paginationInfo">
         {startItem}-{endItem} of {totalItems} &nbsp;&nbsp;&nbsp;
         <a onClick={() => retrieveNewPage(page - 1)}>{"<"}</a>&nbsp;{page}/{maxPages}&nbsp;
@@ -456,7 +454,6 @@ export function Locker({
           <Tooltip title="View shared items">
             <Switch checked={viewSharedItems} onChange={toggleViewShared} />
           </Tooltip>
-          {isLoading && <Spin />}
         </div>
         {viewSharedItems === true ? (
           <>
@@ -477,6 +474,21 @@ export function Locker({
                         >
                           {mail.locker.subject}
                         </Tooltip>{" "}
+                        <Tooltip
+                          title={
+                            <>
+                              Send message with{" "}
+                              <AddressSimple address={mail.smail.from} ensProvider={mainnetProvider} />
+                            </>
+                          }
+                        >
+                          <span
+                            onClick={() => setReplyTo(mail.smail.from, true, "Re Locker: #" + mail.location)}
+                            style={{ cursor: "pointer" }}
+                          >
+                            &nbsp;⇽&nbsp;
+                          </span>
+                        </Tooltip>
                       </>
                     }
                     description={

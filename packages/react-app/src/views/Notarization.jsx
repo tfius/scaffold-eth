@@ -99,12 +99,6 @@ export function Notarization({
         var d = JSON.parse(new TextDecoder().decode(lockerData));
         var decRes = EncDec.nacl_decrypt(d, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
         var lockerItem = JSON.parse(decRes);
-        //console.log("lockerItem", lockerItem);
-        //console.log("key", smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
-
-        //var secretKey = new Uint8Array(Buffer.from(lockerItem.ephemeralKey.secretKey, "base64"));
-        //var secretKey = Buffer.from(sharedItem.ephemeralKey.secretKey, "base64").toString("hex");
-        //console.log("secretkey", secretKey);
         // get shared content
         const sharedData = await downloadDataFromBee(lockerItem.location); // returns buffer
         var sharedD = JSON.parse(new TextDecoder().decode(sharedData));
@@ -117,16 +111,18 @@ export function Notarization({
         );
         //console.log("decSharedRes", decSharedRes);
         var sharedLocker = {};
+        sharedLocker.smail = smails[i];
         sharedLocker.sharedMail = lockerItem;
         sharedLocker.locker = JSON.parse(decSharedRes);
         //sharedLocker.
 
         setSharedItems(sharedItems => [...sharedItems, sharedLocker]);
+        console.log("sharedLocker", sharedLocker);
       } catch (e) {
         console.log("error", e);
       }
     }
-    console.log("sharedItems", sharedItems);
+    //console.log("sharedItems", sharedItems);
     //setSharedItems(smails);
   };
 
@@ -258,6 +254,7 @@ export function Notarization({
         }
       }
 
+      mail.smail = s;
       mail.time = s.time;
       mail.checked = false;
       mail.location = s.swarmLocation;
@@ -265,7 +262,7 @@ export function Notarization({
       mail.signed = s.signed;
       mail.isEncryption = s.isEncryption;
       setMails(mails => [mail, ...mails]);
-      console.log("mail", mail);
+      console.log("smail", mail);
     }
     setIsLoading(false);
     //console.log("processedMails", mails);
@@ -350,6 +347,7 @@ export function Notarization({
     }
   };
   const unshareWith = async (lockerLocation, keyLocation, withAddress) => {
+    console.log("unshareWith", lockerLocation, keyLocation, withAddress);
     let newTx = await tx(
       writeContracts.SwarmMail.unshareLockerWith(lockerLocation, keyLocation, withAddress),
       //,{ value: cost }),
@@ -517,8 +515,8 @@ export function Notarization({
 
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
-      <h1>Document notarization</h1>
-      <div className="routeSubtitle">Notarization services for encrypted data packages</div>
+      <h1>Document notarization </h1>
+      <div className="routeSubtitle">Notarization services for encrypted data packages {isLoading && <Spin />}</div>
       <div className="paginationInfo">
         {startItem}-{endItem} of {totalItems} &nbsp;&nbsp;&nbsp;
         <a onClick={() => retrieveNewPage(page - 1)}>{"<"}</a>&nbsp;{page}/{maxPages}&nbsp;
@@ -554,7 +552,6 @@ export function Notarization({
           <Tooltip title="View shared items">
             <Switch checked={viewSharedItems} onChange={toggleViewShared} />
           </Tooltip>
-          {isLoading && <Spin />}
         </div>
         {viewSharedItems === true ? (
           <>
@@ -568,14 +565,28 @@ export function Notarization({
                       <>
                         <Tooltip title={<AddressSimple address={mail.sharedMail.sender} placement="right" />}>
                           {mail.locker.subject}
-                        </Tooltip>
+                        </Tooltip>{" "}
                         {/* {mail.locker.contents} */}
+                        <Tooltip
+                          title={
+                            <>
+                              Send message with{" "}
+                              <AddressSimple address={mail.smail.from} ensProvider={mainnetProvider} />
+                            </>
+                          }
+                        >
+                          <span
+                            onClick={() => setReplyTo(mail.smail.from, true, "Re Locker: #" + mail.location)}
+                            style={{ cursor: "pointer" }}
+                          >
+                            &nbsp;⇽&nbsp;
+                          </span>
+                        </Tooltip>
                       </>
                     }
                     description={
                       <>
                         <div>
-                          {mail.locker.contents}
                           {mail.locker.inclusionProofs != undefined && mail.locker.inclusionProofs.length > 0 && (
                             <Tooltip title="This package is notarized and has inclusion proofs. You can do attestation, if you are verified.">
                               <small onClick={() => doAttestation(mail)}>
