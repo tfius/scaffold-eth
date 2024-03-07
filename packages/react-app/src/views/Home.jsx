@@ -281,7 +281,7 @@ export function Home({
             <br />
             <h2>Pricing</h2>
             When you send message you pay transaction costs and storage fees on Swarm network. Data persistence is not
-            guaranteed. Storage fees go to Smail maintainer and are used to buy Bzz tokens to store data for as long as
+            guaranteed. Storage fees go to maintainer and are used to buy Bzz tokens to store data for as long as
             possible. For how long you might ask? Answer to this question is tricky. It depends on market conditions as
             prices fluctuate when demand increases. If market is willing to pay more for storage, then postage stamps
             expire sooner and data will be garbage collected. You can expect your data to be stored for two to three
@@ -302,11 +302,11 @@ export function Home({
             <a href="https://www.ethswarm.org/" target="_blank" rel="noopener noreferrer">
               Swarm
             </a>{" "}
-            directly, or use{" "}
+            directly. Another options to store securely is{" "}
             <a href="https://docs.fairos.fairdatasociety.org/docs/" target="_blank" rel="noopener noreferrer">
               FairOS
             </a>{" "}
-            or{" "}
+            and{" "}
             <a href="https://fdp.fairdatasociety.org/" target="_blank" rel="noopener noreferrer">
               FDP protocol
             </a>

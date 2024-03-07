@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-
 import { ethers } from "ethers";
 import { Link, Route, useLocation } from "react-router-dom";
 import {
@@ -18,14 +17,12 @@ import {
   Collapse,
 } from "antd";
 import { EnterOutlined, EditOutlined, ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
-
 import { uploadDataToBee, downloadDataFromBee } from "../Swarm/BeeService";
 import { formatNumber, timeAgo, getDateTimeString } from "./../views/datetimeutils";
 import * as consts from "./consts";
 import * as EncDec from "../utils/EncDec.js";
 import Blockies from "react-blockies";
 import MarkdownPreview from "@uiw/react-markdown-preview";
-
 import { AddressSimple, AddressInput } from "../components";
 const { Panel } = Collapse;
 
@@ -36,6 +33,7 @@ const serviceProviders = [
     description: "Datafund is a decentralized data marketplace and data processing platform.",
     url: "https://datafund.io",
     logo: "https://datafund.io/img/logo.svg",
+
     services: [
       {
         name: "Vision Bone Marrow",
@@ -180,6 +178,40 @@ const serviceProviders = [
     ],
   },
 ];
+
+const serviceStatus = {
+  PENDING: "PENDING",
+  IN_PROGRESS: "IN_PROGRESS",
+  COMPLETED: "COMPLETED",
+  FAILED: "FAILED",
+};
+
+const serviceCategories = [
+  { name: "AI" },
+  { name: "ML" },
+  { name: "NLP" },
+  { name: "CV" },
+  { name: "Data" },
+  { name: "Model" },
+  { name: "Graph" },
+];
+
+const serviceOutputType = [{ name: "File" }, { name: "Stream" }, { name: "Package" }];
+
+const serviceOutputObject = [
+  { name: "Text" },
+  { name: "Image" },
+  { name: "Audion" },
+  { name: "Video" },
+  { name: "Data" },
+  { name: "Model" },
+  { name: "Graph" },
+  { name: "Json" },
+  { name: "CSV" },
+  { name: "Binary" },
+  { name: "Application" },
+];
+
 export function DisplayServiceProvider({ serviceProvider }) {
   const [seeDetail, setSeeDetail] = useState(false);
   return (
@@ -288,7 +320,7 @@ export function Tasks({
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
       <h3>Select Service Provider</h3>
-      <Select onChange={handleServiceProviderChange} value={selectedServiceProvider.name} style={{ width: "60%" }}>
+      <Select onChange={handleServiceProviderChange} value={selectedServiceProvider.name} style={{ width: "50%" }}>
         {serviceProviders.map(serviceProvider => (
           <option key={serviceProvider.name} value={serviceProvider.name}>
             {serviceProvider.name}
@@ -296,24 +328,26 @@ export function Tasks({
         ))}
       </Select>
       <h3>Select a Service</h3>
-      <Select onChange={handleServiceChange} value={selectedService.name} style={{ width: "60%" }}>
+      <Select onChange={handleServiceChange} value={selectedService.name} style={{ width: "50%" }}>
         {selectedServiceProvider.services.map(service => (
           <option key={service.name} value={service.name}>
             {service.name}
           </option>
         ))}
       </Select>
-      <p>Cost of Service: {selectedService.cost}</p>
+      {/* <p>Cost of Service: {selectedService.cost}</p> */}
       <hr />
       <h3>Input</h3>
       {selectedService.input === "text" ? (
-        <textarea
+        <Input.TextArea
           placeholder="Enter text here"
           value={inputData}
           onChange={handleInputDataChange}
           style={{ width: "60%" }}
+          autosize={{ minRows: "10", maxRows: "20" }}
         />
       ) : (
+        // <Input.TextArea maxLength={4096} rows={10} autosize={{ minRows: "10", maxRows: "20" }} />
         <input type="file" onChange={handleInputDataChange} />
       )}
       <hr />
