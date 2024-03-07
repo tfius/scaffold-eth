@@ -466,8 +466,9 @@ export function Notarization({
   };
 
   const verifyDocumentInNotary = async fileAddress => {
-    var document = await readContracts.DocumentNotarization.getDocumentByProof(fileAddress);
-    /*
+    try {
+      var document = await readContracts.DocumentNotarization.getDocumentByProof(fileAddress);
+      /*
     docHash: "0xbb435ae6764f533302a9b2268528bc174a08dde067d5bf814abcfad61c8e9029"
     isAttested: false
     metaHash: "0x0000000000000000000000000000000000000000000000000000000000000000"
@@ -475,8 +476,15 @@ export function Notarization({
     timestamp: BigNumber {_hex: '0x65e797d0', _isBigNumber: true}
     */
 
-    console.log("document", document);
-    setDisplayDocument(document);
+      console.log("document", document);
+      setDisplayDocument(document);
+    } catch (e) {
+      console.log("error", e);
+      notification.info({
+        message: "Document not found",
+        description: "No such document was notarized",
+      });
+    }
   };
 
   if (address === undefined) {
@@ -966,7 +974,7 @@ export function Notarization({
       <Modal
         visible={displayDocument != null}
         style={{ width: "80%", resize: "auto", borderRadious: "20px" }}
-        title={<h3>Lookup</h3>}
+        title={<h3>File was notarized</h3>}
         maskClosable={true}
         onOk={() => {
           setDisplayDocument(null);
@@ -977,7 +985,6 @@ export function Notarization({
       >
         {displayDocument != null && (
           <>
-            <h3>This file was notarized</h3>
             <strong>Owner: </strong>
             <AddressSimple address={displayDocument.owner} ensProvider={mainnetProvider} />
             <Tooltip
