@@ -295,7 +295,7 @@ export function Tasks({
           </option>
         ))}
       </Select>
-      {selectedService && <>&nbsp; &nbsp; &nbsp;{selectedService.description}</>}
+      {selectedService && <>&nbsp;&nbsp;&nbsp;{selectedService.description}</>}
       {/* <p>Cost of Service: {selectedService.cost}</p> */}
       <hr />
       <h3>Input</h3>
