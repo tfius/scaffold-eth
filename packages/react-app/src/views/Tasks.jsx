@@ -4,7 +4,6 @@ import { Link, Route, useLocation } from "react-router-dom";
 import {
   Button,
   Select,
-  List,
   Card,
   Modal,
   notification,
@@ -24,6 +23,11 @@ import * as EncDec from "../utils/EncDec.js";
 import Blockies from "react-blockies";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 import { AddressSimple, AddressInput } from "../components";
+import { DisplayService } from "./TaskServices/DisplayService.jsx";
+import { DisplayServiceProvider } from "./TaskServices/DisplayServiceProvider.jsx";
+import { ServiceForm } from "./TaskServices/ServiceForm.jsx";
+import { ServiceProviderForm } from "./TaskServices/ServiceProviderForm.jsx";
+
 const { Panel } = Collapse;
 
 const serviceProviders = [
@@ -32,7 +36,7 @@ const serviceProviders = [
     address: "0x",
     description: "Datafund is a decentralized data marketplace and data processing platform.",
     url: "https://datafund.io",
-    logo: "https://datafund.io/img/logo.svg",
+    logo: "https://datafund.io/resources/img/logos/invert.svg",
 
     services: [
       {
@@ -152,7 +156,7 @@ const serviceProviders = [
     address: "0x",
     description: "Fair Data Society is a decentralized data storage platform and data processing platform.",
     url: "https://fairdatasociety.org",
-    logo: "https://www.fairdatasociety.com/favicon.ico",
+    logo: "https://fdp.fairdatasociety.org//uploads/2022/10/03/fairdata.svg",
     services: [
       {
         name: "Synthesize",
@@ -212,72 +216,6 @@ const serviceOutputObject = [
   { name: "Application" },
 ];
 
-export function DisplayServiceProvider({ serviceProvider }) {
-  const [seeDetail, setSeeDetail] = useState(false);
-  return (
-    <div>
-      <h3>{serviceProvider.name}</h3>
-      <p>{serviceProvider.description}</p>
-      {/* <img src={serviceProvider.logo} alt={serviceProvider.name} /> */}
-      {/* <h4>Services</h4> */}
-      <List
-        itemLayout="horizontal"
-        dataSource={serviceProvider.services
-          .map((service, i) => {
-            return {
-              key: i,
-              name: service.name,
-              description: service.description,
-              cost: service.cost,
-              service: service,
-            };
-          })
-          .sort((a, b) => a.name.localeCompare(b.name))}
-        // renderItem={item => (
-        //   <List.Item>
-        //     <List.Item.Meta description={<DisplayService service={item.service} />} />
-        //   </List.Item>
-        // )}
-      />
-    </div>
-  );
-}
-
-export function DisplayService({ service }) {
-  const [seeDetail, setSeeDetail] = useState(false);
-  return (
-    <div style={{ marginLeft: "5%" }}>
-      <h3>{service.name}</h3>
-      <p>{service.description}</p>
-      <p>Cost: {service.cost}</p>
-      <Button onClick={() => setSeeDetail(!seeDetail)}>Details</Button>
-      {seeDetail && (
-        <div style={{ lineHeight: "0.5" }}>
-          <p> </p>
-          <p>Input: {service.input}</p>
-
-          <p>Example: {service.example}</p>
-          <p>Example Form: {service.example_form}</p>
-          <p>Model: {service.model}</p>
-          <p>Model Author: {service.model_author}</p>
-          <p>Model Version: {service.model_version}</p>
-          <p>Model License: {service.model_license}</p>
-          <p>Method: {service.method}</p>
-          <p>Endpoint: {service.endpoint}</p>
-          <p>Response: {service.response}</p>
-          <p>Output: {service.output}</p>
-          <p>Output File Type: {service.output_file_type}</p>
-          <p>Format: {service.format}</p>
-          <p>Subtype: {service.subtype}</p>
-          <p>URL: {service.url}</p>
-          <p>Version: {service.version}</p>
-          <p>Service Author: {service.service_author}</p>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export function Tasks({
   readContracts,
   writeContracts,
@@ -294,6 +232,8 @@ export function Tasks({
   const [selectedServiceProvider, setSelectedServiceProvider] = useState(serviceProviders[0]);
   const [selectedService, setSelectedService] = useState(serviceProviders[0].services[0]);
   const [inputData, setInputData] = useState("");
+  const [registerationProvider, setRegistrationProvider] = useState(false);
+  const [registerationService, setRegistrationService] = useState(false);
 
   const handleServiceProviderChange = serviceProviderName => {
     const serviceProvider = serviceProviders.find(s => s.name === serviceProviderName);
@@ -317,9 +257,27 @@ export function Tasks({
     alert("Transaction submitted for processing. Please check your inbox for results.");
   };
 
+  const registerService = service => {
+    console.log("Registering service", service);
+  };
+  const registerServiceProvider = serviceProvider => {
+    console.log("Registering service provider", serviceProvider);
+  };
+
+  const getBrokers = async address => {
+    const brokers = await readContracts.TaskBrokerage.getBrokers();
+    console.log("Brokers", brokers);
+  };
+  const getBrokerServices = async address => {
+    const services = await readContracts.TaskBrokerage.brokerGetServices(address, 0, 100);
+    console.log("Services", services);
+  };
+
   return (
     <div style={{ margin: "auto", width: "100%", paddingLeft: "10px", paddingTop: "20px" }}>
-      <h3>Select Service Provider</h3>
+      <h3>
+        Select Service Provider <span onClick={() => setRegistrationProvider(true)}>+</span>
+      </h3>
       <Select onChange={handleServiceProviderChange} value={selectedServiceProvider.name} style={{ width: "50%" }}>
         {serviceProviders.map(serviceProvider => (
           <option key={serviceProvider.name} value={serviceProvider.name}>
@@ -327,7 +285,9 @@ export function Tasks({
           </option>
         ))}
       </Select>
-      <h3>Select a Service</h3>
+      <h3>
+        Select a Service <span onClick={() => setRegistrationService(true)}>+</span>
+      </h3>
       <Select onChange={handleServiceChange} value={selectedService.name} style={{ width: "50%" }}>
         {selectedServiceProvider.services.map(service => (
           <option key={service.name} value={service.name}>
@@ -335,6 +295,7 @@ export function Tasks({
           </option>
         ))}
       </Select>
+      {selectedService && <>&nbsp; &nbsp; &nbsp;{selectedService.description}</>}
       {/* <p>Cost of Service: {selectedService.cost}</p> */}
       <hr />
       <h3>Input</h3>
@@ -353,8 +314,40 @@ export function Tasks({
       <hr />
       <Button onClick={handleSubmit}>Issue Task</Button>
       <hr />
-      <DisplayServiceProvider serviceProvider={selectedServiceProvider} />
+      <DisplayServiceProvider serviceProvider={selectedServiceProvider} onSetSelectedService={handleServiceChange} />
       <DisplayService service={selectedService} />
+
+      <Modal
+        visible={registerationProvider}
+        style={{ width: "80%", resize: "auto", borderRadious: "20px" }}
+        title={<h3>Register service provider details</h3>}
+        maskClosable={true}
+        footer={null}
+        onOk={() => {
+          setRegistrationProvider(false);
+        }}
+        onCancel={() => {
+          setRegistrationProvider(false);
+        }}
+      >
+        <ServiceProviderForm onSubmit={registerServiceProvider} />
+      </Modal>
+
+      <Modal
+        visible={registerationService}
+        style={{ width: "80%", resize: "auto", borderRadious: "20px" }}
+        title={<h3>Register service details</h3>}
+        maskClosable={true}
+        footer={null}
+        onOk={() => {
+          setRegistrationService(false);
+        }}
+        onCancel={() => {
+          setRegistrationService(false);
+        }}
+      >
+        <ServiceForm onSubmit={registerService} />
+      </Modal>
     </div>
   );
 }
