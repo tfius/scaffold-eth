@@ -25,7 +25,7 @@ contract Scheduler is Ownable {
         bytes32 location; // swarm location
         uint64 time;
         uint64 duration;
-        bytes32 resultLocation;       
+        bytes32 resultLocation;  // where are results stored    
     }
 
     struct User {

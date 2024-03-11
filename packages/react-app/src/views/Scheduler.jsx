@@ -17,6 +17,7 @@ import {
   Switch,
   Badge,
   Form,
+  Select,
 } from "antd";
 import * as layouts from "./layouts.js";
 import * as dtu from "./datetimeutils.js";
@@ -60,6 +61,38 @@ const dayTemplate = [
   { hour: 21, time: "21:00", events: [] },
   { hour: 22, time: "22:00", events: [] },
   { hour: 23, time: "23:00", events: [] },
+];
+
+const eventDurations = [
+  { name: "1 min", duration: 1 * 60 },
+  { name: "5 min", duration: 5 * 60 },
+  { name: "10 min", duration: 10 * 60 },
+  { name: "15 min", duration: 15 * 60 },
+  { name: "30 min", duration: 30 * 60 },
+  { name: "45 min", duration: 45 * 60 },
+  { name: "1 hour", duration: 60 * 60 },
+  { name: "1.5 hours", duration: 90 * 60 },
+  { name: "2 hours", duration: 120 * 60 },
+  { name: "2.5 hours", duration: 150 * 60 },
+  { name: "3 hours", duration: 180 * 60 },
+  { name: "3.5 hours", duration: 210 * 60 },
+  { name: "4 hours", duration: 240 * 60 },
+  { name: "4.5 hours", duration: 270 * 60 },
+  { name: "5 hours", duration: 300 * 60 },
+  { name: "5.5 hours", duration: 330 * 60 },
+  { name: "6 hours", duration: 360 * 60 },
+  { name: "6.5 hours", duration: 390 * 60 },
+  { name: "7 hours", duration: 420 * 60 },
+  { name: "7.5 hours", duration: 450 * 60 },
+  { name: "8 hours", duration: 480 * 60 },
+  { name: "8.5 hours", duration: 510 * 60 },
+  { name: "9 hours", duration: 540 * 60 },
+  { name: "9.5 hours", duration: 570 * 60 },
+  { name: "10 hours", duration: 600 * 60 },
+  { name: "10.5 hours", duration: 630 * 60 },
+  { name: "11 hours", duration: 660 * 60 },
+  { name: "11.5 hours", duration: 690 * 60 },
+  { name: "12 hours", duration: 720 * 60 },
 ];
 
 export function Scheduler({
@@ -258,18 +291,12 @@ export function Scheduler({
     setIsLoading(true);
 
     // TODO encrypt with smail key data before upload
-
     try {
       var recipientKey = await retrievePubKey(schedulerAddress);
       if (recipientKey === null)
         throw new Error(
           schedulerAddress + " Scheduler has no public key set. Scheduler owner is not registered with Smail.",
         );
-
-      /*var sharedSecretKey = await EncDec.calculateSharedKey(
-        smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length),
-        recipientKey,
-      );*/
 
       var senderKey = await getKeyPair(address);
       var receiverKey = await getKeyPair(schedulerAddress);
@@ -278,12 +305,14 @@ export function Scheduler({
       completeMessage.noise = EncDec.generateNoise();
 
       var smailEvent = JSON.stringify(completeMessage);
+      console.log("event", event);
       console.log("smailMail", smailMail);
       console.log("smailEvent", smailEvent);
       console.log("senderKey", senderKey.pubKey);
       console.log("sharedSecretKey", senderKey.sharedSecretKey);
       console.log("sharedKey pub", Buffer.from(senderKey.sharedSecretKey.publicKey).toString("hex"));
       console.log("sharedKey secret", Buffer.from(senderKey.sharedSecretKey.secretKey).toString("hex"));
+
       var enc_message = EncDec.nacl_encrypt_with_key(smailEvent, senderKey.pubKey, receiverKey.sharedSecretKey);
       var smailEventEnc = JSON.stringify(enc_message);
       console.log("smailEventEnc", smailEventEnc);
@@ -462,13 +491,22 @@ export function Scheduler({
               <Form.Item name="category" label="Category">
                 <Input />
               </Form.Item>
+              <Form.Item name="duration" label="Duration">
+                <Select>
+                  {eventDurations.map(duration => (
+                    <option key={duration.name} value={duration.duration}>
+                      {duration.name}
+                    </option>
+                  ))}
+                </Select>
+              </Form.Item>
               <div style={{ visibility: "collapse", height: "0px" }}>
                 <Form.Item name="participants" label="Participants">
                   <Input />
                 </Form.Item>
-                <Form.Item name="duration" label="Duration">
+                {/* <Form.Item name="duration" label="Duration">
                   <Input />
-                </Form.Item>
+                </Form.Item> */}
                 <Form.Item name="time" label="Time">
                   <Input />
                 </Form.Item>

@@ -72,6 +72,9 @@ contract DataRelayService {
     function payForDownloadForOwnerInEth(bytes32 paymentConfirmationId, address dataOwner, uint256 amount) public payable {
         uint256 feeAmount = amount * marketFee / FEE_PRECISION;
         require(msg.value >= amount, "Insufficient amount");
+        if(dataOwner == address(0)) // no data owner, beneficiary gets funds
+           dataOwner = beneficiary;
+
         payable(dataOwner).transfer(amount-feeAmount);
         payable(owner).transfer(feeAmount);
         feesCollected += feeAmount;
