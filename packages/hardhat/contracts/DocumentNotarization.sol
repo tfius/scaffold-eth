@@ -23,7 +23,7 @@ contract DocumentNotarization is AccessControl {
         bytes32 docHash; // hash of the document
         bytes32 metaHash; // hash of the metadata
         //string metadata; // metadata
-        bool isAttested; // has the document been attested
+        //bool isAttested; // has the document been attested
         //mapping(address => bool) attestations;
     }
 
@@ -34,7 +34,6 @@ contract DocumentNotarization is AccessControl {
     mapping(bytes32 => mapping(address => bool)) private documentAttestations; // document hash to attestor to attestation
 
     mapping(address => uint[]) public usersNotarizedDocuments; // find documents by owner
-
     mapping(bytes32 => uint) public proofsForDocument; // find documents by proof
 
     event DocumentNotarized(bytes32 indexed docHash, address indexed owner, uint256 timestamp);
@@ -53,7 +52,7 @@ contract DocumentNotarization is AccessControl {
         newDoc.docHash = _docHash;
         newDoc.metaHash = _metaHash;
         //newDoc.metadata = _metadata;
-        newDoc.isAttested = false;
+        //newDoc.isAttested = false;
         documentList.push(newDoc);
 
         uint256 index = documentList.length; // we start at 1, not 0 - 1;

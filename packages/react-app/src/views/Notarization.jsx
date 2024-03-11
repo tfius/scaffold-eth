@@ -50,6 +50,7 @@ export function Notarization({
   const [viewMail, _setViewMail] = useState(null);
   const [viewAddress, setViewAddress] = useState(null);
   const [viewShares, setViewShares] = useState([]);
+  const [viewAttestations, setViewAttestations] = useState([]);
 
   const [page, setPage] = useState(1);
   const [maxPages, setMaxPages] = useState(1);
@@ -70,8 +71,10 @@ export function Notarization({
     if (mail !== null) {
       try {
         var data = await readContracts.SwarmMail.getLockerShares(address, mail.location);
-        console.log("onViewMessage", data);
+        var notarizationAttestors = await readContracts.DocumentNotarization.getDocumentAttestors(mail.location);
+        console.log("onViewMessage", data, notarizationAttestors);
         setViewShares(data);
+        setViewAttestations(notarizationAttestors);
       } catch (e) {
         console.log("error", e);
       }
@@ -416,7 +419,7 @@ export function Notarization({
       var fileAddress = mail.locker.attachments[0].inclusion;
 
       var document = await readContracts.DocumentNotarization.getDocumentByProof(fileAddress);
-      console.log("document", document);
+      console.log("doAttestation document", document);
 
       var docLocation = document.docHash;
 
@@ -468,6 +471,7 @@ export function Notarization({
   const verifyDocumentInNotary = async fileAddress => {
     try {
       var document = await readContracts.DocumentNotarization.getDocumentByProof(fileAddress);
+
       /*
     docHash: "0xbb435ae6764f533302a9b2268528bc174a08dde067d5bf814abcfad61c8e9029"
     isAttested: false
@@ -478,6 +482,10 @@ export function Notarization({
 
       console.log("document", document);
       setDisplayDocument(document);
+
+      var notarizationAttestors = await readContracts.DocumentNotarization.getDocumentAttestors(document.docHash);
+      setViewAttestations(notarizationAttestors);
+      console.log("documentAttestors", notarizationAttestors);
     } catch (e) {
       console.log("error", e);
       notification.info({
@@ -885,7 +893,17 @@ export function Notarization({
             )}
           </div>
           <div>
-            <h5>References</h5>
+            {viewAttestations.length > 0 && <h4>Attested by</h4>}
+            <small>
+              {viewAttestations.map((a, i) => (
+                <div key={i}>
+                  <AddressSimple address={a} />
+                </div>
+              ))}
+            </small>
+          </div>
+          <div>
+            <h4>References</h4>
             {viewMail.inclusionProofs.length > 0 && (
               <>
                 {viewMail.inclusionProofs.map((inclusionProof, i) => (
@@ -907,12 +925,7 @@ export function Notarization({
           </div>
 
           <div>
-            {viewShares.length > 0 && (
-              <>
-                <br />
-                <h4>Shared with</h4>
-              </>
-            )}
+            {viewShares.length > 0 && <h4>Shared with</h4>}
             <small>
               {viewShares.map((s, i) => (
                 <div key={i}>
@@ -1019,7 +1032,23 @@ export function Notarization({
             <strong>Notarized on: </strong>
             {getDateTimeString(displayDocument.timestamp)}
             <br />
-            <strong>Attested: </strong> {displayDocument.isAttested ? "true" : "N/A"}
+
+            <div>
+              {viewAttestations.length > 0 && (
+                <h4>
+                  <br />
+                  Attested by
+                </h4>
+              )}
+              <small>
+                {viewAttestations.map((a, i) => (
+                  <div key={i}>
+                    <AddressSimple address={a} />
+                  </div>
+                ))}
+              </small>
+              {viewAttestations.length === 0 && <h4>Attestations N/A</h4>}
+            </div>
             {/* <br />
             <strong>Doc:</strong> {displayDocument.docHash}
             <br />

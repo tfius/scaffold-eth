@@ -1986,7 +1986,7 @@
           ]
         },
         "DataRelayService": {
-          "address": "0x04C89607413713Ec9775E14b954286519d836FEf",
+          "address": "0x367761085BF3C12e5DA2Df99AC6E1a824612b8fb",
           "abi": [
             {
               "inputs": [
@@ -2387,7 +2387,7 @@
           ]
         },
         "DocumentNotarization": {
-          "address": "0x70e0bA845a1A0F2DA3359C97E0285013525FFC49",
+          "address": "0x5067457698Fd6Fa1C6964e416b3f42713513B3dD",
           "abi": [
             {
               "inputs": [
@@ -2611,11 +2611,6 @@
                   "internalType": "bytes32",
                   "name": "metaHash",
                   "type": "bytes32"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "isAttested",
-                  "type": "bool"
                 }
               ],
               "stateMutability": "view",
@@ -2652,11 +2647,6 @@
                       "internalType": "bytes32",
                       "name": "metaHash",
                       "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bool",
-                      "name": "isAttested",
-                      "type": "bool"
                     }
                   ],
                   "internalType": "struct DocumentNotarization.Document[]",
@@ -2717,11 +2707,6 @@
                       "internalType": "bytes32",
                       "name": "metaHash",
                       "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bool",
-                      "name": "isAttested",
-                      "type": "bool"
                     }
                   ],
                   "internalType": "struct DocumentNotarization.Document",
@@ -2763,11 +2748,6 @@
                       "internalType": "bytes32",
                       "name": "metaHash",
                       "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bool",
-                      "name": "isAttested",
-                      "type": "bool"
                     }
                   ],
                   "internalType": "struct DocumentNotarization.Document",
@@ -2838,11 +2818,6 @@
                       "internalType": "bytes32",
                       "name": "metaHash",
                       "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bool",
-                      "name": "isAttested",
-                      "type": "bool"
                     }
                   ],
                   "internalType": "struct DocumentNotarization.Document[]",

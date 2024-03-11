@@ -172,12 +172,14 @@ export function EmailsReceived({
           if (smailMail.smail === null) continue;
 
           var d = JSON.parse(new TextDecoder().decode(data));
-          //console.log("d", d);
+          console.log("will nacl_decrypt", d);
           var decRes = EncDec.nacl_decrypt(d, smailMail.smailPrivateKey.substr(2, smailMail.smailPrivateKey.length));
           mail = JSON.parse(decRes);
+
+          console.log("decrypted", decRes);
           //console.log("decRes", decRes);
         } catch (e) {
-          console.error("decrypt", e);
+          console.warn("error decrypt", e, data);
           continue;
         }
       } else {
