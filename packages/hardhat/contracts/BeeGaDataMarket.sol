@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
+// written by @tfius
 pragma solidity ^0.8.0;
+
 
 contract DataMarket {
     struct Auction {
