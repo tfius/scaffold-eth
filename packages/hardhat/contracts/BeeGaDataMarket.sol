@@ -64,7 +64,7 @@ contract DataMarket {
         Auction storage auction = auctions[_dataHash];
         require(block.number < auction.endBlock, "Auction has ended");
         require(msg.value >= auction.lowestPrice, "Bid must be at least the lowest price");
-        require(msg.value > auction.highestBid, "There's already a higher or equal bid");
+        require(msg.value > auction.highestBid, "There is already a higher or equal bid");
         
         // Return the previous highest bid
         if (auction.highestBidder != address(0)) {
