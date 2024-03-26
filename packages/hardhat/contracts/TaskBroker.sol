@@ -56,7 +56,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
     //mapping(address => mapping(uint256 => bool)) public pendingTasks;
     mapping(address => mapping(uint256 => bool)) public completedTasks;
     // get all completed tasks by serviceId for owner
-    mapping(address => mapping(uint256 => uint256[])) public completedTasksByServiceId;
+    mapping(address => mapping(uint256 => uint256[])) public completedTasksByServiceId; // address cen retrieved completed tasks for serviceId and its results
 
     mapping(uint256 => TaskStruct) public pendingTasks;
     uint256[] public pendingTaskIds;
@@ -89,10 +89,6 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         brokers[msg.sender].isAway = _away;
     }
 
-    /*
-    function getPriceForService(address _address, uint serviceId, uint _duration) public view returns (uint256) {
-        return _duration * services[serviceId].price;
-    }*/
     function getBrokers(address[] memory _addresses) public view returns (Broker[] memory) {
         Broker[] memory _brokers = new Broker[](_addresses.length);
         for(uint i = 0; i < _addresses.length ; i++) {
@@ -151,6 +147,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
     function addTask(address _forBroker, uint _brokerServiceId, bytes32 _data) public payable nonReentrant {
         require(blockList[_forBroker][msg.sender] == false, "Blocked");
         require(brokers[_forBroker].isAway == false, "Broker away");
+        require(blockList[_forBroker][msg.sender] == false, "Blocked by broker"); // check that broker did not block sender 
         uint serviceIndex = brokers[_forBroker].servicesIndices[_brokerServiceId];
         Service memory service = services[serviceIndex];
         require(service.isActive == true, "Service not active");
