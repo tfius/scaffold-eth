@@ -38,8 +38,8 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         uint256 takenAt;         
         uint256 completedAt;     
         uint256 payment;
-        address owner;
-        address broker;
+        address owner; // who submitted the task
+        address broker; // who will complete the task
         TaskStatus status;
     }
     struct TaskStruct {
@@ -57,6 +57,8 @@ contract TaskBroker is Ownable, ReentrancyGuard {
     
     //mapping(address => mapping(uint256 => bool)) public completedTasks;
     mapping(address => mapping(uint256 => uint256[])) public completedTasksByServiceId; // address cen retrieved completed tasks for serviceId and its results
+    // get pending tasks for broker and owner
+    //_msgDatamapping(address => mapping(uint256 => uint256[])) public pendingTasksByBroker; // address can retrieve pending tasks for broker
 
     mapping(uint256 => TaskStruct) public pendingTasks;
     uint256[] public pendingTaskIds;
@@ -175,23 +177,19 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         }        
     }
 
-    function removeTask(uint256 taskId) internal {
-        // Move the last task in the list to the deleted slot
-        uint256 lastIndex = pendingTaskIds.length - 1;
+    function removePendingTask(uint256 taskId) internal {
+        uint256 lastIndex = pendingTaskIds.length - 1; // Move the last task in the list to the deleted slot
         uint256 lastId = pendingTaskIds[lastIndex];
         pendingTaskIds[pendingTasks[taskId].index] = lastId;
         pendingTasks[lastId].index = pendingTasks[taskId].index;
-
-        // Delete the task from the map and the list
-        delete pendingTasks[taskId];
+        delete pendingTasks[taskId];  // Delete the task from the map and the list
         pendingTaskIds.pop();
     }
 
     function takePendingTask(uint taskId) public nonReentrant {
         require(taskId < pendingTaskIds.length, "Task is not pending or does not exist");
         require(pendingTasks[taskId].task.broker == msg.sender, "Task is not for caller");
-        // Remove the task from pendingTasks and pendingTaskIds
-        removeTask(taskId);
+        removePendingTask(taskId); // Remove the task from pendingTasks and pendingTaskIds
         // Update task status
         tasks[taskId].status = TaskStatus.Taken;
         tasks[taskId].takenAt = block.timestamp;
@@ -201,12 +199,10 @@ contract TaskBroker is Ownable, ReentrancyGuard {
     function cancelPendingTask(uint taskId) public nonReentrant {
         require(taskId < pendingTaskIds.length, "Task is not pending or does not exist");
         require(pendingTasks[taskId].task.owner == msg.sender, "Task is not for caller");
-        // Remove the task from pendingTasks and pendingTaskIds
-        removeTask(taskId);
-        // Refund the owner
-        payable(msg.sender).transfer(pendingTasks[taskId].task.payment);
-    }
+        payable(pendingTasks[taskId].task.owner).transfer(pendingTasks[taskId].task.payment); // Refund the owner
 
+        removePendingTask(taskId);  // Remove the task from pendingTasks and pendingTaskIds
+    }
     // can take back funds if task has not been completed in 12h
     function disputeTaks(uint256 _taskId) public nonReentrant {
         Task storage task = tasks[_taskId];
@@ -242,7 +238,6 @@ contract TaskBroker is Ownable, ReentrancyGuard {
 
         emit TaskCompleted(msg.sender, _taskId, _result);
     }
-
 
     function getCompletedTasksForService(address _address, uint serviceId, uint start, uint length) public view returns (Task[] memory) {
         uint256[] memory taskIds = completedTasksByServiceId[_address][serviceId];
