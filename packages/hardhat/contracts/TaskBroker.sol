@@ -53,13 +53,15 @@ contract TaskBroker is Ownable, ReentrancyGuard {
     uint256 public lastServiceId = 0;
 
     mapping(uint256 => Task) public tasks;
-    //mapping(address => mapping(uint256 => bool)) public pendingTasks;
-    mapping(address => mapping(uint256 => bool)) public completedTasks;
-    // get all completed tasks by serviceId for owner
+    uint256 public lastTaskId = 0;
+    
+    //mapping(address => mapping(uint256 => bool)) public completedTasks;
     mapping(address => mapping(uint256 => uint256[])) public completedTasksByServiceId; // address cen retrieved completed tasks for serviceId and its results
 
     mapping(uint256 => TaskStruct) public pendingTasks;
     uint256[] public pendingTaskIds;
+
+    //mapping(address => uint256[]) public pendingTasksByBroker;
 
     event TaskAdded(address indexed user, uint256 taskId, bytes32 data);
     event TaskCompleted(address indexed user, uint256 taskId, bytes32 result);
@@ -160,12 +162,13 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         feesCollected += fee;
         brokers[_forBroker].inEscrow += payout;
 
-        uint256 newTaskId = pendingTaskIds.length;
+        uint256 newTaskId = lastTaskId;
         Task memory newTask = Task(newTaskId, _brokerServiceId,  _data, bytes32(0), block.timestamp, 0, 0, payout, msg.sender, _forBroker, TaskStatus.Pending);
         pendingTasks[newTaskId] = TaskStruct(newTask, newTaskId);
         pendingTaskIds.push(newTaskId);
 
         emit TaskAdded(msg.sender, newTaskId, _data);
+        lastTaskId++;
              
         if(payment > 0) {
             payable(msg.sender).transfer(payment); // refund   
@@ -175,9 +178,9 @@ contract TaskBroker is Ownable, ReentrancyGuard {
     function removeTask(uint256 taskId) internal {
         // Move the last task in the list to the deleted slot
         uint256 lastIndex = pendingTaskIds.length - 1;
-        uint256 lastTaskId = pendingTaskIds[lastIndex];
-        pendingTaskIds[pendingTasks[taskId].index] = lastTaskId;
-        pendingTasks[lastTaskId].index = pendingTasks[taskId].index;
+        uint256 lastId = pendingTaskIds[lastIndex];
+        pendingTaskIds[pendingTasks[taskId].index] = lastId;
+        pendingTasks[lastId].index = pendingTasks[taskId].index;
 
         // Delete the task from the map and the list
         delete pendingTasks[taskId];
@@ -232,7 +235,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         brokers[task.broker].inEscrow -= task.payment; // in escrow
         brokers[task.broker].earned += task.payment; // earned 
 
-        completedTasks[task.owner][_taskId] = true;
+        //completedTasks[task.owner][_taskId] = true;
         task.status = TaskStatus.Completed;
 
         completedTasksByServiceId[task.owner][task.serviceId].push(_taskId);
@@ -240,24 +243,33 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         emit TaskCompleted(msg.sender, _taskId, _result);
     }
 
-    function getCompletedTasksFor(address _address, uint serviceId) public view returns (Task[] memory) {
+
+    function getCompletedTasksForService(address _address, uint serviceId, uint start, uint length) public view returns (Task[] memory) {
         uint256[] memory taskIds = completedTasksByServiceId[_address][serviceId];
-        Task[] memory _tasks = new Task[](taskIds.length);
-        for(uint i = 0; i < taskIds.length ; i++) {
+        if(start + length > taskIds.length) {
+            length = taskIds.length - start;
+        }
+        Task[] memory _tasks = new Task[](length);
+        for(uint i = start; i < length ; i++) {
             _tasks[i] = tasks[taskIds[i]];
         }
         return _tasks;
     }
-    
+    function getCompletedTasksCountForService(address _address, uint serviceId) public view returns (uint) {
+        return completedTasksByServiceId[_address][serviceId].length;
+    }
+
+    /*
     function getCompletedTask(address owner, uint256 _taskId) public view returns (Task memory) {
         require(completedTasks[owner][_taskId], "Task is not completed or does not exist");
         return tasks[_taskId];
-    }
+    } */
 
     function getPendingTask(uint256 _taskId) public view returns (Task memory) {
         require(pendingTasks[_taskId].task.taskId != 0, "Task is not pending or does not exist");
         return pendingTasks[_taskId].task;
     }
+
     // broker gets tasks assigned to him
     function getPendingTasksForBroker(address _broker) public view returns (Task[] memory) {
         // Calculate the number of tasks for this broker
@@ -281,15 +293,37 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         
         return brokerTasks;
     }
+
+    function getTask(uint256 _taskId) public view returns (Task memory) {
+        return tasks[_taskId];
+    }
+
+    function collectFees() public onlyOwner {
+        uint256 fees = feesCollected;
+        feesCollected = 0;
+        payable(msg.sender).transfer(fees); // transfer fees to owner
+    }
+
+    /*
+    function removeAtIndex(uint256[] storage array, uint256 index) internal {
+        // Check if the index is within the range of our array
+        require(index < array.length, "Index out of bounds");
+        // Move the element to delete to the end of the array
+        array[index] = array[array.length - 1];
+        // Remove the last element from the array
+        array.pop();
+    }*/
+
+}
+    /*
     function getAllPendingTasks() public view returns (Task[] memory) {
         Task[] memory _tasks = new Task[](pendingTaskIds.length);
         for(uint i = 0; i < pendingTaskIds.length ; i++) {
             _tasks[i] = pendingTasks[pendingTaskIds[i]].task;
         }
         return _tasks;
-    }
-    
-    /*
+    }*/
+ /*
     function getCompletedTasksForAddress(address _address) public view returns (Task[] memory) {
         // Calculate the number of tasks for this address
         uint256 taskCount = 0;
@@ -313,25 +347,3 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         
         return completedTasksArray;
     }*/
-
-    function getTask(uint256 _taskId) public view returns (Task memory) {
-        return tasks[_taskId];
-    }
-
-    function collectFees() public onlyOwner {
-        uint256 fees = feesCollected;
-        feesCollected = 0;
-        payable(msg.sender).transfer(fees); // transfer fees to owner
-    }
-
-    /*
-    function removeAtIndex(uint256[] storage array, uint256 index) internal {
-        // Check if the index is within the range of our array
-        require(index < array.length, "Index out of bounds");
-        // Move the element to delete to the end of the array
-        array[index] = array[array.length - 1];
-        // Remove the last element from the array
-        array.pop();
-    }*/
-
-}
