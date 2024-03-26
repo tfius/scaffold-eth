@@ -30,14 +30,14 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         bool    isActive;
     }
     struct Task {
-        uint256 taskId;
-        uint256 serviceId;
-        bytes32 data;            
-        bytes32 result;
-        uint256 submittedAt;
-        uint256 takenAt;         
-        uint256 completedAt;     
-        uint256 payment;
+        uint256 taskId; // unique id
+        uint256 serviceId; // index of the service in the broker's services list
+        bytes32 data; // data for the task
+        bytes32 result; // result of the task
+        uint256 submittedAt; // when the task was submitted
+        uint256 takenAt; // 0 if not taken
+        uint256 completedAt; // 0 if not completed
+        uint256 payment; // in escrow
         address owner; // who submitted the task
         address broker; // who will complete the task
         TaskStatus status;
@@ -131,7 +131,6 @@ contract TaskBroker is Ownable, ReentrancyGuard {
     }
 
     function brokerGetServices(address _broker, uint _start, uint _length) public view returns (Service[] memory) {
-        // require(_start + _length <= brokers[_broker].servicesIndices.length, "Invalid range");
         if(_start + _length > brokers[_broker].servicesIndices.length) {
             _length = brokers[_broker].servicesIndices.length - _start;
         }
