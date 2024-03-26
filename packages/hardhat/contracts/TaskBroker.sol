@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 contract TaskBroker is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    enum TaskStatus { Pending, Taken, Completed, Disputed }
+    enum TaskStatus { Pending, Canceled, Taken, Completed, Disputed }
 
     uint256 public schedulerFee = 1000; // 1%yar
     uint256 public feesCollected = 0;
@@ -57,11 +57,9 @@ contract TaskBroker is Ownable, ReentrancyGuard {
     
     //mapping(address => mapping(uint256 => bool)) public completedTasks;
     mapping(address => mapping(uint256 => uint256[])) public completedTasksByServiceId; // address cen retrieved completed tasks for serviceId and its results
-    // get pending tasks for broker and owner
-    //_msgDatamapping(address => mapping(uint256 => uint256[])) public pendingTasksByBroker; // address can retrieve pending tasks for broker
 
-    mapping(uint256 => TaskStruct) public pendingTasks;
-    uint256[] public pendingTaskIds;
+    mapping(uint256 => TaskStruct) public pendingTasks; // taskId to task struct, are pending and can be taken by brokers
+    uint256[] public pendingTaskIds; // list of pending task ids, this one grows and shrinks
 
     //mapping(address => uint256[]) public pendingTasksByBroker;
 
@@ -173,10 +171,11 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         lastTaskId++;
              
         if(payment > 0) {
-            payable(msg.sender).transfer(payment); // refund   
+            payable(msg.sender).transfer(payment); // refund sender if overpaid
         }
     }
 
+    // internal function to remove a task from the pendingTasks and pendingTaskIds
     function removePendingTask(uint256 taskId) internal {
         uint256 lastIndex = pendingTaskIds.length - 1; // Move the last task in the list to the deleted slot
         uint256 lastId = pendingTaskIds[lastIndex];
@@ -190,17 +189,16 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         require(taskId < pendingTaskIds.length, "Task is not pending or does not exist");
         require(pendingTasks[taskId].task.broker == msg.sender, "Task is not for caller");
         removePendingTask(taskId); // Remove the task from pendingTasks and pendingTaskIds
-        // Update task status
-        tasks[taskId].status = TaskStatus.Taken;
+        tasks[taskId].status = TaskStatus.Taken; // Update task status
         tasks[taskId].takenAt = block.timestamp;
     }
-
     // broker can cancel task if not taken, returns funds to owner
     function cancelPendingTask(uint taskId) public nonReentrant {
         require(taskId < pendingTaskIds.length, "Task is not pending or does not exist");
         require(pendingTasks[taskId].task.owner == msg.sender, "Task is not for caller");
         payable(pendingTasks[taskId].task.owner).transfer(pendingTasks[taskId].task.payment); // Refund the owner
 
+        tasks[taskId].status = TaskStatus.Canceled; // Update task status
         removePendingTask(taskId);  // Remove the task from pendingTasks and pendingTaskIds
     }
     // can take back funds if task has not been completed in 12h
