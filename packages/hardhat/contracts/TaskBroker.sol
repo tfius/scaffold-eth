@@ -10,11 +10,17 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 contract TaskBroker is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
+    enum UserRole { Client, Broker, Service, Administrator }
+    enum BrokerStatus { Active, Inactive }
+    enum ServiceStatus { Active, Inactive }
+    enum ApprovalStage { Submitted, UnderReview, Approved, Rejected }
+    enum ServiceLevel { Basic, Premium, VIP }
     enum TaskStatus { Pending, Canceled, Taken, Completed, Disputed }
 
     uint256 public schedulerFee = 1000; // 1%yar
     uint256 public feesCollected = 0;
     uint256 private constant FEE_PRECISION = 1e5;
+
 
     struct Broker {
         uint256 earned;          
@@ -22,12 +28,16 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         bytes32 infoLocation; 
         uint[]  servicesIndices;           
         bool    isAway;
+        BrokerStatus status;
+        ApprovalStage approvalStage;
+        UserRole role;
     }
     struct Service {
         uint256 price;
         bytes32 infoLocation;
         address broker;
         bool    isActive;
+        ServiceLevel level;
     }
     struct Task {
         uint256 taskId; // unique id
@@ -91,6 +101,14 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         brokers[msg.sender].isAway = _away;
     }
 
+    function setApprovalStage(address _forBroker, ApprovalStage _stage) public onlyOwner {
+        brokers[_forBroker].approvalStage = _stage;
+    }
+
+    function setRole(address _forAddress, UserRole _role) public onlyOwner {
+        brokers[_forAddress].role = _role;
+    }
+
     function getBrokers(address[] memory _addresses) public view returns (Broker[] memory) {
         Broker[] memory _brokers = new Broker[](_addresses.length);
         for(uint i = 0; i < _addresses.length ; i++) {
@@ -114,7 +132,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
     }
 
     function brokerAddService(bytes32 _infoLocation, uint256 _price) public returns (uint) {
-        Service memory newService = Service(_price,  _infoLocation, msg.sender, true);
+        Service memory newService = Service(_price,  _infoLocation, msg.sender, true, ServiceLevel.Basic);
         services[lastServiceId] = newService;
         brokers[msg.sender].servicesIndices.push(lastServiceId);
         lastServiceId++;
@@ -122,12 +140,13 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         return brokers[msg.sender].servicesIndices.length - 1;
     }
 
-    function brokerUpdateServiceInfo(uint _serviceId, bytes32 _infoLocation, uint _newPrice, bool _isActive) public {
+    function brokerUpdateServiceInfo(uint _serviceId, bytes32 _infoLocation, uint _newPrice, bool _isActive, ServiceLevel serviceLevel) public {
         uint index = brokers[msg.sender].servicesIndices[_serviceId];
         Service storage service = services[index];
         service.infoLocation = _infoLocation;
         service.price = _newPrice;
         service.isActive = _isActive;
+        service.level = serviceLevel;
     }
 
     function brokerGetServices(address _broker, uint _start, uint _length) public view returns (Service[] memory) {
