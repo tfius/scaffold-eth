@@ -17,29 +17,29 @@ contract TaskBroker is Ownable, ReentrancyGuard {
     uint256 private constant FEE_PRECISION = 1e5;
 
     struct Broker {
-        bytes32 infoLocation;    
         uint256 earned;          
-        uint256 inEscrow;        
-        bool    isAway;          
-        uint[]  servicesIndices;
+        uint256 inEscrow;
+        bytes32 infoLocation; 
+        uint[]  servicesIndices;           
+        bool    isAway;
     }
     struct Service {
-        address broker;
-        bytes32 infoLocation;
         uint256 price;
+        bytes32 infoLocation;
+        address broker;
         bool    isActive;
     }
     struct Task {
         uint256 taskId; // unique id
         uint256 serviceId; // index of the service in the broker's services list
-        bytes32 data; // data for the task
-        bytes32 result; // result of the task
         uint256 submittedAt; // when the task was submitted
         uint256 takenAt; // 0 if not taken
         uint256 completedAt; // 0 if not completed
         uint256 payment; // in escrow
         address owner; // who submitted the task
         address broker; // who will complete the task
+        bytes32 data; // data for the task
+        bytes32 result; // result of the task
         TaskStatus status;
     }
     struct TaskStruct {
@@ -114,7 +114,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
     }
 
     function brokerAddService(bytes32 _infoLocation, uint256 _price) public returns (uint) {
-        Service memory newService = Service(msg.sender, _infoLocation, _price, true);
+        Service memory newService = Service(_price,  _infoLocation, msg.sender, true);
         services[lastServiceId] = newService;
         brokers[msg.sender].servicesIndices.push(lastServiceId);
         lastServiceId++;
@@ -161,8 +161,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         feesCollected += fee;
         brokers[_forBroker].inEscrow += payout;
 
-        //uint256 newTaskId = lastTaskId;
-        Task memory newTask = Task(lastTaskId, _brokerServiceId,  _data, bytes32(0), block.timestamp, 0, 0, payout, msg.sender, _forBroker, TaskStatus.Pending);
+        Task memory newTask =  Task(lastTaskId, _brokerServiceId, block.timestamp, 0, 0, payout, msg.sender, _forBroker, _data, bytes32(0), TaskStatus.Pending);
         tasks[lastTaskId] = newTask;
         pendingTasks[lastTaskId] = TaskStruct(newTask, lastTaskId);
         pendingTaskIds.push(lastTaskId);
