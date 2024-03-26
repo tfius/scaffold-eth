@@ -55,6 +55,8 @@ contract TaskBroker is Ownable, ReentrancyGuard {
     mapping(uint256 => Task) public tasks;
     //mapping(address => mapping(uint256 => bool)) public pendingTasks;
     mapping(address => mapping(uint256 => bool)) public completedTasks;
+    // get all completed tasks by serviceId for owner
+    mapping(address => mapping(uint256 => uint256[])) public completedTasksByServiceId;
 
     mapping(uint256 => TaskStruct) public pendingTasks;
     uint256[] public pendingTaskIds;
@@ -79,7 +81,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         emit FeeChanged(newFee);
     }
 
-    function setBlockAddress(address _address, bool _isBlocked) public validAddress(_address) {
+    function setBlockAddress(address _address, bool _isBlocked) public onlyOwner validAddress(_address) {
         blockList[msg.sender][_address] = _isBlocked;
     }
 
@@ -195,6 +197,16 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         tasks[taskId].takenAt = block.timestamp;
     }
 
+    // broker can cancel task if not taken, returns funds to owner
+    function cancelPendingTask(uint taskId) public nonReentrant {
+        require(taskId < pendingTaskIds.length, "Task is not pending or does not exist");
+        require(pendingTasks[taskId].task.owner == msg.sender, "Task is not for caller");
+        // Remove the task from pendingTasks and pendingTaskIds
+        removeTask(taskId);
+        // Refund the owner
+        payable(msg.sender).transfer(pendingTasks[taskId].task.payment);
+    }
+
     // can take back funds if task has not been completed in 12h
     function disputeTaks(uint256 _taskId) public nonReentrant {
         Task storage task = tasks[_taskId];
@@ -209,6 +221,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         payable(task.owner).transfer(task.payment); // release funds to owner
     }
 
+    // broker can complete task and provide result to get the funds
     function completeTask(uint256 _taskId, bytes32 _result) public nonReentrant {
         require(tasks[_taskId].broker == msg.sender, "Task can only be completed by owner");
         Task storage task = tasks[_taskId];
@@ -225,7 +238,18 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         completedTasks[task.owner][_taskId] = true;
         task.status = TaskStatus.Completed;
 
+        completedTasksByServiceId[task.owner][task.serviceId].push(_taskId);
+
         emit TaskCompleted(msg.sender, _taskId, _result);
+    }
+
+    function getCompletedTasksFor(address _address, uint serviceId) public view returns (Task[] memory) {
+        uint256[] memory taskIds = completedTasksByServiceId[_address][serviceId];
+        Task[] memory _tasks = new Task[](taskIds.length);
+        for(uint i = 0; i < taskIds.length ; i++) {
+            _tasks[i] = tasks[taskIds[i]];
+        }
+        return _tasks;
     }
     
     function getCompletedTask(address owner, uint256 _taskId) public view returns (Task memory) {
@@ -237,7 +261,7 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         require(pendingTasks[_taskId].task.taskId != 0, "Task is not pending or does not exist");
         return pendingTasks[_taskId].task;
     }
-
+    // broker gets tasks assigned to him
     function getPendingTasksForBroker(address _broker) public view returns (Task[] memory) {
         // Calculate the number of tasks for this broker
         uint256 taskCount = 0;
