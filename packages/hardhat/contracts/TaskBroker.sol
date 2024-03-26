@@ -164,17 +164,17 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         feesCollected += fee;
         brokers[_forBroker].inEscrow += payout;
 
-        uint256 newTaskId = lastTaskId;
-        Task memory newTask = Task(newTaskId, _brokerServiceId,  _data, bytes32(0), block.timestamp, 0, 0, payout, msg.sender, _forBroker, TaskStatus.Pending);
-        pendingTasks[newTaskId] = TaskStruct(newTask, newTaskId);
-        pendingTaskIds.push(newTaskId);
-
-        emit TaskAdded(msg.sender, newTaskId, _data);
+        //uint256 newTaskId = lastTaskId;
+        Task memory newTask = Task(lastTaskId, _brokerServiceId,  _data, bytes32(0), block.timestamp, 0, 0, payout, msg.sender, _forBroker, TaskStatus.Pending);
+        tasks[lastTaskId] = newTask;
+        pendingTasks[lastTaskId] = TaskStruct(newTask, lastTaskId);
+        pendingTaskIds.push(lastTaskId);
+         emit TaskAdded(msg.sender, lastTaskId, _data);     
         lastTaskId++;
              
         if(payment > 0) {
             payable(msg.sender).transfer(payment); // refund   
-        }        
+        }
     }
 
     function removePendingTask(uint256 taskId) internal {
@@ -219,8 +219,8 @@ contract TaskBroker is Ownable, ReentrancyGuard {
 
     // broker can complete task and provide result to get the funds
     function completeTask(uint256 _taskId, bytes32 _result) public nonReentrant {
-        require(tasks[_taskId].broker == msg.sender, "Task can only be completed by owner");
         Task storage task = tasks[_taskId];
+        require(task.broker == msg.sender, "Task can only be completed by owner");
         require(task.status == TaskStatus.Taken, "Task has not been taken");
         require(task.completedAt == 0, "Task has already been completed");
         require(task.takenAt != 0, "Task has not been taken");
@@ -235,7 +235,6 @@ contract TaskBroker is Ownable, ReentrancyGuard {
         task.status = TaskStatus.Completed;
 
         completedTasksByServiceId[task.owner][task.serviceId].push(_taskId);
-
         emit TaskCompleted(msg.sender, _taskId, _result);
     }
 
