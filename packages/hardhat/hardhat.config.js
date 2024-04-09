@@ -318,6 +318,14 @@ module.exports = {
         mnemonic: mnemonic(),
       },
     },
+    degen: {
+      url: "https://rpc.degen.tips",
+      gasPrice: 1000000000,
+      chainId: 666666666,
+      accounts: {
+        mnemonic: mnemonic(),
+      },
+    },
     polygonzkevm: {
       url: "https://zkevm-rpc.com",
       gasPrice: 1000000000,
