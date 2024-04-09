@@ -118,6 +118,7 @@ function App(props) {
   // ];
   const networkOptions = [
     "localhost", // 9
+    "degen",
     "zkdatafund", // 9
     "goerli", // 9
     "polygonzkevmtestnet", //

@@ -217,6 +217,15 @@ export const NETWORKS = {
   zkdatafund: {
     name: "zkdatafund",
     color: "#3333AA",
+    chainId: 666666666,
+    //faucet: "https://goerli-faucet.slock.it/",
+    blockExplorer: "666666666",
+    //rpcUrl: `https://goerli.infura.io/v3/${INFURA_ID}`,
+    rpcUrl: "https://rpc.degen.tips",
+  },
+  degen: {
+    name: "degen",
+    color: "purple",
     chainId: 1001,
     //faucet: "https://goerli-faucet.slock.it/",
     blockExplorer: "http://zkevm.dev.datafund.io:4001/",
