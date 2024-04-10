@@ -5586,9 +5586,9 @@
                 {
                   "components": [
                     {
-                      "internalType": "address",
-                      "name": "broker",
-                      "type": "address"
+                      "internalType": "uint256",
+                      "name": "price",
+                      "type": "uint256"
                     },
                     {
                       "internalType": "bytes32",
@@ -5596,14 +5596,19 @@
                       "type": "bytes32"
                     },
                     {
-                      "internalType": "uint256",
-                      "name": "price",
-                      "type": "uint256"
+                      "internalType": "address",
+                      "name": "broker",
+                      "type": "address"
                     },
                     {
                       "internalType": "bool",
                       "name": "isActive",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "enum TaskBroker.ServiceLevel",
+                      "name": "level",
+                      "type": "uint8"
                     }
                   ],
                   "internalType": "struct TaskBroker.Service",
@@ -5637,9 +5642,9 @@
                 {
                   "components": [
                     {
-                      "internalType": "address",
-                      "name": "broker",
-                      "type": "address"
+                      "internalType": "uint256",
+                      "name": "price",
+                      "type": "uint256"
                     },
                     {
                       "internalType": "bytes32",
@@ -5647,14 +5652,19 @@
                       "type": "bytes32"
                     },
                     {
-                      "internalType": "uint256",
-                      "name": "price",
-                      "type": "uint256"
+                      "internalType": "address",
+                      "name": "broker",
+                      "type": "address"
                     },
                     {
                       "internalType": "bool",
                       "name": "isActive",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "enum TaskBroker.ServiceLevel",
+                      "name": "level",
+                      "type": "uint8"
                     }
                   ],
                   "internalType": "struct TaskBroker.Service[]",
@@ -5686,6 +5696,11 @@
                   "internalType": "bool",
                   "name": "_isActive",
                   "type": "bool"
+                },
+                {
+                  "internalType": "enum TaskBroker.ServiceLevel",
+                  "name": "serviceLevel",
+                  "type": "uint8"
                 }
               ],
               "name": "brokerUpdateServiceInfo",
@@ -5704,11 +5719,6 @@
               "name": "brokers",
               "outputs": [
                 {
-                  "internalType": "bytes32",
-                  "name": "infoLocation",
-                  "type": "bytes32"
-                },
-                {
                   "internalType": "uint256",
                   "name": "earned",
                   "type": "uint256"
@@ -5719,12 +5729,45 @@
                   "type": "uint256"
                 },
                 {
+                  "internalType": "bytes32",
+                  "name": "infoLocation",
+                  "type": "bytes32"
+                },
+                {
                   "internalType": "bool",
                   "name": "isAway",
                   "type": "bool"
+                },
+                {
+                  "internalType": "enum TaskBroker.BrokerStatus",
+                  "name": "status",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "enum TaskBroker.ApprovalStage",
+                  "name": "approvalStage",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "enum TaskBroker.UserRole",
+                  "name": "role",
+                  "type": "uint8"
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "taskId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "cancelPendingTask",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -5763,14 +5806,19 @@
                   "internalType": "uint256",
                   "name": "",
                   "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
                 }
               ],
-              "name": "completedTasks",
+              "name": "completedTasksByServiceId",
               "outputs": [
                 {
-                  "internalType": "bool",
+                  "internalType": "uint256",
                   "name": "",
-                  "type": "bool"
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -5803,76 +5851,6 @@
               "type": "function"
             },
             {
-              "inputs": [],
-              "name": "getAllPendingTasks",
-              "outputs": [
-                {
-                  "components": [
-                    {
-                      "internalType": "uint256",
-                      "name": "taskId",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "serviceId",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "data",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "result",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "submittedAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "takenAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "completedAt",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "uint256",
-                      "name": "payment",
-                      "type": "uint256"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "owner",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "address",
-                      "name": "broker",
-                      "type": "address"
-                    },
-                    {
-                      "internalType": "enum TaskBroker.TaskStatus",
-                      "name": "status",
-                      "type": "uint8"
-                    }
-                  ],
-                  "internalType": "struct TaskBroker.Task[]",
-                  "name": "",
-                  "type": "tuple[]"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -5885,11 +5863,6 @@
                 {
                   "components": [
                     {
-                      "internalType": "bytes32",
-                      "name": "infoLocation",
-                      "type": "bytes32"
-                    },
-                    {
                       "internalType": "uint256",
                       "name": "earned",
                       "type": "uint256"
@@ -5900,14 +5873,34 @@
                       "type": "uint256"
                     },
                     {
-                      "internalType": "bool",
-                      "name": "isAway",
-                      "type": "bool"
+                      "internalType": "bytes32",
+                      "name": "infoLocation",
+                      "type": "bytes32"
                     },
                     {
                       "internalType": "uint256[]",
                       "name": "servicesIndices",
                       "type": "uint256[]"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "isAway",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "enum TaskBroker.BrokerStatus",
+                      "name": "status",
+                      "type": "uint8"
+                    },
+                    {
+                      "internalType": "enum TaskBroker.ApprovalStage",
+                      "name": "approvalStage",
+                      "type": "uint8"
+                    },
+                    {
+                      "internalType": "enum TaskBroker.UserRole",
+                      "name": "role",
+                      "type": "uint8"
                     }
                   ],
                   "internalType": "struct TaskBroker.Broker",
@@ -5931,11 +5924,6 @@
                 {
                   "components": [
                     {
-                      "internalType": "bytes32",
-                      "name": "infoLocation",
-                      "type": "bytes32"
-                    },
-                    {
                       "internalType": "uint256",
                       "name": "earned",
                       "type": "uint256"
@@ -5946,14 +5934,34 @@
                       "type": "uint256"
                     },
                     {
-                      "internalType": "bool",
-                      "name": "isAway",
-                      "type": "bool"
+                      "internalType": "bytes32",
+                      "name": "infoLocation",
+                      "type": "bytes32"
                     },
                     {
                       "internalType": "uint256[]",
                       "name": "servicesIndices",
                       "type": "uint256[]"
+                    },
+                    {
+                      "internalType": "bool",
+                      "name": "isAway",
+                      "type": "bool"
+                    },
+                    {
+                      "internalType": "enum TaskBroker.BrokerStatus",
+                      "name": "status",
+                      "type": "uint8"
+                    },
+                    {
+                      "internalType": "enum TaskBroker.ApprovalStage",
+                      "name": "approvalStage",
+                      "type": "uint8"
+                    },
+                    {
+                      "internalType": "enum TaskBroker.UserRole",
+                      "name": "role",
+                      "type": "uint8"
                     }
                   ],
                   "internalType": "struct TaskBroker.Broker[]",
@@ -5968,16 +5976,50 @@
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "owner",
+                  "name": "_address",
                   "type": "address"
                 },
                 {
                   "internalType": "uint256",
-                  "name": "_taskId",
+                  "name": "serviceId",
                   "type": "uint256"
                 }
               ],
-              "name": "getCompletedTask",
+              "name": "getCompletedTasksCountForService",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "serviceId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "start",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "length",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getCompletedTasksForService",
               "outputs": [
                 {
                   "components": [
@@ -5990,16 +6032,6 @@
                       "internalType": "uint256",
                       "name": "serviceId",
                       "type": "uint256"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "data",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "result",
-                      "type": "bytes32"
                     },
                     {
                       "internalType": "uint256",
@@ -6032,14 +6064,24 @@
                       "type": "address"
                     },
                     {
+                      "internalType": "bytes32",
+                      "name": "data",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "result",
+                      "type": "bytes32"
+                    },
+                    {
                       "internalType": "enum TaskBroker.TaskStatus",
                       "name": "status",
                       "type": "uint8"
                     }
                   ],
-                  "internalType": "struct TaskBroker.Task",
+                  "internalType": "struct TaskBroker.Task[]",
                   "name": "",
-                  "type": "tuple"
+                  "type": "tuple[]"
                 }
               ],
               "stateMutability": "view",
@@ -6087,16 +6129,6 @@
                       "type": "uint256"
                     },
                     {
-                      "internalType": "bytes32",
-                      "name": "data",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "result",
-                      "type": "bytes32"
-                    },
-                    {
                       "internalType": "uint256",
                       "name": "submittedAt",
                       "type": "uint256"
@@ -6125,6 +6157,16 @@
                       "internalType": "address",
                       "name": "broker",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "data",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "result",
+                      "type": "bytes32"
                     },
                     {
                       "internalType": "enum TaskBroker.TaskStatus",
@@ -6163,16 +6205,6 @@
                       "type": "uint256"
                     },
                     {
-                      "internalType": "bytes32",
-                      "name": "data",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "result",
-                      "type": "bytes32"
-                    },
-                    {
                       "internalType": "uint256",
                       "name": "submittedAt",
                       "type": "uint256"
@@ -6201,6 +6233,16 @@
                       "internalType": "address",
                       "name": "broker",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "data",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "result",
+                      "type": "bytes32"
                     },
                     {
                       "internalType": "enum TaskBroker.TaskStatus",
@@ -6234,9 +6276,9 @@
                 {
                   "components": [
                     {
-                      "internalType": "address",
-                      "name": "broker",
-                      "type": "address"
+                      "internalType": "uint256",
+                      "name": "price",
+                      "type": "uint256"
                     },
                     {
                       "internalType": "bytes32",
@@ -6244,14 +6286,19 @@
                       "type": "bytes32"
                     },
                     {
-                      "internalType": "uint256",
-                      "name": "price",
-                      "type": "uint256"
+                      "internalType": "address",
+                      "name": "broker",
+                      "type": "address"
                     },
                     {
                       "internalType": "bool",
                       "name": "isActive",
                       "type": "bool"
+                    },
+                    {
+                      "internalType": "enum TaskBroker.ServiceLevel",
+                      "name": "level",
+                      "type": "uint8"
                     }
                   ],
                   "internalType": "struct TaskBroker.Service[]",
@@ -6285,16 +6332,6 @@
                       "type": "uint256"
                     },
                     {
-                      "internalType": "bytes32",
-                      "name": "data",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "result",
-                      "type": "bytes32"
-                    },
-                    {
                       "internalType": "uint256",
                       "name": "submittedAt",
                       "type": "uint256"
@@ -6325,6 +6362,16 @@
                       "type": "address"
                     },
                     {
+                      "internalType": "bytes32",
+                      "name": "data",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "result",
+                      "type": "bytes32"
+                    },
+                    {
                       "internalType": "enum TaskBroker.TaskStatus",
                       "name": "status",
                       "type": "uint8"
@@ -6341,6 +6388,19 @@
             {
               "inputs": [],
               "name": "lastServiceId",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "lastTaskId",
               "outputs": [
                 {
                   "internalType": "uint256",
@@ -6406,16 +6466,6 @@
                       "type": "uint256"
                     },
                     {
-                      "internalType": "bytes32",
-                      "name": "data",
-                      "type": "bytes32"
-                    },
-                    {
-                      "internalType": "bytes32",
-                      "name": "result",
-                      "type": "bytes32"
-                    },
-                    {
                       "internalType": "uint256",
                       "name": "submittedAt",
                       "type": "uint256"
@@ -6444,6 +6494,16 @@
                       "internalType": "address",
                       "name": "broker",
                       "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "data",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "result",
+                      "type": "bytes32"
                     },
                     {
                       "internalType": "enum TaskBroker.TaskStatus",
@@ -6495,9 +6555,9 @@
               "name": "services",
               "outputs": [
                 {
-                  "internalType": "address",
-                  "name": "broker",
-                  "type": "address"
+                  "internalType": "uint256",
+                  "name": "price",
+                  "type": "uint256"
                 },
                 {
                   "internalType": "bytes32",
@@ -6505,17 +6565,40 @@
                   "type": "bytes32"
                 },
                 {
-                  "internalType": "uint256",
-                  "name": "price",
-                  "type": "uint256"
+                  "internalType": "address",
+                  "name": "broker",
+                  "type": "address"
                 },
                 {
                   "internalType": "bool",
                   "name": "isActive",
                   "type": "bool"
+                },
+                {
+                  "internalType": "enum TaskBroker.ServiceLevel",
+                  "name": "level",
+                  "type": "uint8"
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_forBroker",
+                  "type": "address"
+                },
+                {
+                  "internalType": "enum TaskBroker.ApprovalStage",
+                  "name": "_stage",
+                  "type": "uint8"
+                }
+              ],
+              "name": "setApprovalStage",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -6565,6 +6648,24 @@
             {
               "inputs": [
                 {
+                  "internalType": "address",
+                  "name": "_forAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "enum TaskBroker.UserRole",
+                  "name": "_role",
+                  "type": "uint8"
+                }
+              ],
+              "name": "setRole",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
                   "internalType": "uint256",
                   "name": "taskId",
                   "type": "uint256"
@@ -6596,16 +6697,6 @@
                   "type": "uint256"
                 },
                 {
-                  "internalType": "bytes32",
-                  "name": "data",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "result",
-                  "type": "bytes32"
-                },
-                {
                   "internalType": "uint256",
                   "name": "submittedAt",
                   "type": "uint256"
@@ -6634,6 +6725,16 @@
                   "internalType": "address",
                   "name": "broker",
                   "type": "address"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "data",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "result",
+                  "type": "bytes32"
                 },
                 {
                   "internalType": "enum TaskBroker.TaskStatus",

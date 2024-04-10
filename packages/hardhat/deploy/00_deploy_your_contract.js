@@ -15,11 +15,11 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   console.log("ChainId", chainId);
   console.log("deployer", deployer);
 
-  console.log("TestToken");
+  console.log("SDF Tokem");
   const Token = await deploy("TestToken", {
     from: deployer,
     log: true,
-    args: ["localBZZ", "LBZZ", "1000000000000000000000000000"],
+    args: ["Social Data Funds", "SDF", "1000000000000000000000000000"],
   });
 
   // transfer tokens to deployer
