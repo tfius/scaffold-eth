@@ -30,11 +30,16 @@ const defaultNetwork = "localhost";
 // const defaultNetwork = "goerli";
 // const defaultNetwork = "zkdatafund";
 // const defaultNetwork = "sepolia";
+// const defaultNetwork = "degen";
 
 const mainnetGwei = 21;
 
 function mnemonic() {
   try {
+    // console.log(
+    //   "mnemonic",
+    //   fs.readFileSync("./mnemonic.txt").toString().trim()
+    // );
     return fs.readFileSync("./mnemonic.txt").toString().trim();
   } catch (e) {
     if (defaultNetwork !== "localhost") {
@@ -72,7 +77,6 @@ module.exports = {
       /*      
         notice no mnemonic here? it will just use account 0 of the hardhat node to deploy
         (you can put in a mnemonic here to set the deployer locally)
-      
       */
       // accounts: {
       //   mnemonic: mnemonic(),
@@ -107,18 +111,14 @@ module.exports = {
 
     rinkeby: {
       url: "https://rinkeby.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", // <---- YOUR INFURA ID! (or it won't work)
-
       //    url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXXXXX/eth/rinkeby", // <---- YOUR MORALIS ID! (not limited to infura)
-
       accounts: {
         mnemonic: mnemonic(),
       },
     },
     kovan: {
       url: "https://kovan.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", // <---- YOUR INFURA ID! (or it won't work)
-
       //    url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXXXXX/eth/kovan", // <---- YOUR MORALIS ID! (not limited to infura)
-
       accounts: {
         mnemonic: mnemonic(),
       },
@@ -152,11 +152,12 @@ module.exports = {
     },
     sepolia: {
       url: "https://sepolia.dev.fairdatasociety.org",
-      //url: "https://rpc.sepolia.org",
+      // url: "https://rpc.sepolia.org",
       // "https://sepolia.infura.io/v3/INFURA_ID",
-      accounts: {
+      accounts1: {
         mnemonic: mnemonic(),
       },
+      accounts: [`${process.env.DEPLOYER_PRIV_KEY}`],
     },
     xdai: {
       url: "https://rpc.xdaichain.com/",
@@ -322,9 +323,10 @@ module.exports = {
       url: "https://rpc.degen.tips",
       gasPrice: 1000000000,
       chainId: 666666666,
-      accounts: {
+      accounts1: {
         mnemonic: mnemonic(),
       },
+      accounts: [`${process.env.DEPLOYER_PRIV_KEY}`],
     },
     polygonzkevm: {
       url: "https://zkevm-rpc.com",

@@ -11,11 +11,10 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const chainId = await getChainId();
 
   // deployer 0xd27ffA0e47Fca8D3E757B4d2C408169859B8c419
-
   console.log("ChainId", chainId);
   console.log("deployer", deployer);
 
-  console.log("SDF Tokem");
+  console.log("SDF Token");
   const Token = await deploy("TestToken", {
     from: deployer,
     log: true,
@@ -47,7 +46,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     { from: deployer }
   );
 
-  // return;
+  //return;
 
   console.log("SwarmMail");
   const SwarmMail = await deploy("SwarmMail", {
